@@ -1,0 +1,669 @@
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"LCDController.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.disp_flush,"ax",%progbits
+  20              		.align	1
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	disp_flush:
+  26              	.LVL0:
+  27              	.LFB338:
+  28              		.file 1 "Core/Src/LCDController.c"
+   1:Core/Src/LCDController.c **** /**
+   2:Core/Src/LCDController.c ****  * @file lv_port_disp_templ.c
+   3:Core/Src/LCDController.c ****  *
+   4:Core/Src/LCDController.c ****  */
+   5:Core/Src/LCDController.c **** 
+   6:Core/Src/LCDController.c **** 
+   7:Core/Src/LCDController.c **** 
+   8:Core/Src/LCDController.c **** /*********************
+   9:Core/Src/LCDController.c ****  *      INCLUDES
+  10:Core/Src/LCDController.c ****  *********************/
+  11:Core/Src/LCDController.c **** #include "LCDController.h"
+  12:Core/Src/LCDController.c **** #include "st7789v.h"
+  13:Core/Src/LCDController.c **** #include "main.h"
+  14:Core/Src/LCDController.c **** #include <stdbool.h>
+  15:Core/Src/LCDController.c **** 
+  16:Core/Src/LCDController.c **** /*********************
+  17:Core/Src/LCDController.c ****  *      DEFINES
+  18:Core/Src/LCDController.c ****  *********************/
+  19:Core/Src/LCDController.c **** #ifndef MY_DISP_HOR_RES
+  20:Core/Src/LCDController.c ****     #warning Please define or replace the macro MY_DISP_HOR_RES with the actual screen width, defau
+  21:Core/Src/LCDController.c ****     #define MY_DISP_HOR_RES    320
+  22:Core/Src/LCDController.c **** #endif
+  23:Core/Src/LCDController.c **** 
+  24:Core/Src/LCDController.c **** #ifndef MY_DISP_VER_RES
+  25:Core/Src/LCDController.c ****     #warning Please define or replace the macro MY_DISP_HOR_RES with the actual screen height, defa
+  26:Core/Src/LCDController.c ****     #define MY_DISP_VER_RES    240
+  27:Core/Src/LCDController.c **** #endif
+  28:Core/Src/LCDController.c **** 
+  29:Core/Src/LCDController.c **** /**********************
+  30:Core/Src/LCDController.c ****  *      TYPEDEFS
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s 			page 2
+
+
+  31:Core/Src/LCDController.c ****  **********************/
+  32:Core/Src/LCDController.c **** 
+  33:Core/Src/LCDController.c **** /**********************
+  34:Core/Src/LCDController.c ****  *  STATIC PROTOTYPES
+  35:Core/Src/LCDController.c ****  **********************/
+  36:Core/Src/LCDController.c **** static void disp_init(void);
+  37:Core/Src/LCDController.c **** 
+  38:Core/Src/LCDController.c **** static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
+  39:Core/Src/LCDController.c **** 
+  40:Core/Src/LCDController.c **** 
+  41:Core/Src/LCDController.c **** 
+  42:Core/Src/LCDController.c **** 
+  43:Core/Src/LCDController.c **** /**********************
+  44:Core/Src/LCDController.c ****  *  STATIC VARIABLES
+  45:Core/Src/LCDController.c ****  **********************/
+  46:Core/Src/LCDController.c **** static lv_disp_drv_t disp_drv;    
+  47:Core/Src/LCDController.c **** /**********************
+  48:Core/Src/LCDController.c ****  *      MACROS
+  49:Core/Src/LCDController.c ****  **********************/
+  50:Core/Src/LCDController.c **** 
+  51:Core/Src/LCDController.c **** /**********************
+  52:Core/Src/LCDController.c ****  *   GLOBAL FUNCTIONS
+  53:Core/Src/LCDController.c ****  **********************/
+  54:Core/Src/LCDController.c **** void lv_port_disp_init(void)
+  55:Core/Src/LCDController.c **** {
+  56:Core/Src/LCDController.c ****     /*-------------------------
+  57:Core/Src/LCDController.c ****      * Initialize your display
+  58:Core/Src/LCDController.c ****      * -----------------------*/
+  59:Core/Src/LCDController.c ****     disp_init();
+  60:Core/Src/LCDController.c **** 
+  61:Core/Src/LCDController.c ****     /*-----------------------------
+  62:Core/Src/LCDController.c ****      * Create a buffer for drawing
+  63:Core/Src/LCDController.c ****      *----------------------------*/
+  64:Core/Src/LCDController.c **** 
+  65:Core/Src/LCDController.c ****     /**
+  66:Core/Src/LCDController.c ****      * LVGL requires a buffer where it internally draws the widgets.
+  67:Core/Src/LCDController.c ****      * Later this buffer will passed to your display driver's `flush_cb` to copy its content to you
+  68:Core/Src/LCDController.c ****      * The buffer has to be greater than 1 display row
+  69:Core/Src/LCDController.c ****      *
+  70:Core/Src/LCDController.c ****      * There are 3 buffering configurations:
+  71:Core/Src/LCDController.c ****      * 1. Create ONE buffer:
+  72:Core/Src/LCDController.c ****      *      LVGL will draw the display's content here and writes it to your display
+  73:Core/Src/LCDController.c ****      *
+  74:Core/Src/LCDController.c ****      * 2. Create TWO buffer:
+  75:Core/Src/LCDController.c ****      *      LVGL will draw the display's content to a buffer and writes it your display.
+  76:Core/Src/LCDController.c ****      *      You should use DMA to write the buffer's content to the display.
+  77:Core/Src/LCDController.c ****      *      It will enable LVGL to draw the next part of the screen to the other buffer while
+  78:Core/Src/LCDController.c ****      *      the data is being sent form the first buffer. It makes rendering and flushing parallel.
+  79:Core/Src/LCDController.c ****      *
+  80:Core/Src/LCDController.c ****      * 3. Double buffering
+  81:Core/Src/LCDController.c ****      *      Set 2 screens sized buffers and set disp_drv.full_refresh = 1.
+  82:Core/Src/LCDController.c ****      *      This way LVGL will always provide the whole rendered screen in `flush_cb`
+  83:Core/Src/LCDController.c ****      *      and you only need to change the frame buffer's address.
+  84:Core/Src/LCDController.c ****      */
+  85:Core/Src/LCDController.c **** 
+  86:Core/Src/LCDController.c ****     /* Example for 1) */
+  87:Core/Src/LCDController.c ****     // static lv_disp_draw_buf_t draw_buf_dsc_1;
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s 			page 3
+
+
+  88:Core/Src/LCDController.c ****     // static lv_color_t buf_1[MY_DISP_HOR_RES * 10];                          /*A buffer for 10 ro
+  89:Core/Src/LCDController.c ****     // lv_disp_draw_buf_init(&draw_buf_dsc_1, buf_1, NULL, MY_DISP_HOR_RES * 10);   /*Initialize th
+  90:Core/Src/LCDController.c **** 
+  91:Core/Src/LCDController.c ****     // /* Example for 2) */
+  92:Core/Src/LCDController.c ****     static lv_disp_draw_buf_t draw_buf_dsc_2;
+  93:Core/Src/LCDController.c ****     static lv_color_t buf_2_1[MY_DISP_HOR_RES * 20];                        /*A buffer for 10 rows*
+  94:Core/Src/LCDController.c ****     static lv_color_t buf_2_2[MY_DISP_HOR_RES * 20];                        /*An other buffer for 1
+  95:Core/Src/LCDController.c ****     lv_disp_draw_buf_init(&draw_buf_dsc_2, buf_2_1, buf_2_2, MY_DISP_HOR_RES * 20);   /*Initialize 
+  96:Core/Src/LCDController.c **** 
+  97:Core/Src/LCDController.c ****     /* Example for 3) also set disp_drv.full_refresh = 1 below*/
+  98:Core/Src/LCDController.c ****     // static lv_disp_draw_buf_t draw_buf_dsc_3;
+  99:Core/Src/LCDController.c ****     // static lv_color_t buf_3_1[MY_DISP_HOR_RES * MY_DISP_VER_RES];            /*A screen sized bu
+ 100:Core/Src/LCDController.c ****     // static lv_color_t buf_3_2[MY_DISP_HOR_RES * MY_DISP_VER_RES];            /*Another screen si
+ 101:Core/Src/LCDController.c ****     // lv_disp_draw_buf_init(&draw_buf_dsc_3, buf_3_1, buf_3_2,
+ 102:Core/Src/LCDController.c ****     //                       MY_DISP_VER_RES * LV_VER_RES_MAX);   /*Initialize the display buffer*/
+ 103:Core/Src/LCDController.c **** 
+ 104:Core/Src/LCDController.c ****     /*-----------------------------------
+ 105:Core/Src/LCDController.c ****      * Register the display in LVGL
+ 106:Core/Src/LCDController.c ****      *----------------------------------*/
+ 107:Core/Src/LCDController.c **** 
+ 108:Core/Src/LCDController.c ****     // static lv_disp_drv_t disp_drv;                         /*Descriptor of a display driver*/
+ 109:Core/Src/LCDController.c ****     lv_disp_drv_init(&disp_drv);                    /*Basic initialization*/
+ 110:Core/Src/LCDController.c **** 
+ 111:Core/Src/LCDController.c ****     /*Set up the functions to access to your display*/
+ 112:Core/Src/LCDController.c **** 
+ 113:Core/Src/LCDController.c ****     /*Set the resolution of the display*/
+ 114:Core/Src/LCDController.c ****     disp_drv.hor_res = MY_DISP_HOR_RES;
+ 115:Core/Src/LCDController.c ****     disp_drv.ver_res = MY_DISP_VER_RES;
+ 116:Core/Src/LCDController.c **** 
+ 117:Core/Src/LCDController.c ****     /*Used to copy the buffer's content to the display*/
+ 118:Core/Src/LCDController.c ****     disp_drv.flush_cb = disp_flush;
+ 119:Core/Src/LCDController.c **** 
+ 120:Core/Src/LCDController.c ****     /*Set a display buffer*/
+ 121:Core/Src/LCDController.c ****     disp_drv.draw_buf = &draw_buf_dsc_2;
+ 122:Core/Src/LCDController.c **** 
+ 123:Core/Src/LCDController.c ****     /*Required for Example 3)*/
+ 124:Core/Src/LCDController.c ****     //disp_drv.full_refresh = 1;
+ 125:Core/Src/LCDController.c **** 
+ 126:Core/Src/LCDController.c ****     /* Fill a memory array with a color if you have GPU.
+ 127:Core/Src/LCDController.c ****      * Note that, in lv_conf.h you can enable GPUs that has built-in support in LVGL.
+ 128:Core/Src/LCDController.c ****      * But if you have a different GPU you can use with this callback.*/
+ 129:Core/Src/LCDController.c ****     //disp_drv.gpu_fill_cb = gpu_fill;
+ 130:Core/Src/LCDController.c **** 
+ 131:Core/Src/LCDController.c ****     /*Finally register the driver*/
+ 132:Core/Src/LCDController.c ****     lv_disp_drv_register(&disp_drv);
+ 133:Core/Src/LCDController.c **** }
+ 134:Core/Src/LCDController.c **** 
+ 135:Core/Src/LCDController.c **** /**********************
+ 136:Core/Src/LCDController.c ****  *   STATIC FUNCTIONS
+ 137:Core/Src/LCDController.c ****  **********************/
+ 138:Core/Src/LCDController.c **** 
+ 139:Core/Src/LCDController.c **** /*Initialize your display and the required peripherals.*/
+ 140:Core/Src/LCDController.c **** static void disp_init(void)
+ 141:Core/Src/LCDController.c **** {
+ 142:Core/Src/LCDController.c ****     ST7789V_Init();
+ 143:Core/Src/LCDController.c **** }
+ 144:Core/Src/LCDController.c **** 
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s 			page 4
+
+
+ 145:Core/Src/LCDController.c **** volatile bool disp_flush_enabled = true;
+ 146:Core/Src/LCDController.c **** 
+ 147:Core/Src/LCDController.c **** /* Enable updating the screen (the flushing process) when disp_flush() is called by LVGL
+ 148:Core/Src/LCDController.c ****  */
+ 149:Core/Src/LCDController.c **** void disp_enable_update(void)
+ 150:Core/Src/LCDController.c **** {
+ 151:Core/Src/LCDController.c ****     disp_flush_enabled = true;
+ 152:Core/Src/LCDController.c **** }
+ 153:Core/Src/LCDController.c **** 
+ 154:Core/Src/LCDController.c **** /* Disable updating the screen (the flushing process) when disp_flush() is called by LVGL
+ 155:Core/Src/LCDController.c ****  */
+ 156:Core/Src/LCDController.c **** void disp_disable_update(void)
+ 157:Core/Src/LCDController.c **** {
+ 158:Core/Src/LCDController.c ****     disp_flush_enabled = false;
+ 159:Core/Src/LCDController.c **** }
+ 160:Core/Src/LCDController.c **** 
+ 161:Core/Src/LCDController.c **** /*Flush the content of the internal buffer the specific area on the display
+ 162:Core/Src/LCDController.c ****  *You can use DMA or any hardware acceleration to do this operation in the background but
+ 163:Core/Src/LCDController.c ****  *'lv_disp_flush_ready()' has to be called when finished.*/
+ 164:Core/Src/LCDController.c **** static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
+ 165:Core/Src/LCDController.c **** {
+  29              		.loc 1 165 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		.loc 1 165 1 is_stmt 0 view .LVU1
+  34 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+  35              		.cfi_def_cfa_offset 24
+  36              		.cfi_offset 3, -24
+  37              		.cfi_offset 4, -20
+  38              		.cfi_offset 5, -16
+  39              		.cfi_offset 6, -12
+  40              		.cfi_offset 7, -8
+  41              		.cfi_offset 14, -4
+  42 0002 1546     		mov	r5, r2
+ 166:Core/Src/LCDController.c ****     //ST7789V_Select();
+ 167:Core/Src/LCDController.c ****     int height = area->y2 - area->y1 + 1;
+  43              		.loc 1 167 5 is_stmt 1 view .LVU2
+  44              		.loc 1 167 22 is_stmt 0 view .LVU3
+  45 0004 B1F90630 		ldrsh	r3, [r1, #6]
+  46              		.loc 1 167 33 view .LVU4
+  47 0008 B1F90270 		ldrsh	r7, [r1, #2]
+  48              		.loc 1 167 27 view .LVU5
+  49 000c DE1B     		subs	r6, r3, r7
+  50              		.loc 1 167 9 view .LVU6
+  51 000e 0136     		adds	r6, r6, #1
+  52              	.LVL1:
+ 168:Core/Src/LCDController.c **** 	int width = area->x2 - area->x1 + 1;
+  53              		.loc 1 168 2 is_stmt 1 view .LVU7
+  54              		.loc 1 168 18 is_stmt 0 view .LVU8
+  55 0010 B1F90420 		ldrsh	r2, [r1, #4]
+  56              	.LVL2:
+  57              		.loc 1 168 29 view .LVU9
+  58 0014 B1F90000 		ldrsh	r0, [r1]
+  59              	.LVL3:
+  60              		.loc 1 168 23 view .LVU10
+  61 0018 141A     		subs	r4, r2, r0
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s 			page 5
+
+
+  62              		.loc 1 168 6 view .LVU11
+  63 001a 0134     		adds	r4, r4, #1
+  64              	.LVL4:
+ 169:Core/Src/LCDController.c **** 
+ 170:Core/Src/LCDController.c **** 	uint16_t i, j;
+  65              		.loc 1 170 2 is_stmt 1 view .LVU12
+ 171:Core/Src/LCDController.c **** 	ST7789V_SetAddressWindow(area->x1, area->y1, area->x2, area->y2);
+  66              		.loc 1 171 2 view .LVU13
+  67 001c 9BB2     		uxth	r3, r3
+  68 001e 92B2     		uxth	r2, r2
+  69 0020 B9B2     		uxth	r1, r7
+  70              	.LVL5:
+  71              		.loc 1 171 2 is_stmt 0 view .LVU14
+  72 0022 80B2     		uxth	r0, r0
+  73 0024 FFF7FEFF 		bl	ST7789V_SetAddressWindow
+  74              	.LVL6:
+ 172:Core/Src/LCDController.c **** 
+ 173:Core/Src/LCDController.c ****     ST7789V_Select();
+  75              		.loc 1 173 5 is_stmt 1 view .LVU15
+  76 0028 0F4F     		ldr	r7, .L4
+  77 002a 0022     		movs	r2, #0
+  78 002c 1021     		movs	r1, #16
+  79 002e 3846     		mov	r0, r7
+  80 0030 FFF7FEFF 		bl	HAL_GPIO_WritePin
+  81              	.LVL7:
+ 174:Core/Src/LCDController.c ****     ST7789V_DC_Set();
+  82              		.loc 1 174 5 view .LVU16
+  83 0034 0122     		movs	r2, #1
+  84 0036 0221     		movs	r1, #2
+  85 0038 3846     		mov	r0, r7
+  86 003a FFF7FEFF 		bl	HAL_GPIO_WritePin
+  87              	.LVL8:
+ 175:Core/Src/LCDController.c ****     
+ 176:Core/Src/LCDController.c ****     //HAL_SPI_Transmit(&ST7789V_SPI_PORT, (uint8_t *)color_p , width*height*2, 10);
+ 177:Core/Src/LCDController.c ****     HAL_SPI_Transmit_DMA(&ST7789V_SPI_PORT, (uint8_t *)color_p , width*height*2);
+  88              		.loc 1 177 5 view .LVU17
+  89 003e 14FB06F4 		smulbb	r4, r4, r6
+  90              	.LVL9:
+  91              		.loc 1 177 5 is_stmt 0 view .LVU18
+  92 0042 6400     		lsls	r4, r4, #1
+  93 0044 A2B2     		uxth	r2, r4
+  94 0046 2946     		mov	r1, r5
+  95 0048 0848     		ldr	r0, .L4+4
+  96 004a FFF7FEFF 		bl	HAL_SPI_Transmit_DMA
+  97              	.LVL10:
+ 178:Core/Src/LCDController.c ****     while (ST7789V_SPI_PORT.hdmatx->State != HAL_DMA_STATE_READY){}
+  98              		.loc 1 178 5 is_stmt 1 view .LVU19
+  99              	.L2:
+ 100              		.loc 1 178 67 discriminator 1 view .LVU20
+ 101              		.loc 1 178 43 discriminator 1 view .LVU21
+ 102              		.loc 1 178 28 is_stmt 0 discriminator 1 view .LVU22
+ 103 004e 074B     		ldr	r3, .L4+4
+ 104 0050 9B6C     		ldr	r3, [r3, #72]
+ 105              		.loc 1 178 35 discriminator 1 view .LVU23
+ 106 0052 93F83530 		ldrb	r3, [r3, #53]	@ zero_extendqisi2
+ 107 0056 DBB2     		uxtb	r3, r3
+ 108              		.loc 1 178 43 discriminator 1 view .LVU24
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s 			page 6
+
+
+ 109 0058 012B     		cmp	r3, #1
+ 110 005a F8D1     		bne	.L2
+ 179:Core/Src/LCDController.c ****     ST7789V_UnSelect();
+ 111              		.loc 1 179 5 is_stmt 1 view .LVU25
+ 112 005c 0122     		movs	r2, #1
+ 113 005e 1021     		movs	r1, #16
+ 114 0060 0148     		ldr	r0, .L4
+ 115 0062 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 116              	.LVL11:
+ 180:Core/Src/LCDController.c ****                 
+ 181:Core/Src/LCDController.c ****     /*Inform the graphics library that you are ready with the flushing*/
+ 182:Core/Src/LCDController.c ****     //lv_disp_flush_ready(disp_drv);
+ 183:Core/Src/LCDController.c **** }
+ 117              		.loc 1 183 1 is_stmt 0 view .LVU26
+ 118 0066 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 119              	.LVL12:
+ 120              	.L5:
+ 121              		.loc 1 183 1 view .LVU27
+ 122              		.align	2
+ 123              	.L4:
+ 124 0068 00000240 		.word	1073872896
+ 125 006c 00000000 		.word	hspi1
+ 126              		.cfi_endproc
+ 127              	.LFE338:
+ 129              		.section	.text.disp_init,"ax",%progbits
+ 130              		.align	1
+ 131              		.syntax unified
+ 132              		.thumb
+ 133              		.thumb_func
+ 135              	disp_init:
+ 136              	.LFB335:
+ 141:Core/Src/LCDController.c ****     ST7789V_Init();
+ 137              		.loc 1 141 1 is_stmt 1 view -0
+ 138              		.cfi_startproc
+ 139              		@ args = 0, pretend = 0, frame = 0
+ 140              		@ frame_needed = 0, uses_anonymous_args = 0
+ 141 0000 08B5     		push	{r3, lr}
+ 142              		.cfi_def_cfa_offset 8
+ 143              		.cfi_offset 3, -8
+ 144              		.cfi_offset 14, -4
+ 142:Core/Src/LCDController.c **** }
+ 145              		.loc 1 142 5 view .LVU29
+ 146 0002 FFF7FEFF 		bl	ST7789V_Init
+ 147              	.LVL13:
+ 143:Core/Src/LCDController.c **** 
+ 148              		.loc 1 143 1 is_stmt 0 view .LVU30
+ 149 0006 08BD     		pop	{r3, pc}
+ 150              		.cfi_endproc
+ 151              	.LFE335:
+ 153              		.section	.text.lv_port_disp_init,"ax",%progbits
+ 154              		.align	1
+ 155              		.global	lv_port_disp_init
+ 156              		.syntax unified
+ 157              		.thumb
+ 158              		.thumb_func
+ 160              	lv_port_disp_init:
+ 161              	.LFB334:
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s 			page 7
+
+
+  55:Core/Src/LCDController.c ****     /*-------------------------
+ 162              		.loc 1 55 1 is_stmt 1 view -0
+ 163              		.cfi_startproc
+ 164              		@ args = 0, pretend = 0, frame = 0
+ 165              		@ frame_needed = 0, uses_anonymous_args = 0
+ 166 0000 38B5     		push	{r3, r4, r5, lr}
+ 167              		.cfi_def_cfa_offset 16
+ 168              		.cfi_offset 3, -16
+ 169              		.cfi_offset 4, -12
+ 170              		.cfi_offset 5, -8
+ 171              		.cfi_offset 14, -4
+  59:Core/Src/LCDController.c **** 
+ 172              		.loc 1 59 5 view .LVU32
+ 173 0002 FFF7FEFF 		bl	disp_init
+ 174              	.LVL14:
+  92:Core/Src/LCDController.c ****     static lv_color_t buf_2_1[MY_DISP_HOR_RES * 20];                        /*A buffer for 10 rows*
+ 175              		.loc 1 92 5 view .LVU33
+  93:Core/Src/LCDController.c ****     static lv_color_t buf_2_2[MY_DISP_HOR_RES * 20];                        /*An other buffer for 1
+ 176              		.loc 1 93 5 view .LVU34
+  94:Core/Src/LCDController.c ****     lv_disp_draw_buf_init(&draw_buf_dsc_2, buf_2_1, buf_2_2, MY_DISP_HOR_RES * 20);   /*Initialize 
+ 177              		.loc 1 94 5 view .LVU35
+  95:Core/Src/LCDController.c **** 
+ 178              		.loc 1 95 5 view .LVU36
+ 179 0006 0C4D     		ldr	r5, .L10
+ 180 0008 4FF4C853 		mov	r3, #6400
+ 181 000c 0B4A     		ldr	r2, .L10+4
+ 182 000e 0C49     		ldr	r1, .L10+8
+ 183 0010 2846     		mov	r0, r5
+ 184 0012 FFF7FEFF 		bl	lv_disp_draw_buf_init
+ 185              	.LVL15:
+ 109:Core/Src/LCDController.c **** 
+ 186              		.loc 1 109 5 view .LVU37
+ 187 0016 0B4C     		ldr	r4, .L10+12
+ 188 0018 2046     		mov	r0, r4
+ 189 001a FFF7FEFF 		bl	lv_disp_drv_init
+ 190              	.LVL16:
+ 114:Core/Src/LCDController.c ****     disp_drv.ver_res = MY_DISP_VER_RES;
+ 191              		.loc 1 114 5 view .LVU38
+ 114:Core/Src/LCDController.c ****     disp_drv.ver_res = MY_DISP_VER_RES;
+ 192              		.loc 1 114 22 is_stmt 0 view .LVU39
+ 193 001e 4FF4A073 		mov	r3, #320
+ 194 0022 2380     		strh	r3, [r4]	@ movhi
+ 115:Core/Src/LCDController.c **** 
+ 195              		.loc 1 115 5 is_stmt 1 view .LVU40
+ 115:Core/Src/LCDController.c **** 
+ 196              		.loc 1 115 22 is_stmt 0 view .LVU41
+ 197 0024 F023     		movs	r3, #240
+ 198 0026 6380     		strh	r3, [r4, #2]	@ movhi
+ 118:Core/Src/LCDController.c **** 
+ 199              		.loc 1 118 5 is_stmt 1 view .LVU42
+ 118:Core/Src/LCDController.c **** 
+ 200              		.loc 1 118 23 is_stmt 0 view .LVU43
+ 201 0028 074B     		ldr	r3, .L10+16
+ 202 002a 6361     		str	r3, [r4, #20]
+ 121:Core/Src/LCDController.c **** 
+ 203              		.loc 1 121 5 is_stmt 1 view .LVU44
+ 121:Core/Src/LCDController.c **** 
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s 			page 8
+
+
+ 204              		.loc 1 121 23 is_stmt 0 view .LVU45
+ 205 002c E560     		str	r5, [r4, #12]
+ 132:Core/Src/LCDController.c **** }
+ 206              		.loc 1 132 5 is_stmt 1 view .LVU46
+ 207 002e 2046     		mov	r0, r4
+ 208 0030 FFF7FEFF 		bl	lv_disp_drv_register
+ 209              	.LVL17:
+ 133:Core/Src/LCDController.c **** 
+ 210              		.loc 1 133 1 is_stmt 0 view .LVU47
+ 211 0034 38BD     		pop	{r3, r4, r5, pc}
+ 212              	.L11:
+ 213 0036 00BF     		.align	2
+ 214              	.L10:
+ 215 0038 00000000 		.word	.LANCHOR0
+ 216 003c 00000000 		.word	buf_2_2.0
+ 217 0040 00000000 		.word	buf_2_1.1
+ 218 0044 00000000 		.word	.LANCHOR1
+ 219 0048 00000000 		.word	disp_flush
+ 220              		.cfi_endproc
+ 221              	.LFE334:
+ 223              		.section	.text.disp_enable_update,"ax",%progbits
+ 224              		.align	1
+ 225              		.global	disp_enable_update
+ 226              		.syntax unified
+ 227              		.thumb
+ 228              		.thumb_func
+ 230              	disp_enable_update:
+ 231              	.LFB336:
+ 150:Core/Src/LCDController.c ****     disp_flush_enabled = true;
+ 232              		.loc 1 150 1 is_stmt 1 view -0
+ 233              		.cfi_startproc
+ 234              		@ args = 0, pretend = 0, frame = 0
+ 235              		@ frame_needed = 0, uses_anonymous_args = 0
+ 236              		@ link register save eliminated.
+ 151:Core/Src/LCDController.c **** }
+ 237              		.loc 1 151 5 view .LVU49
+ 151:Core/Src/LCDController.c **** }
+ 238              		.loc 1 151 24 is_stmt 0 view .LVU50
+ 239 0000 014B     		ldr	r3, .L13
+ 240 0002 0122     		movs	r2, #1
+ 241 0004 1A70     		strb	r2, [r3]
+ 152:Core/Src/LCDController.c **** 
+ 242              		.loc 1 152 1 view .LVU51
+ 243 0006 7047     		bx	lr
+ 244              	.L14:
+ 245              		.align	2
+ 246              	.L13:
+ 247 0008 00000000 		.word	.LANCHOR2
+ 248              		.cfi_endproc
+ 249              	.LFE336:
+ 251              		.section	.text.disp_disable_update,"ax",%progbits
+ 252              		.align	1
+ 253              		.global	disp_disable_update
+ 254              		.syntax unified
+ 255              		.thumb
+ 256              		.thumb_func
+ 258              	disp_disable_update:
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s 			page 9
+
+
+ 259              	.LFB337:
+ 157:Core/Src/LCDController.c ****     disp_flush_enabled = false;
+ 260              		.loc 1 157 1 is_stmt 1 view -0
+ 261              		.cfi_startproc
+ 262              		@ args = 0, pretend = 0, frame = 0
+ 263              		@ frame_needed = 0, uses_anonymous_args = 0
+ 264              		@ link register save eliminated.
+ 158:Core/Src/LCDController.c **** }
+ 265              		.loc 1 158 5 view .LVU53
+ 158:Core/Src/LCDController.c **** }
+ 266              		.loc 1 158 24 is_stmt 0 view .LVU54
+ 267 0000 014B     		ldr	r3, .L16
+ 268 0002 0022     		movs	r2, #0
+ 269 0004 1A70     		strb	r2, [r3]
+ 159:Core/Src/LCDController.c **** 
+ 270              		.loc 1 159 1 view .LVU55
+ 271 0006 7047     		bx	lr
+ 272              	.L17:
+ 273              		.align	2
+ 274              	.L16:
+ 275 0008 00000000 		.word	.LANCHOR2
+ 276              		.cfi_endproc
+ 277              	.LFE337:
+ 279              		.section	.text.HAL_SPI_TxCpltCallback,"ax",%progbits
+ 280              		.align	1
+ 281              		.global	HAL_SPI_TxCpltCallback
+ 282              		.syntax unified
+ 283              		.thumb
+ 284              		.thumb_func
+ 286              	HAL_SPI_TxCpltCallback:
+ 287              	.LVL18:
+ 288              	.LFB339:
+ 184:Core/Src/LCDController.c **** 
+ 185:Core/Src/LCDController.c **** 
+ 186:Core/Src/LCDController.c **** void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+ 187:Core/Src/LCDController.c **** {
+ 289              		.loc 1 187 1 is_stmt 1 view -0
+ 290              		.cfi_startproc
+ 291              		@ args = 0, pretend = 0, frame = 0
+ 292              		@ frame_needed = 0, uses_anonymous_args = 0
+ 293              		.loc 1 187 1 is_stmt 0 view .LVU57
+ 294 0000 08B5     		push	{r3, lr}
+ 295              		.cfi_def_cfa_offset 8
+ 296              		.cfi_offset 3, -8
+ 297              		.cfi_offset 14, -4
+ 188:Core/Src/LCDController.c ****     lv_disp_flush_ready(&disp_drv);
+ 298              		.loc 1 188 5 is_stmt 1 view .LVU58
+ 299 0002 0248     		ldr	r0, .L20
+ 300              	.LVL19:
+ 301              		.loc 1 188 5 is_stmt 0 view .LVU59
+ 302 0004 FFF7FEFF 		bl	lv_disp_flush_ready
+ 303              	.LVL20:
+ 189:Core/Src/LCDController.c **** }
+ 304              		.loc 1 189 1 view .LVU60
+ 305 0008 08BD     		pop	{r3, pc}
+ 306              	.L21:
+ 307 000a 00BF     		.align	2
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s 			page 10
+
+
+ 308              	.L20:
+ 309 000c 00000000 		.word	.LANCHOR1
+ 310              		.cfi_endproc
+ 311              	.LFE339:
+ 313              		.global	disp_flush_enabled
+ 314              		.section	.bss.buf_2_1.1,"aw",%nobits
+ 315              		.align	2
+ 318              	buf_2_1.1:
+ 319 0000 00000000 		.space	12800
+ 319      00000000 
+ 319      00000000 
+ 319      00000000 
+ 319      00000000 
+ 320              		.section	.bss.buf_2_2.0,"aw",%nobits
+ 321              		.align	2
+ 324              	buf_2_2.0:
+ 325 0000 00000000 		.space	12800
+ 325      00000000 
+ 325      00000000 
+ 325      00000000 
+ 325      00000000 
+ 326              		.section	.bss.disp_drv,"aw",%nobits
+ 327              		.align	2
+ 328              		.set	.LANCHOR1,. + 0
+ 331              	disp_drv:
+ 332 0000 00000000 		.space	80
+ 332      00000000 
+ 332      00000000 
+ 332      00000000 
+ 332      00000000 
+ 333              		.section	.bss.draw_buf_dsc_2.2,"aw",%nobits
+ 334              		.align	2
+ 335              		.set	.LANCHOR0,. + 0
+ 338              	draw_buf_dsc_2.2:
+ 339 0000 00000000 		.space	28
+ 339      00000000 
+ 339      00000000 
+ 339      00000000 
+ 339      00000000 
+ 340              		.section	.data.disp_flush_enabled,"aw"
+ 341              		.set	.LANCHOR2,. + 0
+ 344              	disp_flush_enabled:
+ 345 0000 01       		.byte	1
+ 346              		.text
+ 347              	.Letext0:
+ 348              		.file 2 "/Users/johannes/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/
+ 349              		.file 3 "/Users/johannes/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/
+ 350              		.file 4 "Drivers/lvgl/src/misc/lv_types.h"
+ 351              		.file 5 "Drivers/lvgl/src/misc/lv_timer.h"
+ 352              		.file 6 "/Users/johannes/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/
+ 353              		.file 7 "Drivers/lvgl/src/hal/../draw/../misc/../font/../misc/lv_area.h"
+ 354              		.file 8 "Drivers/lvgl/src/hal/../draw/../misc/../font/lv_font.h"
+ 355              		.file 9 "Drivers/lvgl/src/hal/../draw/../misc/lv_color.h"
+ 356              		.file 10 "Drivers/lvgl/src/hal/../draw/../misc/lv_txt.h"
+ 357              		.file 11 "Drivers/lvgl/src/hal/../draw/../misc/lv_bidi.h"
+ 358              		.file 12 "Drivers/lvgl/src/hal/../draw/../misc/lv_style.h"
+ 359              		.file 13 "Drivers/lvgl/src/hal/../draw/lv_img_buf.h"
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s 			page 11
+
+
+ 360              		.file 14 "Drivers/lvgl/src/core/lv_obj.h"
+ 361              		.file 15 "Drivers/lvgl/src/hal/../draw/lv_draw_rect.h"
+ 362              		.file 16 "Drivers/lvgl/src/hal/../draw/lv_draw_label.h"
+ 363              		.file 17 "Drivers/lvgl/src/hal/../draw/lv_draw_img.h"
+ 364              		.file 18 "Drivers/lvgl/src/hal/../draw/lv_draw_line.h"
+ 365              		.file 19 "Drivers/lvgl/src/hal/../draw/lv_draw_arc.h"
+ 366              		.file 20 "Drivers/lvgl/src/hal/../draw/lv_draw_layer.h"
+ 367              		.file 21 "Drivers/lvgl/src/hal/../draw/lv_draw.h"
+ 368              		.file 22 "Drivers/lvgl/src/hal/../misc/lv_ll.h"
+ 369              		.file 23 "Drivers/lvgl/src/hal/lv_hal_disp.h"
+ 370              		.file 24 "Drivers/lvgl/src/core/lv_theme.h"
+ 371              		.file 25 "Drivers/lvgl/src/core/lv_group.h"
+ 372              		.file 26 "Drivers/lvgl/src/core/lv_obj_scroll.h"
+ 373              		.file 27 "Drivers/lvgl/src/core/lv_obj_style.h"
+ 374              		.file 28 "Drivers/lvgl/src/core/lv_obj_class.h"
+ 375              		.file 29 "Drivers/lvgl/src/core/lv_event.h"
+ 376              		.file 30 "Drivers/lvgl/src/widgets/lv_bar.h"
+ 377              		.file 31 "Drivers/lvgl/src/extra/widgets/imgbtn/lv_imgbtn.h"
+ 378              		.file 32 "Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h"
+ 379              		.file 33 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h"
+ 380              		.file 34 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
+ 381              		.file 35 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h"
+ 382              		.file 36 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h"
+ 383              		.file 37 "Drivers/ST7789V/st7789v.h"
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s 			page 12
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 LCDController.c
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:20     .text.disp_flush:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:25     .text.disp_flush:0000000000000000 disp_flush
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:124    .text.disp_flush:0000000000000068 $d
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:130    .text.disp_init:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:135    .text.disp_init:0000000000000000 disp_init
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:154    .text.lv_port_disp_init:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:160    .text.lv_port_disp_init:0000000000000000 lv_port_disp_init
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:215    .text.lv_port_disp_init:0000000000000038 $d
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:324    .bss.buf_2_2.0:0000000000000000 buf_2_2.0
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:318    .bss.buf_2_1.1:0000000000000000 buf_2_1.1
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:224    .text.disp_enable_update:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:230    .text.disp_enable_update:0000000000000000 disp_enable_update
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:247    .text.disp_enable_update:0000000000000008 $d
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:252    .text.disp_disable_update:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:258    .text.disp_disable_update:0000000000000000 disp_disable_update
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:275    .text.disp_disable_update:0000000000000008 $d
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:280    .text.HAL_SPI_TxCpltCallback:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:286    .text.HAL_SPI_TxCpltCallback:0000000000000000 HAL_SPI_TxCpltCallback
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:309    .text.HAL_SPI_TxCpltCallback:000000000000000c $d
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:344    .data.disp_flush_enabled:0000000000000000 disp_flush_enabled
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:315    .bss.buf_2_1.1:0000000000000000 $d
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:321    .bss.buf_2_2.0:0000000000000000 $d
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:327    .bss.disp_drv:0000000000000000 $d
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:331    .bss.disp_drv:0000000000000000 disp_drv
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:334    .bss.draw_buf_dsc_2.2:0000000000000000 $d
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccDKe33d.s:338    .bss.draw_buf_dsc_2.2:0000000000000000 draw_buf_dsc_2.2
+
+UNDEFINED SYMBOLS
+ST7789V_SetAddressWindow
+HAL_GPIO_WritePin
+HAL_SPI_Transmit_DMA
+hspi1
+ST7789V_Init
+lv_disp_draw_buf_init
+lv_disp_drv_init
+lv_disp_drv_register
+lv_disp_flush_ready

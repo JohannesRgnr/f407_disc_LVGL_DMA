@@ -1,0 +1,3017 @@
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_draw_sw_img.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.convert_cb,"ax",%progbits
+  20              		.align	1
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	convert_cb:
+  26              	.LVL0:
+  27              	.LFB162:
+  28              		.file 1 "Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c"
+   1:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** /**
+   2:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  * @file lv_draw_img.c
+   3:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  *
+   4:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  */
+   5:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+   6:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** /*********************
+   7:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  *      INCLUDES
+   8:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  *********************/
+   9:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #include "lv_draw_sw.h"
+  10:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #include "../lv_img_cache.h"
+  11:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #include "../../hal/lv_hal_disp.h"
+  12:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #include "../../misc/lv_log.h"
+  13:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #include "../../core/lv_refr.h"
+  14:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #include "../../misc/lv_mem.h"
+  15:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #include "../../misc/lv_math.h"
+  16:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  17:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** /*********************
+  18:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  *      DEFINES
+  19:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  *********************/
+  20:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #define MAX_BUF_SIZE (uint32_t) lv_disp_get_hor_res(_lv_refr_get_disp_refreshing())
+  21:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  22:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** /**********************
+  23:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  *      TYPEDEFS
+  24:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  **********************/
+  25:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  26:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** /**********************
+  27:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  *  STATIC PROTOTYPES
+  28:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  **********************/
+  29:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** static void convert_cb(const lv_area_t * dest_area, const void * src_buf, lv_coord_t src_w, lv_coor
+  30:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                        lv_coord_t src_stride, const lv_draw_img_dsc_t * draw_dsc, lv_img_cf_t cf, l
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 2
+
+
+  31:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  32:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** /**********************
+  33:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  *  STATIC VARIABLES
+  34:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  **********************/
+  35:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  36:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** /**********************
+  37:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  *      MACROS
+  38:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  **********************/
+  39:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  40:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** /**********************
+  41:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  *   GLOBAL FUNCTIONS
+  42:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  **********************/
+  43:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  44:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  45:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** void LV_ATTRIBUTE_FAST_MEM lv_draw_sw_img_decoded(struct _lv_draw_ctx_t * draw_ctx,
+  46:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                                                   const lv_draw_img_dsc_t * draw_dsc,
+  47:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                                                   const lv_area_t * coords, const uint8_t * src_buf
+  48:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                                                   lv_img_cf_t cf)
+  49:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** {
+  50:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     /*Use the clip area as draw area*/
+  51:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     lv_area_t draw_area;
+  52:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     lv_area_copy(&draw_area, draw_ctx->clip_area);
+  53:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  54:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     bool mask_any = lv_draw_mask_is_any(&draw_area);
+  55:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     bool transform = draw_dsc->angle != 0 || draw_dsc->zoom != LV_IMG_ZOOM_NONE ? true : false;
+  56:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  57:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     lv_area_t blend_area;
+  58:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     lv_draw_sw_blend_dsc_t blend_dsc;
+  59:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  60:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     lv_memset_00(&blend_dsc, sizeof(lv_draw_sw_blend_dsc_t));
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     blend_dsc.opa = draw_dsc->opa;
+  62:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     blend_dsc.blend_mode = draw_dsc->blend_mode;
+  63:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     blend_dsc.blend_area = &blend_area;
+  64:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  65:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     /*The simplest case just copy the pixels into the draw_buf*/
+  66:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     if(!mask_any && !transform && cf == LV_IMG_CF_TRUE_COLOR && draw_dsc->recolor_opa == LV_OPA_TRA
+  67:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = (const lv_color_t *)src_buf;
+  68:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  69:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.blend_area = coords;
+  70:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_draw_sw_blend(draw_ctx, &blend_dsc);
+  71:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     }
+  72:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     else if(!mask_any && !transform && cf == LV_IMG_CF_ALPHA_8BIT) {
+  73:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_area_t clipped_coords;
+  74:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         if(!_lv_area_intersect(&clipped_coords, coords, draw_ctx->clip_area)) return;
+  75:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  76:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_buf = (lv_opa_t *)src_buf;
+  77:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_area = coords;
+  78:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = NULL;
+  79:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.color = draw_dsc->recolor;
+  80:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+  81:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+  82:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.blend_area = coords;
+  83:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_draw_sw_blend(draw_ctx, &blend_dsc);
+  84:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     }
+  85:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #if LV_COLOR_DEPTH == 16
+  86:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     else if(!mask_any && !transform && cf == LV_IMG_CF_RGB565A8 && draw_dsc->recolor_opa == LV_OPA_
+  87:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_w = lv_area_get_width(coords);
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 3
+
+
+  88:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_h = lv_area_get_height(coords);
+  89:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = (const lv_color_t *)src_buf;
+  90:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_buf = (lv_opa_t *)src_buf;
+  91:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_buf += sizeof(lv_color_t) * src_w * src_h;
+  92:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.blend_area = coords;
+  93:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_area = coords;
+  94:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+  95:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_draw_sw_blend(draw_ctx, &blend_dsc);
+  96:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     }
+  97:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #endif
+  98:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     /*In the other cases every pixel need to be checked one-by-one*/
+  99:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     else {
+ 100:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.x1 = draw_ctx->clip_area->x1;
+ 101:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.x2 = draw_ctx->clip_area->x2;
+ 102:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.y1 = draw_ctx->clip_area->y1;
+ 103:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.y2 = draw_ctx->clip_area->y2;
+ 104:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 105:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_w = lv_area_get_width(coords);
+ 106:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_h = lv_area_get_height(coords);
+ 107:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t blend_h = lv_area_get_height(&blend_area);
+ 108:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t blend_w = lv_area_get_width(&blend_area);
+ 109:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 110:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         uint32_t max_buf_size = MAX_BUF_SIZE;
+ 111:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         uint32_t blend_size = lv_area_get_size(&blend_area);
+ 112:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         uint32_t buf_h;
+ 113:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         uint32_t buf_w = blend_w;
+ 114:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         if(blend_size <= max_buf_size) {
+ 115:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             buf_h = blend_h;
+ 116:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ 117:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         else {
+ 118:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             /*Round to full lines*/
+ 119:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             buf_h = max_buf_size / blend_w;
+ 120:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ 121:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 122:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         /*Create buffers and masks*/
+ 123:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         uint32_t buf_size = buf_w * buf_h;
+ 124:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 125:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_color_t * rgb_buf = lv_mem_buf_get(buf_size * sizeof(lv_color_t));
+ 126:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_opa_t * mask_buf = lv_mem_buf_get(buf_size);
+ 127:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_buf = mask_buf;
+ 128:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_area = &blend_area;
+ 129:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+ 130:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = rgb_buf;
+ 131:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t y_last = blend_area.y2;
+ 132:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.y2 = blend_area.y1 + buf_h - 1;
+ 133:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 134:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_draw_mask_res_t mask_res_def = (cf != LV_IMG_CF_TRUE_COLOR || draw_dsc->angle ||
+ 135:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                                            draw_dsc->zoom != LV_IMG_ZOOM_NONE) ?
+ 136:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                                           LV_DRAW_MASK_RES_CHANGED : LV_DRAW_MASK_RES_FULL_COVER;
+ 137:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_res = mask_res_def;
+ 138:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 139:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         while(blend_area.y1 <= y_last) {
+ 140:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             /*Apply transformations if any or separate the channels*/
+ 141:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_area_t transform_area;
+ 142:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_area_copy(&transform_area, &blend_area);
+ 143:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_area_move(&transform_area, -coords->x1, -coords->y1);
+ 144:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             if(transform) {
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 4
+
+
+ 145:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_draw_transform(draw_ctx, &transform_area, src_buf, src_w, src_h, src_w,
+ 146:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                                   draw_dsc, cf, rgb_buf, mask_buf);
+ 147:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             }
+ 148:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             else {
+ 149:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 convert_cb(&transform_area, src_buf, src_w, src_h, src_w, draw_dsc, cf, rgb_buf, ma
+ 150:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             }
+ 151:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 152:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             /*Apply recolor*/
+ 153:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             if(draw_dsc->recolor_opa > LV_OPA_MIN) {
+ 154:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 uint16_t premult_v[3];
+ 155:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_opa_t recolor_opa = draw_dsc->recolor_opa;
+ 156:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_color_t recolor = draw_dsc->recolor;
+ 157:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_color_premult(recolor, recolor_opa, premult_v);
+ 158:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 recolor_opa = 255 - recolor_opa;
+ 159:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 uint32_t i;
+ 160:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 for(i = 0; i < buf_size; i++) {
+ 161:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     rgb_buf[i] = lv_color_mix_premult(premult_v, rgb_buf[i], recolor_opa);
+ 162:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 }
+ 163:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             }
+ 164:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #if LV_DRAW_COMPLEX
+ 165:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             /*Apply the masks if any*/
+ 166:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             if(mask_any) {
+ 167:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_coord_t y;
+ 168:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_opa_t * mask_buf_tmp = mask_buf;
+ 169:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 for(y = blend_area.y1; y <= blend_area.y2; y++) {
+ 170:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     lv_draw_mask_res_t mask_res_line;
+ 171:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     mask_res_line = lv_draw_mask_apply(mask_buf_tmp, blend_area.x1, y, blend_w);
+ 172:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 173:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     if(mask_res_line == LV_DRAW_MASK_RES_TRANSP) {
+ 174:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                         lv_memset_00(mask_buf_tmp, blend_w);
+ 175:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+ 176:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     }
+ 177:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     else if(mask_res_line == LV_DRAW_MASK_RES_CHANGED) {
+ 178:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+ 179:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     }
+ 180:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     mask_buf_tmp += blend_w;
+ 181:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 }
+ 182:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             }
+ 183:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #endif
+ 184:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 185:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             /*Blend*/
+ 186:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_draw_sw_blend(draw_ctx, &blend_dsc);
+ 187:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 188:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             /*Go the the next lines*/
+ 189:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             blend_area.y1 = blend_area.y2 + 1;
+ 190:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             blend_area.y2 = blend_area.y1 + buf_h - 1;
+ 191:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             if(blend_area.y2 > y_last) blend_area.y2 = y_last;
+ 192:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ 193:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 194:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_mem_buf_release(mask_buf);
+ 195:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_mem_buf_release(rgb_buf);
+ 196:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     }
+ 197:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** }
+ 198:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 199:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** /**********************
+ 200:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  *   STATIC FUNCTIONS
+ 201:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****  **********************/
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 5
+
+
+ 202:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 203:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** /* Separate the image channels to RGB and Alpha to match LV_COLOR_DEPTH settings*/
+ 204:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** static void convert_cb(const lv_area_t * dest_area, const void * src_buf, lv_coord_t src_w, lv_coor
+ 205:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                        lv_coord_t src_stride, const lv_draw_img_dsc_t * draw_dsc, lv_img_cf_t cf, l
+ 206:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** {
+  29              		.loc 1 206 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 20, pretend = 0, frame = 24
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		.loc 1 206 1 is_stmt 0 view .LVU1
+  34 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+  35              		.cfi_def_cfa_offset 36
+  36              		.cfi_offset 4, -36
+  37              		.cfi_offset 5, -32
+  38              		.cfi_offset 6, -28
+  39              		.cfi_offset 7, -24
+  40              		.cfi_offset 8, -20
+  41              		.cfi_offset 9, -16
+  42              		.cfi_offset 10, -12
+  43              		.cfi_offset 11, -8
+  44              		.cfi_offset 14, -4
+  45 0004 87B0     		sub	sp, sp, #28
+  46              		.cfi_def_cfa_offset 64
+  47 0006 8346     		mov	fp, r0
+  48 0008 0191     		str	r1, [sp, #4]
+  49 000a 0392     		str	r2, [sp, #12]
+  50 000c 0493     		str	r3, [sp, #16]
+  51 000e BDF94030 		ldrsh	r3, [sp, #64]
+  52              	.LVL1:
+  53              		.loc 1 206 1 view .LVU2
+  54 0012 0293     		str	r3, [sp, #8]
+  55 0014 9DF84830 		ldrb	r3, [sp, #72]	@ zero_extendqisi2
+  56 0018 0593     		str	r3, [sp, #20]
+  57 001a 139C     		ldr	r4, [sp, #76]
+  58 001c 149D     		ldr	r5, [sp, #80]
+ 207:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     LV_UNUSED(draw_dsc);
+  59              		.loc 1 207 5 is_stmt 1 view .LVU3
+ 208:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     LV_UNUSED(src_h);
+  60              		.loc 1 208 5 view .LVU4
+ 209:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     LV_UNUSED(src_w);
+  61              		.loc 1 209 5 view .LVU5
+ 210:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 211:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     const uint8_t * src_tmp8 = (const uint8_t *)src_buf;
+  62              		.loc 1 211 5 view .LVU6
+  63              	.LVL2:
+ 212:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     lv_coord_t y;
+  64              		.loc 1 212 5 view .LVU7
+ 213:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     lv_coord_t x;
+  65              		.loc 1 213 5 view .LVU8
+ 214:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 215:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     if(cf == LV_IMG_CF_TRUE_COLOR || cf == LV_IMG_CF_TRUE_COLOR_CHROMA_KEYED) {
+  66              		.loc 1 215 5 view .LVU9
+  67 001e 043B     		subs	r3, r3, #4
+  68 0020 102B     		cmp	r3, #16
+  69 0022 00F2E080 		bhi	.L1
+  70 0026 DFE803F0 		tbb	[pc, r3]
+  71              	.LVL3:
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 6
+
+
+  72              	.L4:
+  73 002a 09       		.byte	(.L5-.L4)/2
+  74 002b 4E       		.byte	(.L6-.L4)/2
+  75 002c 09       		.byte	(.L5-.L4)/2
+  76 002d DE       		.byte	(.L1-.L4)/2
+  77 002e DE       		.byte	(.L1-.L4)/2
+  78 002f DE       		.byte	(.L1-.L4)/2
+  79 0030 DE       		.byte	(.L1-.L4)/2
+  80 0031 DE       		.byte	(.L1-.L4)/2
+  81 0032 DE       		.byte	(.L1-.L4)/2
+  82 0033 DE       		.byte	(.L1-.L4)/2
+  83 0034 DE       		.byte	(.L1-.L4)/2
+  84 0035 DE       		.byte	(.L1-.L4)/2
+  85 0036 DE       		.byte	(.L1-.L4)/2
+  86 0037 DE       		.byte	(.L1-.L4)/2
+  87 0038 DE       		.byte	(.L1-.L4)/2
+  88 0039 DE       		.byte	(.L1-.L4)/2
+  89 003a 8F       		.byte	(.L3-.L4)/2
+  90 003b 00       		.p2align 1
+  91              	.L5:
+  92              	.LBB45:
+ 216:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         uint32_t px_cnt = lv_area_get_size(dest_area);
+  93              		.loc 1 216 9 view .LVU10
+  94              		.loc 1 216 27 is_stmt 0 view .LVU11
+  95 003c FFF7FEFF 		bl	lv_area_get_size
+  96              	.LVL4:
+  97              		.loc 1 216 27 view .LVU12
+  98 0040 0146     		mov	r1, r0
+  99 0042 0390     		str	r0, [sp, #12]
+ 100              	.LVL5:
+ 217:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_memset_ff(abuf, px_cnt);
+ 101              		.loc 1 217 9 is_stmt 1 view .LVU13
+ 102 0044 2846     		mov	r0, r5
+ 103              	.LVL6:
+ 104              		.loc 1 217 9 is_stmt 0 view .LVU14
+ 105 0046 FFF7FEFF 		bl	lv_memset_ff
+ 106              	.LVL7:
+ 218:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 219:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         src_tmp8 += (src_stride * dest_area->y1 * sizeof(lv_color_t)) + dest_area->x1 * sizeof(lv_c
+ 107              		.loc 1 219 9 is_stmt 1 view .LVU15
+ 108              		.loc 1 219 44 is_stmt 0 view .LVU16
+ 109 004a BBF90260 		ldrsh	r6, [fp, #2]
+ 110              		.loc 1 219 82 view .LVU17
+ 111 004e BBF90030 		ldrsh	r3, [fp]
+ 112              		.loc 1 219 71 view .LVU18
+ 113 0052 029A     		ldr	r2, [sp, #8]
+ 114 0054 06FB0237 		mla	r7, r6, r2, r3
+ 115              		.loc 1 219 18 view .LVU19
+ 116 0058 0199     		ldr	r1, [sp, #4]
+ 117 005a 01EB4707 		add	r7, r1, r7, lsl #1
+ 118              	.LVL8:
+ 220:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         uint32_t dest_w = lv_area_get_width(dest_area);
+ 119              		.loc 1 220 9 is_stmt 1 view .LVU20
+ 120              	.LBB46:
+ 121              	.LBI46:
+ 122              		.file 2 "Drivers/lvgl/src/draw/sw/../../misc/lv_area.h"
+   1:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 7
+
+
+   2:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @file lv_area.h
+   3:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  *
+   4:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+   5:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+   6:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** #ifndef LV_AREA_H
+   7:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** #define LV_AREA_H
+   8:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+   9:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** #ifdef __cplusplus
+  10:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** extern "C" {
+  11:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** #endif
+  12:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  13:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** /*********************
+  14:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  *      INCLUDES
+  15:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  *********************/
+  16:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** #include "../lv_conf_internal.h"
+  17:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** #include <stdbool.h>
+  18:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** #include <stdint.h>
+  19:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  20:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** /*********************
+  21:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  *      DEFINES
+  22:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  *********************/
+  23:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  24:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** #if LV_USE_LARGE_COORD
+  25:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef int32_t lv_coord_t;
+  26:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** #else
+  27:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef int16_t lv_coord_t;
+  28:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** #endif
+  29:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  30:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** /**********************
+  31:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  *      TYPEDEFS
+  32:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  **********************/
+  33:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  34:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+  35:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Represents a point on the screen.
+  36:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+  37:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef struct {
+  38:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t x;
+  39:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t y;
+  40:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** } lv_point_t;
+  41:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  42:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** /** Represents an area of the screen.*/
+  43:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef struct {
+  44:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t x1;
+  45:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t y1;
+  46:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t x2;
+  47:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     lv_coord_t y2;
+  48:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** } lv_area_t;
+  49:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  50:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** /** Alignments*/
+  51:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** enum {
+  52:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_DEFAULT = 0,
+  53:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_TOP_LEFT,
+  54:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_TOP_MID,
+  55:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_TOP_RIGHT,
+  56:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_BOTTOM_LEFT,
+  57:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_BOTTOM_MID,
+  58:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_BOTTOM_RIGHT,
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 8
+
+
+  59:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_LEFT_MID,
+  60:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_RIGHT_MID,
+  61:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_CENTER,
+  62:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  63:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_TOP_LEFT,
+  64:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_TOP_MID,
+  65:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_TOP_RIGHT,
+  66:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_BOTTOM_LEFT,
+  67:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_BOTTOM_MID,
+  68:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_BOTTOM_RIGHT,
+  69:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_LEFT_TOP,
+  70:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_LEFT_MID,
+  71:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_LEFT_BOTTOM,
+  72:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_RIGHT_TOP,
+  73:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_RIGHT_MID,
+  74:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_ALIGN_OUT_RIGHT_BOTTOM,
+  75:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** };
+  76:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef uint8_t lv_align_t;
+  77:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  78:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** enum {
+  79:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_NONE     = 0x00,
+  80:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_LEFT     = (1 << 0),
+  81:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_RIGHT    = (1 << 1),
+  82:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_TOP      = (1 << 2),
+  83:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_BOTTOM   = (1 << 3),
+  84:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_HOR      = LV_DIR_LEFT | LV_DIR_RIGHT,
+  85:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_VER      = LV_DIR_TOP | LV_DIR_BOTTOM,
+  86:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     LV_DIR_ALL      = LV_DIR_HOR | LV_DIR_VER,
+  87:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** };
+  88:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  89:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** typedef uint8_t lv_dir_t;
+  90:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  91:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** /**********************
+  92:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * GLOBAL PROTOTYPES
+  93:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  **********************/
+  94:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+  95:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+  96:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Initialize an area
+  97:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param area_p pointer to an area
+  98:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param x1 left coordinate of the area
+  99:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param y1 top coordinate of the area
+ 100:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param x2 right coordinate of the area
+ 101:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param y2 bottom coordinate of the area
+ 102:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+ 103:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** void lv_area_set(lv_area_t * area_p, lv_coord_t x1, lv_coord_t y1, lv_coord_t x2, lv_coord_t y2);
+ 104:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+ 105:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+ 106:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Copy an area
+ 107:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param dest pointer to the destination area
+ 108:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param src pointer to the source area
+ 109:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+ 110:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** inline static void lv_area_copy(lv_area_t * dest, const lv_area_t * src)
+ 111:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 112:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->x1 = src->x1;
+ 113:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y1 = src->y1;
+ 114:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->x2 = src->x2;
+ 115:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y2 = src->y2;
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 9
+
+
+ 116:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 117:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+ 118:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+ 119:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Get the width of an area
+ 120:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param area_p pointer to an area
+ 121:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @return the width of the area (if x1 == x2 -> width = 1)
+ 122:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+ 123:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** static inline lv_coord_t lv_area_get_width(const lv_area_t * area_p)
+ 123              		.loc 2 123 26 view .LVU21
+ 124              	.LBB47:
+ 124:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     return (lv_coord_t)(area_p->x2 - area_p->x1 + 1);
+ 125              		.loc 2 125 5 view .LVU22
+ 126              		.loc 2 125 31 is_stmt 0 view .LVU23
+ 127 005e BBF80480 		ldrh	r8, [fp, #4]
+ 128              		.loc 2 125 44 view .LVU24
+ 129 0062 9BB2     		uxth	r3, r3
+ 130              		.loc 2 125 36 view .LVU25
+ 131 0064 A8EB0308 		sub	r8, r8, r3
+ 132 0068 1FFA88F8 		uxth	r8, r8
+ 133              		.loc 2 125 49 view .LVU26
+ 134 006c 08F10108 		add	r8, r8, #1
+ 135              		.loc 2 125 12 view .LVU27
+ 136 0070 0FFA88F8 		sxth	r8, r8
+ 137              	.LVL9:
+ 138              		.loc 2 125 12 view .LVU28
+ 139              	.LBE47:
+ 140              	.LBE46:
+ 221:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         uint32_t dest_w_byte = dest_w * sizeof(lv_color_t);
+ 141              		.loc 1 221 9 is_stmt 1 view .LVU29
+ 142              		.loc 1 221 18 is_stmt 0 view .LVU30
+ 143 0074 4FEA4808 		lsl	r8, r8, #1
+ 144              	.LVL10:
+ 222:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 223:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_stride_byte = src_stride * sizeof(lv_color_t);
+ 145              		.loc 1 223 9 is_stmt 1 view .LVU31
+ 146              		.loc 1 223 20 is_stmt 0 view .LVU32
+ 147 0078 4FEA420A 		lsl	r10, r2, #1
+ 148 007c 0FFA8AFA 		sxth	r10, r10
+ 149              	.LVL11:
+ 224:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_color_t * cbuf_tmp = cbuf;
+ 150              		.loc 1 224 9 is_stmt 1 view .LVU33
+ 225:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         for(y = dest_area->y1; y <= dest_area->y2; y++) {
+ 151              		.loc 1 225 9 view .LVU34
+ 224:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_color_t * cbuf_tmp = cbuf;
+ 152              		.loc 1 224 22 is_stmt 0 view .LVU35
+ 153 0080 A146     		mov	r9, r4
+ 154              		.loc 1 225 9 view .LVU36
+ 155 0082 08E0     		b	.L7
+ 156              	.LVL12:
+ 157              	.L8:
+ 226:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(cbuf_tmp, src_tmp8, dest_w_byte);
+ 158              		.loc 1 226 13 is_stmt 1 discriminator 3 view .LVU37
+ 159 0084 4246     		mov	r2, r8
+ 160 0086 3946     		mov	r1, r7
+ 161 0088 4846     		mov	r0, r9
+ 162 008a FFF7FEFF 		bl	lv_memcpy
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 10
+
+
+ 163              	.LVL13:
+ 227:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             src_tmp8 += src_stride_byte;
+ 164              		.loc 1 227 13 discriminator 3 view .LVU38
+ 165              		.loc 1 227 22 is_stmt 0 discriminator 3 view .LVU39
+ 166 008e 5744     		add	r7, r7, r10
+ 167              	.LVL14:
+ 228:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             cbuf_tmp += dest_w;
+ 168              		.loc 1 228 13 is_stmt 1 discriminator 3 view .LVU40
+ 169              		.loc 1 228 22 is_stmt 0 discriminator 3 view .LVU41
+ 170 0090 C144     		add	r9, r9, r8
+ 171              	.LVL15:
+ 225:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(cbuf_tmp, src_tmp8, dest_w_byte);
+ 172              		.loc 1 225 53 is_stmt 1 discriminator 3 view .LVU42
+ 173 0092 0136     		adds	r6, r6, #1
+ 174              	.LVL16:
+ 225:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(cbuf_tmp, src_tmp8, dest_w_byte);
+ 175              		.loc 1 225 53 is_stmt 0 discriminator 3 view .LVU43
+ 176 0094 36B2     		sxth	r6, r6
+ 177              	.LVL17:
+ 178              	.L7:
+ 225:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(cbuf_tmp, src_tmp8, dest_w_byte);
+ 179              		.loc 1 225 34 is_stmt 1 discriminator 1 view .LVU44
+ 225:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(cbuf_tmp, src_tmp8, dest_w_byte);
+ 180              		.loc 1 225 46 is_stmt 0 discriminator 1 view .LVU45
+ 181 0096 BBF90630 		ldrsh	r3, [fp, #6]
+ 225:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(cbuf_tmp, src_tmp8, dest_w_byte);
+ 182              		.loc 1 225 34 discriminator 1 view .LVU46
+ 183 009a B342     		cmp	r3, r6
+ 184 009c F2DA     		bge	.L8
+ 229:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ 230:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 231:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         /*Make "holes" for with Chroma keying*/
+ 232:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         if(cf == LV_IMG_CF_TRUE_COLOR_CHROMA_KEYED) {
+ 185              		.loc 1 232 9 is_stmt 1 view .LVU47
+ 186              		.loc 1 232 11 is_stmt 0 view .LVU48
+ 187 009e 059B     		ldr	r3, [sp, #20]
+ 188 00a0 062B     		cmp	r3, #6
+ 189 00a2 40F0A080 		bne	.L1
+ 190              	.LBB48:
+ 233:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             uint32_t i;
+ 191              		.loc 1 233 13 is_stmt 1 view .LVU49
+ 234:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_color_t chk = LV_COLOR_CHROMA_KEY;
+ 192              		.loc 1 234 13 view .LVU50
+ 193              	.LVL18:
+ 194              	.LBB49:
+ 195              	.LBI49:
+ 196              		.file 3 "Drivers/lvgl/src/draw/sw/../../misc/lv_color.h"
+   1:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /**
+   2:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @file lv_color.h
+   3:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *
+   4:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  */
+   5:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+   6:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #ifndef LV_COLOR_H
+   7:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_H
+   8:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+   9:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #ifdef __cplusplus
+  10:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** extern "C" {
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 11
+
+
+  11:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  12:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  13:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*********************
+  14:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *      INCLUDES
+  15:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *********************/
+  16:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #include "../lv_conf_internal.h"
+  17:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #include "lv_assert.h"
+  18:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #include "lv_math.h"
+  19:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #include "lv_types.h"
+  20:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  21:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*Error checking*/
+  22:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH == 24
+  23:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #error "LV_COLOR_DEPTH 24 is deprecated. Use LV_COLOR_DEPTH 32 instead (lv_conf.h)"
+  24:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  25:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  26:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH != 16 && LV_COLOR_16_SWAP != 0
+  27:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #error "LV_COLOR_16_SWAP requires LV_COLOR_DEPTH == 16. Set it in lv_conf.h"
+  28:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  29:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  30:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #include <stdint.h>
+  31:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  32:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*********************
+  33:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *      DEFINES
+  34:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *********************/
+  35:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** LV_EXPORT_CONST_INT(LV_COLOR_DEPTH);
+  36:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** LV_EXPORT_CONST_INT(LV_COLOR_16_SWAP);
+  37:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  38:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /**
+  39:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * Opacity percentages.
+  40:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  */
+  41:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** enum {
+  42:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_TRANSP = 0,
+  43:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_0      = 0,
+  44:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_10     = 25,
+  45:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_20     = 51,
+  46:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_30     = 76,
+  47:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_40     = 102,
+  48:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_50     = 127,
+  49:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_60     = 153,
+  50:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_70     = 178,
+  51:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_80     = 204,
+  52:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_90     = 229,
+  53:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_100    = 255,
+  54:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_COVER  = 255,
+  55:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** };
+  56:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  57:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_OPA_MIN 2    /*Opacities below this will be transparent*/
+  58:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_OPA_MAX 253  /*Opacities above this will fully cover*/
+  59:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  60:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+  61:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SIZE 8
+  62:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+  63:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SIZE 8
+  64:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+  65:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SIZE 16
+  66:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+  67:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SIZE 32
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 12
+
+
+  68:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+  69:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #error "Invalid LV_COLOR_DEPTH in lv_conf.h! Set it to 1, 8, 16 or 32!"
+  70:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  71:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  72:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if defined(__cplusplus) && !defined(_LV_COLOR_HAS_MODERN_CPP)
+  73:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /**
+  74:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** * MSVC compiler's definition of the __cplusplus indicating 199711L regardless to C++ standard versi
+  75:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** * see https://devblogs.microsoft.com/cppblog/msvc-now-correctly-reports-cplusplus
+  76:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** * so we use _MSC_VER macro instead of __cplusplus
+  77:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** */
+  78:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #ifdef _MSC_VER
+  79:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if _MSC_VER >= 1900 /*Visual Studio 2015*/
+  80:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define _LV_COLOR_HAS_MODERN_CPP 1
+  81:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  82:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+  83:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if __cplusplus >= 201103L
+  84:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define _LV_COLOR_HAS_MODERN_CPP 1
+  85:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  86:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  87:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif /*__cplusplus*/
+  88:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  89:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #ifndef _LV_COLOR_HAS_MODERN_CPP
+  90:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define _LV_COLOR_HAS_MODERN_CPP 0
+  91:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  92:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  93:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if _LV_COLOR_HAS_MODERN_CPP
+  94:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*Fix msvc compiler error C4576 inside C++ code*/
+  95:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define _LV_COLOR_MAKE_TYPE_HELPER lv_color_t
+  96:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+  97:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define _LV_COLOR_MAKE_TYPE_HELPER (lv_color_t)
+  98:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  99:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 100:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*---------------------------------------
+ 101:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * Macros for all existing color depths
+ 102:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * to set/get values of the color channels
+ 103:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *------------------------------------------*/
+ 104:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_R1(c, v) (c).ch.red = (uint8_t)((v) & 0x1)
+ 105:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_G1(c, v) (c).ch.green = (uint8_t)((v) & 0x1)
+ 106:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_B1(c, v) (c).ch.blue = (uint8_t)((v) & 0x1)
+ 107:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_A1(c, v) do {} while(0)
+ 108:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 109:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_R1(c) (c).ch.red
+ 110:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_G1(c) (c).ch.green
+ 111:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_B1(c) (c).ch.blue
+ 112:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_A1(c) 0xFF
+ 113:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 114:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER1 {0x00}
+ 115:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_MAKE1(r8, g8, b8)  {(uint8_t)((b8 >> 7) | (g8 >> 7) | (r8 >> 7))}
+ 116:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 117:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_R8(c, v) (c).ch.red = (uint8_t)((v) & 0x7U)
+ 118:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_G8(c, v) (c).ch.green = (uint8_t)((v) & 0x7U)
+ 119:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_B8(c, v) (c).ch.blue = (uint8_t)((v) & 0x3U)
+ 120:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_A8(c, v) do {} while(0)
+ 121:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 122:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_R8(c) (c).ch.red
+ 123:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_G8(c) (c).ch.green
+ 124:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_B8(c) (c).ch.blue
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 13
+
+
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_A8(c) 0xFF
+ 126:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 127:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER8 {{0x00, 0x00, 0x00}}
+ 128:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_MAKE8(r8, g8, b8) {{(uint8_t)((b8 >> 6) & 0x3U), (uint8_t)((g8 >> 5) & 0x7U), (ui
+ 129:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 130:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_R16(c, v) (c).ch.red = (uint8_t)((v) & 0x1FU)
+ 131:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 0
+ 132:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_G16(c, v) (c).ch.green = (uint8_t)((v) & 0x3FU)
+ 133:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 134:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_G16(c, v) {(c).ch.green_h = (uint8_t)(((v) >> 3) & 0x7); (c).ch.green_l = (ui
+ 135:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 136:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_B16(c, v) (c).ch.blue = (uint8_t)((v) & 0x1FU)
+ 137:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_A16(c, v) do {} while(0)
+ 138:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 139:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_R16(c) (c).ch.red
+ 140:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 0
+ 141:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_G16(c) (c).ch.green
+ 142:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 143:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_G16(c) (((c).ch.green_h << 3) + (c).ch.green_l)
+ 144:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 145:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_B16(c) (c).ch.blue
+ 146:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_A16(c) 0xFF
+ 147:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 148:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 0
+ 149:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER16  {{0x00, 0x00, 0x00}}
+ 150:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_MAKE16(r8, g8, b8) {{(uint8_t)((b8 >> 3) & 0x1FU), (uint8_t)((g8 >> 2) & 0x3FU), 
+ 151:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 152:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER16 {{0x00, 0x00, 0x00, 0x00}}
+ 153:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_MAKE16(r8, g8, b8) {{(uint8_t)((g8 >> 5) & 0x7U), (uint8_t)((r8 >> 3) & 0x1FU), (
+ 154:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 155:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 156:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_R32(c, v) (c).ch.red = (uint8_t)((v) & 0xFF)
+ 157:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_G32(c, v) (c).ch.green = (uint8_t)((v) & 0xFF)
+ 158:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_B32(c, v) (c).ch.blue = (uint8_t)((v) & 0xFF)
+ 159:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_A32(c, v) (c).ch.alpha = (uint8_t)((v) & 0xFF)
+ 160:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 161:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_R32(c) (c).ch.red
+ 162:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_G32(c) (c).ch.green
+ 163:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_B32(c) (c).ch.blue
+ 164:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_A32(c) (c).ch.alpha
+ 165:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 166:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER32  {{0x00, 0x00, 0x00, 0x00}}
+ 167:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_MAKE32(r8, g8, b8) {{b8, g8, r8, 0xff}} /*Fix 0xff alpha*/
+ 168:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 169:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*---------------------------------------
+ 170:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * Macros for the current color depth
+ 171:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * to set/get values of the color channels
+ 172:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *------------------------------------------*/
+ 173:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SET_R(c, v) LV_CONCAT(LV_COLOR_SET_R, LV_COLOR_DEPTH)(c, v)
+ 174:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SET_G(c, v) LV_CONCAT(LV_COLOR_SET_G, LV_COLOR_DEPTH)(c, v)
+ 175:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SET_B(c, v) LV_CONCAT(LV_COLOR_SET_B, LV_COLOR_DEPTH)(c, v)
+ 176:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SET_A(c, v) LV_CONCAT(LV_COLOR_SET_A, LV_COLOR_DEPTH)(c, v)
+ 177:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 178:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_GET_R(c) LV_CONCAT(LV_COLOR_GET_R, LV_COLOR_DEPTH)(c)
+ 179:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_GET_G(c) LV_CONCAT(LV_COLOR_GET_G, LV_COLOR_DEPTH)(c)
+ 180:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_GET_B(c) LV_CONCAT(LV_COLOR_GET_B, LV_COLOR_DEPTH)(c)
+ 181:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_GET_A(c) LV_CONCAT(LV_COLOR_GET_A, LV_COLOR_DEPTH)(c)
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 14
+
+
+ 182:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 183:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define _LV_COLOR_ZERO_INITIALIZER LV_CONCAT(_LV_COLOR_ZERO_INITIALIZER, LV_COLOR_DEPTH)
+ 184:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_MAKE(r8, g8, b8) LV_CONCAT(LV_COLOR_MAKE, LV_COLOR_DEPTH)(r8, g8, b8)
+ 185:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 186:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /**********************
+ 187:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *      TYPEDEFS
+ 188:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  **********************/
+ 189:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 190:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef union {
+ 191:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint8_t full; /*must be declared first to set all bits of byte via initializer list*/
+ 192:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     union {
+ 193:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t blue : 1;
+ 194:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t green : 1;
+ 195:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t red : 1;
+ 196:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     } ch;
+ 197:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** } lv_color1_t;
+ 198:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 199:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef union {
+ 200:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     struct {
+ 201:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t blue : 2;
+ 202:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t green : 3;
+ 203:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t red : 3;
+ 204:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     } ch;
+ 205:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint8_t full;
+ 206:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** } lv_color8_t;
+ 207:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 208:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef union {
+ 209:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     struct {
+ 210:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 0
+ 211:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint16_t blue : 5;
+ 212:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint16_t green : 6;
+ 213:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint16_t red : 5;
+ 214:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 215:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint16_t green_h : 3;
+ 216:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint16_t red : 5;
+ 217:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint16_t blue : 5;
+ 218:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint16_t green_l : 3;
+ 219:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 220:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     } ch;
+ 221:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint16_t full;
+ 222:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** } lv_color16_t;
+ 223:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 224:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef union {
+ 225:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     struct {
+ 226:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t blue;
+ 227:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t green;
+ 228:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t red;
+ 229:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t alpha;
+ 230:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     } ch;
+ 231:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint32_t full;
+ 232:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** } lv_color32_t;
+ 233:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 234:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef LV_CONCAT3(uint, LV_COLOR_SIZE, _t) lv_color_int_t;
+ 235:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef LV_CONCAT3(lv_color, LV_COLOR_DEPTH, _t) lv_color_t;
+ 236:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 237:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef struct {
+ 238:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint16_t h;
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 15
+
+
+ 239:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint8_t s;
+ 240:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint8_t v;
+ 241:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** } lv_color_hsv_t;
+ 242:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 243:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** //! @cond Doxygen_Suppress
+ 244:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*No idea where the guard is required but else throws warnings in the docs*/
+ 245:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef uint8_t lv_opa_t;
+ 246:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** //! @endcond
+ 247:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 248:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** struct _lv_color_filter_dsc_t;
+ 249:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 250:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef lv_color_t (*lv_color_filter_cb_t)(const struct _lv_color_filter_dsc_t *, lv_color_t, lv_op
+ 251:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 252:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef struct _lv_color_filter_dsc_t {
+ 253:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color_filter_cb_t filter_cb;
+ 254:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     void * user_data;
+ 255:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** } lv_color_filter_dsc_t;
+ 256:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 257:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 258:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef enum {
+ 259:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_RED,
+ 260:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_PINK,
+ 261:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_PURPLE,
+ 262:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_DEEP_PURPLE,
+ 263:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_INDIGO,
+ 264:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_BLUE,
+ 265:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_LIGHT_BLUE,
+ 266:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_CYAN,
+ 267:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_TEAL,
+ 268:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_GREEN,
+ 269:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_LIGHT_GREEN,
+ 270:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_LIME,
+ 271:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_YELLOW,
+ 272:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_AMBER,
+ 273:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_ORANGE,
+ 274:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_DEEP_ORANGE,
+ 275:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_BROWN,
+ 276:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_BLUE_GREY,
+ 277:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_GREY,
+ 278:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     _LV_PALETTE_LAST,
+ 279:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_NONE = 0xff,
+ 280:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** } lv_palette_t;
+ 281:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 282:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /**********************
+ 283:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * GLOBAL PROTOTYPES
+ 284:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  **********************/
+ 285:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 286:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*In color conversations:
+ 287:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * - When converting to bigger color type the LSB weight of 1 LSB is calculated
+ 288:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *   E.g. 16 bit Red has 5 bits
+ 289:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *         8 bit Red has 3 bits
+ 290:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *        ----------------------
+ 291:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *        8 bit red LSB = (2^5 - 1) / (2^3 - 1) = 31 / 7 = 4
+ 292:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *
+ 293:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * - When calculating to smaller color type simply shift out the LSBs
+ 294:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *   E.g.  8 bit Red has 3 bits
+ 295:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *        16 bit Red has 5 bits
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 16
+
+
+ 296:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *        ----------------------
+ 297:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *         Shift right with 5 - 3 = 2
+ 298:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  */
+ 299:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline uint8_t lv_color_to1(lv_color_t color)
+ 300:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 301:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 302:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return color.full;
+ 303:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 304:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     if((LV_COLOR_GET_R(color) & 0x4) || (LV_COLOR_GET_G(color) & 0x4) || (LV_COLOR_GET_B(color) & 0
+ 305:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 1;
+ 306:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 307:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else {
+ 308:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0;
+ 309:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 310:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 311:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     if((LV_COLOR_GET_R(color) & 0x10) || (LV_COLOR_GET_G(color) & 0x20) || (LV_COLOR_GET_B(color) &
+ 312:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 1;
+ 313:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 314:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else {
+ 315:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0;
+ 316:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 317:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 318:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     if((LV_COLOR_GET_R(color) & 0x80) || (LV_COLOR_GET_G(color) & 0x80) || (LV_COLOR_GET_B(color) &
+ 319:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 1;
+ 320:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 321:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else {
+ 322:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0;
+ 323:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 324:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 325:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 326:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 327:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline uint8_t lv_color_to8(lv_color_t color)
+ 328:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 329:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 330:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     if(color.full == 0)
+ 331:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0;
+ 332:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else
+ 333:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0xFF;
+ 334:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 335:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return color.full;
+ 336:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 337:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color8_t ret;
+ 338:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R8(ret, LV_COLOR_GET_R(color) >> 2); /*5 - 3  = 2*/
+ 339:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G8(ret, LV_COLOR_GET_G(color) >> 3); /*6 - 3  = 3*/
+ 340:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B8(ret, LV_COLOR_GET_B(color) >> 3); /*5 - 2  = 3*/
+ 341:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return ret.full;
+ 342:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 343:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color8_t ret;
+ 344:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R8(ret, LV_COLOR_GET_R(color) >> 5); /*8 - 3  = 5*/
+ 345:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G8(ret, LV_COLOR_GET_G(color) >> 5); /*8 - 3  = 5*/
+ 346:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B8(ret, LV_COLOR_GET_B(color) >> 6); /*8 - 2  = 6*/
+ 347:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return ret.full;
+ 348:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 349:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 350:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 351:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline uint16_t lv_color_to16(lv_color_t color)
+ 352:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 17
+
+
+ 353:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 354:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     if(color.full == 0)
+ 355:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0;
+ 356:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else
+ 357:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0xFFFF;
+ 358:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 359:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color16_t ret;
+ 360:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R16(ret, LV_COLOR_GET_R(color) * 4);  /*(2^5 - 1)/(2^3 - 1) = 31/7 = 4*/
+ 361:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G16(ret, LV_COLOR_GET_G(color) * 9);  /*(2^6 - 1)/(2^3 - 1) = 63/7 = 9*/
+ 362:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B16(ret, LV_COLOR_GET_B(color) * 10); /*(2^5 - 1)/(2^2 - 1) = 31/3 = 10*/
+ 363:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return ret.full;
+ 364:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 365:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return color.full;
+ 366:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 367:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color16_t ret;
+ 368:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R16(ret, LV_COLOR_GET_R(color) >> 3); /*8 - 5  = 3*/
+ 369:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G16(ret, LV_COLOR_GET_G(color) >> 2); /*8 - 6  = 2*/
+ 370:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B16(ret, LV_COLOR_GET_B(color) >> 3); /*8 - 5  = 3*/
+ 371:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return ret.full;
+ 372:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 373:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 374:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 375:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline uint32_t lv_color_to32(lv_color_t color)
+ 376:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 377:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 378:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     if(color.full == 0)
+ 379:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0xFF000000;
+ 380:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else
+ 381:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0xFFFFFFFF;
+ 382:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 383:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color32_t ret;
+ 384:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R32(ret, LV_COLOR_GET_R(color) * 36); /*(2^8 - 1)/(2^3 - 1) = 255/7 = 36*/
+ 385:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G32(ret, LV_COLOR_GET_G(color) * 36); /*(2^8 - 1)/(2^3 - 1) = 255/7 = 36*/
+ 386:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B32(ret, LV_COLOR_GET_B(color) * 85); /*(2^8 - 1)/(2^2 - 1) = 255/3 = 85*/
+ 387:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_A32(ret, 0xFF);
+ 388:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return ret.full;
+ 389:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 390:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /**
+ 391:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      * The floating point math for conversion is:
+ 392:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *  valueto = valuefrom * ( (2^bitsto - 1) / (float)(2^bitsfrom - 1) )
+ 393:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      * The faster integer math for conversion is:
+ 394:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *  valueto = ( valuefrom * multiplier + adder ) >> divisor
+ 395:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *   multiplier = FLOOR( ( (2^bitsto - 1) << divisor ) / (float)(2^bitsfrom - 1) )
+ 396:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *
+ 397:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      * Find the first divisor where ( adder >> divisor ) <= 0
+ 398:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *
+ 399:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      * 5-bit to 8-bit: ( 31 * multiplier + adder ) >> divisor = 255
+ 400:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      * divisor  multiplier  adder  min (0)  max (31)
+ 401:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       0           8      7        7       255
+ 402:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       1          16     14        7       255
+ 403:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       2          32     28        7       255
+ 404:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       3          65     25        3       255
+ 405:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       4         131     19        1       255
+ 406:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       5         263      7        0       255
+ 407:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *
+ 408:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      * 6-bit to 8-bit: 255 = ( 63 * multiplier + adder ) >> divisor
+ 409:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      * divisor  multiplier  adder  min (0)  max (63)
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 18
+
+
+ 410:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       0           4      3        3       255
+ 411:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       1           8      6        3       255
+ 412:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       2          16     12        3       255
+ 413:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       3          32     24        3       255
+ 414:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       4          64     48        3       255
+ 415:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       5         129     33        1       255
+ 416:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       6         259      3        0       255
+ 417:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      */
+ 418:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 419:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color32_t ret;
+ 420:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R32(ret, (LV_COLOR_GET_R(color) * 263 + 7) >> 5);
+ 421:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G32(ret, (LV_COLOR_GET_G(color) * 259 + 3) >> 6);
+ 422:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B32(ret, (LV_COLOR_GET_B(color) * 263 + 7) >> 5);
+ 423:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_A32(ret, 0xFF);
+ 424:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return ret.full;
+ 425:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 426:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return color.full;
+ 427:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 428:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 429:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 430:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** //! @cond Doxygen_Suppress
+ 431:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 432:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /**
+ 433:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * Mix two colors with a given ratio.
+ 434:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @param c1 the first color to mix (usually the foreground)
+ 435:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @param c2 the second color to mix (usually the background)
+ 436:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @param mix The ratio of the colors. 0: full `c2`, 255: full `c1`, 127: half `c1` and half`c2`
+ 437:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @return the mixed color
+ 438:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  */
+ 439:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline lv_color_t LV_ATTRIBUTE_FAST_MEM lv_color_mix(lv_color_t c1, lv_color_t c2, uint8_t m
+ 440:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 441:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color_t ret;
+ 442:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 443:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH == 16 && LV_COLOR_MIX_ROUND_OFS == 0
+ 444:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 445:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     c1.full = c1.full << 8 | c1.full >> 8;
+ 446:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     c2.full = c2.full << 8 | c2.full >> 8;
+ 447:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 448:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /*Source: https://stackoverflow.com/a/50012418/1999969*/
+ 449:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     mix = (uint32_t)((uint32_t)mix + 4) >> 3;
+ 450:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint32_t bg = (uint32_t)((uint32_t)c2.full | ((uint32_t)c2.full << 16)) &
+ 451:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****                   0x7E0F81F; /*0b00000111111000001111100000011111*/
+ 452:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint32_t fg = (uint32_t)((uint32_t)c1.full | ((uint32_t)c1.full << 16)) & 0x7E0F81F;
+ 453:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint32_t result = ((((fg - bg) * mix) >> 5) + bg) & 0x7E0F81F;
+ 454:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     ret.full = (uint16_t)((result >> 16) | result);
+ 455:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 1
+ 456:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     ret.full = ret.full << 8 | ret.full >> 8;
+ 457:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 458:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH != 1
+ 459:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /*LV_COLOR_DEPTH == 8, 16 or 32*/
+ 460:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R(ret, LV_UDIV255((uint16_t)LV_COLOR_GET_R(c1) * mix + LV_COLOR_GET_R(c2) *
+ 461:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****                                    (255 - mix) + LV_COLOR_MIX_ROUND_OFS));
+ 462:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G(ret, LV_UDIV255((uint16_t)LV_COLOR_GET_G(c1) * mix + LV_COLOR_GET_G(c2) *
+ 463:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****                                    (255 - mix) + LV_COLOR_MIX_ROUND_OFS));
+ 464:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B(ret, LV_UDIV255((uint16_t)LV_COLOR_GET_B(c1) * mix + LV_COLOR_GET_B(c2) *
+ 465:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****                                    (255 - mix) + LV_COLOR_MIX_ROUND_OFS));
+ 466:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_A(ret, 0xFF);
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 19
+
+
+ 467:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 468:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /*LV_COLOR_DEPTH == 1*/
+ 469:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     ret.full = mix > LV_OPA_50 ? c1.full : c2.full;
+ 470:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 471:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 472:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return ret;
+ 473:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 474:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 475:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline void LV_ATTRIBUTE_FAST_MEM lv_color_premult(lv_color_t c, uint8_t mix, uint16_t * out
+ 476:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 477:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH != 1
+ 478:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[0] = (uint16_t)LV_COLOR_GET_R(c) * mix;
+ 479:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[1] = (uint16_t)LV_COLOR_GET_G(c) * mix;
+ 480:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[2] = (uint16_t)LV_COLOR_GET_B(c) * mix;
+ 481:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 482:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     (void) mix;
+ 483:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /*Pre-multiplication can't be used with 1 bpp*/
+ 484:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[0] = LV_COLOR_GET_R(c);
+ 485:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[1] = LV_COLOR_GET_G(c);
+ 486:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[2] = LV_COLOR_GET_B(c);
+ 487:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 488:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 489:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 490:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 491:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /**
+ 492:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * Mix two colors with a given ratio. It runs faster then `lv_color_mix` but requires some pre comp
+ 493:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @param premult_c1 The first color. Should be preprocessed with `lv_color_premult(c1)`
+ 494:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @param c2 The second color. As it is no pre computation required on it
+ 495:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @param mix The ratio of the colors. 0: full `c1`, 255: full `c2`, 127: half `c1` and half `c2`.
+ 496:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *            Should be modified like mix = `255 - mix`
+ 497:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @return the mixed color
+ 498:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @note 255 won't give clearly `c1`.
+ 499:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  */
+ 500:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline lv_color_t LV_ATTRIBUTE_FAST_MEM lv_color_mix_premult(uint16_t * premult_c1, lv_color
+ 501:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 502:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color_t ret;
+ 503:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH != 1
+ 504:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /*LV_COLOR_DEPTH == 8 or 32*/
+ 505:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R(ret, LV_UDIV255(premult_c1[0] + LV_COLOR_GET_R(c2) * mix + LV_COLOR_MIX_ROUND_OF
+ 506:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G(ret, LV_UDIV255(premult_c1[1] + LV_COLOR_GET_G(c2) * mix + LV_COLOR_MIX_ROUND_OF
+ 507:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B(ret, LV_UDIV255(premult_c1[2] + LV_COLOR_GET_B(c2) * mix + LV_COLOR_MIX_ROUND_OF
+ 508:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_A(ret, 0xFF);
+ 509:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 510:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /*LV_COLOR_DEPTH == 1*/
+ 511:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /*Restore color1*/
+ 512:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color_t c1;
+ 513:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R(c1, premult_c1[0]);
+ 514:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G(c1, premult_c1[1]);
+ 515:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B(c1, premult_c1[2]);
+ 516:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     ret.full = mix > LV_OPA_50 ? c2.full : c1.full;
+ 517:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 518:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 519:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return ret;
+ 520:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 521:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 522:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /**
+ 523:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * Mix two colors. Both color can have alpha value.
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 20
+
+
+ 524:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @param bg_color background color
+ 525:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @param bg_opa alpha of the background color
+ 526:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @param fg_color foreground color
+ 527:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @param fg_opa alpha of the foreground color
+ 528:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @param res_color the result color
+ 529:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @param res_opa the result opacity
+ 530:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  */
+ 531:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline void LV_ATTRIBUTE_FAST_MEM lv_color_mix_with_alpha(lv_color_t bg_color, lv_opa_t bg_o
+ 532:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****                                                                  lv_color_t fg_color, lv_opa_t fg_o
+ 533:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****                                                                  lv_color_t * res_color, lv_opa_t *
+ 534:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 535:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /*Pick the foreground if it's fully opaque or the Background is fully transparent*/
+ 536:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     if(fg_opa >= LV_OPA_MAX || bg_opa <= LV_OPA_MIN) {
+ 537:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         res_color->full = fg_color.full;
+ 538:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         *res_opa = fg_opa;
+ 539:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 540:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /*Transparent foreground: use the Background*/
+ 541:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else if(fg_opa <= LV_OPA_MIN) {
+ 542:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         res_color->full = bg_color.full;
+ 543:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         *res_opa = bg_opa;
+ 544:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 545:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /*Opaque background: use simple mix*/
+ 546:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else if(bg_opa >= LV_OPA_MAX) {
+ 547:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         *res_color = lv_color_mix(fg_color, bg_color, fg_opa);
+ 548:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         *res_opa = LV_OPA_COVER;
+ 549:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 550:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /*Both colors have alpha. Expensive calculation need to be applied*/
+ 551:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else {
+ 552:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         /*Save the parameters and the result. If they will be asked again don't compute again*/
+ 553:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         static lv_opa_t fg_opa_save     = 0;
+ 554:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         static lv_opa_t bg_opa_save     = 0;
+ 555:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         static lv_color_t fg_color_save = _LV_COLOR_ZERO_INITIALIZER;
+ 556:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         static lv_color_t bg_color_save = _LV_COLOR_ZERO_INITIALIZER;
+ 557:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         static lv_color_t res_color_saved = _LV_COLOR_ZERO_INITIALIZER;
+ 558:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         static lv_opa_t res_opa_saved = 0;
+ 559:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 560:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         if(fg_opa != fg_opa_save || bg_opa != bg_opa_save || fg_color.full != fg_color_save.full ||
+ 561:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****            bg_color.full != bg_color_save.full) {
+ 562:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****             fg_opa_save        = fg_opa;
+ 563:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****             bg_opa_save        = bg_opa;
+ 564:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****             fg_color_save.full = fg_color.full;
+ 565:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****             bg_color_save.full = bg_color.full;
+ 566:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****             /*Info:
+ 567:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****              * https://en.wikipedia.org/wiki/Alpha_compositing#Analytical_derivation_of_the_over_op
+ 568:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****             res_opa_saved = 255 - ((uint16_t)((uint16_t)(255 - fg_opa) * (255 - bg_opa)) >> 8);
+ 569:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****             LV_ASSERT(res_opa_saved != 0);
+ 570:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****             lv_opa_t ratio = (uint16_t)((uint16_t)fg_opa * 255) / res_opa_saved;
+ 571:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****             res_color_saved = lv_color_mix(fg_color, bg_color, ratio);
+ 572:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 573:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         }
+ 574:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 575:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         res_color->full = res_color_saved.full;
+ 576:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         *res_opa = res_opa_saved;
+ 577:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 578:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 579:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 580:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** //! @endcond
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 21
+
+
+ 581:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 582:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /**
+ 583:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * Get the brightness of a color
+ 584:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @param color a color
+ 585:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @return the brightness [0..255]
+ 586:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  */
+ 587:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline uint8_t lv_color_brightness(lv_color_t color)
+ 588:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 589:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color32_t c32;
+ 590:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     c32.full        = lv_color_to32(color);
+ 591:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint16_t bright = (uint16_t)(3u * LV_COLOR_GET_R32(c32) + LV_COLOR_GET_B32(c32) + 4u * LV_COLOR
+ 592:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return (uint8_t)(bright >> 3);
+ 593:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 594:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 595:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline lv_color_t lv_color_make(uint8_t r, uint8_t g, uint8_t b)
+ 596:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 597:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return _LV_COLOR_MAKE_TYPE_HELPER LV_COLOR_MAKE(r, g, b);
+ 598:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 599:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 600:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline lv_color_t lv_color_hex(uint32_t c)
+ 197              		.loc 3 600 26 view .LVU51
+ 198              	.LBB50:
+ 601:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 602:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH == 16
+ 603:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color_t r;
+ 199              		.loc 3 603 5 view .LVU52
+ 604:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 0
+ 605:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /* Convert a 4 bytes per pixel in format ARGB32 to R5G6B5 format
+ 606:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         naive way (by calling lv_color_make with components):
+ 607:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****                     r = ((c & 0xFF0000) >> 19)
+ 608:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****                     g = ((c & 0xFF00) >> 10)
+ 609:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****                     b = ((c & 0xFF) >> 3)
+ 610:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****                     rgb565 = (r << 11) | (g << 5) | b
+ 611:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         That's 3 mask, 5 bitshift and 2 or operations
+ 612:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 613:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         A bit better:
+ 614:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****                     r = ((c & 0xF80000) >> 8)
+ 615:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****                     g = ((c & 0xFC00) >> 5)
+ 616:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****                     b = ((c & 0xFF) >> 3)
+ 617:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****                     rgb565 = r | g | b
+ 618:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         That's 3 mask, 3 bitshifts and 2 or operations */
+ 619:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     r.full = (uint16_t)(((c & 0xF80000) >> 8) | ((c & 0xFC00) >> 5) | ((c & 0xFF) >> 3));
+ 620:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 621:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /* We want: rrrr rrrr GGGg gggg bbbb bbbb => gggb bbbb rrrr rGGG */
+ 622:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     r.full = (uint16_t)(((c & 0xF80000) >> 16) | ((c & 0xFC00) >> 13) | ((c & 0x1C00) << 3) | ((c &
+ 200              		.loc 3 622 5 view .LVU53
+ 623:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 624:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return r;
+ 201              		.loc 3 624 5 view .LVU54
+ 202              		.loc 3 624 5 is_stmt 0 view .LVU55
+ 203              	.LBE50:
+ 204              	.LBE49:
+ 235:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #if LV_COLOR_DEPTH == 8 || LV_COLOR_DEPTH == 1
+ 236:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             uint8_t * cbuf_uint = (uint8_t *)cbuf;
+ 237:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             uint8_t chk_v = chk.full;
+ 238:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #elif LV_COLOR_DEPTH == 16
+ 239:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             uint16_t * cbuf_uint = (uint16_t *)cbuf;
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 22
+
+
+ 205              		.loc 1 239 13 is_stmt 1 view .LVU56
+ 240:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             uint16_t chk_v = chk.full;
+ 206              		.loc 1 240 13 view .LVU57
+ 241:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #elif LV_COLOR_DEPTH == 32
+ 242:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             uint32_t * cbuf_uint = (uint32_t *)cbuf;
+ 243:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             uint32_t chk_v = chk.full;
+ 244:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #endif
+ 245:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             for(i = 0; i < px_cnt; i++) {
+ 207              		.loc 1 245 13 view .LVU58
+ 208              		.loc 1 245 19 is_stmt 0 view .LVU59
+ 209 00a6 0023     		movs	r3, #0
+ 210 00a8 0398     		ldr	r0, [sp, #12]
+ 211              		.loc 1 245 13 view .LVU60
+ 212 00aa 00E0     		b	.L9
+ 213              	.LVL19:
+ 214              	.L10:
+ 215              		.loc 1 245 37 is_stmt 1 discriminator 2 view .LVU61
+ 216 00ac 0133     		adds	r3, r3, #1
+ 217              	.LVL20:
+ 218              	.L9:
+ 219              		.loc 1 245 26 discriminator 1 view .LVU62
+ 220 00ae 8342     		cmp	r3, r0
+ 221 00b0 80F09980 		bcs	.L1
+ 246:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 if(chk_v == cbuf_uint[i]) abuf[i] = 0x00;
+ 222              		.loc 1 246 17 view .LVU63
+ 223              		.loc 1 246 38 is_stmt 0 view .LVU64
+ 224 00b4 34F81310 		ldrh	r1, [r4, r3, lsl #1]
+ 225              		.loc 1 246 19 view .LVU65
+ 226 00b8 4EF20702 		movw	r2, #57351
+ 227 00bc 9142     		cmp	r1, r2
+ 228 00be F5D1     		bne	.L10
+ 229              		.loc 1 246 43 is_stmt 1 discriminator 1 view .LVU66
+ 230              		.loc 1 246 51 is_stmt 0 discriminator 1 view .LVU67
+ 231 00c0 0022     		movs	r2, #0
+ 232 00c2 EA54     		strb	r2, [r5, r3]
+ 233 00c4 F2E7     		b	.L10
+ 234              	.LVL21:
+ 235              	.L6:
+ 236              		.loc 1 246 51 discriminator 1 view .LVU68
+ 237              	.LBE48:
+ 238              	.LBE45:
+ 239              	.LBB51:
+ 247:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             }
+ 248:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ 249:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     }
+ 250:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     else if(cf == LV_IMG_CF_TRUE_COLOR_ALPHA) {
+ 251:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         src_tmp8 += (src_stride * dest_area->y1 * LV_IMG_PX_SIZE_ALPHA_BYTE) + dest_area->x1 * LV_I
+ 240              		.loc 1 251 9 is_stmt 1 view .LVU69
+ 241              		.loc 1 251 44 is_stmt 0 view .LVU70
+ 242 00c6 B0F90230 		ldrsh	r3, [r0, #2]
+ 243              		.loc 1 251 89 view .LVU71
+ 244 00ca B0F90010 		ldrsh	r1, [r0]
+ 245              	.LVL22:
+ 246              		.loc 1 251 78 view .LVU72
+ 247 00ce 0298     		ldr	r0, [sp, #8]
+ 248              	.LVL23:
+ 249              		.loc 1 251 78 view .LVU73
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 23
+
+
+ 250 00d0 03FB0012 		mla	r2, r3, r0, r1
+ 251 00d4 02EB4202 		add	r2, r2, r2, lsl #1
+ 252              		.loc 1 251 18 view .LVU74
+ 253 00d8 019E     		ldr	r6, [sp, #4]
+ 254 00da 1644     		add	r6, r6, r2
+ 255 00dc 3246     		mov	r2, r6
+ 256              	.LVL24:
+ 252:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 253:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_new_line_step_px = (src_stride - lv_area_get_width(dest_area));
+ 257              		.loc 1 253 9 is_stmt 1 view .LVU75
+ 258              	.LBB52:
+ 259              	.LBI52:
+ 123:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 260              		.loc 2 123 26 view .LVU76
+ 261              	.LBB53:
+ 262              		.loc 2 125 5 view .LVU77
+ 263              		.loc 2 125 31 is_stmt 0 view .LVU78
+ 264 00de BBF80460 		ldrh	r6, [fp, #4]
+ 265              		.loc 2 125 44 view .LVU79
+ 266 00e2 89B2     		uxth	r1, r1
+ 267              		.loc 2 125 36 view .LVU80
+ 268 00e4 761A     		subs	r6, r6, r1
+ 269 00e6 B6B2     		uxth	r6, r6
+ 270              		.loc 2 125 49 view .LVU81
+ 271 00e8 0136     		adds	r6, r6, #1
+ 272 00ea 1FFA86FC 		uxth	ip, r6
+ 273              		.loc 2 125 12 view .LVU82
+ 274 00ee 36B2     		sxth	r6, r6
+ 275              	.LVL25:
+ 276              		.loc 2 125 12 view .LVU83
+ 277              	.LBE53:
+ 278              	.LBE52:
+ 279              		.loc 1 253 55 view .LVU84
+ 280 00f0 A0EB0C0C 		sub	ip, r0, ip
+ 281 00f4 1FFA8CFC 		uxth	ip, ip
+ 282              	.LVL26:
+ 254:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_new_line_step_byte = src_new_line_step_px * LV_IMG_PX_SIZE_ALPHA_BYTE;
+ 283              		.loc 1 254 9 is_stmt 1 view .LVU85
+ 284              		.loc 1 254 66 is_stmt 0 view .LVU86
+ 285 00f8 0CEB4C0C 		add	ip, ip, ip, lsl #1
+ 286              	.LVL27:
+ 287              		.loc 1 254 20 view .LVU87
+ 288 00fc 0FFA8CFC 		sxth	ip, ip
+ 289              	.LVL28:
+ 255:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 256:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t dest_h = lv_area_get_height(dest_area);
+ 290              		.loc 1 256 9 is_stmt 1 view .LVU88
+ 291              	.LBB54:
+ 292              	.LBI54:
+ 126:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 127:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** 
+ 128:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** /**
+ 129:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * Get the height of an area
+ 130:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @param area_p pointer to an area
+ 131:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  * @return the height of the area (if y1 == y2 -> height = 1)
+ 132:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****  */
+ 133:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** static inline lv_coord_t lv_area_get_height(const lv_area_t * area_p)
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 24
+
+
+ 293              		.loc 2 133 26 view .LVU89
+ 294              	.LBB55:
+ 134:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 135:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     return (lv_coord_t)(area_p->y2 - area_p->y1 + 1);
+ 295              		.loc 2 135 5 view .LVU90
+ 296              		.loc 2 135 31 is_stmt 0 view .LVU91
+ 297 0100 BBF806E0 		ldrh	lr, [fp, #6]
+ 298              		.loc 2 135 44 view .LVU92
+ 299 0104 9BB2     		uxth	r3, r3
+ 300              		.loc 2 135 36 view .LVU93
+ 301 0106 AEEB030E 		sub	lr, lr, r3
+ 302 010a 1FFA8EFE 		uxth	lr, lr
+ 303              		.loc 2 135 49 view .LVU94
+ 304 010e 0EF1010E 		add	lr, lr, #1
+ 305              		.loc 2 135 12 view .LVU95
+ 306 0112 0FFA8EFE 		sxth	lr, lr
+ 307              	.LVL29:
+ 308              		.loc 2 135 12 view .LVU96
+ 309              	.LBE55:
+ 310              	.LBE54:
+ 257:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t dest_w = lv_area_get_width(dest_area);
+ 311              		.loc 1 257 9 is_stmt 1 view .LVU97
+ 258:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         for(y = 0; y < dest_h; y++) {
+ 312              		.loc 1 258 9 view .LVU98
+ 313              		.loc 1 258 15 is_stmt 0 view .LVU99
+ 314 0116 0027     		movs	r7, #0
+ 315              		.loc 1 258 9 view .LVU100
+ 316 0118 12E0     		b	.L12
+ 317              	.LVL30:
+ 318              	.L13:
+ 259:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             for(x = 0; x < dest_w; x++) {
+ 260:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 abuf[x] = src_tmp8[LV_IMG_PX_SIZE_ALPHA_BYTE - 1];
+ 319              		.loc 1 260 17 is_stmt 1 discriminator 3 view .LVU101
+ 320              		.loc 1 260 35 is_stmt 0 discriminator 3 view .LVU102
+ 321 011a 9178     		ldrb	r1, [r2, #2]	@ zero_extendqisi2
+ 322              		.loc 1 260 25 discriminator 3 view .LVU103
+ 323 011c E954     		strb	r1, [r5, r3]
+ 261:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #if LV_COLOR_DEPTH == 8 || LV_COLOR_DEPTH == 1
+ 262:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 cbuf[x].full = *src_tmp8;
+ 263:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #elif LV_COLOR_DEPTH == 16
+ 264:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 cbuf[x].full = *src_tmp8 + ((*(src_tmp8 + 1)) << 8);
+ 324              		.loc 1 264 17 is_stmt 1 discriminator 3 view .LVU104
+ 325              		.loc 1 264 32 is_stmt 0 discriminator 3 view .LVU105
+ 326 011e 1178     		ldrb	r1, [r2]	@ zero_extendqisi2
+ 327              		.loc 1 264 46 discriminator 3 view .LVU106
+ 328 0120 5078     		ldrb	r0, [r2, #1]	@ zero_extendqisi2
+ 329              		.loc 1 264 42 discriminator 3 view .LVU107
+ 330 0122 01EB0021 		add	r1, r1, r0, lsl #8
+ 331              		.loc 1 264 30 discriminator 3 view .LVU108
+ 332 0126 24F81310 		strh	r1, [r4, r3, lsl #1]	@ movhi
+ 265:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #elif LV_COLOR_DEPTH == 32
+ 266:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 cbuf[x] = *((lv_color_t *) src_tmp8);
+ 267:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 cbuf[x].ch.alpha = 0xff;
+ 268:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** #endif
+ 269:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 src_tmp8 += LV_IMG_PX_SIZE_ALPHA_BYTE;
+ 333              		.loc 1 269 17 is_stmt 1 discriminator 3 view .LVU109
+ 334              		.loc 1 269 26 is_stmt 0 discriminator 3 view .LVU110
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 25
+
+
+ 335 012a 0332     		adds	r2, r2, #3
+ 336              	.LVL31:
+ 259:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 abuf[x] = src_tmp8[LV_IMG_PX_SIZE_ALPHA_BYTE - 1];
+ 337              		.loc 1 259 37 is_stmt 1 discriminator 3 view .LVU111
+ 338 012c 0133     		adds	r3, r3, #1
+ 339              	.LVL32:
+ 259:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 abuf[x] = src_tmp8[LV_IMG_PX_SIZE_ALPHA_BYTE - 1];
+ 340              		.loc 1 259 37 is_stmt 0 discriminator 3 view .LVU112
+ 341 012e 1BB2     		sxth	r3, r3
+ 342              	.LVL33:
+ 343              	.L14:
+ 259:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 abuf[x] = src_tmp8[LV_IMG_PX_SIZE_ALPHA_BYTE - 1];
+ 344              		.loc 1 259 26 is_stmt 1 discriminator 1 view .LVU113
+ 345 0130 B342     		cmp	r3, r6
+ 346 0132 F2DB     		blt	.L13
+ 270:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 271:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             }
+ 272:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             cbuf += dest_w;
+ 347              		.loc 1 272 13 discriminator 2 view .LVU114
+ 348              		.loc 1 272 18 is_stmt 0 discriminator 2 view .LVU115
+ 349 0134 04EB4604 		add	r4, r4, r6, lsl #1
+ 350              	.LVL34:
+ 273:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             abuf += dest_w;
+ 351              		.loc 1 273 13 is_stmt 1 discriminator 2 view .LVU116
+ 352              		.loc 1 273 18 is_stmt 0 discriminator 2 view .LVU117
+ 353 0138 3544     		add	r5, r5, r6
+ 354              	.LVL35:
+ 274:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             src_tmp8 += src_new_line_step_byte;
+ 355              		.loc 1 274 13 is_stmt 1 discriminator 2 view .LVU118
+ 356              		.loc 1 274 22 is_stmt 0 discriminator 2 view .LVU119
+ 357 013a 6244     		add	r2, r2, ip
+ 358              	.LVL36:
+ 258:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             for(x = 0; x < dest_w; x++) {
+ 359              		.loc 1 258 33 is_stmt 1 discriminator 2 view .LVU120
+ 360 013c 0137     		adds	r7, r7, #1
+ 361              	.LVL37:
+ 258:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             for(x = 0; x < dest_w; x++) {
+ 362              		.loc 1 258 33 is_stmt 0 discriminator 2 view .LVU121
+ 363 013e 3FB2     		sxth	r7, r7
+ 364              	.LVL38:
+ 365              	.L12:
+ 258:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             for(x = 0; x < dest_w; x++) {
+ 366              		.loc 1 258 22 is_stmt 1 discriminator 1 view .LVU122
+ 367 0140 7745     		cmp	r7, lr
+ 368 0142 50DA     		bge	.L1
+ 259:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 abuf[x] = src_tmp8[LV_IMG_PX_SIZE_ALPHA_BYTE - 1];
+ 369              		.loc 1 259 19 is_stmt 0 view .LVU123
+ 370 0144 0023     		movs	r3, #0
+ 371 0146 F3E7     		b	.L14
+ 372              	.LVL39:
+ 373              	.L3:
+ 259:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 abuf[x] = src_tmp8[LV_IMG_PX_SIZE_ALPHA_BYTE - 1];
+ 374              		.loc 1 259 19 view .LVU124
+ 375              	.LBE51:
+ 376              	.LBB56:
+ 275:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ 276:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     }
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 26
+
+
+ 277:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     else if(cf == LV_IMG_CF_RGB565A8) {
+ 278:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         src_tmp8 += (src_stride * dest_area->y1 * sizeof(lv_color_t)) + dest_area->x1 * sizeof(lv_c
+ 377              		.loc 1 278 9 is_stmt 1 view .LVU125
+ 378              		.loc 1 278 44 is_stmt 0 view .LVU126
+ 379 0148 B0F90220 		ldrsh	r2, [r0, #2]
+ 380              		.loc 1 278 82 view .LVU127
+ 381 014c B0F90030 		ldrsh	r3, [r0]
+ 382              		.loc 1 278 71 view .LVU128
+ 383 0150 0299     		ldr	r1, [sp, #8]
+ 384              	.LVL40:
+ 385              		.loc 1 278 71 view .LVU129
+ 386 0152 02FB0138 		mla	r8, r2, r1, r3
+ 387              		.loc 1 278 18 view .LVU130
+ 388 0156 0198     		ldr	r0, [sp, #4]
+ 389              	.LVL41:
+ 390              		.loc 1 278 18 view .LVU131
+ 391 0158 00EB4808 		add	r8, r0, r8, lsl #1
+ 392              	.LVL42:
+ 279:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 280:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_stride_byte = src_stride * sizeof(lv_color_t);
+ 393              		.loc 1 280 9 is_stmt 1 view .LVU132
+ 394              		.loc 1 280 20 is_stmt 0 view .LVU133
+ 395 015c 4900     		lsls	r1, r1, #1
+ 396 015e 09B2     		sxth	r1, r1
+ 397              	.LVL43:
+ 281:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 282:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t dest_h = lv_area_get_height(dest_area);
+ 398              		.loc 1 282 9 is_stmt 1 view .LVU134
+ 399              	.LBB57:
+ 400              	.LBI57:
+ 133:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 401              		.loc 2 133 26 view .LVU135
+ 402              	.LBB58:
+ 403              		.loc 2 135 5 view .LVU136
+ 404              		.loc 2 135 31 is_stmt 0 view .LVU137
+ 405 0160 BBF80690 		ldrh	r9, [fp, #6]
+ 406              		.loc 2 135 44 view .LVU138
+ 407 0164 92B2     		uxth	r2, r2
+ 408              		.loc 2 135 36 view .LVU139
+ 409 0166 A9EB0209 		sub	r9, r9, r2
+ 410 016a 1FFA89F9 		uxth	r9, r9
+ 411              		.loc 2 135 49 view .LVU140
+ 412 016e 09F10109 		add	r9, r9, #1
+ 413              		.loc 2 135 12 view .LVU141
+ 414 0172 0FFA89F9 		sxth	r9, r9
+ 415              	.LVL44:
+ 416              		.loc 2 135 12 view .LVU142
+ 417              	.LBE58:
+ 418              	.LBE57:
+ 283:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t dest_w = lv_area_get_width(dest_area);
+ 419              		.loc 1 283 9 is_stmt 1 view .LVU143
+ 420              	.LBB59:
+ 421              	.LBI59:
+ 123:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 422              		.loc 2 123 26 view .LVU144
+ 423              	.LBB60:
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 27
+
+
+ 424              		.loc 2 125 5 view .LVU145
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 425              		.loc 2 125 31 is_stmt 0 view .LVU146
+ 426 0176 BBF80470 		ldrh	r7, [fp, #4]
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 427              		.loc 2 125 44 view .LVU147
+ 428 017a 9BB2     		uxth	r3, r3
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 429              		.loc 2 125 36 view .LVU148
+ 430 017c FF1A     		subs	r7, r7, r3
+ 431 017e BFB2     		uxth	r7, r7
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 432              		.loc 2 125 49 view .LVU149
+ 433 0180 0137     		adds	r7, r7, #1
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 434              		.loc 2 125 12 view .LVU150
+ 435 0182 3FB2     		sxth	r7, r7
+ 436              	.LVL45:
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 437              		.loc 2 125 12 view .LVU151
+ 438              	.LBE60:
+ 439              	.LBE59:
+ 284:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         for(y = 0; y < dest_h; y++) {
+ 440              		.loc 1 284 9 is_stmt 1 view .LVU152
+ 441              		.loc 1 284 15 is_stmt 0 view .LVU153
+ 442 0184 0026     		movs	r6, #0
+ 443 0186 CDF814B0 		str	fp, [sp, #20]
+ 444 018a 8B46     		mov	fp, r1
+ 445              	.LVL46:
+ 446              		.loc 1 284 9 view .LVU154
+ 447 018c 0AE0     		b	.L15
+ 448              	.LVL47:
+ 449              	.L16:
+ 285:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(cbuf, src_tmp8, dest_w * sizeof(lv_color_t));
+ 450              		.loc 1 285 13 is_stmt 1 discriminator 3 view .LVU155
+ 451 018e 4FEA470A 		lsl	r10, r7, #1
+ 452 0192 5246     		mov	r2, r10
+ 453 0194 4146     		mov	r1, r8
+ 454 0196 2046     		mov	r0, r4
+ 455 0198 FFF7FEFF 		bl	lv_memcpy
+ 456              	.LVL48:
+ 286:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             cbuf += dest_w;
+ 457              		.loc 1 286 13 discriminator 3 view .LVU156
+ 458              		.loc 1 286 18 is_stmt 0 discriminator 3 view .LVU157
+ 459 019c 5444     		add	r4, r4, r10
+ 460              	.LVL49:
+ 287:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             src_tmp8 += src_stride_byte;
+ 461              		.loc 1 287 13 is_stmt 1 discriminator 3 view .LVU158
+ 462              		.loc 1 287 22 is_stmt 0 discriminator 3 view .LVU159
+ 463 019e D844     		add	r8, r8, fp
+ 464              	.LVL50:
+ 284:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(cbuf, src_tmp8, dest_w * sizeof(lv_color_t));
+ 465              		.loc 1 284 33 is_stmt 1 discriminator 3 view .LVU160
+ 466 01a0 0136     		adds	r6, r6, #1
+ 467              	.LVL51:
+ 284:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(cbuf, src_tmp8, dest_w * sizeof(lv_color_t));
+ 468              		.loc 1 284 33 is_stmt 0 discriminator 3 view .LVU161
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 28
+
+
+ 469 01a2 36B2     		sxth	r6, r6
+ 470              	.LVL52:
+ 471              	.L15:
+ 284:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(cbuf, src_tmp8, dest_w * sizeof(lv_color_t));
+ 472              		.loc 1 284 22 is_stmt 1 discriminator 1 view .LVU162
+ 473 01a4 4E45     		cmp	r6, r9
+ 474 01a6 F2DB     		blt	.L16
+ 288:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ 289:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 290:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         src_tmp8 = (const uint8_t *)src_buf;
+ 291:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         src_tmp8 += sizeof(lv_color_t) * src_w * src_h;
+ 475              		.loc 1 291 48 is_stmt 0 view .LVU163
+ 476 01a8 DDF814B0 		ldr	fp, [sp, #20]
+ 477              	.LVL53:
+ 290:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         src_tmp8 += sizeof(lv_color_t) * src_w * src_h;
+ 478              		.loc 1 290 9 is_stmt 1 view .LVU164
+ 479              		.loc 1 291 9 view .LVU165
+ 480              		.loc 1 291 48 is_stmt 0 view .LVU166
+ 481 01ac 039B     		ldr	r3, [sp, #12]
+ 482 01ae 049A     		ldr	r2, [sp, #16]
+ 483 01b0 02FB03F3 		mul	r3, r2, r3
+ 484              	.LVL54:
+ 292:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         src_tmp8 += src_stride * dest_area->y1 + dest_area->x1;
+ 485              		.loc 1 292 9 is_stmt 1 view .LVU167
+ 486              		.loc 1 292 43 is_stmt 0 view .LVU168
+ 487 01b4 BBF90210 		ldrsh	r1, [fp, #2]
+ 488              		.loc 1 292 59 view .LVU169
+ 489 01b8 BBF90020 		ldrsh	r2, [fp]
+ 490              		.loc 1 292 48 view .LVU170
+ 491 01bc 0298     		ldr	r0, [sp, #8]
+ 492 01be 01FB0022 		mla	r2, r1, r0, r2
+ 493              		.loc 1 292 18 view .LVU171
+ 494 01c2 02EB4303 		add	r3, r2, r3, lsl #1
+ 495              	.LVL55:
+ 496              		.loc 1 292 18 view .LVU172
+ 497 01c6 019E     		ldr	r6, [sp, #4]
+ 498              	.LVL56:
+ 499              		.loc 1 292 18 view .LVU173
+ 500 01c8 1E44     		add	r6, r6, r3
+ 501              	.LVL57:
+ 293:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         for(y = 0; y < dest_h; y++) {
+ 502              		.loc 1 293 9 is_stmt 1 view .LVU174
+ 503              		.loc 1 293 15 is_stmt 0 view .LVU175
+ 504 01ca 0024     		movs	r4, #0
+ 505              	.LVL58:
+ 506              		.loc 1 293 15 view .LVU176
+ 507 01cc 8046     		mov	r8, r0
+ 508              		.loc 1 293 9 view .LVU177
+ 509 01ce 08E0     		b	.L17
+ 510              	.LVL59:
+ 511              	.L18:
+ 294:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(abuf, src_tmp8, dest_w);
+ 512              		.loc 1 294 13 is_stmt 1 discriminator 3 view .LVU178
+ 513 01d0 3A46     		mov	r2, r7
+ 514 01d2 3146     		mov	r1, r6
+ 515 01d4 2846     		mov	r0, r5
+ 516 01d6 FFF7FEFF 		bl	lv_memcpy
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 29
+
+
+ 517              	.LVL60:
+ 295:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             abuf += dest_w;
+ 518              		.loc 1 295 13 discriminator 3 view .LVU179
+ 519              		.loc 1 295 18 is_stmt 0 discriminator 3 view .LVU180
+ 520 01da 3D44     		add	r5, r5, r7
+ 521              	.LVL61:
+ 296:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             src_tmp8 += src_stride;
+ 522              		.loc 1 296 13 is_stmt 1 discriminator 3 view .LVU181
+ 523              		.loc 1 296 22 is_stmt 0 discriminator 3 view .LVU182
+ 524 01dc 4644     		add	r6, r6, r8
+ 525              	.LVL62:
+ 293:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(abuf, src_tmp8, dest_w);
+ 526              		.loc 1 293 33 is_stmt 1 discriminator 3 view .LVU183
+ 527 01de 0134     		adds	r4, r4, #1
+ 528              	.LVL63:
+ 293:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(abuf, src_tmp8, dest_w);
+ 529              		.loc 1 293 33 is_stmt 0 discriminator 3 view .LVU184
+ 530 01e0 24B2     		sxth	r4, r4
+ 531              	.LVL64:
+ 532              	.L17:
+ 293:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(abuf, src_tmp8, dest_w);
+ 533              		.loc 1 293 22 is_stmt 1 discriminator 1 view .LVU185
+ 534 01e2 4C45     		cmp	r4, r9
+ 535 01e4 F4DB     		blt	.L18
+ 536              	.LVL65:
+ 537              	.L1:
+ 293:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_memcpy(abuf, src_tmp8, dest_w);
+ 538              		.loc 1 293 22 is_stmt 0 discriminator 1 view .LVU186
+ 539              	.LBE56:
+ 297:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ 298:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     }
+ 299:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** }
+ 540              		.loc 1 299 1 view .LVU187
+ 541 01e6 07B0     		add	sp, sp, #28
+ 542              		.cfi_def_cfa_offset 36
+ 543              		@ sp needed
+ 544 01e8 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 545              		.loc 1 299 1 view .LVU188
+ 546              		.cfi_endproc
+ 547              	.LFE162:
+ 549              		.section	.text.lv_draw_sw_img_decoded,"ax",%progbits
+ 550              		.align	1
+ 551              		.global	lv_draw_sw_img_decoded
+ 552              		.syntax unified
+ 553              		.thumb
+ 554              		.thumb_func
+ 556              	lv_draw_sw_img_decoded:
+ 557              	.LVL66:
+ 558              	.LFB161:
+  49:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     /*Use the clip area as draw area*/
+ 559              		.loc 1 49 1 is_stmt 1 view -0
+ 560              		.cfi_startproc
+ 561              		@ args = 4, pretend = 0, frame = 104
+ 562              		@ frame_needed = 0, uses_anonymous_args = 0
+  49:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     /*Use the clip area as draw area*/
+ 563              		.loc 1 49 1 is_stmt 0 view .LVU190
+ 564 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 30
+
+
+ 565              		.cfi_def_cfa_offset 36
+ 566              		.cfi_offset 4, -36
+ 567              		.cfi_offset 5, -32
+ 568              		.cfi_offset 6, -28
+ 569              		.cfi_offset 7, -24
+ 570              		.cfi_offset 8, -20
+ 571              		.cfi_offset 9, -16
+ 572              		.cfi_offset 10, -12
+ 573              		.cfi_offset 11, -8
+ 574              		.cfi_offset 14, -4
+ 575 0004 A1B0     		sub	sp, sp, #132
+ 576              		.cfi_def_cfa_offset 168
+ 577 0006 0690     		str	r0, [sp, #24]
+ 578 0008 8946     		mov	r9, r1
+ 579 000a 0B92     		str	r2, [sp, #44]
+ 580 000c 0C93     		str	r3, [sp, #48]
+ 581 000e 9DF8A830 		ldrb	r3, [sp, #168]	@ zero_extendqisi2
+ 582              	.LVL67:
+  49:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     /*Use the clip area as draw area*/
+ 583              		.loc 1 49 1 view .LVU191
+ 584 0012 0993     		str	r3, [sp, #36]
+  51:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     lv_area_copy(&draw_area, draw_ctx->clip_area);
+ 585              		.loc 1 51 5 is_stmt 1 view .LVU192
+  52:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 586              		.loc 1 52 5 view .LVU193
+ 587 0014 8368     		ldr	r3, [r0, #8]
+ 588              	.LVL68:
+ 589              	.LBB88:
+ 590              	.LBI88:
+ 110:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 591              		.loc 2 110 20 view .LVU194
+ 592              	.LBB89:
+ 112:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y1 = src->y1;
+ 593              		.loc 2 112 5 view .LVU195
+ 112:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y1 = src->y1;
+ 594              		.loc 2 112 19 is_stmt 0 view .LVU196
+ 595 0016 B3F90020 		ldrsh	r2, [r3]
+ 596              	.LVL69:
+ 112:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y1 = src->y1;
+ 597              		.loc 2 112 14 view .LVU197
+ 598 001a ADF87820 		strh	r2, [sp, #120]	@ movhi
+ 113:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->x2 = src->x2;
+ 599              		.loc 2 113 5 is_stmt 1 view .LVU198
+ 113:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->x2 = src->x2;
+ 600              		.loc 2 113 19 is_stmt 0 view .LVU199
+ 601 001e B3F90220 		ldrsh	r2, [r3, #2]
+ 113:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->x2 = src->x2;
+ 602              		.loc 2 113 14 view .LVU200
+ 603 0022 ADF87A20 		strh	r2, [sp, #122]	@ movhi
+ 114:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y2 = src->y2;
+ 604              		.loc 2 114 5 is_stmt 1 view .LVU201
+ 114:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y2 = src->y2;
+ 605              		.loc 2 114 19 is_stmt 0 view .LVU202
+ 606 0026 B3F90420 		ldrsh	r2, [r3, #4]
+ 114:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y2 = src->y2;
+ 607              		.loc 2 114 14 view .LVU203
+ 608 002a ADF87C20 		strh	r2, [sp, #124]	@ movhi
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 31
+
+
+ 115:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 609              		.loc 2 115 5 is_stmt 1 view .LVU204
+ 115:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 610              		.loc 2 115 19 is_stmt 0 view .LVU205
+ 611 002e B3F90630 		ldrsh	r3, [r3, #6]
+ 612              	.LVL70:
+ 115:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 613              		.loc 2 115 14 view .LVU206
+ 614 0032 ADF87E30 		strh	r3, [sp, #126]	@ movhi
+ 615              	.LVL71:
+ 115:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 616              		.loc 2 115 14 view .LVU207
+ 617              	.LBE89:
+ 618              	.LBE88:
+  54:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     bool transform = draw_dsc->angle != 0 || draw_dsc->zoom != LV_IMG_ZOOM_NONE ? true : false;
+ 619              		.loc 1 54 5 is_stmt 1 view .LVU208
+  54:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     bool transform = draw_dsc->angle != 0 || draw_dsc->zoom != LV_IMG_ZOOM_NONE ? true : false;
+ 620              		.loc 1 54 21 is_stmt 0 view .LVU209
+ 621 0036 1EA8     		add	r0, sp, #120
+ 622              	.LVL72:
+  54:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     bool transform = draw_dsc->angle != 0 || draw_dsc->zoom != LV_IMG_ZOOM_NONE ? true : false;
+ 623              		.loc 1 54 21 view .LVU210
+ 624 0038 FFF7FEFF 		bl	lv_draw_mask_is_any
+ 625              	.LVL73:
+  54:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     bool transform = draw_dsc->angle != 0 || draw_dsc->zoom != LV_IMG_ZOOM_NONE ? true : false;
+ 626              		.loc 1 54 21 view .LVU211
+ 627 003c 0646     		mov	r6, r0
+ 628 003e 0890     		str	r0, [sp, #32]
+ 629              	.LVL74:
+  55:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 630              		.loc 1 55 5 is_stmt 1 view .LVU212
+  55:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 631              		.loc 1 55 43 is_stmt 0 view .LVU213
+ 632 0040 D9F80040 		ldr	r4, [r9]
+ 633 0044 0A94     		str	r4, [sp, #40]
+ 634              	.LVL75:
+  57:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     lv_draw_sw_blend_dsc_t blend_dsc;
+ 635              		.loc 1 57 5 is_stmt 1 view .LVU214
+  58:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 636              		.loc 1 58 5 view .LVU215
+  60:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     blend_dsc.opa = draw_dsc->opa;
+ 637              		.loc 1 60 5 view .LVU216
+ 638 0046 1C21     		movs	r1, #28
+ 639 0048 15A8     		add	r0, sp, #84
+ 640 004a FFF7FEFF 		bl	lv_memset_00
+ 641              	.LVL76:
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     blend_dsc.blend_mode = draw_dsc->blend_mode;
+ 642              		.loc 1 61 5 view .LVU217
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     blend_dsc.blend_mode = draw_dsc->blend_mode;
+ 643              		.loc 1 61 29 is_stmt 0 view .LVU218
+ 644 004e 99F80B30 		ldrb	r3, [r9, #11]	@ zero_extendqisi2
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     blend_dsc.blend_mode = draw_dsc->blend_mode;
+ 645              		.loc 1 61 19 view .LVU219
+ 646 0052 8DF86C30 		strb	r3, [sp, #108]
+  62:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     blend_dsc.blend_area = &blend_area;
+ 647              		.loc 1 62 5 is_stmt 1 view .LVU220
+  62:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     blend_dsc.blend_area = &blend_area;
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 32
+
+
+ 648              		.loc 1 62 36 is_stmt 0 view .LVU221
+ 649 0056 99F80C30 		ldrb	r3, [r9, #12]	@ zero_extendqisi2
+ 650 005a C3F30303 		ubfx	r3, r3, #0, #4
+  62:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     blend_dsc.blend_area = &blend_area;
+ 651              		.loc 1 62 26 view .LVU222
+ 652 005e 8DF86D30 		strb	r3, [sp, #109]
+  63:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 653              		.loc 1 63 5 is_stmt 1 view .LVU223
+  63:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 654              		.loc 1 63 26 is_stmt 0 view .LVU224
+ 655 0062 1CAB     		add	r3, sp, #112
+ 656 0064 1593     		str	r3, [sp, #84]
+  66:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = (const lv_color_t *)src_buf;
+ 657              		.loc 1 66 5 is_stmt 1 view .LVU225
+  66:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = (const lv_color_t *)src_buf;
+ 658              		.loc 1 66 7 is_stmt 0 view .LVU226
+ 659 0066 1EB9     		cbnz	r6, .L23
+  66:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = (const lv_color_t *)src_buf;
+ 660              		.loc 1 66 18 discriminator 1 view .LVU227
+ 661 0068 B4F1807F 		cmp	r4, #16777216
+ 662 006c 00F0BE80 		beq	.L48
+ 663              	.L23:
+  72:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_area_t clipped_coords;
+ 664              		.loc 1 72 10 is_stmt 1 view .LVU228
+  72:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_area_t clipped_coords;
+ 665              		.loc 1 72 12 is_stmt 0 view .LVU229
+ 666 0070 089B     		ldr	r3, [sp, #32]
+ 667 0072 23B9     		cbnz	r3, .L25
+  72:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_area_t clipped_coords;
+ 668              		.loc 1 72 23 discriminator 1 view .LVU230
+ 669 0074 0A9B     		ldr	r3, [sp, #40]
+ 670 0076 B3F1807F 		cmp	r3, #16777216
+ 671 007a 00F0C980 		beq	.L49
+ 672              	.L25:
+  86:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_w = lv_area_get_width(coords);
+ 673              		.loc 1 86 10 is_stmt 1 view .LVU231
+  86:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_w = lv_area_get_width(coords);
+ 674              		.loc 1 86 12 is_stmt 0 view .LVU232
+ 675 007e 089B     		ldr	r3, [sp, #32]
+ 676 0080 23B9     		cbnz	r3, .L28
+  86:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_w = lv_area_get_width(coords);
+ 677              		.loc 1 86 23 discriminator 1 view .LVU233
+ 678 0082 0A9B     		ldr	r3, [sp, #40]
+ 679 0084 B3F1807F 		cmp	r3, #16777216
+ 680 0088 00F0E280 		beq	.L50
+ 681              	.L28:
+ 682              	.LBB90:
+ 100:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.x2 = draw_ctx->clip_area->x2;
+ 683              		.loc 1 100 9 is_stmt 1 view .LVU234
+ 100:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.x2 = draw_ctx->clip_area->x2;
+ 684              		.loc 1 100 33 is_stmt 0 view .LVU235
+ 685 008c 069B     		ldr	r3, [sp, #24]
+ 686 008e 9A68     		ldr	r2, [r3, #8]
+ 100:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.x2 = draw_ctx->clip_area->x2;
+ 687              		.loc 1 100 44 view .LVU236
+ 688 0090 B2F90010 		ldrsh	r1, [r2]
+ 100:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.x2 = draw_ctx->clip_area->x2;
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 33
+
+
+ 689              		.loc 1 100 23 view .LVU237
+ 690 0094 ADF87010 		strh	r1, [sp, #112]	@ movhi
+ 101:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.y1 = draw_ctx->clip_area->y1;
+ 691              		.loc 1 101 9 is_stmt 1 view .LVU238
+ 101:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.y1 = draw_ctx->clip_area->y1;
+ 692              		.loc 1 101 44 is_stmt 0 view .LVU239
+ 693 0098 B2F90430 		ldrsh	r3, [r2, #4]
+ 101:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.y1 = draw_ctx->clip_area->y1;
+ 694              		.loc 1 101 23 view .LVU240
+ 695 009c ADF87430 		strh	r3, [sp, #116]	@ movhi
+ 102:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.y2 = draw_ctx->clip_area->y2;
+ 696              		.loc 1 102 9 is_stmt 1 view .LVU241
+ 102:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.y2 = draw_ctx->clip_area->y2;
+ 697              		.loc 1 102 44 is_stmt 0 view .LVU242
+ 698 00a0 B2F90260 		ldrsh	r6, [r2, #2]
+ 699              	.LVL77:
+ 102:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.y2 = draw_ctx->clip_area->y2;
+ 700              		.loc 1 102 23 view .LVU243
+ 701 00a4 ADF87260 		strh	r6, [sp, #114]	@ movhi
+ 103:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 702              		.loc 1 103 9 is_stmt 1 view .LVU244
+ 103:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 703              		.loc 1 103 44 is_stmt 0 view .LVU245
+ 704 00a8 B2F90620 		ldrsh	r2, [r2, #6]
+ 103:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 705              		.loc 1 103 23 view .LVU246
+ 706 00ac ADF87620 		strh	r2, [sp, #118]	@ movhi
+ 105:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_h = lv_area_get_height(coords);
+ 707              		.loc 1 105 9 is_stmt 1 view .LVU247
+ 708              	.LVL78:
+ 709              	.LBB91:
+ 710              	.LBI91:
+ 123:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 711              		.loc 2 123 26 view .LVU248
+ 712              	.LBB92:
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 713              		.loc 2 125 5 view .LVU249
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 714              		.loc 2 125 31 is_stmt 0 view .LVU250
+ 715 00b0 0B9F     		ldr	r7, [sp, #44]
+ 716 00b2 B888     		ldrh	r0, [r7, #4]
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 717              		.loc 2 125 44 view .LVU251
+ 718 00b4 3C88     		ldrh	r4, [r7]
+ 719              	.LVL79:
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 720              		.loc 2 125 36 view .LVU252
+ 721 00b6 001B     		subs	r0, r0, r4
+ 722 00b8 80B2     		uxth	r0, r0
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 723              		.loc 2 125 49 view .LVU253
+ 724 00ba 0130     		adds	r0, r0, #1
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 725              		.loc 2 125 12 view .LVU254
+ 726 00bc 00B2     		sxth	r0, r0
+ 727 00be 0F90     		str	r0, [sp, #60]
+ 728              	.LVL80:
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 34
+
+
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 729              		.loc 2 125 12 view .LVU255
+ 730              	.LBE92:
+ 731              	.LBE91:
+ 106:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t blend_h = lv_area_get_height(&blend_area);
+ 732              		.loc 1 106 9 is_stmt 1 view .LVU256
+ 733              	.LBB93:
+ 734              	.LBI93:
+ 133:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 735              		.loc 2 133 26 view .LVU257
+ 736              	.LBB94:
+ 737              		.loc 2 135 5 view .LVU258
+ 738              		.loc 2 135 31 is_stmt 0 view .LVU259
+ 739 00c0 F888     		ldrh	r0, [r7, #6]
+ 740              		.loc 2 135 44 view .LVU260
+ 741 00c2 7C88     		ldrh	r4, [r7, #2]
+ 742              		.loc 2 135 36 view .LVU261
+ 743 00c4 001B     		subs	r0, r0, r4
+ 744 00c6 80B2     		uxth	r0, r0
+ 745              		.loc 2 135 49 view .LVU262
+ 746 00c8 0130     		adds	r0, r0, #1
+ 747              		.loc 2 135 12 view .LVU263
+ 748 00ca 00B2     		sxth	r0, r0
+ 749 00cc 0E90     		str	r0, [sp, #56]
+ 750              	.LVL81:
+ 751              		.loc 2 135 12 view .LVU264
+ 752              	.LBE94:
+ 753              	.LBE93:
+ 107:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t blend_w = lv_area_get_width(&blend_area);
+ 754              		.loc 1 107 9 is_stmt 1 view .LVU265
+ 755              	.LBB95:
+ 756              	.LBI95:
+ 133:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 757              		.loc 2 133 26 view .LVU266
+ 758              	.LBB96:
+ 759              		.loc 2 135 5 view .LVU267
+ 760              		.loc 2 135 31 is_stmt 0 view .LVU268
+ 761 00ce 94B2     		uxth	r4, r2
+ 762              		.loc 2 135 44 view .LVU269
+ 763 00d0 B6B2     		uxth	r6, r6
+ 764              		.loc 2 135 36 view .LVU270
+ 765 00d2 A41B     		subs	r4, r4, r6
+ 766 00d4 A4B2     		uxth	r4, r4
+ 767              		.loc 2 135 49 view .LVU271
+ 768 00d6 0134     		adds	r4, r4, #1
+ 769              		.loc 2 135 12 view .LVU272
+ 770 00d8 24B2     		sxth	r4, r4
+ 771              	.LVL82:
+ 772              		.loc 2 135 12 view .LVU273
+ 773              	.LBE96:
+ 774              	.LBE95:
+ 108:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 775              		.loc 1 108 9 is_stmt 1 view .LVU274
+ 776              	.LBB97:
+ 777              	.LBI97:
+ 123:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 778              		.loc 2 123 26 view .LVU275
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 35
+
+
+ 779              	.LBB98:
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 780              		.loc 2 125 5 view .LVU276
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 781              		.loc 2 125 31 is_stmt 0 view .LVU277
+ 782 00da 9FB2     		uxth	r7, r3
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 783              		.loc 2 125 44 view .LVU278
+ 784 00dc 89B2     		uxth	r1, r1
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 785              		.loc 2 125 36 view .LVU279
+ 786 00de 7F1A     		subs	r7, r7, r1
+ 787 00e0 BFB2     		uxth	r7, r7
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 788              		.loc 2 125 49 view .LVU280
+ 789 00e2 0137     		adds	r7, r7, #1
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 790              		.loc 2 125 12 view .LVU281
+ 791 00e4 3FB2     		sxth	r7, r7
+ 792              	.LVL83:
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 793              		.loc 2 125 12 view .LVU282
+ 794              	.LBE98:
+ 795              	.LBE97:
+ 110:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         uint32_t blend_size = lv_area_get_size(&blend_area);
+ 796              		.loc 1 110 9 is_stmt 1 view .LVU283
+ 110:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         uint32_t blend_size = lv_area_get_size(&blend_area);
+ 797              		.loc 1 110 33 is_stmt 0 view .LVU284
+ 798 00e6 FFF7FEFF 		bl	_lv_refr_get_disp_refreshing
+ 799              	.LVL84:
+ 800 00ea FFF7FEFF 		bl	lv_disp_get_hor_res
+ 801              	.LVL85:
+ 802 00ee 0646     		mov	r6, r0
+ 803              	.LVL86:
+ 111:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         uint32_t buf_h;
+ 804              		.loc 1 111 9 is_stmt 1 view .LVU285
+ 111:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         uint32_t buf_h;
+ 805              		.loc 1 111 31 is_stmt 0 view .LVU286
+ 806 00f0 1CA8     		add	r0, sp, #112
+ 807              	.LVL87:
+ 111:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         uint32_t buf_h;
+ 808              		.loc 1 111 31 view .LVU287
+ 809 00f2 FFF7FEFF 		bl	lv_area_get_size
+ 810              	.LVL88:
+ 112:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         uint32_t buf_w = blend_w;
+ 811              		.loc 1 112 9 is_stmt 1 view .LVU288
+ 113:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         if(blend_size <= max_buf_size) {
+ 812              		.loc 1 113 9 view .LVU289
+ 114:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             buf_h = blend_h;
+ 813              		.loc 1 114 9 view .LVU290
+ 114:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             buf_h = blend_h;
+ 814              		.loc 1 114 11 is_stmt 0 view .LVU291
+ 815 00f6 8642     		cmp	r6, r0
+ 816 00f8 01D2     		bcs	.L30
+ 119:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ 817              		.loc 1 119 13 is_stmt 1 view .LVU292
+ 119:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 36
+
+
+ 818              		.loc 1 119 19 is_stmt 0 view .LVU293
+ 819 00fa B6FBF7F4 		udiv	r4, r6, r7
+ 820              	.LVL89:
+ 821              	.L30:
+ 123:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 822              		.loc 1 123 9 is_stmt 1 view .LVU294
+ 123:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 823              		.loc 1 123 18 is_stmt 0 view .LVU295
+ 824 00fe 07FB04FA 		mul	r10, r7, r4
+ 825              	.LVL90:
+ 125:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_opa_t * mask_buf = lv_mem_buf_get(buf_size);
+ 826              		.loc 1 125 9 is_stmt 1 view .LVU296
+ 125:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_opa_t * mask_buf = lv_mem_buf_get(buf_size);
+ 827              		.loc 1 125 32 is_stmt 0 view .LVU297
+ 828 0102 4FEA4A00 		lsl	r0, r10, #1
+ 829              	.LVL91:
+ 125:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_opa_t * mask_buf = lv_mem_buf_get(buf_size);
+ 830              		.loc 1 125 32 view .LVU298
+ 831 0106 FFF7FEFF 		bl	lv_mem_buf_get
+ 832              	.LVL92:
+ 833 010a 8046     		mov	r8, r0
+ 834              	.LVL93:
+ 126:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_buf = mask_buf;
+ 835              		.loc 1 126 9 is_stmt 1 view .LVU299
+ 126:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_buf = mask_buf;
+ 836              		.loc 1 126 31 is_stmt 0 view .LVU300
+ 837 010c 5046     		mov	r0, r10
+ 838              	.LVL94:
+ 126:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_buf = mask_buf;
+ 839              		.loc 1 126 31 view .LVU301
+ 840 010e FFF7FEFF 		bl	lv_mem_buf_get
+ 841              	.LVL95:
+ 842 0112 0790     		str	r0, [sp, #28]
+ 843              	.LVL96:
+ 127:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_area = &blend_area;
+ 844              		.loc 1 127 9 is_stmt 1 view .LVU302
+ 127:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_area = &blend_area;
+ 845              		.loc 1 127 28 is_stmt 0 view .LVU303
+ 846 0114 1890     		str	r0, [sp, #96]
+ 128:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+ 847              		.loc 1 128 9 is_stmt 1 view .LVU304
+ 128:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+ 848              		.loc 1 128 29 is_stmt 0 view .LVU305
+ 849 0116 1CAB     		add	r3, sp, #112
+ 850 0118 1A93     		str	r3, [sp, #104]
+ 129:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = rgb_buf;
+ 851              		.loc 1 129 9 is_stmt 1 view .LVU306
+ 129:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = rgb_buf;
+ 852              		.loc 1 129 28 is_stmt 0 view .LVU307
+ 853 011a 0223     		movs	r3, #2
+ 854 011c 8DF86430 		strb	r3, [sp, #100]
+ 130:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t y_last = blend_area.y2;
+ 855              		.loc 1 130 9 is_stmt 1 view .LVU308
+ 130:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t y_last = blend_area.y2;
+ 856              		.loc 1 130 27 is_stmt 0 view .LVU309
+ 857 0120 CDF85880 		str	r8, [sp, #88]
+ 131:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.y2 = blend_area.y1 + buf_h - 1;
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 37
+
+
+ 858              		.loc 1 131 9 is_stmt 1 view .LVU310
+ 131:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_area.y2 = blend_area.y1 + buf_h - 1;
+ 859              		.loc 1 131 20 is_stmt 0 view .LVU311
+ 860 0124 BDF976B0 		ldrsh	fp, [sp, #118]
+ 861              	.LVL97:
+ 132:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 862              		.loc 1 132 9 is_stmt 1 view .LVU312
+ 132:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 863              		.loc 1 132 35 is_stmt 0 view .LVU313
+ 864 0128 BDF87230 		ldrh	r3, [sp, #114]
+ 132:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 865              		.loc 1 132 39 view .LVU314
+ 866 012c A2B2     		uxth	r2, r4
+ 867 012e 0D92     		str	r2, [sp, #52]
+ 868 0130 1344     		add	r3, r3, r2
+ 869 0132 9BB2     		uxth	r3, r3
+ 132:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 870              		.loc 1 132 47 view .LVU315
+ 871 0134 013B     		subs	r3, r3, #1
+ 132:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 872              		.loc 1 132 23 view .LVU316
+ 873 0136 ADF87630 		strh	r3, [sp, #118]	@ movhi
+ 134:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                                            draw_dsc->zoom != LV_IMG_ZOOM_NONE) ?
+ 874              		.loc 1 134 9 is_stmt 1 view .LVU317
+ 134:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                                            draw_dsc->zoom != LV_IMG_ZOOM_NONE) ?
+ 875              		.loc 1 134 28 is_stmt 0 view .LVU318
+ 876 013a 099B     		ldr	r3, [sp, #36]
+ 877 013c 042B     		cmp	r3, #4
+ 878 013e 00F0AF80 		beq	.L51
+ 879 0142 0223     		movs	r3, #2
+ 880              	.L31:
+ 881              	.LVL98:
+ 137:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 882              		.loc 1 137 9 is_stmt 1 discriminator 6 view .LVU319
+ 137:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 883              		.loc 1 137 28 is_stmt 0 discriminator 6 view .LVU320
+ 884 0144 8DF86430 		strb	r3, [sp, #100]
+ 139:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             /*Apply transformations if any or separate the channels*/
+ 885              		.loc 1 139 9 is_stmt 1 discriminator 6 view .LVU321
+ 886              	.LVL99:
+ 887              	.L32:
+ 139:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             /*Apply transformations if any or separate the channels*/
+ 888              		.loc 1 139 29 view .LVU322
+ 139:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             /*Apply transformations if any or separate the channels*/
+ 889              		.loc 1 139 25 is_stmt 0 view .LVU323
+ 890 0148 BDF97230 		ldrsh	r3, [sp, #114]
+ 139:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             /*Apply transformations if any or separate the channels*/
+ 891              		.loc 1 139 29 view .LVU324
+ 892 014c 5B45     		cmp	r3, fp
+ 893 014e 00F33781 		bgt	.L52
+ 894              	.LBB99:
+ 141:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_area_copy(&transform_area, &blend_area);
+ 895              		.loc 1 141 13 is_stmt 1 view .LVU325
+ 142:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             lv_area_move(&transform_area, -coords->x1, -coords->y1);
+ 896              		.loc 1 142 13 view .LVU326
+ 897              	.LVL100:
+ 898              	.LBB100:
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 38
+
+
+ 899              	.LBI100:
+ 110:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 900              		.loc 2 110 20 view .LVU327
+ 901              	.LBB101:
+ 112:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y1 = src->y1;
+ 902              		.loc 2 112 5 view .LVU328
+ 112:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y1 = src->y1;
+ 903              		.loc 2 112 19 is_stmt 0 view .LVU329
+ 904 0152 BDF97020 		ldrsh	r2, [sp, #112]
+ 112:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y1 = src->y1;
+ 905              		.loc 2 112 14 view .LVU330
+ 906 0156 ADF84C20 		strh	r2, [sp, #76]	@ movhi
+ 113:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->x2 = src->x2;
+ 907              		.loc 2 113 5 is_stmt 1 view .LVU331
+ 113:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->x2 = src->x2;
+ 908              		.loc 2 113 14 is_stmt 0 view .LVU332
+ 909 015a ADF84E30 		strh	r3, [sp, #78]	@ movhi
+ 114:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y2 = src->y2;
+ 910              		.loc 2 114 5 is_stmt 1 view .LVU333
+ 114:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y2 = src->y2;
+ 911              		.loc 2 114 19 is_stmt 0 view .LVU334
+ 912 015e BDF97430 		ldrsh	r3, [sp, #116]
+ 114:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h ****     dest->y2 = src->y2;
+ 913              		.loc 2 114 14 view .LVU335
+ 914 0162 ADF85030 		strh	r3, [sp, #80]	@ movhi
+ 115:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 915              		.loc 2 115 5 is_stmt 1 view .LVU336
+ 115:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 916              		.loc 2 115 19 is_stmt 0 view .LVU337
+ 917 0166 BDF97630 		ldrsh	r3, [sp, #118]
+ 115:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 918              		.loc 2 115 14 view .LVU338
+ 919 016a ADF85230 		strh	r3, [sp, #82]	@ movhi
+ 920              	.LVL101:
+ 115:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 921              		.loc 2 115 14 view .LVU339
+ 922              	.LBE101:
+ 923              	.LBE100:
+ 143:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             if(transform) {
+ 924              		.loc 1 143 13 is_stmt 1 view .LVU340
+ 143:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             if(transform) {
+ 925              		.loc 1 143 50 is_stmt 0 view .LVU341
+ 926 016e 0B9B     		ldr	r3, [sp, #44]
+ 927 0170 1988     		ldrh	r1, [r3]
+ 143:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             if(transform) {
+ 928              		.loc 1 143 63 view .LVU342
+ 929 0172 5A88     		ldrh	r2, [r3, #2]
+ 143:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             if(transform) {
+ 930              		.loc 1 143 13 view .LVU343
+ 931 0174 5242     		rsbs	r2, r2, #0
+ 932 0176 4942     		rsbs	r1, r1, #0
+ 933 0178 12B2     		sxth	r2, r2
+ 934 017a 09B2     		sxth	r1, r1
+ 935 017c 13A8     		add	r0, sp, #76
+ 936 017e FFF7FEFF 		bl	lv_area_move
+ 937              	.LVL102:
+ 144:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_draw_transform(draw_ctx, &transform_area, src_buf, src_w, src_h, src_w,
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 39
+
+
+ 938              		.loc 1 144 13 is_stmt 1 view .LVU344
+ 144:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_draw_transform(draw_ctx, &transform_area, src_buf, src_w, src_h, src_w,
+ 939              		.loc 1 144 15 is_stmt 0 view .LVU345
+ 940 0182 0A9B     		ldr	r3, [sp, #40]
+ 941 0184 B3F1807F 		cmp	r3, #16777216
+ 942 0188 00F09380 		beq	.L33
+ 145:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                                   draw_dsc, cf, rgb_buf, mask_buf);
+ 943              		.loc 1 145 17 is_stmt 1 view .LVU346
+ 944 018c 079B     		ldr	r3, [sp, #28]
+ 945 018e 0593     		str	r3, [sp, #20]
+ 946 0190 CDF81080 		str	r8, [sp, #16]
+ 947 0194 099B     		ldr	r3, [sp, #36]
+ 948 0196 0393     		str	r3, [sp, #12]
+ 949 0198 CDF80890 		str	r9, [sp, #8]
+ 950 019c 0F9B     		ldr	r3, [sp, #60]
+ 951 019e 0193     		str	r3, [sp, #4]
+ 952 01a0 0E9A     		ldr	r2, [sp, #56]
+ 953 01a2 0092     		str	r2, [sp]
+ 954 01a4 0C9A     		ldr	r2, [sp, #48]
+ 955 01a6 13A9     		add	r1, sp, #76
+ 956 01a8 0698     		ldr	r0, [sp, #24]
+ 957 01aa FFF7FEFF 		bl	lv_draw_transform
+ 958              	.LVL103:
+ 959              	.L34:
+ 153:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 uint16_t premult_v[3];
+ 960              		.loc 1 153 13 view .LVU347
+ 153:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 uint16_t premult_v[3];
+ 961              		.loc 1 153 24 is_stmt 0 view .LVU348
+ 962 01ae 99F80A00 		ldrb	r0, [r9, #10]	@ zero_extendqisi2
+ 153:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 uint16_t premult_v[3];
+ 963              		.loc 1 153 15 view .LVU349
+ 964 01b2 0228     		cmp	r0, #2
+ 965 01b4 00F28D80 		bhi	.L53
+ 966              	.L35:
+ 166:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_coord_t y;
+ 967              		.loc 1 166 13 is_stmt 1 view .LVU350
+ 166:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_coord_t y;
+ 968              		.loc 1 166 15 is_stmt 0 view .LVU351
+ 969 01b8 089B     		ldr	r3, [sp, #32]
+ 970 01ba 002B     		cmp	r3, #0
+ 971 01bc 40F0DF80 		bne	.L54
+ 972              	.L38:
+ 186:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 973              		.loc 1 186 13 is_stmt 1 view .LVU352
+ 974 01c0 15A9     		add	r1, sp, #84
+ 975 01c2 0698     		ldr	r0, [sp, #24]
+ 976 01c4 FFF7FEFF 		bl	lv_draw_sw_blend
+ 977              	.LVL104:
+ 189:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             blend_area.y2 = blend_area.y1 + buf_h - 1;
+ 978              		.loc 1 189 13 view .LVU353
+ 189:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             blend_area.y2 = blend_area.y1 + buf_h - 1;
+ 979              		.loc 1 189 39 is_stmt 0 view .LVU354
+ 980 01c8 BDF87630 		ldrh	r3, [sp, #118]
+ 189:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             blend_area.y2 = blend_area.y1 + buf_h - 1;
+ 981              		.loc 1 189 43 view .LVU355
+ 982 01cc 0133     		adds	r3, r3, #1
+ 189:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             blend_area.y2 = blend_area.y1 + buf_h - 1;
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 40
+
+
+ 983              		.loc 1 189 27 view .LVU356
+ 984 01ce ADF87230 		strh	r3, [sp, #114]	@ movhi
+ 190:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             if(blend_area.y2 > y_last) blend_area.y2 = y_last;
+ 985              		.loc 1 190 13 is_stmt 1 view .LVU357
+ 190:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             if(blend_area.y2 > y_last) blend_area.y2 = y_last;
+ 986              		.loc 1 190 43 is_stmt 0 view .LVU358
+ 987 01d2 0D9A     		ldr	r2, [sp, #52]
+ 988 01d4 12FA83F3 		uxtah	r3, r2, r3
+ 989 01d8 9BB2     		uxth	r3, r3
+ 190:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             if(blend_area.y2 > y_last) blend_area.y2 = y_last;
+ 990              		.loc 1 190 51 view .LVU359
+ 991 01da 013B     		subs	r3, r3, #1
+ 992 01dc 1BB2     		sxth	r3, r3
+ 190:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             if(blend_area.y2 > y_last) blend_area.y2 = y_last;
+ 993              		.loc 1 190 27 view .LVU360
+ 994 01de ADF87630 		strh	r3, [sp, #118]	@ movhi
+ 191:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ 995              		.loc 1 191 13 is_stmt 1 view .LVU361
+ 191:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ 996              		.loc 1 191 15 is_stmt 0 view .LVU362
+ 997 01e2 5B45     		cmp	r3, fp
+ 998 01e4 B0DD     		ble	.L32
+ 191:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ 999              		.loc 1 191 40 is_stmt 1 discriminator 1 view .LVU363
+ 191:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ 1000              		.loc 1 191 54 is_stmt 0 discriminator 1 view .LVU364
+ 1001 01e6 ADF876B0 		strh	fp, [sp, #118]	@ movhi
+ 1002 01ea ADE7     		b	.L32
+ 1003              	.LVL105:
+ 1004              	.L48:
+ 191:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         }
+ 1005              		.loc 1 191 54 discriminator 1 view .LVU365
+ 1006              	.LBE99:
+ 1007              	.LBE90:
+  66:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = (const lv_color_t *)src_buf;
+ 1008              		.loc 1 66 32 discriminator 2 view .LVU366
+ 1009 01ec 099B     		ldr	r3, [sp, #36]
+ 1010 01ee 042B     		cmp	r3, #4
+ 1011 01f0 7FF43EAF 		bne	.L23
+  66:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = (const lv_color_t *)src_buf;
+ 1012              		.loc 1 66 73 discriminator 3 view .LVU367
+ 1013 01f4 99F80A30 		ldrb	r3, [r9, #10]	@ zero_extendqisi2
+  66:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = (const lv_color_t *)src_buf;
+ 1014              		.loc 1 66 62 discriminator 3 view .LVU368
+ 1015 01f8 002B     		cmp	r3, #0
+ 1016 01fa 7FF439AF 		bne	.L23
+  67:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 1017              		.loc 1 67 9 is_stmt 1 view .LVU369
+  67:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 1018              		.loc 1 67 27 is_stmt 0 view .LVU370
+ 1019 01fe 0C9B     		ldr	r3, [sp, #48]
+ 1020 0200 1693     		str	r3, [sp, #88]
+  69:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_draw_sw_blend(draw_ctx, &blend_dsc);
+ 1021              		.loc 1 69 9 is_stmt 1 view .LVU371
+  69:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_draw_sw_blend(draw_ctx, &blend_dsc);
+ 1022              		.loc 1 69 30 is_stmt 0 view .LVU372
+ 1023 0202 0B9B     		ldr	r3, [sp, #44]
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 41
+
+
+ 1024 0204 1593     		str	r3, [sp, #84]
+  70:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     }
+ 1025              		.loc 1 70 9 is_stmt 1 view .LVU373
+ 1026 0206 15A9     		add	r1, sp, #84
+ 1027 0208 0698     		ldr	r0, [sp, #24]
+ 1028 020a FFF7FEFF 		bl	lv_draw_sw_blend
+ 1029              	.LVL106:
+ 1030 020e DDE0     		b	.L22
+ 1031              	.L49:
+  72:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_area_t clipped_coords;
+ 1032              		.loc 1 72 37 is_stmt 0 discriminator 2 view .LVU374
+ 1033 0210 099B     		ldr	r3, [sp, #36]
+ 1034 0212 0E2B     		cmp	r3, #14
+ 1035 0214 7FF433AF 		bne	.L25
+ 1036              	.LBB111:
+  73:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         if(!_lv_area_intersect(&clipped_coords, coords, draw_ctx->clip_area)) return;
+ 1037              		.loc 1 73 9 is_stmt 1 view .LVU375
+  74:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 1038              		.loc 1 74 9 view .LVU376
+  74:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 1039              		.loc 1 74 13 is_stmt 0 view .LVU377
+ 1040 0218 069C     		ldr	r4, [sp, #24]
+ 1041              	.LVL107:
+  74:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 1042              		.loc 1 74 13 view .LVU378
+ 1043 021a A268     		ldr	r2, [r4, #8]
+ 1044 021c 0B9D     		ldr	r5, [sp, #44]
+ 1045 021e 2946     		mov	r1, r5
+ 1046 0220 13A8     		add	r0, sp, #76
+ 1047 0222 FFF7FEFF 		bl	_lv_area_intersect
+ 1048              	.LVL108:
+  74:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 1049              		.loc 1 74 11 view .LVU379
+ 1050 0226 0028     		cmp	r0, #0
+ 1051 0228 00F0D080 		beq	.L22
+  76:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_area = coords;
+ 1052              		.loc 1 76 9 is_stmt 1 view .LVU380
+  76:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_area = coords;
+ 1053              		.loc 1 76 28 is_stmt 0 view .LVU381
+ 1054 022c 0C9B     		ldr	r3, [sp, #48]
+ 1055 022e 1893     		str	r3, [sp, #96]
+  77:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = NULL;
+ 1056              		.loc 1 77 9 is_stmt 1 view .LVU382
+  77:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = NULL;
+ 1057              		.loc 1 77 29 is_stmt 0 view .LVU383
+ 1058 0230 1A95     		str	r5, [sp, #104]
+  78:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.color = draw_dsc->recolor;
+ 1059              		.loc 1 78 9 is_stmt 1 view .LVU384
+  78:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.color = draw_dsc->recolor;
+ 1060              		.loc 1 78 27 is_stmt 0 view .LVU385
+ 1061 0232 0023     		movs	r3, #0
+ 1062 0234 1693     		str	r3, [sp, #88]
+  79:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+ 1063              		.loc 1 79 9 is_stmt 1 view .LVU386
+  79:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+ 1064              		.loc 1 79 25 is_stmt 0 view .LVU387
+ 1065 0236 B9F80830 		ldrh	r3, [r9, #8]
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 42
+
+
+ 1066 023a ADF85C30 		strh	r3, [sp, #92]	@ movhi
+  80:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 1067              		.loc 1 80 9 is_stmt 1 view .LVU388
+  80:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 1068              		.loc 1 80 28 is_stmt 0 view .LVU389
+ 1069 023e 0223     		movs	r3, #2
+ 1070 0240 8DF86430 		strb	r3, [sp, #100]
+  82:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_draw_sw_blend(draw_ctx, &blend_dsc);
+ 1071              		.loc 1 82 9 is_stmt 1 view .LVU390
+  82:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_draw_sw_blend(draw_ctx, &blend_dsc);
+ 1072              		.loc 1 82 30 is_stmt 0 view .LVU391
+ 1073 0244 1595     		str	r5, [sp, #84]
+  83:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     }
+ 1074              		.loc 1 83 9 is_stmt 1 view .LVU392
+ 1075 0246 15A9     		add	r1, sp, #84
+ 1076 0248 2046     		mov	r0, r4
+ 1077 024a FFF7FEFF 		bl	lv_draw_sw_blend
+ 1078              	.LVL109:
+ 1079              	.LBE111:
+  72:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_area_t clipped_coords;
+ 1080              		.loc 1 72 68 is_stmt 0 view .LVU393
+ 1081 024e BDE0     		b	.L22
+ 1082              	.LVL110:
+ 1083              	.L50:
+  86:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_w = lv_area_get_width(coords);
+ 1084              		.loc 1 86 37 discriminator 2 view .LVU394
+ 1085 0250 099B     		ldr	r3, [sp, #36]
+ 1086 0252 142B     		cmp	r3, #20
+ 1087 0254 7FF41AAF 		bne	.L28
+  86:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_w = lv_area_get_width(coords);
+ 1088              		.loc 1 86 76 discriminator 3 view .LVU395
+ 1089 0258 99F80A30 		ldrb	r3, [r9, #10]	@ zero_extendqisi2
+  86:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_w = lv_area_get_width(coords);
+ 1090              		.loc 1 86 65 discriminator 3 view .LVU396
+ 1091 025c 002B     		cmp	r3, #0
+ 1092 025e 7FF415AF 		bne	.L28
+ 1093              	.LBB112:
+  87:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_h = lv_area_get_height(coords);
+ 1094              		.loc 1 87 9 is_stmt 1 view .LVU397
+ 1095              	.LVL111:
+ 1096              	.LBB113:
+ 1097              	.LBI113:
+ 123:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 1098              		.loc 2 123 26 view .LVU398
+ 1099              	.LBB114:
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 1100              		.loc 2 125 5 view .LVU399
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 1101              		.loc 2 125 31 is_stmt 0 view .LVU400
+ 1102 0262 0B98     		ldr	r0, [sp, #44]
+ 1103 0264 8388     		ldrh	r3, [r0, #4]
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 1104              		.loc 2 125 44 view .LVU401
+ 1105 0266 0288     		ldrh	r2, [r0]
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 1106              		.loc 2 125 36 view .LVU402
+ 1107 0268 9B1A     		subs	r3, r3, r2
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 43
+
+
+ 1108 026a 9BB2     		uxth	r3, r3
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 1109              		.loc 2 125 49 view .LVU403
+ 1110 026c 0133     		adds	r3, r3, #1
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 1111              		.loc 2 125 12 view .LVU404
+ 1112 026e 1BB2     		sxth	r3, r3
+ 1113              	.LVL112:
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** }
+ 1114              		.loc 2 125 12 view .LVU405
+ 1115              	.LBE114:
+ 1116              	.LBE113:
+  88:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.src_buf = (const lv_color_t *)src_buf;
+ 1117              		.loc 1 88 9 is_stmt 1 view .LVU406
+ 1118              	.LBB115:
+ 1119              	.LBI115:
+ 133:Drivers/lvgl/src/draw/sw/../../misc/lv_area.h **** {
+ 1120              		.loc 2 133 26 view .LVU407
+ 1121              	.LBB116:
+ 1122              		.loc 2 135 5 view .LVU408
+ 1123              		.loc 2 135 31 is_stmt 0 view .LVU409
+ 1124 0270 C288     		ldrh	r2, [r0, #6]
+ 1125              		.loc 2 135 44 view .LVU410
+ 1126 0272 4188     		ldrh	r1, [r0, #2]
+ 1127              		.loc 2 135 36 view .LVU411
+ 1128 0274 521A     		subs	r2, r2, r1
+ 1129 0276 92B2     		uxth	r2, r2
+ 1130              		.loc 2 135 49 view .LVU412
+ 1131 0278 0132     		adds	r2, r2, #1
+ 1132              		.loc 2 135 12 view .LVU413
+ 1133 027a 12B2     		sxth	r2, r2
+ 1134              	.LVL113:
+ 1135              		.loc 2 135 12 view .LVU414
+ 1136              	.LBE116:
+ 1137              	.LBE115:
+  89:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_buf = (lv_opa_t *)src_buf;
+ 1138              		.loc 1 89 9 is_stmt 1 view .LVU415
+  89:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_buf = (lv_opa_t *)src_buf;
+ 1139              		.loc 1 89 27 is_stmt 0 view .LVU416
+ 1140 027c 0C99     		ldr	r1, [sp, #48]
+ 1141 027e 1691     		str	r1, [sp, #88]
+  90:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_buf += sizeof(lv_color_t) * src_w * src_h;
+ 1142              		.loc 1 90 9 is_stmt 1 view .LVU417
+  90:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_buf += sizeof(lv_color_t) * src_w * src_h;
+ 1143              		.loc 1 90 28 is_stmt 0 view .LVU418
+ 1144 0280 1891     		str	r1, [sp, #96]
+  91:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.blend_area = coords;
+ 1145              		.loc 1 91 9 is_stmt 1 view .LVU419
+  91:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.blend_area = coords;
+ 1146              		.loc 1 91 58 is_stmt 0 view .LVU420
+ 1147 0282 02FB03F3 		mul	r3, r2, r3
+ 1148              	.LVL114:
+  91:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.blend_area = coords;
+ 1149              		.loc 1 91 28 view .LVU421
+ 1150 0286 01EB4303 		add	r3, r1, r3, lsl #1
+ 1151 028a 1893     		str	r3, [sp, #96]
+  92:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_area = coords;
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 44
+
+
+ 1152              		.loc 1 92 9 is_stmt 1 view .LVU422
+  92:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_area = coords;
+ 1153              		.loc 1 92 30 is_stmt 0 view .LVU423
+ 1154 028c 1590     		str	r0, [sp, #84]
+  93:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+ 1155              		.loc 1 93 9 is_stmt 1 view .LVU424
+  93:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+ 1156              		.loc 1 93 29 is_stmt 0 view .LVU425
+ 1157 028e 1A90     		str	r0, [sp, #104]
+  94:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_draw_sw_blend(draw_ctx, &blend_dsc);
+ 1158              		.loc 1 94 9 is_stmt 1 view .LVU426
+  94:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_draw_sw_blend(draw_ctx, &blend_dsc);
+ 1159              		.loc 1 94 28 is_stmt 0 view .LVU427
+ 1160 0290 0223     		movs	r3, #2
+ 1161 0292 8DF86430 		strb	r3, [sp, #100]
+  95:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     }
+ 1162              		.loc 1 95 9 is_stmt 1 view .LVU428
+ 1163 0296 15A9     		add	r1, sp, #84
+ 1164 0298 0698     		ldr	r0, [sp, #24]
+ 1165 029a FFF7FEFF 		bl	lv_draw_sw_blend
+ 1166              	.LVL115:
+  95:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     }
+ 1167              		.loc 1 95 9 is_stmt 0 view .LVU429
+ 1168              	.LBE112:
+  86:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_coord_t src_w = lv_area_get_width(coords);
+ 1169              		.loc 1 86 108 view .LVU430
+ 1170 029e 95E0     		b	.L22
+ 1171              	.LVL116:
+ 1172              	.L51:
+ 1173              	.LBB117:
+ 134:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                                            draw_dsc->zoom != LV_IMG_ZOOM_NONE) ?
+ 1174              		.loc 1 134 90 discriminator 2 view .LVU431
+ 1175 02a0 D9F80030 		ldr	r3, [r9]
+ 1176 02a4 B3F1807F 		cmp	r3, #16777216
+ 1177 02a8 01D0     		beq	.L46
+ 134:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                                            draw_dsc->zoom != LV_IMG_ZOOM_NONE) ?
+ 1178              		.loc 1 134 28 view .LVU432
+ 1179 02aa 0223     		movs	r3, #2
+ 1180 02ac 4AE7     		b	.L31
+ 1181              	.L46:
+ 1182 02ae 0123     		movs	r3, #1
+ 1183 02b0 48E7     		b	.L31
+ 1184              	.LVL117:
+ 1185              	.L33:
+ 1186              	.LBB110:
+ 149:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****             }
+ 1187              		.loc 1 149 17 is_stmt 1 view .LVU433
+ 1188 02b2 079B     		ldr	r3, [sp, #28]
+ 1189 02b4 0493     		str	r3, [sp, #16]
+ 1190 02b6 CDF80C80 		str	r8, [sp, #12]
+ 1191 02ba 099B     		ldr	r3, [sp, #36]
+ 1192 02bc 0293     		str	r3, [sp, #8]
+ 1193 02be CDF80490 		str	r9, [sp, #4]
+ 1194 02c2 0F9A     		ldr	r2, [sp, #60]
+ 1195 02c4 0092     		str	r2, [sp]
+ 1196 02c6 0E9B     		ldr	r3, [sp, #56]
+ 1197 02c8 0C99     		ldr	r1, [sp, #48]
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 45
+
+
+ 1198 02ca 13A8     		add	r0, sp, #76
+ 1199 02cc FFF7FEFF 		bl	convert_cb
+ 1200              	.LVL118:
+ 1201 02d0 6DE7     		b	.L34
+ 1202              	.L53:
+ 1203              	.LBB102:
+ 154:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_opa_t recolor_opa = draw_dsc->recolor_opa;
+ 1204              		.loc 1 154 17 view .LVU434
+ 155:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_color_t recolor = draw_dsc->recolor;
+ 1205              		.loc 1 155 17 view .LVU435
+ 1206              	.LVL119:
+ 156:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_color_premult(recolor, recolor_opa, premult_v);
+ 1207              		.loc 1 156 17 view .LVU436
+ 156:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_color_premult(recolor, recolor_opa, premult_v);
+ 1208              		.loc 1 156 28 is_stmt 0 view .LVU437
+ 1209 02d2 B9F80830 		ldrh	r3, [r9, #8]
+ 157:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 recolor_opa = 255 - recolor_opa;
+ 1210              		.loc 1 157 17 is_stmt 1 view .LVU438
+ 1211              	.LVL120:
+ 1212              	.LBB103:
+ 1213              	.LBI103:
+ 475:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 1214              		.loc 3 475 42 view .LVU439
+ 1215              	.LBB104:
+ 478:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[1] = (uint16_t)LV_COLOR_GET_G(c) * mix;
+ 1216              		.loc 3 478 5 view .LVU440
+ 478:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[1] = (uint16_t)LV_COLOR_GET_G(c) * mix;
+ 1217              		.loc 3 478 24 is_stmt 0 view .LVU441
+ 1218 02d6 C3F3C402 		ubfx	r2, r3, #3, #5
+ 478:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[1] = (uint16_t)LV_COLOR_GET_G(c) * mix;
+ 1219              		.loc 3 478 42 view .LVU442
+ 1220 02da 00FB02F2 		mul	r2, r0, r2
+ 478:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[1] = (uint16_t)LV_COLOR_GET_G(c) * mix;
+ 1221              		.loc 3 478 12 view .LVU443
+ 1222 02de ADF84420 		strh	r2, [sp, #68]	@ movhi
+ 479:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[2] = (uint16_t)LV_COLOR_GET_B(c) * mix;
+ 1223              		.loc 3 479 5 is_stmt 1 view .LVU444
+ 479:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[2] = (uint16_t)LV_COLOR_GET_B(c) * mix;
+ 1224              		.loc 3 479 24 is_stmt 0 view .LVU445
+ 1225 02e2 03F00701 		and	r1, r3, #7
+ 1226 02e6 C3F34232 		ubfx	r2, r3, #13, #3
+ 479:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[2] = (uint16_t)LV_COLOR_GET_B(c) * mix;
+ 1227              		.loc 3 479 14 view .LVU446
+ 1228 02ea 02EBC102 		add	r2, r2, r1, lsl #3
+ 479:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[2] = (uint16_t)LV_COLOR_GET_B(c) * mix;
+ 1229              		.loc 3 479 42 view .LVU447
+ 1230 02ee 00FB02F2 		mul	r2, r0, r2
+ 479:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     out[2] = (uint16_t)LV_COLOR_GET_B(c) * mix;
+ 1231              		.loc 3 479 12 view .LVU448
+ 1232 02f2 ADF84620 		strh	r2, [sp, #70]	@ movhi
+ 480:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 1233              		.loc 3 480 5 is_stmt 1 view .LVU449
+ 480:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 1234              		.loc 3 480 24 is_stmt 0 view .LVU450
+ 1235 02f6 C3F30423 		ubfx	r3, r3, #8, #5
+ 1236              	.LVL121:
+ 480:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 46
+
+
+ 1237              		.loc 3 480 42 view .LVU451
+ 1238 02fa 00FB03F3 		mul	r3, r0, r3
+ 480:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 1239              		.loc 3 480 12 view .LVU452
+ 1240 02fe ADF84830 		strh	r3, [sp, #72]	@ movhi
+ 1241              	.LVL122:
+ 480:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 1242              		.loc 3 480 12 view .LVU453
+ 1243              	.LBE104:
+ 1244              	.LBE103:
+ 158:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 uint32_t i;
+ 1245              		.loc 1 158 17 is_stmt 1 view .LVU454
+ 158:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 uint32_t i;
+ 1246              		.loc 1 158 29 is_stmt 0 view .LVU455
+ 1247 0302 C043     		mvns	r0, r0
+ 1248              	.LVL123:
+ 158:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 uint32_t i;
+ 1249              		.loc 1 158 29 view .LVU456
+ 1250 0304 C0B2     		uxtb	r0, r0
+ 1251              	.LVL124:
+ 159:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 for(i = 0; i < buf_size; i++) {
+ 1252              		.loc 1 159 17 is_stmt 1 view .LVU457
+ 160:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     rgb_buf[i] = lv_color_mix_premult(premult_v, rgb_buf[i], recolor_opa);
+ 1253              		.loc 1 160 17 view .LVU458
+ 160:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     rgb_buf[i] = lv_color_mix_premult(premult_v, rgb_buf[i], recolor_opa);
+ 1254              		.loc 1 160 23 is_stmt 0 view .LVU459
+ 1255 0306 0021     		movs	r1, #0
+ 160:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     rgb_buf[i] = lv_color_mix_premult(premult_v, rgb_buf[i], recolor_opa);
+ 1256              		.loc 1 160 17 view .LVU460
+ 1257 0308 36E0     		b	.L36
+ 1258              	.LVL125:
+ 1259              	.L37:
+ 161:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 }
+ 1260              		.loc 1 161 21 is_stmt 1 discriminator 3 view .LVU461
+ 161:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 }
+ 1261              		.loc 1 161 21 is_stmt 0 discriminator 3 view .LVU462
+ 1262 030a 38F81120 		ldrh	r2, [r8, r1, lsl #1]
+ 1263              	.LVL126:
+ 1264              	.LBB105:
+ 1265              	.LBI105:
+ 500:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 1266              		.loc 3 500 48 is_stmt 1 discriminator 3 view .LVU463
+ 1267              	.LBB106:
+ 502:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH != 1
+ 1268              		.loc 3 502 5 discriminator 3 view .LVU464
+ 505:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G(ret, LV_UDIV255(premult_c1[1] + LV_COLOR_GET_G(c2) * mix + LV_COLOR_MIX_ROUND_OF
+ 1269              		.loc 3 505 5 discriminator 3 view .LVU465
+ 1270 030e BDF84430 		ldrh	r3, [sp, #68]
+ 1271              	.LVL127:
+ 505:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G(ret, LV_UDIV255(premult_c1[1] + LV_COLOR_GET_G(c2) * mix + LV_COLOR_MIX_ROUND_OF
+ 1272              		.loc 3 505 5 is_stmt 0 discriminator 3 view .LVU466
+ 1273 0312 C2F3C404 		ubfx	r4, r2, #3, #5
+ 1274 0316 00FB0433 		mla	r3, r0, r4, r3
+ 1275 031a 03EB0324 		add	r4, r3, r3, lsl #8
+ 1276 031e 03EBC413 		add	r3, r3, r4, lsl #7
+ 1277 0322 C3F3C453 		ubfx	r3, r3, #23, #5
+ 1278 0326 63F3C705 		bfi	r5, r3, #3, #5
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 47
+
+
+ 506:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B(ret, LV_UDIV255(premult_c1[2] + LV_COLOR_GET_B(c2) * mix + LV_COLOR_MIX_ROUND_OF
+ 1279              		.loc 3 506 5 is_stmt 1 discriminator 3 view .LVU467
+ 1280 032a BDF84630 		ldrh	r3, [sp, #70]
+ 1281 032e 02F00706 		and	r6, r2, #7
+ 1282 0332 C2F34234 		ubfx	r4, r2, #13, #3
+ 1283 0336 04EBC604 		add	r4, r4, r6, lsl #3
+ 1284 033a 04FB0033 		mla	r3, r4, r0, r3
+ 1285 033e 03EB0324 		add	r4, r3, r3, lsl #8
+ 1286 0342 03EBC413 		add	r3, r3, r4, lsl #7
+ 1287 0346 C3F38264 		ubfx	r4, r3, #26, #3
+ 1288 034a 64F30205 		bfi	r5, r4, #0, #3
+ 506:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B(ret, LV_UDIV255(premult_c1[2] + LV_COLOR_GET_B(c2) * mix + LV_COLOR_MIX_ROUND_OF
+ 1289              		.loc 3 506 5 discriminator 3 view .LVU468
+ 1290 034e C3F3C253 		ubfx	r3, r3, #23, #3
+ 1291 0352 63F34F35 		bfi	r5, r3, #13, #3
+ 506:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B(ret, LV_UDIV255(premult_c1[2] + LV_COLOR_GET_B(c2) * mix + LV_COLOR_MIX_ROUND_OF
+ 1292              		.loc 3 506 103 discriminator 3 view .LVU469
+ 507:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_A(ret, 0xFF);
+ 1293              		.loc 3 507 5 discriminator 3 view .LVU470
+ 1294 0356 BDF84830 		ldrh	r3, [sp, #72]
+ 1295 035a C2F30422 		ubfx	r2, r2, #8, #5
+ 1296              	.LVL128:
+ 507:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_A(ret, 0xFF);
+ 1297              		.loc 3 507 5 is_stmt 0 discriminator 3 view .LVU471
+ 1298 035e 02FB0033 		mla	r3, r2, r0, r3
+ 1299 0362 03EB0322 		add	r2, r3, r3, lsl #8
+ 1300 0366 03EBC213 		add	r3, r3, r2, lsl #7
+ 1301 036a C3F3C453 		ubfx	r3, r3, #23, #5
+ 1302 036e 63F30C25 		bfi	r5, r3, #8, #5
+ 508:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 1303              		.loc 3 508 5 is_stmt 1 discriminator 3 view .LVU472
+ 508:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 1304              		.loc 3 508 5 discriminator 3 view .LVU473
+ 508:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 1305              		.loc 3 508 5 discriminator 3 view .LVU474
+ 519:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 1306              		.loc 3 519 5 discriminator 3 view .LVU475
+ 1307              	.LVL129:
+ 519:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 1308              		.loc 3 519 5 is_stmt 0 discriminator 3 view .LVU476
+ 1309              	.LBE106:
+ 1310              	.LBE105:
+ 161:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 }
+ 1311              		.loc 1 161 34 discriminator 3 view .LVU477
+ 1312 0372 28F81150 		strh	r5, [r8, r1, lsl #1]	@ movhi
+ 160:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     rgb_buf[i] = lv_color_mix_premult(premult_v, rgb_buf[i], recolor_opa);
+ 1313              		.loc 1 160 43 is_stmt 1 discriminator 3 view .LVU478
+ 1314 0376 0131     		adds	r1, r1, #1
+ 1315              	.LVL130:
+ 1316              	.L36:
+ 160:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     rgb_buf[i] = lv_color_mix_premult(premult_v, rgb_buf[i], recolor_opa);
+ 1317              		.loc 1 160 30 discriminator 1 view .LVU479
+ 1318 0378 5145     		cmp	r1, r10
+ 1319 037a C6D3     		bcc	.L37
+ 1320 037c 1CE7     		b	.L35
+ 1321              	.LVL131:
+ 1322              	.L54:
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 48
+
+
+ 160:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     rgb_buf[i] = lv_color_mix_premult(premult_v, rgb_buf[i], recolor_opa);
+ 1323              		.loc 1 160 30 is_stmt 0 discriminator 1 view .LVU480
+ 1324              	.LBE102:
+ 1325              	.LBB107:
+ 167:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 lv_opa_t * mask_buf_tmp = mask_buf;
+ 1326              		.loc 1 167 17 is_stmt 1 view .LVU481
+ 168:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 for(y = blend_area.y1; y <= blend_area.y2; y++) {
+ 1327              		.loc 1 168 17 view .LVU482
+ 169:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     lv_draw_mask_res_t mask_res_line;
+ 1328              		.loc 1 169 17 view .LVU483
+ 169:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     lv_draw_mask_res_t mask_res_line;
+ 1329              		.loc 1 169 23 is_stmt 0 view .LVU484
+ 1330 037e BDF97240 		ldrsh	r4, [sp, #114]
+ 1331              	.LVL132:
+ 168:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 for(y = blend_area.y1; y <= blend_area.y2; y++) {
+ 1332              		.loc 1 168 28 view .LVU485
+ 1333 0382 079E     		ldr	r6, [sp, #28]
+ 169:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     lv_draw_mask_res_t mask_res_line;
+ 1334              		.loc 1 169 17 view .LVU486
+ 1335 0384 09E0     		b	.L39
+ 1336              	.LVL133:
+ 1337              	.L55:
+ 1338              	.LBB108:
+ 174:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+ 1339              		.loc 1 174 25 is_stmt 1 view .LVU487
+ 1340 0386 3946     		mov	r1, r7
+ 1341 0388 3046     		mov	r0, r6
+ 1342              	.LVL134:
+ 174:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+ 1343              		.loc 1 174 25 is_stmt 0 view .LVU488
+ 1344 038a FFF7FEFF 		bl	lv_memset_00
+ 1345              	.LVL135:
+ 175:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     }
+ 1346              		.loc 1 175 25 is_stmt 1 view .LVU489
+ 175:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     }
+ 1347              		.loc 1 175 44 is_stmt 0 view .LVU490
+ 1348 038e 0223     		movs	r3, #2
+ 1349 0390 8DF86430 		strb	r3, [sp, #100]
+ 1350              	.L41:
+ 180:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 }
+ 1351              		.loc 1 180 21 is_stmt 1 discriminator 2 view .LVU491
+ 180:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 }
+ 1352              		.loc 1 180 34 is_stmt 0 discriminator 2 view .LVU492
+ 1353 0394 3E44     		add	r6, r6, r7
+ 1354              	.LVL136:
+ 180:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                 }
+ 1355              		.loc 1 180 34 discriminator 2 view .LVU493
+ 1356              	.LBE108:
+ 169:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     lv_draw_mask_res_t mask_res_line;
+ 1357              		.loc 1 169 61 is_stmt 1 discriminator 2 view .LVU494
+ 1358 0396 0134     		adds	r4, r4, #1
+ 1359              	.LVL137:
+ 169:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     lv_draw_mask_res_t mask_res_line;
+ 1360              		.loc 1 169 61 is_stmt 0 discriminator 2 view .LVU495
+ 1361 0398 24B2     		sxth	r4, r4
+ 1362              	.LVL138:
+ 1363              	.L39:
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 49
+
+
+ 169:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     lv_draw_mask_res_t mask_res_line;
+ 1364              		.loc 1 169 42 is_stmt 1 discriminator 1 view .LVU496
+ 169:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     lv_draw_mask_res_t mask_res_line;
+ 1365              		.loc 1 169 55 is_stmt 0 discriminator 1 view .LVU497
+ 1366 039a BDF97630 		ldrsh	r3, [sp, #118]
+ 169:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     lv_draw_mask_res_t mask_res_line;
+ 1367              		.loc 1 169 42 discriminator 1 view .LVU498
+ 1368 039e A342     		cmp	r3, r4
+ 1369 03a0 FFF60EAF 		blt	.L38
+ 1370              	.LBB109:
+ 170:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     mask_res_line = lv_draw_mask_apply(mask_buf_tmp, blend_area.x1, y, blend_w);
+ 1371              		.loc 1 170 21 is_stmt 1 view .LVU499
+ 171:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 1372              		.loc 1 171 21 view .LVU500
+ 171:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 1373              		.loc 1 171 37 is_stmt 0 view .LVU501
+ 1374 03a4 3B46     		mov	r3, r7
+ 1375 03a6 2246     		mov	r2, r4
+ 1376 03a8 BDF97010 		ldrsh	r1, [sp, #112]
+ 1377 03ac 3046     		mov	r0, r6
+ 1378 03ae FFF7FEFF 		bl	lv_draw_mask_apply
+ 1379              	.LVL139:
+ 173:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                         lv_memset_00(mask_buf_tmp, blend_w);
+ 1380              		.loc 1 173 21 is_stmt 1 view .LVU502
+ 173:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                         lv_memset_00(mask_buf_tmp, blend_w);
+ 1381              		.loc 1 173 23 is_stmt 0 view .LVU503
+ 1382 03b2 0028     		cmp	r0, #0
+ 1383 03b4 E7D0     		beq	.L55
+ 177:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+ 1384              		.loc 1 177 26 is_stmt 1 view .LVU504
+ 177:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                         blend_dsc.mask_res = LV_DRAW_MASK_RES_CHANGED;
+ 1385              		.loc 1 177 28 is_stmt 0 view .LVU505
+ 1386 03b6 0228     		cmp	r0, #2
+ 1387 03b8 ECD1     		bne	.L41
+ 178:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     }
+ 1388              		.loc 1 178 25 is_stmt 1 view .LVU506
+ 178:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     }
+ 1389              		.loc 1 178 44 is_stmt 0 view .LVU507
+ 1390 03ba 8DF86400 		strb	r0, [sp, #100]
+ 1391 03be E9E7     		b	.L41
+ 1392              	.LVL140:
+ 1393              	.L52:
+ 178:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****                     }
+ 1394              		.loc 1 178 44 view .LVU508
+ 1395              	.LBE109:
+ 1396              	.LBE107:
+ 1397              	.LBE110:
+ 194:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****         lv_mem_buf_release(rgb_buf);
+ 1398              		.loc 1 194 9 is_stmt 1 view .LVU509
+ 1399 03c0 0798     		ldr	r0, [sp, #28]
+ 1400 03c2 FFF7FEFF 		bl	lv_mem_buf_release
+ 1401              	.LVL141:
+ 195:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     }
+ 1402              		.loc 1 195 9 view .LVU510
+ 1403 03c6 4046     		mov	r0, r8
+ 1404 03c8 FFF7FEFF 		bl	lv_mem_buf_release
+ 1405              	.LVL142:
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 50
+
+
+ 1406              	.L22:
+ 195:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c ****     }
+ 1407              		.loc 1 195 9 is_stmt 0 view .LVU511
+ 1408              	.LBE117:
+ 197:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 1409              		.loc 1 197 1 view .LVU512
+ 1410 03cc 21B0     		add	sp, sp, #132
+ 1411              		.cfi_def_cfa_offset 36
+ 1412              		@ sp needed
+ 1413 03ce BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 197:Drivers/lvgl/src/draw/sw/lv_draw_sw_img.c **** 
+ 1414              		.loc 1 197 1 view .LVU513
+ 1415              		.cfi_endproc
+ 1416              	.LFE161:
+ 1418              		.text
+ 1419              	.Letext0:
+ 1420              		.file 4 "/Users/johannes/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/
+ 1421              		.file 5 "/Users/johannes/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/
+ 1422              		.file 6 "Drivers/lvgl/src/draw/sw/../../misc/lv_types.h"
+ 1423              		.file 7 "/Users/johannes/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/
+ 1424              		.file 8 "Drivers/lvgl/src/draw/sw/../../misc/../font/lv_font.h"
+ 1425              		.file 9 "Drivers/lvgl/src/draw/sw/../../misc/lv_txt.h"
+ 1426              		.file 10 "Drivers/lvgl/src/draw/sw/../../misc/lv_bidi.h"
+ 1427              		.file 11 "Drivers/lvgl/src/draw/sw/../../misc/lv_style.h"
+ 1428              		.file 12 "Drivers/lvgl/src/draw/sw/../lv_draw_mask.h"
+ 1429              		.file 13 "Drivers/lvgl/src/draw/sw/lv_draw_sw_blend.h"
+ 1430              		.file 14 "Drivers/lvgl/src/draw/sw/../lv_img_buf.h"
+ 1431              		.file 15 "Drivers/lvgl/src/draw/sw/../../core/lv_obj.h"
+ 1432              		.file 16 "Drivers/lvgl/src/draw/sw/../lv_draw_rect.h"
+ 1433              		.file 17 "Drivers/lvgl/src/draw/sw/../lv_draw_label.h"
+ 1434              		.file 18 "Drivers/lvgl/src/draw/sw/../lv_draw_img.h"
+ 1435              		.file 19 "Drivers/lvgl/src/draw/sw/../lv_draw_line.h"
+ 1436              		.file 20 "Drivers/lvgl/src/draw/sw/../lv_draw_arc.h"
+ 1437              		.file 21 "Drivers/lvgl/src/draw/sw/../lv_draw_layer.h"
+ 1438              		.file 22 "Drivers/lvgl/src/draw/sw/../lv_draw.h"
+ 1439              		.file 23 "Drivers/lvgl/src/draw/sw/../../hal/../misc/lv_timer.h"
+ 1440              		.file 24 "Drivers/lvgl/src/draw/sw/../../hal/lv_hal_disp.h"
+ 1441              		.file 25 "Drivers/lvgl/src/draw/sw/../../core/lv_group.h"
+ 1442              		.file 26 "Drivers/lvgl/src/draw/sw/../../hal/../misc/lv_ll.h"
+ 1443              		.file 27 "Drivers/lvgl/src/draw/sw/../../core/lv_obj_scroll.h"
+ 1444              		.file 28 "Drivers/lvgl/src/draw/sw/../../core/lv_obj_style.h"
+ 1445              		.file 29 "Drivers/lvgl/src/draw/sw/../../core/lv_obj_class.h"
+ 1446              		.file 30 "Drivers/lvgl/src/draw/sw/../../core/lv_event.h"
+ 1447              		.file 31 "Drivers/lvgl/src/draw/sw/../../misc/lv_mem.h"
+ 1448              		.file 32 "Drivers/lvgl/src/draw/sw/../lv_draw_transform.h"
+ 1449              		.file 33 "Drivers/lvgl/src/draw/sw/../../core/lv_refr.h"
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s 			page 51
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_draw_sw_img.c
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s:20     .text.convert_cb:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s:25     .text.convert_cb:0000000000000000 convert_cb
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s:73     .text.convert_cb:000000000000002a $d
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s:550    .text.lv_draw_sw_img_decoded:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s:556    .text.lv_draw_sw_img_decoded:0000000000000000 lv_draw_sw_img_decoded
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s:90     .text.convert_cb:000000000000003b $d
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccJyLKcA.s:90     .text.convert_cb:000000000000003c $t
+
+UNDEFINED SYMBOLS
+lv_area_get_size
+lv_memset_ff
+lv_memcpy
+lv_draw_mask_is_any
+lv_memset_00
+_lv_refr_get_disp_refreshing
+lv_disp_get_hor_res
+lv_mem_buf_get
+lv_area_move
+lv_draw_transform
+lv_draw_sw_blend
+_lv_area_intersect
+lv_draw_mask_apply
+lv_mem_buf_release

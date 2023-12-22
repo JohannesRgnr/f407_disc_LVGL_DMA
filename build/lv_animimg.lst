@@ -1,0 +1,975 @@
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_animimg.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.section	.text.lv_animimg_constructor,"ax",%progbits
+  20              		.align	1
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	lv_animimg_constructor:
+  26              	.LVL0:
+  27              	.LFB209:
+  28              		.file 1 "Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c"
+   1:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** /**
+   2:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  * @file lv_animimg.c
+   3:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  *
+   4:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  */
+   5:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+   6:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** /*********************
+   7:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  *      INCLUDES
+   8:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  *********************/
+   9:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** #include "lv_animimg.h"
+  10:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** #if LV_USE_ANIMIMG != 0
+  11:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  12:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** /*Testing of dependencies*/
+  13:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** #if LV_USE_IMG == 0
+  14:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     #error "lv_animimg: lv_img is required. Enable it in lv_conf.h (LV_USE_IMG  1) "
+  15:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** #endif
+  16:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  17:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** #include "../../../misc/lv_assert.h"
+  18:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** #include "../../../draw/lv_img_decoder.h"
+  19:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** #include "../../../misc/lv_fs.h"
+  20:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** #include "../../../misc/lv_txt.h"
+  21:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** #include "../../../misc/lv_math.h"
+  22:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** #include "../../../misc/lv_log.h"
+  23:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** #include "../../../misc/lv_anim.h"
+  24:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  25:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** /*********************
+  26:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  *      DEFINES
+  27:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  *********************/
+  28:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** #define LV_OBJX_NAME "lv_animimg"
+  29:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  30:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** #define MY_CLASS &lv_animimg_class
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 2
+
+
+  31:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  32:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** /**********************
+  33:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  *      TYPEDEFS
+  34:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  **********************/
+  35:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  36:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** /**********************
+  37:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  *  STATIC PROTOTYPES
+  38:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  **********************/
+  39:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** static void index_change(lv_obj_t * obj, int32_t index);
+  40:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** static void lv_animimg_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj);
+  41:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  42:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** /**********************
+  43:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  *  STATIC VARIABLES
+  44:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  **********************/
+  45:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** const lv_obj_class_t lv_animimg_class = {
+  46:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     .constructor_cb = lv_animimg_constructor,
+  47:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     .instance_size = sizeof(lv_animimg_t),
+  48:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     .base_class = &lv_img_class
+  49:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** };
+  50:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  51:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** /**********************
+  52:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  *      MACROS
+  53:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  **********************/
+  54:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  55:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** /**********************
+  56:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  *   GLOBAL FUNCTIONS
+  57:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  **********************/
+  58:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  59:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** lv_obj_t * lv_animimg_create(lv_obj_t * parent)
+  60:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** {
+  61:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     LV_LOG_INFO("begin");
+  62:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_obj_t * obj = lv_obj_class_create_obj(&lv_animimg_class, parent);
+  63:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_obj_class_init_obj(obj);
+  64:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     return obj;
+  65:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** }
+  66:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  67:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** void lv_animimg_set_src(lv_obj_t * obj, const void * dsc[], uint8_t num)
+  68:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** {
+  69:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+  70:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+  71:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     animimg->dsc = dsc;
+  72:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     animimg->pic_count = num;
+  73:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_set_values(&animimg->anim, 0, num);
+  74:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** }
+  75:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  76:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** void lv_animimg_start(lv_obj_t * obj)
+  77:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** {
+  78:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+  79:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+  80:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_start(&animimg->anim);
+  81:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** }
+  82:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  83:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** /*=====================
+  84:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  * Setter functions
+  85:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  *====================*/
+  86:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  87:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** void lv_animimg_set_duration(lv_obj_t * obj, uint32_t duration)
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 3
+
+
+  88:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** {
+  89:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+  90:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+  91:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_set_time(&animimg->anim, duration);
+  92:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_set_playback_delay(&animimg->anim, duration);
+  93:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** }
+  94:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+  95:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** void lv_animimg_set_repeat_count(lv_obj_t * obj, uint16_t count)
+  96:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** {
+  97:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+  98:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+  99:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_set_repeat_count(&animimg->anim, count);
+ 100:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** }
+ 101:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+ 102:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** /*=====================
+ 103:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  * Getter functions
+ 104:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  *====================*/
+ 105:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+ 106:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** /**********************
+ 107:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  *   STATIC FUNCTIONS
+ 108:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****  **********************/
+ 109:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+ 110:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** static void lv_animimg_constructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
+ 111:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** {
+  29              		.loc 1 111 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		.loc 1 111 1 is_stmt 0 view .LVU1
+  34 0000 38B5     		push	{r3, r4, r5, lr}
+  35              		.cfi_def_cfa_offset 16
+  36              		.cfi_offset 3, -16
+  37              		.cfi_offset 4, -12
+  38              		.cfi_offset 5, -8
+  39              		.cfi_offset 14, -4
+  40 0002 0C46     		mov	r4, r1
+ 112:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     LV_TRACE_OBJ_CREATE("begin");
+  41              		.loc 1 112 33 is_stmt 1 view .LVU2
+ 113:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+ 114:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     LV_UNUSED(class_p);
+  42              		.loc 1 114 5 view .LVU3
+ 115:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+  43              		.loc 1 115 5 view .LVU4
+  44              	.LVL1:
+ 116:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+ 117:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     animimg->dsc = NULL;
+  45              		.loc 1 117 5 view .LVU5
+  46              		.loc 1 117 18 is_stmt 0 view .LVU6
+  47 0004 0025     		movs	r5, #0
+  48 0006 C1F88050 		str	r5, [r1, #128]
+ 118:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     animimg->pic_count = -1;
+  49              		.loc 1 118 5 is_stmt 1 view .LVU7
+  50              		.loc 1 118 24 is_stmt 0 view .LVU8
+  51 000a FF23     		movs	r3, #255
+  52 000c 81F88430 		strb	r3, [r1, #132]
+ 119:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     //initial animation
+ 120:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_init(&animimg->anim);
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 4
+
+
+  53              		.loc 1 120 5 is_stmt 1 view .LVU9
+  54 0010 01F13C00 		add	r0, r1, #60
+  55              	.LVL2:
+  56              		.loc 1 120 5 is_stmt 0 view .LVU10
+  57 0014 FFF7FEFF 		bl	lv_anim_init
+  58              	.LVL3:
+ 121:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_set_var(&animimg->anim, obj);
+  59              		.loc 1 121 5 is_stmt 1 view .LVU11
+  60              	.LBB20:
+  61              	.LBI20:
+  62              		.file 2 "Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h"
+   1:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+   2:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @file lv_anim.h
+   3:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  *
+   4:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+   5:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+   6:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** #ifndef LV_ANIM_H
+   7:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** #define LV_ANIM_H
+   8:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+   9:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** #ifdef __cplusplus
+  10:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** extern "C" {
+  11:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** #endif
+  12:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  13:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /*********************
+  14:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  *      INCLUDES
+  15:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  *********************/
+  16:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** #include "../lv_conf_internal.h"
+  17:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  18:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** #include <stdint.h>
+  19:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** #include <stdbool.h>
+  20:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** #include <stddef.h>
+  21:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  22:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /*********************
+  23:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  *      DEFINES
+  24:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  *********************/
+  25:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  26:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** #define LV_ANIM_REPEAT_INFINITE      0xFFFF
+  27:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** #define LV_ANIM_PLAYTIME_INFINITE    0xFFFFFFFF
+  28:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  29:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** LV_EXPORT_CONST_INT(LV_ANIM_REPEAT_INFINITE);
+  30:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** LV_EXPORT_CONST_INT(LV_ANIM_PLAYTIME_INFINITE);
+  31:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  32:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**********************
+  33:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  *      TYPEDEFS
+  34:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  **********************/
+  35:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  36:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /** Can be used to indicate if animations are enabled or disabled in a case*/
+  37:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** typedef enum {
+  38:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     LV_ANIM_OFF,
+  39:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     LV_ANIM_ON,
+  40:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** } lv_anim_enable_t;
+  41:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  42:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** struct _lv_anim_t;
+  43:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** struct _lv_timer_t;
+  44:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  45:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /** Get the current value during an animation*/
+  46:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** typedef int32_t (*lv_anim_path_cb_t)(const struct _lv_anim_t *);
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 5
+
+
+  47:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  48:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /** Generic prototype of "animator" functions.
+  49:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * First parameter is the variable to animate.
+  50:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Second parameter is the value to set.
+  51:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Compatible with `lv_xxx_set_yyy(obj, value)` functions
+  52:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * The `x` in `_xcb_t` means it's not a fully generic prototype because
+  53:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * it doesn't receive `lv_anim_t *` as its first argument*/
+  54:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** typedef void (*lv_anim_exec_xcb_t)(void *, int32_t);
+  55:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  56:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /** Same as `lv_anim_exec_xcb_t` but receives `lv_anim_t *` as the first parameter.
+  57:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * It's more consistent but less convenient. Might be used by binding generator functions.*/
+  58:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** typedef void (*lv_anim_custom_exec_cb_t)(struct _lv_anim_t *, int32_t);
+  59:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  60:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /** Callback to call when the animation is ready*/
+  61:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** typedef void (*lv_anim_ready_cb_t)(struct _lv_anim_t *);
+  62:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  63:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /** Callback to call when the animation really stars (considering `delay`)*/
+  64:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** typedef void (*lv_anim_start_cb_t)(struct _lv_anim_t *);
+  65:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  66:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /** Callback used when the animation values are relative to get the current value*/
+  67:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** typedef int32_t (*lv_anim_get_value_cb_t)(struct _lv_anim_t *);
+  68:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  69:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /** Callback used when the animation is deleted*/
+  70:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** typedef void (*lv_anim_deleted_cb_t)(struct _lv_anim_t *);
+  71:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  72:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /** Describes an animation*/
+  73:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** typedef struct _lv_anim_t {
+  74:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     void * var;                          /**<Variable to animate*/
+  75:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     lv_anim_exec_xcb_t exec_cb;          /**< Function to execute to animate*/
+  76:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     lv_anim_start_cb_t start_cb;         /**< Call it when the animation is starts (considering `de
+  77:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     lv_anim_ready_cb_t ready_cb;         /**< Call it when the animation is ready*/
+  78:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     lv_anim_deleted_cb_t deleted_cb;     /**< Call it when the animation is deleted*/
+  79:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     lv_anim_get_value_cb_t get_value_cb; /**< Get the current value in relative mode*/
+  80:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** #if LV_USE_USER_DATA
+  81:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     void * user_data; /**< Custom user data*/
+  82:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** #endif
+  83:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     lv_anim_path_cb_t path_cb;         /**< Describe the path (curve) of animations*/
+  84:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     int32_t start_value;               /**< Start value*/
+  85:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     int32_t current_value;             /**< Current value*/
+  86:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     int32_t end_value;                 /**< End value*/
+  87:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     int32_t time;                /**< Animation time in ms*/
+  88:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     int32_t act_time;            /**< Current time in animation. Set to negative to make delay.*/
+  89:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     uint32_t playback_delay;     /**< Wait before play back*/
+  90:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     uint32_t playback_time;      /**< Duration of playback animation*/
+  91:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     uint32_t repeat_delay;       /**< Wait before repeat*/
+  92:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     uint16_t repeat_cnt;         /**< Repeat count for the animation*/
+  93:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     uint8_t early_apply  : 1;    /**< 1: Apply start value immediately even is there is `delay`*/
+  94:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+  95:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     /*Animation system use these - user shouldn't set*/
+  96:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     uint8_t playback_now : 1; /**< Play back is in progress*/
+  97:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     uint8_t run_round : 1;    /**< Indicates the animation has run in this round*/
+  98:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     uint8_t start_cb_called : 1;    /**< Indicates that the `start_cb` was already called*/
+  99:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** } lv_anim_t;
+ 100:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 101:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**********************
+ 102:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * GLOBAL PROTOTYPES
+ 103:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  **********************/
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 6
+
+
+ 104:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 105:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 106:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Init. the animation module
+ 107:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ 108:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** void _lv_anim_core_init(void);
+ 109:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 110:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 111:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Initialize an animation variable.
+ 112:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * E.g.:
+ 113:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * lv_anim_t a;
+ 114:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * lv_anim_init(&a);
+ 115:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * lv_anim_set_...(&a);
+ 116:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * lv_anim_start(&a);
+ 117:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a     pointer to an `lv_anim_t` variable to initialize
+ 118:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ 119:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** void lv_anim_init(lv_anim_t * a);
+ 120:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 121:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 122:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Set a variable to animate
+ 123:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a     pointer to an initialized `lv_anim_t` variable
+ 124:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param var   pointer to a variable to animate
+ 125:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ 126:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** static inline void lv_anim_set_var(lv_anim_t * a, void * var)
+  63              		.loc 2 126 20 view .LVU12
+  64              	.LBB21:
+ 127:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 128:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->var = var;
+  65              		.loc 2 128 5 view .LVU13
+  66              		.loc 2 128 12 is_stmt 0 view .LVU14
+  67 0018 E463     		str	r4, [r4, #60]
+  68              	.LVL4:
+  69              		.loc 2 128 12 view .LVU15
+  70              	.LBE21:
+  71              	.LBE20:
+ 122:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_set_time(&animimg->anim, 30);
+  72              		.loc 1 122 5 is_stmt 1 view .LVU16
+  73              	.LBB22:
+  74              	.LBI22:
+ 129:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 130:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 131:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 132:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Set a function to animate `var`
+ 133:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a         pointer to an initialized `lv_anim_t` variable
+ 134:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param exec_cb   a function to execute during animation
+ 135:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  *                  LVGL's built-in functions can be used.
+ 136:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  *                  E.g. lv_obj_set_x
+ 137:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ 138:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** static inline void lv_anim_set_exec_cb(lv_anim_t * a, lv_anim_exec_xcb_t exec_cb)
+ 139:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 140:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->exec_cb = exec_cb;
+ 141:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 142:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 143:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 144:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Set the duration of an animation
+ 145:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a         pointer to an initialized `lv_anim_t` variable
+ 146:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param duration  duration of the animation in milliseconds
+ 147:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 7
+
+
+ 148:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** static inline void lv_anim_set_time(lv_anim_t * a, uint32_t duration)
+  75              		.loc 2 148 20 view .LVU17
+  76              	.LBB23:
+ 149:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 150:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->time = duration;
+  77              		.loc 2 150 5 view .LVU18
+  78              		.loc 2 150 13 is_stmt 0 view .LVU19
+  79 001a 1E23     		movs	r3, #30
+  80 001c A366     		str	r3, [r4, #104]
+  81              	.LVL5:
+  82              		.loc 2 150 13 view .LVU20
+  83              	.LBE23:
+  84              	.LBE22:
+ 123:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_set_exec_cb(&animimg->anim, (lv_anim_exec_xcb_t)index_change);
+  85              		.loc 1 123 5 is_stmt 1 view .LVU21
+  86              	.LBB24:
+  87              	.LBI24:
+ 138:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+  88              		.loc 2 138 20 view .LVU22
+  89              	.LBB25:
+ 140:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+  90              		.loc 2 140 5 view .LVU23
+ 140:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+  91              		.loc 2 140 16 is_stmt 0 view .LVU24
+  92 001e 054B     		ldr	r3, .L3
+  93 0020 2364     		str	r3, [r4, #64]
+  94              	.LVL6:
+ 140:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+  95              		.loc 2 140 16 view .LVU25
+  96              	.LBE25:
+  97              	.LBE24:
+ 124:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_set_values(&animimg->anim, 0, 1);
+  98              		.loc 1 124 5 is_stmt 1 view .LVU26
+  99              	.LBB26:
+ 100              	.LBI26:
+ 151:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 152:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 153:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 154:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Set a delay before starting the animation
+ 155:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a         pointer to an initialized `lv_anim_t` variable
+ 156:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param delay     delay before the animation in milliseconds
+ 157:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ 158:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** static inline void lv_anim_set_delay(lv_anim_t * a, uint32_t delay)
+ 159:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 160:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->act_time = -(int32_t)(delay);
+ 161:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 162:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 163:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 164:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Set the start and end values of an animation
+ 165:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a         pointer to an initialized `lv_anim_t` variable
+ 166:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param start     the start value
+ 167:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param end       the end value
+ 168:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ 169:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** static inline void lv_anim_set_values(lv_anim_t * a, int32_t start, int32_t end)
+ 101              		.loc 2 169 20 view .LVU27
+ 102              	.LBB27:
+ 170:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 8
+
+
+ 171:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->start_value = start;
+ 103              		.loc 2 171 5 view .LVU28
+ 104              		.loc 2 171 20 is_stmt 0 view .LVU29
+ 105 0022 E565     		str	r5, [r4, #92]
+ 172:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->current_value = start;
+ 106              		.loc 2 172 5 is_stmt 1 view .LVU30
+ 107              		.loc 2 172 22 is_stmt 0 view .LVU31
+ 108 0024 2566     		str	r5, [r4, #96]
+ 173:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->end_value = end;
+ 109              		.loc 2 173 5 is_stmt 1 view .LVU32
+ 110              		.loc 2 173 18 is_stmt 0 view .LVU33
+ 111 0026 0123     		movs	r3, #1
+ 112 0028 6366     		str	r3, [r4, #100]
+ 113              	.LVL7:
+ 114              		.loc 2 173 18 view .LVU34
+ 115              	.LBE27:
+ 116              	.LBE26:
+ 125:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_set_repeat_count(&animimg->anim, LV_ANIM_REPEAT_INFINITE);
+ 117              		.loc 1 125 5 is_stmt 1 view .LVU35
+ 118              	.LBB28:
+ 119              	.LBI28:
+ 174:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 175:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 176:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 177:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Similar to `lv_anim_set_exec_cb` but `lv_anim_custom_exec_cb_t` receives
+ 178:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * `lv_anim_t * ` as its first parameter instead of `void *`.
+ 179:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * This function might be used when LVGL is bound to other languages because
+ 180:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * it's more consistent to have `lv_anim_t *` as first parameter.
+ 181:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * The variable to animate can be stored in the animation's `user_data`
+ 182:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a         pointer to an initialized `lv_anim_t` variable
+ 183:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param exec_cb   a function to execute.
+ 184:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ 185:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** static inline void lv_anim_set_custom_exec_cb(lv_anim_t * a, lv_anim_custom_exec_cb_t exec_cb)
+ 186:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 187:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->var     = a;
+ 188:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->exec_cb = (lv_anim_exec_xcb_t)exec_cb;
+ 189:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 190:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 191:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 192:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Set the path (curve) of the animation.
+ 193:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a         pointer to an initialized `lv_anim_t` variable
+ 194:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param path_cb a function to set the current value of the animation.
+ 195:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ 196:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** static inline void lv_anim_set_path_cb(lv_anim_t * a, lv_anim_path_cb_t path_cb)
+ 197:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 198:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->path_cb = path_cb;
+ 199:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 200:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 201:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 202:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Set a function call when the animation really starts (considering `delay`)
+ 203:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a         pointer to an initialized `lv_anim_t` variable
+ 204:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param start_cb  a function call when the animation starts
+ 205:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ 206:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** static inline void lv_anim_set_start_cb(lv_anim_t * a, lv_anim_start_cb_t start_cb)
+ 207:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 208:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->start_cb = start_cb;
+ 209:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 9
+
+
+ 210:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 211:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 212:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Set a function to use the current value of the variable and make start and end value
+ 213:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * relative to the returned current value.
+ 214:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a             pointer to an initialized `lv_anim_t` variable
+ 215:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param get_value_cb  a function call when the animation starts
+ 216:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ 217:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** static inline void lv_anim_set_get_value_cb(lv_anim_t * a, lv_anim_get_value_cb_t get_value_cb)
+ 218:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 219:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->get_value_cb = get_value_cb;
+ 220:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 221:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 222:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 223:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Set a function call when the animation is ready
+ 224:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a         pointer to an initialized `lv_anim_t` variable
+ 225:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param ready_cb  a function call when the animation is ready
+ 226:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ 227:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** static inline void lv_anim_set_ready_cb(lv_anim_t * a, lv_anim_ready_cb_t ready_cb)
+ 228:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 229:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->ready_cb = ready_cb;
+ 230:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 231:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 232:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 233:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Set a function call when the animation is deleted.
+ 234:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a         pointer to an initialized `lv_anim_t` variable
+ 235:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param deleted_cb  a function call when the animation is deleted
+ 236:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ 237:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** static inline void lv_anim_set_deleted_cb(lv_anim_t * a, lv_anim_deleted_cb_t deleted_cb)
+ 238:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 239:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->deleted_cb = deleted_cb;
+ 240:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 241:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 242:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 243:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Make the animation to play back to when the forward direction is ready
+ 244:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a         pointer to an initialized `lv_anim_t` variable
+ 245:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param time      the duration of the playback animation in milliseconds. 0: disable playback
+ 246:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ 247:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** static inline void lv_anim_set_playback_time(lv_anim_t * a, uint32_t time)
+ 248:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 249:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->playback_time = time;
+ 250:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 251:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 252:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 253:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Make the animation to play back to when the forward direction is ready
+ 254:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a         pointer to an initialized `lv_anim_t` variable
+ 255:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param delay     delay in milliseconds before starting the playback animation.
+ 256:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ 257:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** static inline void lv_anim_set_playback_delay(lv_anim_t * a, uint32_t delay)
+ 258:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 259:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->playback_delay = delay;
+ 260:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 261:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** 
+ 262:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** /**
+ 263:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * Make the animation repeat itself.
+ 264:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param a         pointer to an initialized `lv_anim_t` variable
+ 265:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  * @param cnt       repeat count or `LV_ANIM_REPEAT_INFINITE` for infinite repetition. 0: to disabl
+ 266:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****  */
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 10
+
+
+ 267:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** static inline void lv_anim_set_repeat_count(lv_anim_t * a, uint16_t cnt)
+ 120              		.loc 2 267 20 view .LVU36
+ 121              	.LBB29:
+ 268:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 269:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->repeat_cnt = cnt;
+ 122              		.loc 2 269 5 view .LVU37
+ 123              		.loc 2 269 19 is_stmt 0 view .LVU38
+ 124 002a 4FF6FF73 		movw	r3, #65535
+ 125 002e A4F87C30 		strh	r3, [r4, #124]	@ movhi
+ 126              	.LVL8:
+ 127              		.loc 2 269 19 view .LVU39
+ 128              	.LBE29:
+ 129              	.LBE28:
+ 126:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** }
+ 130              		.loc 1 126 1 view .LVU40
+ 131 0032 38BD     		pop	{r3, r4, r5, pc}
+ 132              	.LVL9:
+ 133              	.L4:
+ 134              		.loc 1 126 1 view .LVU41
+ 135              		.align	2
+ 136              	.L3:
+ 137 0034 00000000 		.word	index_change
+ 138              		.cfi_endproc
+ 139              	.LFE209:
+ 141              		.section	.text.index_change,"ax",%progbits
+ 142              		.align	1
+ 143              		.syntax unified
+ 144              		.thumb
+ 145              		.thumb_func
+ 147              	index_change:
+ 148              	.LVL10:
+ 149              	.LFB210:
+ 127:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+ 128:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** static void index_change(lv_obj_t * obj, int32_t index)
+ 129:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** {
+ 150              		.loc 1 129 1 is_stmt 1 view -0
+ 151              		.cfi_startproc
+ 152              		@ args = 0, pretend = 0, frame = 0
+ 153              		@ frame_needed = 0, uses_anonymous_args = 0
+ 154              		.loc 1 129 1 is_stmt 0 view .LVU43
+ 155 0000 08B5     		push	{r3, lr}
+ 156              		.cfi_def_cfa_offset 8
+ 157              		.cfi_offset 3, -8
+ 158              		.cfi_offset 14, -4
+ 130:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_coord_t idx;
+ 159              		.loc 1 130 5 is_stmt 1 view .LVU44
+ 131:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+ 160              		.loc 1 131 5 view .LVU45
+ 161              	.LVL11:
+ 132:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+ 133:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     idx = index % animimg->pic_count;
+ 162              		.loc 1 133 5 view .LVU46
+ 163              		.loc 1 133 26 is_stmt 0 view .LVU47
+ 164 0002 90F98420 		ldrsb	r2, [r0, #132]
+ 165              		.loc 1 133 17 view .LVU48
+ 166 0006 91FBF2FC 		sdiv	ip, r1, r2
+ 167 000a 02FB1C11 		mls	r1, r2, ip, r1
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 11
+
+
+ 168              	.LVL12:
+ 169              		.loc 1 133 9 view .LVU49
+ 170 000e 09B2     		sxth	r1, r1
+ 171              	.LVL13:
+ 134:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+ 135:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_img_set_src(obj, animimg->dsc[idx]);
+ 172              		.loc 1 135 5 is_stmt 1 view .LVU50
+ 173              		.loc 1 135 32 is_stmt 0 view .LVU51
+ 174 0010 D0F88030 		ldr	r3, [r0, #128]
+ 175              		.loc 1 135 5 view .LVU52
+ 176 0014 53F82110 		ldr	r1, [r3, r1, lsl #2]
+ 177              	.LVL14:
+ 178              		.loc 1 135 5 view .LVU53
+ 179 0018 FFF7FEFF 		bl	lv_img_set_src
+ 180              	.LVL15:
+ 136:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** }
+ 181              		.loc 1 136 1 view .LVU54
+ 182 001c 08BD     		pop	{r3, pc}
+ 183              		.cfi_endproc
+ 184              	.LFE210:
+ 186              		.section	.text.lv_animimg_create,"ax",%progbits
+ 187              		.align	1
+ 188              		.global	lv_animimg_create
+ 189              		.syntax unified
+ 190              		.thumb
+ 191              		.thumb_func
+ 193              	lv_animimg_create:
+ 194              	.LVL16:
+ 195              	.LFB204:
+  60:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     LV_LOG_INFO("begin");
+ 196              		.loc 1 60 1 is_stmt 1 view -0
+ 197              		.cfi_startproc
+ 198              		@ args = 0, pretend = 0, frame = 0
+ 199              		@ frame_needed = 0, uses_anonymous_args = 0
+  60:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     LV_LOG_INFO("begin");
+ 200              		.loc 1 60 1 is_stmt 0 view .LVU56
+ 201 0000 10B5     		push	{r4, lr}
+ 202              		.cfi_def_cfa_offset 8
+ 203              		.cfi_offset 4, -8
+ 204              		.cfi_offset 14, -4
+ 205 0002 0146     		mov	r1, r0
+  61:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_obj_t * obj = lv_obj_class_create_obj(&lv_animimg_class, parent);
+ 206              		.loc 1 61 5 is_stmt 1 view .LVU57
+  61:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_obj_t * obj = lv_obj_class_create_obj(&lv_animimg_class, parent);
+ 207              		.loc 1 61 5 view .LVU58
+  61:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_obj_t * obj = lv_obj_class_create_obj(&lv_animimg_class, parent);
+ 208              		.loc 1 61 5 view .LVU59
+  62:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_obj_class_init_obj(obj);
+ 209              		.loc 1 62 5 view .LVU60
+  62:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_obj_class_init_obj(obj);
+ 210              		.loc 1 62 22 is_stmt 0 view .LVU61
+ 211 0004 0348     		ldr	r0, .L9
+ 212              	.LVL17:
+  62:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_obj_class_init_obj(obj);
+ 213              		.loc 1 62 22 view .LVU62
+ 214 0006 FFF7FEFF 		bl	lv_obj_class_create_obj
+ 215              	.LVL18:
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 12
+
+
+  62:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_obj_class_init_obj(obj);
+ 216              		.loc 1 62 22 view .LVU63
+ 217 000a 0446     		mov	r4, r0
+ 218              	.LVL19:
+  63:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     return obj;
+ 219              		.loc 1 63 5 is_stmt 1 view .LVU64
+ 220 000c FFF7FEFF 		bl	lv_obj_class_init_obj
+ 221              	.LVL20:
+  64:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** }
+ 222              		.loc 1 64 5 view .LVU65
+  65:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+ 223              		.loc 1 65 1 is_stmt 0 view .LVU66
+ 224 0010 2046     		mov	r0, r4
+ 225 0012 10BD     		pop	{r4, pc}
+ 226              	.LVL21:
+ 227              	.L10:
+  65:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+ 228              		.loc 1 65 1 view .LVU67
+ 229              		.align	2
+ 230              	.L9:
+ 231 0014 00000000 		.word	.LANCHOR0
+ 232              		.cfi_endproc
+ 233              	.LFE204:
+ 235              		.section	.text.lv_animimg_set_src,"ax",%progbits
+ 236              		.align	1
+ 237              		.global	lv_animimg_set_src
+ 238              		.syntax unified
+ 239              		.thumb
+ 240              		.thumb_func
+ 242              	lv_animimg_set_src:
+ 243              	.LVL22:
+ 244              	.LFB205:
+  68:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 245              		.loc 1 68 1 is_stmt 1 view -0
+ 246              		.cfi_startproc
+ 247              		@ args = 0, pretend = 0, frame = 0
+ 248              		@ frame_needed = 0, uses_anonymous_args = 0
+ 249              		@ link register save eliminated.
+  69:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+ 250              		.loc 1 69 5 view .LVU69
+  69:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+ 251              		.loc 1 69 5 view .LVU70
+  69:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+ 252              		.loc 1 69 5 view .LVU71
+  70:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     animimg->dsc = dsc;
+ 253              		.loc 1 70 5 view .LVU72
+  71:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     animimg->pic_count = num;
+ 254              		.loc 1 71 5 view .LVU73
+  71:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     animimg->pic_count = num;
+ 255              		.loc 1 71 18 is_stmt 0 view .LVU74
+ 256 0000 C0F88010 		str	r1, [r0, #128]
+  72:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_set_values(&animimg->anim, 0, num);
+ 257              		.loc 1 72 5 is_stmt 1 view .LVU75
+  72:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_set_values(&animimg->anim, 0, num);
+ 258              		.loc 1 72 24 is_stmt 0 view .LVU76
+ 259 0004 80F88420 		strb	r2, [r0, #132]
+  73:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** }
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 13
+
+
+ 260              		.loc 1 73 5 is_stmt 1 view .LVU77
+ 261              	.LVL23:
+ 262              	.LBB30:
+ 263              	.LBI30:
+ 169:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 264              		.loc 2 169 20 view .LVU78
+ 265              	.LBB31:
+ 171:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->current_value = start;
+ 266              		.loc 2 171 5 view .LVU79
+ 171:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->current_value = start;
+ 267              		.loc 2 171 20 is_stmt 0 view .LVU80
+ 268 0008 0023     		movs	r3, #0
+ 269 000a C365     		str	r3, [r0, #92]
+ 172:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->end_value = end;
+ 270              		.loc 2 172 5 is_stmt 1 view .LVU81
+ 172:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h ****     a->end_value = end;
+ 271              		.loc 2 172 22 is_stmt 0 view .LVU82
+ 272 000c 0366     		str	r3, [r0, #96]
+ 173:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 273              		.loc 2 173 5 is_stmt 1 view .LVU83
+ 173:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 274              		.loc 2 173 18 is_stmt 0 view .LVU84
+ 275 000e 4266     		str	r2, [r0, #100]
+ 276              	.LVL24:
+ 173:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 277              		.loc 2 173 18 view .LVU85
+ 278              	.LBE31:
+ 279              	.LBE30:
+  74:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+ 280              		.loc 1 74 1 view .LVU86
+ 281 0010 7047     		bx	lr
+ 282              		.cfi_endproc
+ 283              	.LFE205:
+ 285              		.section	.text.lv_animimg_start,"ax",%progbits
+ 286              		.align	1
+ 287              		.global	lv_animimg_start
+ 288              		.syntax unified
+ 289              		.thumb
+ 290              		.thumb_func
+ 292              	lv_animimg_start:
+ 293              	.LVL25:
+ 294              	.LFB206:
+  77:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 295              		.loc 1 77 1 is_stmt 1 view -0
+ 296              		.cfi_startproc
+ 297              		@ args = 0, pretend = 0, frame = 0
+ 298              		@ frame_needed = 0, uses_anonymous_args = 0
+  77:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 299              		.loc 1 77 1 is_stmt 0 view .LVU88
+ 300 0000 08B5     		push	{r3, lr}
+ 301              		.cfi_def_cfa_offset 8
+ 302              		.cfi_offset 3, -8
+ 303              		.cfi_offset 14, -4
+  78:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+ 304              		.loc 1 78 5 is_stmt 1 view .LVU89
+  78:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+ 305              		.loc 1 78 5 view .LVU90
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 14
+
+
+  78:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+ 306              		.loc 1 78 5 view .LVU91
+  79:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_start(&animimg->anim);
+ 307              		.loc 1 79 5 view .LVU92
+ 308              	.LVL26:
+  80:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** }
+ 309              		.loc 1 80 5 view .LVU93
+ 310 0002 3C30     		adds	r0, r0, #60
+ 311              	.LVL27:
+  80:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** }
+ 312              		.loc 1 80 5 is_stmt 0 view .LVU94
+ 313 0004 FFF7FEFF 		bl	lv_anim_start
+ 314              	.LVL28:
+  81:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+ 315              		.loc 1 81 1 view .LVU95
+ 316 0008 08BD     		pop	{r3, pc}
+ 317              		.cfi_endproc
+ 318              	.LFE206:
+ 320              		.section	.text.lv_animimg_set_duration,"ax",%progbits
+ 321              		.align	1
+ 322              		.global	lv_animimg_set_duration
+ 323              		.syntax unified
+ 324              		.thumb
+ 325              		.thumb_func
+ 327              	lv_animimg_set_duration:
+ 328              	.LVL29:
+ 329              	.LFB207:
+  88:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 330              		.loc 1 88 1 is_stmt 1 view -0
+ 331              		.cfi_startproc
+ 332              		@ args = 0, pretend = 0, frame = 0
+ 333              		@ frame_needed = 0, uses_anonymous_args = 0
+ 334              		@ link register save eliminated.
+  89:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+ 335              		.loc 1 89 5 view .LVU97
+  89:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+ 336              		.loc 1 89 5 view .LVU98
+  89:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+ 337              		.loc 1 89 5 view .LVU99
+  90:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_set_time(&animimg->anim, duration);
+ 338              		.loc 1 90 5 view .LVU100
+  91:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_set_playback_delay(&animimg->anim, duration);
+ 339              		.loc 1 91 5 view .LVU101
+ 340              	.LBB32:
+ 341              	.LBI32:
+ 148:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 342              		.loc 2 148 20 view .LVU102
+ 343              	.LBB33:
+ 150:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 344              		.loc 2 150 5 view .LVU103
+ 150:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 345              		.loc 2 150 13 is_stmt 0 view .LVU104
+ 346 0000 8166     		str	r1, [r0, #104]
+ 347              	.LVL30:
+ 150:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 348              		.loc 2 150 13 view .LVU105
+ 349              	.LBE33:
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 15
+
+
+ 350              	.LBE32:
+  92:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** }
+ 351              		.loc 1 92 5 is_stmt 1 view .LVU106
+ 352              	.LBB34:
+ 353              	.LBI34:
+ 257:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 354              		.loc 2 257 20 view .LVU107
+ 355              	.LBB35:
+ 259:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 356              		.loc 2 259 5 view .LVU108
+ 259:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 357              		.loc 2 259 23 is_stmt 0 view .LVU109
+ 358 0002 0167     		str	r1, [r0, #112]
+ 359              	.LVL31:
+ 259:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** }
+ 360              		.loc 2 259 23 view .LVU110
+ 361              	.LBE35:
+ 362              	.LBE34:
+  93:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+ 363              		.loc 1 93 1 view .LVU111
+ 364 0004 7047     		bx	lr
+ 365              		.cfi_endproc
+ 366              	.LFE207:
+ 368              		.section	.text.lv_animimg_set_repeat_count,"ax",%progbits
+ 369              		.align	1
+ 370              		.global	lv_animimg_set_repeat_count
+ 371              		.syntax unified
+ 372              		.thumb
+ 373              		.thumb_func
+ 375              	lv_animimg_set_repeat_count:
+ 376              	.LVL32:
+ 377              	.LFB208:
+  96:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 378              		.loc 1 96 1 is_stmt 1 view -0
+ 379              		.cfi_startproc
+ 380              		@ args = 0, pretend = 0, frame = 0
+ 381              		@ frame_needed = 0, uses_anonymous_args = 0
+ 382              		@ link register save eliminated.
+  97:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+ 383              		.loc 1 97 5 view .LVU113
+  97:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+ 384              		.loc 1 97 5 view .LVU114
+  97:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_animimg_t * animimg = (lv_animimg_t *)obj;
+ 385              		.loc 1 97 5 view .LVU115
+  98:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c ****     lv_anim_set_repeat_count(&animimg->anim, count);
+ 386              		.loc 1 98 5 view .LVU116
+  99:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** }
+ 387              		.loc 1 99 5 view .LVU117
+ 388              	.LBB36:
+ 389              	.LBI36:
+ 267:Drivers/lvgl/src/extra/widgets/animimg/../../../../src/misc/lv_anim.h **** {
+ 390              		.loc 2 267 20 view .LVU118
+ 391              	.LBB37:
+ 392              		.loc 2 269 5 view .LVU119
+ 393              		.loc 2 269 19 is_stmt 0 view .LVU120
+ 394 0000 A0F87C10 		strh	r1, [r0, #124]	@ movhi
+ 395              	.LVL33:
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 16
+
+
+ 396              		.loc 2 269 19 view .LVU121
+ 397              	.LBE37:
+ 398              	.LBE36:
+ 100:Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.c **** 
+ 399              		.loc 1 100 1 view .LVU122
+ 400 0004 7047     		bx	lr
+ 401              		.cfi_endproc
+ 402              	.LFE208:
+ 404              		.global	lv_animimg_class
+ 405              		.section	.rodata.lv_animimg_class,"a"
+ 406              		.align	2
+ 407              		.set	.LANCHOR0,. + 0
+ 410              	lv_animimg_class:
+ 411 0000 00000000 		.word	lv_img_class
+ 412 0004 00000000 		.word	lv_animimg_constructor
+ 413 0008 00000000 		.space	16
+ 413      00000000 
+ 413      00000000 
+ 413      00000000 
+ 414 0018 80       		.byte	128
+ 415 0019 08       		.byte	8
+ 416 001a 00       		.byte	0
+ 417 001b 00       		.space	1
+ 418              		.text
+ 419              	.Letext0:
+ 420              		.file 3 "/Users/johannes/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/
+ 421              		.file 4 "/Users/johannes/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/
+ 422              		.file 5 "Drivers/lvgl/src/extra/widgets/animimg/../../../../src/hal/../draw/../misc/../font/../mis
+ 423              		.file 6 "Drivers/lvgl/src/extra/widgets/animimg/../../../../src/hal/../draw/../misc/lv_color.h"
+ 424              		.file 7 "Drivers/lvgl/src/extra/widgets/animimg/../../../../src/hal/../draw/../misc/lv_style.h"
+ 425              		.file 8 "Drivers/lvgl/src/extra/widgets/animimg/../../../../src/core/lv_obj.h"
+ 426              		.file 9 "Drivers/lvgl/src/extra/widgets/animimg/../../../../src/hal/../misc/lv_ll.h"
+ 427              		.file 10 "Drivers/lvgl/src/extra/widgets/animimg/../../../../src/core/lv_group.h"
+ 428              		.file 11 "Drivers/lvgl/src/extra/widgets/animimg/../../../../src/core/lv_obj_scroll.h"
+ 429              		.file 12 "Drivers/lvgl/src/extra/widgets/animimg/../../../../src/core/lv_obj_style.h"
+ 430              		.file 13 "Drivers/lvgl/src/extra/widgets/animimg/../../../../src/core/lv_obj_class.h"
+ 431              		.file 14 "Drivers/lvgl/src/extra/widgets/animimg/../../../../src/core/lv_event.h"
+ 432              		.file 15 "Drivers/lvgl/src/extra/widgets/animimg/../../../../src/widgets/lv_img.h"
+ 433              		.file 16 "Drivers/lvgl/src/extra/widgets/animimg/../../../../src/widgets/lv_bar.h"
+ 434              		.file 17 "Drivers/lvgl/src/extra/widgets/animimg/../../../../src/extra/widgets/imgbtn/lv_imgbtn.h"
+ 435              		.file 18 "Drivers/lvgl/src/extra/widgets/animimg/lv_animimg.h"
+ARM GAS  /var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s 			page 17
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lv_animimg.c
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:20     .text.lv_animimg_constructor:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:25     .text.lv_animimg_constructor:0000000000000000 lv_animimg_constructor
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:137    .text.lv_animimg_constructor:0000000000000034 $d
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:147    .text.index_change:0000000000000000 index_change
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:142    .text.index_change:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:187    .text.lv_animimg_create:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:193    .text.lv_animimg_create:0000000000000000 lv_animimg_create
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:231    .text.lv_animimg_create:0000000000000014 $d
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:236    .text.lv_animimg_set_src:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:242    .text.lv_animimg_set_src:0000000000000000 lv_animimg_set_src
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:286    .text.lv_animimg_start:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:292    .text.lv_animimg_start:0000000000000000 lv_animimg_start
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:321    .text.lv_animimg_set_duration:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:327    .text.lv_animimg_set_duration:0000000000000000 lv_animimg_set_duration
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:369    .text.lv_animimg_set_repeat_count:0000000000000000 $t
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:375    .text.lv_animimg_set_repeat_count:0000000000000000 lv_animimg_set_repeat_count
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:410    .rodata.lv_animimg_class:0000000000000000 lv_animimg_class
+/var/folders/0z/tsy30v1j4xl4_7kw94k978ww0000gn/T//ccl1HyFw.s:406    .rodata.lv_animimg_class:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+lv_anim_init
+lv_img_set_src
+lv_obj_class_create_obj
+lv_obj_class_init_obj
+lv_anim_start
+lv_img_class
