@@ -40,7 +40,6 @@ Core/Src/LCDController.c \
 Core/Src/dma.c \
 Core/Src/gpio.c \
 Core/Src/i2s.c \
-Core/Src/img_hand.c \
 Core/Src/main.c \
 Core/Src/spi.c \
 Core/Src/stm32f4xx_hal_msp.c \

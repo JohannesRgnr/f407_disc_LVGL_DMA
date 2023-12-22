@@ -167,7 +167,7 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
     int height = area->y2 - area->y1 + 1;
 	int width = area->x2 - area->x1 + 1;
 
-	uint16_t i, j;
+	
 	ST7789V_SetAddressWindow(area->x1, area->y1, area->x2, area->y2);
 
     ST7789V_Select();
