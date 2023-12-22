@@ -6,4 +6,5 @@ LVGL Benchmark demo gives an average of 35FPS.
 
 ### Thanks to:
 https://github.com/Floyd-Fish/ST7789-STM32/
+
 https://controllerstech.com/lvgl-on-stm32-part-1/
