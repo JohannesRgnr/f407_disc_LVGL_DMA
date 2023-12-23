@@ -15,7 +15,7 @@ extern SPI_HandleTypeDef ST7789V_SPI_PORT;
 
 /**
  * Pin assignment:
- * CS   ------> PA4
+ * CS   ------> PA2
  * DC   ------> PA1
  * RST  ------> PA3
  */
@@ -27,7 +27,7 @@ extern SPI_HandleTypeDef ST7789V_SPI_PORT;
 
 #ifndef CFG_NO_CS
 #define ST7789V_CS_PORT  GPIOA
-#define ST7789V_CS_PIN   GPIO_PIN_4
+#define ST7789V_CS_PIN   GPIO_PIN_2
 #endif
 
 /* If u need Backlight control, uncomment below */

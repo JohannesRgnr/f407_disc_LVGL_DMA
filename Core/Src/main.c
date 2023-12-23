@@ -24,6 +24,20 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 
+/**
+ * Pin assignment:
+ * VCC  ------> 5V
+ * GND  ------> GND
+ * DIN  ------> PA7 (SPI1_MOSI)
+ * CLK  ------> PA5 (SPI1_CLK)
+ * CS   ------> PA2
+ * DC   ------> PA1
+ * RST  ------> PA3
+ * BL   ------> Not used
+ */
+
+
+
 
 /**
   * @brief  The application entry point.
