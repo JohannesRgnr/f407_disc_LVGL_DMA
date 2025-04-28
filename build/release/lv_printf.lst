@@ -1,0 +1,1385 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_printf.c"
+  16              		.text
+  17              		.section	.text._out_buffer,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	_out_buffer:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 9A42     		cmp	r2, r3
+  28 0002 00D2     		bcs	.L1
+  29 0004 8854     		strb	r0, [r1, r2]
+  30              	.L1:
+  31 0006 7047     		bx	lr
+  33              		.section	.text._out_null,"ax",%progbits
+  34              		.align	1
+  35              		.syntax unified
+  36              		.thumb
+  37              		.thumb_func
+  39              	_out_null:
+  40              		@ args = 0, pretend = 0, frame = 0
+  41              		@ frame_needed = 0, uses_anonymous_args = 0
+  42              		@ link register save eliminated.
+  43 0000 7047     		bx	lr
+  45              		.section	.text._atoi,"ax",%progbits
+  46              		.align	1
+  47              		.syntax unified
+  48              		.thumb
+  49              		.thumb_func
+  51              	_atoi:
+  52              		@ args = 0, pretend = 0, frame = 0
+  53              		@ frame_needed = 0, uses_anonymous_args = 0
+  54              		@ link register save eliminated.
+  55 0000 0146     		mov	r1, r0
+  56 0002 0020     		movs	r0, #0
+  57 0004 08E0     		b	.L5
+  58              	.L6:
+  59 0006 00EB8000 		add	r0, r0, r0, lsl #2
+  60 000a 531C     		adds	r3, r2, #1
+  61 000c 0B60     		str	r3, [r1]
+  62 000e 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 2
+
+
+  63 0010 03EB4003 		add	r3, r3, r0, lsl #1
+  64 0014 A3F13000 		sub	r0, r3, #48
+  65              	.L5:
+  66 0018 0A68     		ldr	r2, [r1]
+  67 001a 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+  68 001c 303B     		subs	r3, r3, #48
+  69 001e DBB2     		uxtb	r3, r3
+  70 0020 092B     		cmp	r3, #9
+  71 0022 F0D9     		bls	.L6
+  72 0024 7047     		bx	lr
+  74              		.section	.text._out_rev,"ax",%progbits
+  75              		.align	1
+  76              		.syntax unified
+  77              		.thumb
+  78              		.thumb_func
+  80              	_out_rev:
+  81              		@ args = 16, pretend = 0, frame = 8
+  82              		@ frame_needed = 0, uses_anonymous_args = 0
+  83 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+  84 0004 83B0     		sub	sp, sp, #12
+  85 0006 0546     		mov	r5, r0
+  86 0008 0E46     		mov	r6, r1
+  87 000a 9346     		mov	fp, r2
+  88 000c 1F46     		mov	r7, r3
+  89 000e DDF830A0 		ldr	r10, [sp, #48]
+  90 0012 0D9C     		ldr	r4, [sp, #52]
+  91 0014 DDF83890 		ldr	r9, [sp, #56]
+  92 0018 0F9B     		ldr	r3, [sp, #60]
+  93 001a 13F0030F 		tst	r3, #3
+  94 001e 19D1     		bne	.L9
+  95 0020 A046     		mov	r8, r4
+  96 0022 0192     		str	r2, [sp, #4]
+  97              	.L8:
+  98 0024 C845     		cmp	r8, r9
+  99 0026 09D2     		bcs	.L19
+ 100 0028 02F1010B 		add	fp, r2, #1
+ 101 002c 3B46     		mov	r3, r7
+ 102 002e 3146     		mov	r1, r6
+ 103 0030 2020     		movs	r0, #32
+ 104 0032 A847     		blx	r5
+ 105 0034 08F10108 		add	r8, r8, #1
+ 106 0038 5A46     		mov	r2, fp
+ 107 003a F3E7     		b	.L8
+ 108              	.L19:
+ 109 003c DDF804B0 		ldr	fp, [sp, #4]
+ 110 0040 08E0     		b	.L9
+ 111              	.L12:
+ 112 0042 013C     		subs	r4, r4, #1
+ 113 0044 02F10108 		add	r8, r2, #1
+ 114 0048 3B46     		mov	r3, r7
+ 115 004a 3146     		mov	r1, r6
+ 116 004c 1AF80400 		ldrb	r0, [r10, r4]	@ zero_extendqisi2
+ 117 0050 A847     		blx	r5
+ 118 0052 4246     		mov	r2, r8
+ 119              	.L9:
+ 120 0054 002C     		cmp	r4, #0
+ 121 0056 F4D1     		bne	.L12
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 3
+
+
+ 122 0058 0F9B     		ldr	r3, [sp, #60]
+ 123 005a 13F0020F 		tst	r3, #2
+ 124 005e 03D1     		bne	.L13
+ 125              	.L7:
+ 126 0060 1046     		mov	r0, r2
+ 127 0062 03B0     		add	sp, sp, #12
+ 128              		@ sp needed
+ 129 0064 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 130              	.L13:
+ 131 0068 A2EB0B03 		sub	r3, r2, fp
+ 132 006c 4B45     		cmp	r3, r9
+ 133 006e F7D2     		bcs	.L7
+ 134 0070 541C     		adds	r4, r2, #1
+ 135 0072 3B46     		mov	r3, r7
+ 136 0074 3146     		mov	r1, r6
+ 137 0076 2020     		movs	r0, #32
+ 138 0078 A847     		blx	r5
+ 139 007a 2246     		mov	r2, r4
+ 140 007c F4E7     		b	.L13
+ 142              		.section	.text._ntoa_format,"ax",%progbits
+ 143              		.align	1
+ 144              		.syntax unified
+ 145              		.thumb
+ 146              		.thumb_func
+ 148              	_ntoa_format:
+ 149              		@ args = 28, pretend = 0, frame = 0
+ 150              		@ frame_needed = 0, uses_anonymous_args = 0
+ 151 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 152 0004 85B0     		sub	sp, sp, #20
+ 153 0006 9946     		mov	r9, r3
+ 154 0008 0C9D     		ldr	r5, [sp, #48]
+ 155 000a 0D9C     		ldr	r4, [sp, #52]
+ 156 000c 9DF83880 		ldrb	r8, [sp, #56]	@ zero_extendqisi2
+ 157 0010 DDF840E0 		ldr	lr, [sp, #64]
+ 158 0014 119F     		ldr	r7, [sp, #68]
+ 159 0016 129E     		ldr	r6, [sp, #72]
+ 160 0018 16F0020F 		tst	r6, #2
+ 161 001c 21D1     		bne	.L21
+ 162 001e 7FB1     		cbz	r7, .L24
+ 163 0020 16F0010F 		tst	r6, #1
+ 164 0024 0CD0     		beq	.L24
+ 165 0026 B8F1000F 		cmp	r8, #0
+ 166 002a 02D1     		bne	.L23
+ 167 002c 16F00C0F 		tst	r6, #12
+ 168 0030 06D0     		beq	.L24
+ 169              	.L23:
+ 170 0032 013F     		subs	r7, r7, #1
+ 171 0034 04E0     		b	.L24
+ 172              	.L26:
+ 173 0036 4FF0300C 		mov	ip, #48
+ 174 003a 05F804C0 		strb	ip, [r5, r4]
+ 175 003e 0134     		adds	r4, r4, #1
+ 176              	.L24:
+ 177 0040 7445     		cmp	r4, lr
+ 178 0042 01D2     		bcs	.L27
+ 179 0044 1F2C     		cmp	r4, #31
+ 180 0046 F6D9     		bls	.L26
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 4
+
+
+ 181              	.L27:
+ 182 0048 16F0010F 		tst	r6, #1
+ 183 004c 09D0     		beq	.L21
+ 184 004e BC42     		cmp	r4, r7
+ 185 0050 07D2     		bcs	.L21
+ 186 0052 1F2C     		cmp	r4, #31
+ 187 0054 05D8     		bhi	.L21
+ 188 0056 4FF0300C 		mov	ip, #48
+ 189 005a 05F804C0 		strb	ip, [r5, r4]
+ 190 005e 0134     		adds	r4, r4, #1
+ 191 0060 F2E7     		b	.L27
+ 192              	.L21:
+ 193 0062 16F0100F 		tst	r6, #16
+ 194 0066 14D0     		beq	.L29
+ 195 0068 16F4806F 		tst	r6, #1024
+ 196 006c 04D1     		bne	.L30
+ 197 006e 1CB1     		cbz	r4, .L30
+ 198 0070 7445     		cmp	r4, lr
+ 199 0072 22D0     		beq	.L31
+ 200 0074 BC42     		cmp	r4, r7
+ 201 0076 20D0     		beq	.L31
+ 202              	.L30:
+ 203 0078 0F9B     		ldr	r3, [sp, #60]
+ 204 007a 102B     		cmp	r3, #16
+ 205 007c 36D0     		beq	.L41
+ 206              	.L33:
+ 207 007e 0F9B     		ldr	r3, [sp, #60]
+ 208 0080 022B     		cmp	r3, #2
+ 209 0082 3ED0     		beq	.L42
+ 210              	.L34:
+ 211 0084 1F2C     		cmp	r4, #31
+ 212 0086 0ED8     		bhi	.L35
+ 213 0088 4FF0300C 		mov	ip, #48
+ 214 008c 05F804C0 		strb	ip, [r5, r4]
+ 215 0090 0134     		adds	r4, r4, #1
+ 216              	.L29:
+ 217 0092 1F2C     		cmp	r4, #31
+ 218 0094 07D8     		bhi	.L35
+ 219 0096 B8F1000F 		cmp	r8, #0
+ 220 009a 3AD0     		beq	.L36
+ 221 009c 4FF02D0C 		mov	ip, #45
+ 222 00a0 05F804C0 		strb	ip, [r5, r4]
+ 223 00a4 0134     		adds	r4, r4, #1
+ 224              	.L35:
+ 225 00a6 0396     		str	r6, [sp, #12]
+ 226 00a8 0297     		str	r7, [sp, #8]
+ 227 00aa 0194     		str	r4, [sp, #4]
+ 228 00ac 0095     		str	r5, [sp]
+ 229 00ae 4B46     		mov	r3, r9
+ 230 00b0 FFF7FEFF 		bl	_out_rev
+ 231 00b4 05B0     		add	sp, sp, #20
+ 232              		@ sp needed
+ 233 00b6 BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 234              	.L31:
+ 235 00ba B4F1010C 		subs	ip, r4, #1
+ 236 00be 13D0     		beq	.L38
+ 237 00c0 0F9B     		ldr	r3, [sp, #60]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 5
+
+
+ 238 00c2 102B     		cmp	r3, #16
+ 239 00c4 0ED0     		beq	.L43
+ 240 00c6 6446     		mov	r4, ip
+ 241              	.L32:
+ 242 00c8 0F9B     		ldr	r3, [sp, #60]
+ 243 00ca 102B     		cmp	r3, #16
+ 244 00cc D7D1     		bne	.L33
+ 245 00ce 16F0200F 		tst	r6, #32
+ 246 00d2 D4D0     		beq	.L33
+ 247 00d4 1F2C     		cmp	r4, #31
+ 248 00d6 D2D8     		bhi	.L33
+ 249 00d8 4FF0580C 		mov	ip, #88
+ 250 00dc 05F804C0 		strb	ip, [r5, r4]
+ 251 00e0 0134     		adds	r4, r4, #1
+ 252 00e2 CFE7     		b	.L34
+ 253              	.L43:
+ 254 00e4 023C     		subs	r4, r4, #2
+ 255 00e6 C7E7     		b	.L30
+ 256              	.L38:
+ 257 00e8 6446     		mov	r4, ip
+ 258 00ea C5E7     		b	.L30
+ 259              	.L41:
+ 260 00ec 16F0200F 		tst	r6, #32
+ 261 00f0 EAD1     		bne	.L32
+ 262 00f2 1F2C     		cmp	r4, #31
+ 263 00f4 E8D8     		bhi	.L32
+ 264 00f6 4FF0780C 		mov	ip, #120
+ 265 00fa 05F804C0 		strb	ip, [r5, r4]
+ 266 00fe 0134     		adds	r4, r4, #1
+ 267 0100 C0E7     		b	.L34
+ 268              	.L42:
+ 269 0102 1F2C     		cmp	r4, #31
+ 270 0104 CFD8     		bhi	.L35
+ 271 0106 4FF0620C 		mov	ip, #98
+ 272 010a 05F804C0 		strb	ip, [r5, r4]
+ 273 010e 0134     		adds	r4, r4, #1
+ 274 0110 B8E7     		b	.L34
+ 275              	.L36:
+ 276 0112 16F0040F 		tst	r6, #4
+ 277 0116 05D0     		beq	.L37
+ 278 0118 4FF02B0C 		mov	ip, #43
+ 279 011c 05F804C0 		strb	ip, [r5, r4]
+ 280 0120 0134     		adds	r4, r4, #1
+ 281 0122 C0E7     		b	.L35
+ 282              	.L37:
+ 283 0124 16F0080F 		tst	r6, #8
+ 284 0128 BDD0     		beq	.L35
+ 285 012a 4FF0200C 		mov	ip, #32
+ 286 012e 05F804C0 		strb	ip, [r5, r4]
+ 287 0132 0134     		adds	r4, r4, #1
+ 288 0134 B7E7     		b	.L35
+ 290              		.section	.text._ntoa_long,"ax",%progbits
+ 291              		.align	1
+ 292              		.syntax unified
+ 293              		.thumb
+ 294              		.thumb_func
+ 296              	_ntoa_long:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 6
+
+
+ 297              		@ args = 24, pretend = 0, frame = 32
+ 298              		@ frame_needed = 0, uses_anonymous_args = 0
+ 299 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 300 0002 91B0     		sub	sp, sp, #68
+ 301 0004 169C     		ldr	r4, [sp, #88]
+ 302 0006 189D     		ldr	r5, [sp, #96]
+ 303 0008 1B9E     		ldr	r6, [sp, #108]
+ 304 000a 0CB9     		cbnz	r4, .L45
+ 305 000c 26F01006 		bic	r6, r6, #16
+ 306              	.L45:
+ 307 0010 16F4806E 		ands	lr, r6, #1024
+ 308 0014 16D0     		beq	.L51
+ 309 0016 64B3     		cbz	r4, .L52
+ 310 0018 4FF0000E 		mov	lr, #0
+ 311 001c 12E0     		b	.L51
+ 312              	.L56:
+ 313 001e 0CF1300C 		add	ip, ip, #48
+ 314 0022 5FFA8CFC 		uxtb	ip, ip
+ 315              	.L49:
+ 316 0026 0EF10107 		add	r7, lr, #1
+ 317 002a 0EF1400E 		add	lr, lr, #64
+ 318 002e EE44     		add	lr, sp, lr
+ 319 0030 0EF820CC 		strb	ip, [lr, #-32]
+ 320 0034 B4FBF5FC 		udiv	ip, r4, r5
+ 321 0038 AC42     		cmp	r4, r5
+ 322 003a 1BD3     		bcc	.L47
+ 323 003c 1F2F     		cmp	r7, #31
+ 324 003e 19D8     		bhi	.L47
+ 325 0040 BE46     		mov	lr, r7
+ 326 0042 6446     		mov	r4, ip
+ 327              	.L51:
+ 328 0044 B4FBF5FC 		udiv	ip, r4, r5
+ 329 0048 05FB1C4C 		mls	ip, r5, ip, r4
+ 330 004c 5FFA8CFC 		uxtb	ip, ip
+ 331 0050 BCF1090F 		cmp	ip, #9
+ 332 0054 E3D9     		bls	.L56
+ 333 0056 16F0200F 		tst	r6, #32
+ 334 005a 08D0     		beq	.L53
+ 335 005c 4127     		movs	r7, #65
+ 336              	.L50:
+ 337 005e BC44     		add	ip, ip, r7
+ 338 0060 5FFA8CFC 		uxtb	ip, ip
+ 339 0064 ACF10A0C 		sub	ip, ip, #10
+ 340 0068 5FFA8CFC 		uxtb	ip, ip
+ 341 006c DBE7     		b	.L49
+ 342              	.L53:
+ 343 006e 6127     		movs	r7, #97
+ 344 0070 F5E7     		b	.L50
+ 345              	.L52:
+ 346 0072 2746     		mov	r7, r4
+ 347              	.L47:
+ 348 0074 0696     		str	r6, [sp, #24]
+ 349 0076 1A9C     		ldr	r4, [sp, #104]
+ 350 0078 0594     		str	r4, [sp, #20]
+ 351 007a 199C     		ldr	r4, [sp, #100]
+ 352 007c 0494     		str	r4, [sp, #16]
+ 353 007e 0395     		str	r5, [sp, #12]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 7
+
+
+ 354 0080 9DF85C40 		ldrb	r4, [sp, #92]	@ zero_extendqisi2
+ 355 0084 0294     		str	r4, [sp, #8]
+ 356 0086 0197     		str	r7, [sp, #4]
+ 357 0088 08AC     		add	r4, sp, #32
+ 358 008a 0094     		str	r4, [sp]
+ 359 008c FFF7FEFF 		bl	_ntoa_format
+ 360 0090 11B0     		add	sp, sp, #68
+ 361              		@ sp needed
+ 362 0092 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 364              		.global	__aeabi_uldivmod
+ 365              		.section	.text._ntoa_long_long,"ax",%progbits
+ 366              		.align	1
+ 367              		.syntax unified
+ 368              		.thumb
+ 369              		.thumb_func
+ 371              	_ntoa_long_long:
+ 372              		@ args = 36, pretend = 0, frame = 48
+ 373              		@ frame_needed = 0, uses_anonymous_args = 0
+ 374 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 375 0004 95B0     		sub	sp, sp, #84
+ 376 0006 0990     		str	r0, [sp, #36]
+ 377 0008 0A91     		str	r1, [sp, #40]
+ 378 000a 0B92     		str	r2, [sp, #44]
+ 379 000c 9846     		mov	r8, r3
+ 380 000e DDF878B0 		ldr	fp, [sp, #120]
+ 381 0012 DDF87C90 		ldr	r9, [sp, #124]
+ 382 0016 229D     		ldr	r5, [sp, #136]
+ 383 0018 239F     		ldr	r7, [sp, #140]
+ 384 001a 269E     		ldr	r6, [sp, #152]
+ 385 001c 5BEA0902 		orrs	r2, fp, r9
+ 386 0020 01D1     		bne	.L58
+ 387 0022 26F01006 		bic	r6, r6, #16
+ 388              	.L58:
+ 389 0026 16F48064 		ands	r4, r6, #1024
+ 390 002a 1ED0     		beq	.L64
+ 391 002c 5BEA0902 		orrs	r2, fp, r9
+ 392 0030 2FD0     		beq	.L65
+ 393 0032 0024     		movs	r4, #0
+ 394 0034 19E0     		b	.L64
+ 395              	.L71:
+ 396 0036 3032     		adds	r2, r2, #48
+ 397 0038 D3B2     		uxtb	r3, r2
+ 398              	.L62:
+ 399 003a 04F1010A 		add	r10, r4, #1
+ 400 003e 04F15002 		add	r2, r4, #80
+ 401 0042 0DEB0204 		add	r4, sp, r2
+ 402 0046 04F8203C 		strb	r3, [r4, #-32]
+ 403 004a 2A46     		mov	r2, r5
+ 404 004c 3B46     		mov	r3, r7
+ 405 004e 5846     		mov	r0, fp
+ 406 0050 4946     		mov	r1, r9
+ 407 0052 FFF7FEFF 		bl	__aeabi_uldivmod
+ 408 0056 AB45     		cmp	fp, r5
+ 409 0058 79EB0709 		sbcs	r9, r9, r7
+ 410 005c 1BD3     		bcc	.L60
+ 411 005e BAF11F0F 		cmp	r10, #31
+ 412 0062 18D8     		bhi	.L60
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 8
+
+
+ 413 0064 5446     		mov	r4, r10
+ 414 0066 8346     		mov	fp, r0
+ 415 0068 8946     		mov	r9, r1
+ 416              	.L64:
+ 417 006a 2A46     		mov	r2, r5
+ 418 006c 3B46     		mov	r3, r7
+ 419 006e 5846     		mov	r0, fp
+ 420 0070 4946     		mov	r1, r9
+ 421 0072 FFF7FEFF 		bl	__aeabi_uldivmod
+ 422 0076 D2B2     		uxtb	r2, r2
+ 423 0078 092A     		cmp	r2, #9
+ 424 007a DCD9     		bls	.L71
+ 425 007c 16F0200F 		tst	r6, #32
+ 426 0080 05D0     		beq	.L66
+ 427 0082 4123     		movs	r3, #65
+ 428              	.L63:
+ 429 0084 1344     		add	r3, r3, r2
+ 430 0086 DBB2     		uxtb	r3, r3
+ 431 0088 0A3B     		subs	r3, r3, #10
+ 432 008a DBB2     		uxtb	r3, r3
+ 433 008c D5E7     		b	.L62
+ 434              	.L66:
+ 435 008e 6123     		movs	r3, #97
+ 436 0090 F8E7     		b	.L63
+ 437              	.L65:
+ 438 0092 4FF0000A 		mov	r10, #0
+ 439              	.L60:
+ 440 0096 0696     		str	r6, [sp, #24]
+ 441 0098 259B     		ldr	r3, [sp, #148]
+ 442 009a 0593     		str	r3, [sp, #20]
+ 443 009c 249B     		ldr	r3, [sp, #144]
+ 444 009e 0493     		str	r3, [sp, #16]
+ 445 00a0 0395     		str	r5, [sp, #12]
+ 446 00a2 9DF88030 		ldrb	r3, [sp, #128]	@ zero_extendqisi2
+ 447 00a6 0293     		str	r3, [sp, #8]
+ 448 00a8 CDF804A0 		str	r10, [sp, #4]
+ 449 00ac 0CAB     		add	r3, sp, #48
+ 450 00ae 0093     		str	r3, [sp]
+ 451 00b0 4346     		mov	r3, r8
+ 452 00b2 0B9A     		ldr	r2, [sp, #44]
+ 453 00b4 0A99     		ldr	r1, [sp, #40]
+ 454 00b6 0998     		ldr	r0, [sp, #36]
+ 455 00b8 FFF7FEFF 		bl	_ntoa_format
+ 456 00bc 15B0     		add	sp, sp, #84
+ 457              		@ sp needed
+ 458 00be BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 460              		.section	.text._vsnprintf,"ax",%progbits
+ 461              		.align	1
+ 462              		.syntax unified
+ 463              		.thumb
+ 464              		.thumb_func
+ 466              	_vsnprintf:
+ 467              		@ args = 4, pretend = 0, frame = 32
+ 468              		@ frame_needed = 0, uses_anonymous_args = 0
+ 469 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 470 0004 93B0     		sub	sp, sp, #76
+ 471 0006 8046     		mov	r8, r0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 9
+
+
+ 472 0008 1746     		mov	r7, r2
+ 473 000a 0F93     		str	r3, [sp, #60]
+ 474 000c 8B46     		mov	fp, r1
+ 475 000e 0029     		cmp	r1, #0
+ 476 0010 00F0CF82 		beq	.L166
+ 477              	.L73:
+ 478 0014 0025     		movs	r5, #0
+ 479              	.L150:
+ 480 0016 0F9B     		ldr	r3, [sp, #60]
+ 481 0018 1878     		ldrb	r0, [r3]	@ zero_extendqisi2
+ 482 001a 0028     		cmp	r0, #0
+ 483 001c 00F0CC82 		beq	.L167
+ 484 0020 2528     		cmp	r0, #37
+ 485 0022 09D0     		beq	.L75
+ 486 0024 6C1C     		adds	r4, r5, #1
+ 487 0026 3B46     		mov	r3, r7
+ 488 0028 2A46     		mov	r2, r5
+ 489 002a 5946     		mov	r1, fp
+ 490 002c C047     		blx	r8
+ 491 002e 0F9B     		ldr	r3, [sp, #60]
+ 492 0030 0133     		adds	r3, r3, #1
+ 493 0032 0F93     		str	r3, [sp, #60]
+ 494 0034 2546     		mov	r5, r4
+ 495 0036 EEE7     		b	.L150
+ 496              	.L75:
+ 497 0038 0133     		adds	r3, r3, #1
+ 498 003a 0F93     		str	r3, [sp, #60]
+ 499 003c 0026     		movs	r6, #0
+ 500 003e 1FE0     		b	.L84
+ 501              	.L78:
+ 502 0040 46F00106 		orr	r6, r6, #1
+ 503 0044 0132     		adds	r2, r2, #1
+ 504 0046 0F92     		str	r2, [sp, #60]
+ 505 0048 0123     		movs	r3, #1
+ 506 004a 18E0     		b	.L77
+ 507              	.L80:
+ 508 004c 46F00206 		orr	r6, r6, #2
+ 509 0050 0132     		adds	r2, r2, #1
+ 510 0052 0F92     		str	r2, [sp, #60]
+ 511 0054 0123     		movs	r3, #1
+ 512 0056 12E0     		b	.L77
+ 513              	.L81:
+ 514 0058 46F00406 		orr	r6, r6, #4
+ 515 005c 0132     		adds	r2, r2, #1
+ 516 005e 0F92     		str	r2, [sp, #60]
+ 517 0060 0123     		movs	r3, #1
+ 518 0062 0CE0     		b	.L77
+ 519              	.L83:
+ 520 0064 46F00806 		orr	r6, r6, #8
+ 521 0068 0132     		adds	r2, r2, #1
+ 522 006a 0F92     		str	r2, [sp, #60]
+ 523 006c 0123     		movs	r3, #1
+ 524 006e 06E0     		b	.L77
+ 525              	.L82:
+ 526 0070 46F01006 		orr	r6, r6, #16
+ 527 0074 0132     		adds	r2, r2, #1
+ 528 0076 0F92     		str	r2, [sp, #60]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 10
+
+
+ 529 0078 0123     		movs	r3, #1
+ 530 007a 00E0     		b	.L77
+ 531              	.L154:
+ 532 007c 0023     		movs	r3, #0
+ 533              	.L77:
+ 534 007e 4BB3     		cbz	r3, .L168
+ 535              	.L84:
+ 536 0080 0F9A     		ldr	r2, [sp, #60]
+ 537 0082 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 538 0084 203B     		subs	r3, r3, #32
+ 539 0086 102B     		cmp	r3, #16
+ 540 0088 F8D8     		bhi	.L154
+ 541 008a 01A1     		adr	r1, .L79
+ 542 008c 51F823F0 		ldr	pc, [r1, r3, lsl #2]
+ 543              		.p2align 2
+ 544              	.L79:
+ 545 0090 65000000 		.word	.L83+1
+ 546 0094 7D000000 		.word	.L154+1
+ 547 0098 7D000000 		.word	.L154+1
+ 548 009c 71000000 		.word	.L82+1
+ 549 00a0 7D000000 		.word	.L154+1
+ 550 00a4 7D000000 		.word	.L154+1
+ 551 00a8 7D000000 		.word	.L154+1
+ 552 00ac 7D000000 		.word	.L154+1
+ 553 00b0 7D000000 		.word	.L154+1
+ 554 00b4 7D000000 		.word	.L154+1
+ 555 00b8 7D000000 		.word	.L154+1
+ 556 00bc 59000000 		.word	.L81+1
+ 557 00c0 7D000000 		.word	.L154+1
+ 558 00c4 4D000000 		.word	.L80+1
+ 559 00c8 7D000000 		.word	.L154+1
+ 560 00cc 7D000000 		.word	.L154+1
+ 561 00d0 41000000 		.word	.L78+1
+ 562              		.p2align 1
+ 563              	.L168:
+ 564 00d4 0B93     		str	r3, [sp, #44]
+ 565 00d6 0F9B     		ldr	r3, [sp, #60]
+ 566 00d8 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 567 00da A2F13003 		sub	r3, r2, #48
+ 568 00de DBB2     		uxtb	r3, r3
+ 569 00e0 092B     		cmp	r3, #9
+ 570 00e2 18D9     		bls	.L169
+ 571 00e4 2A2A     		cmp	r2, #42
+ 572 00e6 1BD0     		beq	.L170
+ 573 00e8 DDF82CA0 		ldr	r10, [sp, #44]
+ 574              	.L86:
+ 575 00ec 0F9B     		ldr	r3, [sp, #60]
+ 576 00ee 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 577 00f0 2E2A     		cmp	r2, #46
+ 578 00f2 25D0     		beq	.L171
+ 579              	.L89:
+ 580 00f4 0F9A     		ldr	r2, [sp, #60]
+ 581 00f6 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 582 00f8 683B     		subs	r3, r3, #104
+ 583 00fa 122B     		cmp	r3, #18
+ 584 00fc 5CD8     		bhi	.L91
+ 585 00fe DFE803F0 		tbb	[pc, r3]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 11
+
+
+ 586              	.L93:
+ 587 0102 49       		.byte	(.L97-.L93)/2
+ 588 0103 5B       		.byte	(.L91-.L93)/2
+ 589 0104 7B       		.byte	(.L96-.L93)/2
+ 590 0105 5B       		.byte	(.L91-.L93)/2
+ 591 0106 3B       		.byte	(.L95-.L93)/2
+ 592 0107 5B       		.byte	(.L91-.L93)/2
+ 593 0108 5B       		.byte	(.L91-.L93)/2
+ 594 0109 5B       		.byte	(.L91-.L93)/2
+ 595 010a 5B       		.byte	(.L91-.L93)/2
+ 596 010b 5B       		.byte	(.L91-.L93)/2
+ 597 010c 5B       		.byte	(.L91-.L93)/2
+ 598 010d 5B       		.byte	(.L91-.L93)/2
+ 599 010e 57       		.byte	(.L94-.L93)/2
+ 600 010f 5B       		.byte	(.L91-.L93)/2
+ 601 0110 5B       		.byte	(.L91-.L93)/2
+ 602 0111 5B       		.byte	(.L91-.L93)/2
+ 603 0112 5B       		.byte	(.L91-.L93)/2
+ 604 0113 5B       		.byte	(.L91-.L93)/2
+ 605 0114 80       		.byte	(.L92-.L93)/2
+ 606 0115 00       		.p2align 1
+ 607              	.L169:
+ 608 0116 0FA8     		add	r0, sp, #60
+ 609 0118 FFF7FEFF 		bl	_atoi
+ 610 011c 8246     		mov	r10, r0
+ 611 011e E5E7     		b	.L86
+ 612              	.L170:
+ 613 0120 1C9B     		ldr	r3, [sp, #112]
+ 614 0122 1A1D     		adds	r2, r3, #4
+ 615 0124 1C92     		str	r2, [sp, #112]
+ 616 0126 1B68     		ldr	r3, [r3]
+ 617 0128 002B     		cmp	r3, #0
+ 618 012a 04DB     		blt	.L172
+ 619 012c 9A46     		mov	r10, r3
+ 620              	.L88:
+ 621 012e 0F9B     		ldr	r3, [sp, #60]
+ 622 0130 0133     		adds	r3, r3, #1
+ 623 0132 0F93     		str	r3, [sp, #60]
+ 624 0134 DAE7     		b	.L86
+ 625              	.L172:
+ 626 0136 46F00206 		orr	r6, r6, #2
+ 627 013a C3F1000A 		rsb	r10, r3, #0
+ 628 013e F6E7     		b	.L88
+ 629              	.L171:
+ 630 0140 46F48066 		orr	r6, r6, #1024
+ 631 0144 5A1C     		adds	r2, r3, #1
+ 632 0146 0F92     		str	r2, [sp, #60]
+ 633 0148 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+ 634 014a A2F13003 		sub	r3, r2, #48
+ 635 014e DBB2     		uxtb	r3, r3
+ 636 0150 092B     		cmp	r3, #9
+ 637 0152 0CD9     		bls	.L173
+ 638 0154 2A2A     		cmp	r2, #42
+ 639 0156 CDD1     		bne	.L89
+ 640 0158 1C9B     		ldr	r3, [sp, #112]
+ 641 015a 1A1D     		adds	r2, r3, #4
+ 642 015c 1C92     		str	r2, [sp, #112]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 12
+
+
+ 643 015e 1C68     		ldr	r4, [r3]
+ 644 0160 24EAE473 		bic	r3, r4, r4, asr #31
+ 645 0164 0B93     		str	r3, [sp, #44]
+ 646 0166 0F9B     		ldr	r3, [sp, #60]
+ 647 0168 0133     		adds	r3, r3, #1
+ 648 016a 0F93     		str	r3, [sp, #60]
+ 649 016c C2E7     		b	.L89
+ 650              	.L173:
+ 651 016e 0FA8     		add	r0, sp, #60
+ 652 0170 FFF7FEFF 		bl	_atoi
+ 653 0174 0B90     		str	r0, [sp, #44]
+ 654 0176 BDE7     		b	.L89
+ 655              	.L95:
+ 656 0178 46F48071 		orr	r1, r6, #256
+ 657 017c 531C     		adds	r3, r2, #1
+ 658 017e 0F93     		str	r3, [sp, #60]
+ 659 0180 5378     		ldrb	r3, [r2, #1]	@ zero_extendqisi2
+ 660 0182 6C2B     		cmp	r3, #108
+ 661 0184 01D0     		beq	.L174
+ 662 0186 0E46     		mov	r6, r1
+ 663 0188 16E0     		b	.L91
+ 664              	.L174:
+ 665 018a 46F44076 		orr	r6, r6, #768
+ 666 018e 0232     		adds	r2, r2, #2
+ 667 0190 0F92     		str	r2, [sp, #60]
+ 668 0192 11E0     		b	.L91
+ 669              	.L97:
+ 670 0194 46F08001 		orr	r1, r6, #128
+ 671 0198 531C     		adds	r3, r2, #1
+ 672 019a 0F93     		str	r3, [sp, #60]
+ 673 019c 5378     		ldrb	r3, [r2, #1]	@ zero_extendqisi2
+ 674 019e 682B     		cmp	r3, #104
+ 675 01a0 01D0     		beq	.L175
+ 676 01a2 0E46     		mov	r6, r1
+ 677 01a4 08E0     		b	.L91
+ 678              	.L175:
+ 679 01a6 46F0C006 		orr	r6, r6, #192
+ 680 01aa 0232     		adds	r2, r2, #2
+ 681 01ac 0F92     		str	r2, [sp, #60]
+ 682 01ae 03E0     		b	.L91
+ 683              	.L94:
+ 684 01b0 46F48076 		orr	r6, r6, #256
+ 685 01b4 0132     		adds	r2, r2, #1
+ 686 01b6 0F92     		str	r2, [sp, #60]
+ 687              	.L91:
+ 688 01b8 0F99     		ldr	r1, [sp, #60]
+ 689 01ba 0878     		ldrb	r0, [r1]	@ zero_extendqisi2
+ 690 01bc 7828     		cmp	r0, #120
+ 691 01be 11D8     		bhi	.L98
+ 692 01c0 6228     		cmp	r0, #98
+ 693 01c2 23D3     		bcc	.L176
+ 694 01c4 A0F16202 		sub	r2, r0, #98
+ 695 01c8 D2B2     		uxtb	r2, r2
+ 696 01ca 0123     		movs	r3, #1
+ 697 01cc 9340     		lsls	r3, r3, r2
+ 698 01ce 8D4A     		ldr	r2, .L188
+ 699 01d0 1A40     		ands	r2, r2, r3
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 13
+
+
+ 700 01d2 6ABB     		cbnz	r2, .L101
+ 701 01d4 13F4003F 		tst	r3, #131072
+ 702 01d8 40F08681 		bne	.L102
+ 703 01dc 13F0020F 		tst	r3, #2
+ 704 01e0 40F05081 		bne	.L177
+ 705              	.L98:
+ 706 01e4 6C1C     		adds	r4, r5, #1
+ 707 01e6 3B46     		mov	r3, r7
+ 708 01e8 2A46     		mov	r2, r5
+ 709 01ea 5946     		mov	r1, fp
+ 710 01ec C047     		blx	r8
+ 711 01ee 0F9B     		ldr	r3, [sp, #60]
+ 712 01f0 0133     		adds	r3, r3, #1
+ 713 01f2 0F93     		str	r3, [sp, #60]
+ 714 01f4 2546     		mov	r5, r4
+ 715 01f6 0EE7     		b	.L150
+ 716              	.L96:
+ 717 01f8 46F40076 		orr	r6, r6, #512
+ 718 01fc 0132     		adds	r2, r2, #1
+ 719 01fe 0F92     		str	r2, [sp, #60]
+ 720 0200 DAE7     		b	.L91
+ 721              	.L92:
+ 722 0202 46F48076 		orr	r6, r6, #256
+ 723 0206 0132     		adds	r2, r2, #1
+ 724 0208 0F92     		str	r2, [sp, #60]
+ 725 020a D5E7     		b	.L91
+ 726              	.L176:
+ 727 020c 2528     		cmp	r0, #37
+ 728 020e 0AD1     		bne	.L178
+ 729 0210 6C1C     		adds	r4, r5, #1
+ 730 0212 3B46     		mov	r3, r7
+ 731 0214 2A46     		mov	r2, r5
+ 732 0216 5946     		mov	r1, fp
+ 733 0218 2520     		movs	r0, #37
+ 734 021a C047     		blx	r8
+ 735 021c 0F9B     		ldr	r3, [sp, #60]
+ 736 021e 0133     		adds	r3, r3, #1
+ 737 0220 0F93     		str	r3, [sp, #60]
+ 738 0222 2546     		mov	r5, r4
+ 739 0224 F7E6     		b	.L150
+ 740              	.L178:
+ 741 0226 DDD3     		bcc	.L98
+ 742 0228 5028     		cmp	r0, #80
+ 743 022a 01D0     		beq	.L101
+ 744 022c 5828     		cmp	r0, #88
+ 745 022e D9D1     		bne	.L98
+ 746              	.L101:
+ 747 0230 5038     		subs	r0, r0, #80
+ 748 0232 2828     		cmp	r0, #40
+ 749 0234 5FD8     		bhi	.L104
+ 750 0236 DFE800F0 		tbb	[pc, r0]
+ 751              	.L106:
+ 752 023a 17       		.byte	(.L107-.L106)/2
+ 753 023b 5E       		.byte	(.L104-.L106)/2
+ 754 023c 5E       		.byte	(.L104-.L106)/2
+ 755 023d 5E       		.byte	(.L104-.L106)/2
+ 756 023e 5E       		.byte	(.L104-.L106)/2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 14
+
+
+ 757 023f 5E       		.byte	(.L104-.L106)/2
+ 758 0240 5E       		.byte	(.L104-.L106)/2
+ 759 0241 5E       		.byte	(.L104-.L106)/2
+ 760 0242 15       		.byte	(.L105-.L106)/2
+ 761 0243 5E       		.byte	(.L104-.L106)/2
+ 762 0244 5E       		.byte	(.L104-.L106)/2
+ 763 0245 5E       		.byte	(.L104-.L106)/2
+ 764 0246 5E       		.byte	(.L104-.L106)/2
+ 765 0247 5E       		.byte	(.L104-.L106)/2
+ 766 0248 5E       		.byte	(.L104-.L106)/2
+ 767 0249 5E       		.byte	(.L104-.L106)/2
+ 768 024a 5E       		.byte	(.L104-.L106)/2
+ 769 024b 5E       		.byte	(.L104-.L106)/2
+ 770 024c 22       		.byte	(.L109-.L106)/2
+ 771 024d 5E       		.byte	(.L104-.L106)/2
+ 772 024e 5E       		.byte	(.L104-.L106)/2
+ 773 024f 5E       		.byte	(.L104-.L106)/2
+ 774 0250 5E       		.byte	(.L104-.L106)/2
+ 775 0251 5E       		.byte	(.L104-.L106)/2
+ 776 0252 5E       		.byte	(.L104-.L106)/2
+ 777 0253 5E       		.byte	(.L104-.L106)/2
+ 778 0254 5E       		.byte	(.L104-.L106)/2
+ 779 0255 5E       		.byte	(.L104-.L106)/2
+ 780 0256 5E       		.byte	(.L104-.L106)/2
+ 781 0257 5E       		.byte	(.L104-.L106)/2
+ 782 0258 5E       		.byte	(.L104-.L106)/2
+ 783 0259 62       		.byte	(.L158-.L106)/2
+ 784 025a 17       		.byte	(.L107-.L106)/2
+ 785 025b 5E       		.byte	(.L104-.L106)/2
+ 786 025c 5E       		.byte	(.L104-.L106)/2
+ 787 025d 5E       		.byte	(.L104-.L106)/2
+ 788 025e 5E       		.byte	(.L104-.L106)/2
+ 789 025f 5E       		.byte	(.L104-.L106)/2
+ 790 0260 5E       		.byte	(.L104-.L106)/2
+ 791 0261 5E       		.byte	(.L104-.L106)/2
+ 792 0262 15       		.byte	(.L105-.L106)/2
+ 793 0263 00       		.p2align 1
+ 794              	.L105:
+ 795 0264 1022     		movs	r2, #16
+ 796 0266 0BE0     		b	.L108
+ 797              	.L107:
+ 798 0268 46F48876 		orr	r6, r6, #272
+ 799 026c 4B78     		ldrb	r3, [r1, #1]	@ zero_extendqisi2
+ 800 026e 562B     		cmp	r3, #86
+ 801 0270 01D0     		beq	.L179
+ 802 0272 1022     		movs	r2, #16
+ 803 0274 04E0     		b	.L108
+ 804              	.L179:
+ 805 0276 0131     		adds	r1, r1, #1
+ 806 0278 0F91     		str	r1, [sp, #60]
+ 807 027a 1022     		movs	r2, #16
+ 808 027c 00E0     		b	.L108
+ 809              	.L109:
+ 810 027e 0222     		movs	r2, #2
+ 811              	.L108:
+ 812 0280 0F9B     		ldr	r3, [sp, #60]
+ 813 0282 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 15
+
+
+ 814 0284 582B     		cmp	r3, #88
+ 815 0286 01D0     		beq	.L110
+ 816 0288 502B     		cmp	r3, #80
+ 817 028a 01D1     		bne	.L111
+ 818              	.L110:
+ 819 028c 46F02006 		orr	r6, r6, #32
+ 820              	.L111:
+ 821 0290 692B     		cmp	r3, #105
+ 822 0292 03D0     		beq	.L112
+ 823 0294 642B     		cmp	r3, #100
+ 824 0296 01D0     		beq	.L112
+ 825 0298 26F00C06 		bic	r6, r6, #12
+ 826              	.L112:
+ 827 029c 16F4806F 		tst	r6, #1024
+ 828 02a0 01D0     		beq	.L113
+ 829 02a2 26F00106 		bic	r6, r6, #1
+ 830              	.L113:
+ 831 02a6 692B     		cmp	r3, #105
+ 832 02a8 2BD0     		beq	.L114
+ 833 02aa 642B     		cmp	r3, #100
+ 834 02ac 29D0     		beq	.L114
+ 835 02ae 562B     		cmp	r3, #86
+ 836 02b0 00F09780 		beq	.L180
+ 837 02b4 16F4007F 		tst	r6, #512
+ 838 02b8 40F0A680 		bne	.L181
+ 839 02bc 16F4807F 		tst	r6, #256
+ 840 02c0 40F0BE80 		bne	.L182
+ 841 02c4 16F0400F 		tst	r6, #64
+ 842 02c8 00F0CF80 		beq	.L126
+ 843 02cc 1C9B     		ldr	r3, [sp, #112]
+ 844 02ce 191D     		adds	r1, r3, #4
+ 845 02d0 1C91     		str	r1, [sp, #112]
+ 846 02d2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 847              	.L127:
+ 848 02d4 0596     		str	r6, [sp, #20]
+ 849 02d6 CDF810A0 		str	r10, [sp, #16]
+ 850 02da 0B99     		ldr	r1, [sp, #44]
+ 851 02dc 0391     		str	r1, [sp, #12]
+ 852 02de 0292     		str	r2, [sp, #8]
+ 853 02e0 0022     		movs	r2, #0
+ 854 02e2 0192     		str	r2, [sp, #4]
+ 855 02e4 0093     		str	r3, [sp]
+ 856 02e6 3B46     		mov	r3, r7
+ 857 02e8 2A46     		mov	r2, r5
+ 858 02ea 5946     		mov	r1, fp
+ 859 02ec 4046     		mov	r0, r8
+ 860 02ee FFF7FEFF 		bl	_ntoa_long
+ 861 02f2 0546     		mov	r5, r0
+ 862 02f4 26E0     		b	.L118
+ 863              	.L104:
+ 864 02f6 26F01006 		bic	r6, r6, #16
+ 865 02fa 0A22     		movs	r2, #10
+ 866 02fc C0E7     		b	.L108
+ 867              	.L158:
+ 868 02fe 0822     		movs	r2, #8
+ 869 0300 BEE7     		b	.L108
+ 870              	.L114:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 16
+
+
+ 871 0302 16F4007F 		tst	r6, #512
+ 872 0306 21D1     		bne	.L183
+ 873 0308 16F4807F 		tst	r6, #256
+ 874 030c 42D1     		bne	.L184
+ 875 030e 16F0400F 		tst	r6, #64
+ 876 0312 58D0     		beq	.L120
+ 877 0314 1C9B     		ldr	r3, [sp, #112]
+ 878 0316 191D     		adds	r1, r3, #4
+ 879 0318 1C91     		str	r1, [sp, #112]
+ 880 031a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 881              	.L121:
+ 882 031c 83EAE371 		eor	r1, r3, r3, asr #31
+ 883 0320 A1EBE371 		sub	r1, r1, r3, asr #31
+ 884 0324 0596     		str	r6, [sp, #20]
+ 885 0326 CDF810A0 		str	r10, [sp, #16]
+ 886 032a 0B98     		ldr	r0, [sp, #44]
+ 887 032c 0390     		str	r0, [sp, #12]
+ 888 032e 0292     		str	r2, [sp, #8]
+ 889 0330 DB0F     		lsrs	r3, r3, #31
+ 890 0332 0193     		str	r3, [sp, #4]
+ 891 0334 0091     		str	r1, [sp]
+ 892 0336 3B46     		mov	r3, r7
+ 893 0338 2A46     		mov	r2, r5
+ 894 033a 5946     		mov	r1, fp
+ 895 033c 4046     		mov	r0, r8
+ 896 033e FFF7FEFF 		bl	_ntoa_long
+ 897 0342 0546     		mov	r5, r0
+ 898              	.L118:
+ 899 0344 0F9B     		ldr	r3, [sp, #60]
+ 900 0346 0133     		adds	r3, r3, #1
+ 901 0348 0F93     		str	r3, [sp, #60]
+ 902 034a 64E6     		b	.L150
+ 903              	.L183:
+ 904 034c 1C9B     		ldr	r3, [sp, #112]
+ 905 034e 0733     		adds	r3, r3, #7
+ 906 0350 23F00703 		bic	r3, r3, #7
+ 907 0354 03F10801 		add	r1, r3, #8
+ 908 0358 1C91     		str	r1, [sp, #112]
+ 909 035a 5968     		ldr	r1, [r3, #4]
+ 910 035c 1B68     		ldr	r3, [r3]
+ 911 035e 0846     		mov	r0, r1
+ 912 0360 0029     		cmp	r1, #0
+ 913 0362 13DB     		blt	.L185
+ 914              	.L117:
+ 915 0364 0896     		str	r6, [sp, #32]
+ 916 0366 CDF81CA0 		str	r10, [sp, #28]
+ 917 036a 0B9C     		ldr	r4, [sp, #44]
+ 918 036c 0694     		str	r4, [sp, #24]
+ 919 036e 0492     		str	r2, [sp, #16]
+ 920 0370 0022     		movs	r2, #0
+ 921 0372 0592     		str	r2, [sp, #20]
+ 922 0374 C90F     		lsrs	r1, r1, #31
+ 923 0376 0291     		str	r1, [sp, #8]
+ 924 0378 0093     		str	r3, [sp]
+ 925 037a 0190     		str	r0, [sp, #4]
+ 926 037c 3B46     		mov	r3, r7
+ 927 037e 2A46     		mov	r2, r5
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 17
+
+
+ 928 0380 5946     		mov	r1, fp
+ 929 0382 4046     		mov	r0, r8
+ 930 0384 FFF7FEFF 		bl	_ntoa_long_long
+ 931 0388 0546     		mov	r5, r0
+ 932 038a DBE7     		b	.L118
+ 933              	.L185:
+ 934 038c 5B42     		negs	r3, r3
+ 935 038e 61EB4100 		sbc	r0, r1, r1, lsl #1
+ 936 0392 E7E7     		b	.L117
+ 937              	.L184:
+ 938 0394 1C9B     		ldr	r3, [sp, #112]
+ 939 0396 191D     		adds	r1, r3, #4
+ 940 0398 1C91     		str	r1, [sp, #112]
+ 941 039a 1B68     		ldr	r3, [r3]
+ 942 039c 83EAE371 		eor	r1, r3, r3, asr #31
+ 943 03a0 A1EBE371 		sub	r1, r1, r3, asr #31
+ 944 03a4 0596     		str	r6, [sp, #20]
+ 945 03a6 CDF810A0 		str	r10, [sp, #16]
+ 946 03aa 0B98     		ldr	r0, [sp, #44]
+ 947 03ac 0390     		str	r0, [sp, #12]
+ 948 03ae 0292     		str	r2, [sp, #8]
+ 949 03b0 DB0F     		lsrs	r3, r3, #31
+ 950 03b2 0193     		str	r3, [sp, #4]
+ 951 03b4 0091     		str	r1, [sp]
+ 952 03b6 3B46     		mov	r3, r7
+ 953 03b8 2A46     		mov	r2, r5
+ 954 03ba 5946     		mov	r1, fp
+ 955 03bc 4046     		mov	r0, r8
+ 956 03be FFF7FEFF 		bl	_ntoa_long
+ 957 03c2 0546     		mov	r5, r0
+ 958 03c4 BEE7     		b	.L118
+ 959              	.L120:
+ 960 03c6 16F0800F 		tst	r6, #128
+ 961 03ca 05D0     		beq	.L122
+ 962 03cc 1C9B     		ldr	r3, [sp, #112]
+ 963 03ce 191D     		adds	r1, r3, #4
+ 964 03d0 1C91     		str	r1, [sp, #112]
+ 965 03d2 B3F90030 		ldrsh	r3, [r3]
+ 966 03d6 A1E7     		b	.L121
+ 967              	.L122:
+ 968 03d8 1C9B     		ldr	r3, [sp, #112]
+ 969 03da 191D     		adds	r1, r3, #4
+ 970 03dc 1C91     		str	r1, [sp, #112]
+ 971 03de 1B68     		ldr	r3, [r3]
+ 972 03e0 9CE7     		b	.L121
+ 973              	.L180:
+ 974 03e2 1C9B     		ldr	r3, [sp, #112]
+ 975 03e4 1A1D     		adds	r2, r3, #4
+ 976 03e6 1C92     		str	r2, [sp, #112]
+ 977 03e8 1B68     		ldr	r3, [r3]
+ 978 03ea 5A68     		ldr	r2, [r3, #4]
+ 979 03ec 1268     		ldr	r2, [r2]
+ 980 03ee 1192     		str	r2, [sp, #68]
+ 981 03f0 1B68     		ldr	r3, [r3]
+ 982 03f2 0092     		str	r2, [sp]
+ 983 03f4 7A1B     		subs	r2, r7, r5
+ 984 03f6 0BEB0501 		add	r1, fp, r5
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 18
+
+
+ 985 03fa 4046     		mov	r0, r8
+ 986 03fc FFF700FE 		bl	_vsnprintf
+ 987 0400 0544     		add	r5, r5, r0
+ 988 0402 9FE7     		b	.L118
+ 989              	.L189:
+ 990              		.align	2
+ 991              	.L188:
+ 992 0404 85604800 		.word	4743301
+ 993              	.L181:
+ 994 0408 1C9B     		ldr	r3, [sp, #112]
+ 995 040a 0733     		adds	r3, r3, #7
+ 996 040c 23F00703 		bic	r3, r3, #7
+ 997 0410 03F10801 		add	r1, r3, #8
+ 998 0414 1C91     		str	r1, [sp, #112]
+ 999 0416 0896     		str	r6, [sp, #32]
+ 1000 0418 CDF81CA0 		str	r10, [sp, #28]
+ 1001 041c 0B99     		ldr	r1, [sp, #44]
+ 1002 041e 0691     		str	r1, [sp, #24]
+ 1003 0420 0021     		movs	r1, #0
+ 1004 0422 0492     		str	r2, [sp, #16]
+ 1005 0424 0591     		str	r1, [sp, #20]
+ 1006 0426 0291     		str	r1, [sp, #8]
+ 1007 0428 D3E90023 		ldrd	r2, [r3]
+ 1008 042c CDE90023 		strd	r2, [sp]
+ 1009 0430 3B46     		mov	r3, r7
+ 1010 0432 2A46     		mov	r2, r5
+ 1011 0434 5946     		mov	r1, fp
+ 1012 0436 4046     		mov	r0, r8
+ 1013 0438 FFF7FEFF 		bl	_ntoa_long_long
+ 1014 043c 0546     		mov	r5, r0
+ 1015 043e 81E7     		b	.L118
+ 1016              	.L182:
+ 1017 0440 1C9B     		ldr	r3, [sp, #112]
+ 1018 0442 191D     		adds	r1, r3, #4
+ 1019 0444 1C91     		str	r1, [sp, #112]
+ 1020 0446 0596     		str	r6, [sp, #20]
+ 1021 0448 CDF810A0 		str	r10, [sp, #16]
+ 1022 044c 0B99     		ldr	r1, [sp, #44]
+ 1023 044e 0391     		str	r1, [sp, #12]
+ 1024 0450 0292     		str	r2, [sp, #8]
+ 1025 0452 0022     		movs	r2, #0
+ 1026 0454 0192     		str	r2, [sp, #4]
+ 1027 0456 1B68     		ldr	r3, [r3]
+ 1028 0458 0093     		str	r3, [sp]
+ 1029 045a 3B46     		mov	r3, r7
+ 1030 045c 2A46     		mov	r2, r5
+ 1031 045e 5946     		mov	r1, fp
+ 1032 0460 4046     		mov	r0, r8
+ 1033 0462 FFF7FEFF 		bl	_ntoa_long
+ 1034 0466 0546     		mov	r5, r0
+ 1035 0468 6CE7     		b	.L118
+ 1036              	.L126:
+ 1037 046a 16F0800F 		tst	r6, #128
+ 1038 046e 04D0     		beq	.L128
+ 1039 0470 1C9B     		ldr	r3, [sp, #112]
+ 1040 0472 191D     		adds	r1, r3, #4
+ 1041 0474 1C91     		str	r1, [sp, #112]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 19
+
+
+ 1042 0476 1B88     		ldrh	r3, [r3]
+ 1043 0478 2CE7     		b	.L127
+ 1044              	.L128:
+ 1045 047a 1C9B     		ldr	r3, [sp, #112]
+ 1046 047c 191D     		adds	r1, r3, #4
+ 1047 047e 1C91     		str	r1, [sp, #112]
+ 1048 0480 1B68     		ldr	r3, [r3]
+ 1049 0482 27E7     		b	.L127
+ 1050              	.L177:
+ 1051 0484 16F00206 		ands	r6, r6, #2
+ 1052 0488 1DD0     		beq	.L160
+ 1053 048a 0124     		movs	r4, #1
+ 1054              	.L130:
+ 1055 048c 1C98     		ldr	r0, [sp, #112]
+ 1056 048e 031D     		adds	r3, r0, #4
+ 1057 0490 1C93     		str	r3, [sp, #112]
+ 1058 0492 05F10109 		add	r9, r5, #1
+ 1059 0496 3B46     		mov	r3, r7
+ 1060 0498 2A46     		mov	r2, r5
+ 1061 049a 5946     		mov	r1, fp
+ 1062 049c 0078     		ldrb	r0, [r0]	@ zero_extendqisi2
+ 1063 049e C047     		blx	r8
+ 1064 04a0 A6B9     		cbnz	r6, .L186
+ 1065              	.L133:
+ 1066 04a2 0F9B     		ldr	r3, [sp, #60]
+ 1067 04a4 0133     		adds	r3, r3, #1
+ 1068 04a6 0F93     		str	r3, [sp, #60]
+ 1069 04a8 4D46     		mov	r5, r9
+ 1070 04aa B4E5     		b	.L150
+ 1071              	.L131:
+ 1072 04ac 02F10109 		add	r9, r2, #1
+ 1073 04b0 3B46     		mov	r3, r7
+ 1074 04b2 5946     		mov	r1, fp
+ 1075 04b4 2020     		movs	r0, #32
+ 1076 04b6 C047     		blx	r8
+ 1077 04b8 2346     		mov	r3, r4
+ 1078 04ba 4A46     		mov	r2, r9
+ 1079              	.L129:
+ 1080 04bc 5C1C     		adds	r4, r3, #1
+ 1081 04be 9A45     		cmp	r10, r3
+ 1082 04c0 F4D8     		bhi	.L131
+ 1083 04c2 1546     		mov	r5, r2
+ 1084 04c4 E2E7     		b	.L130
+ 1085              	.L160:
+ 1086 04c6 0123     		movs	r3, #1
+ 1087 04c8 2A46     		mov	r2, r5
+ 1088 04ca F7E7     		b	.L129
+ 1089              	.L186:
+ 1090 04cc 4A46     		mov	r2, r9
+ 1091 04ce 06E0     		b	.L132
+ 1092              	.L134:
+ 1093 04d0 561C     		adds	r6, r2, #1
+ 1094 04d2 3B46     		mov	r3, r7
+ 1095 04d4 5946     		mov	r1, fp
+ 1096 04d6 2020     		movs	r0, #32
+ 1097 04d8 C047     		blx	r8
+ 1098 04da 2C46     		mov	r4, r5
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 20
+
+
+ 1099 04dc 3246     		mov	r2, r6
+ 1100              	.L132:
+ 1101 04de 651C     		adds	r5, r4, #1
+ 1102 04e0 A245     		cmp	r10, r4
+ 1103 04e2 F5D8     		bhi	.L134
+ 1104 04e4 9146     		mov	r9, r2
+ 1105 04e6 DCE7     		b	.L133
+ 1106              	.L102:
+ 1107 04e8 1C9B     		ldr	r3, [sp, #112]
+ 1108 04ea 1A1D     		adds	r2, r3, #4
+ 1109 04ec 1C92     		str	r2, [sp, #112]
+ 1110 04ee D3F80090 		ldr	r9, [r3]
+ 1111 04f2 0B9B     		ldr	r3, [sp, #44]
+ 1112 04f4 FBB9     		cbnz	r3, .L135
+ 1113 04f6 4FF0FF32 		mov	r2, #-1
+ 1114              	.L136:
+ 1115 04fa 4B46     		mov	r3, r9
+ 1116 04fc 01E0     		b	.L137
+ 1117              	.L139:
+ 1118 04fe 0133     		adds	r3, r3, #1
+ 1119 0500 0A46     		mov	r2, r1
+ 1120              	.L137:
+ 1121 0502 1978     		ldrb	r1, [r3]	@ zero_extendqisi2
+ 1122 0504 11B1     		cbz	r1, .L138
+ 1123 0506 511E     		subs	r1, r2, #1
+ 1124 0508 002A     		cmp	r2, #0
+ 1125 050a F8D1     		bne	.L139
+ 1126              	.L138:
+ 1127 050c A3EB0903 		sub	r3, r3, r9
+ 1128 0510 16F48062 		ands	r2, r6, #1024
+ 1129 0514 0C92     		str	r2, [sp, #48]
+ 1130 0516 03D0     		beq	.L140
+ 1131 0518 0B9A     		ldr	r2, [sp, #44]
+ 1132 051a 9342     		cmp	r3, r2
+ 1133 051c 28BF     		it	cs
+ 1134 051e 1346     		movcs	r3, r2
+ 1135              	.L140:
+ 1136 0520 16F00204 		ands	r4, r6, #2
+ 1137 0524 09D0     		beq	.L187
+ 1138 0526 0D94     		str	r4, [sp, #52]
+ 1139 0528 CDF838A0 		str	r10, [sp, #56]
+ 1140 052c 0B9E     		ldr	r6, [sp, #44]
+ 1141 052e 2A46     		mov	r2, r5
+ 1142 0530 0C9D     		ldr	r5, [sp, #48]
+ 1143 0532 9A46     		mov	r10, r3
+ 1144 0534 1FE0     		b	.L144
+ 1145              	.L135:
+ 1146 0536 0B9A     		ldr	r2, [sp, #44]
+ 1147 0538 DFE7     		b	.L136
+ 1148              	.L187:
+ 1149 053a 2A46     		mov	r2, r5
+ 1150 053c 2546     		mov	r5, r4
+ 1151 053e 06E0     		b	.L141
+ 1152              	.L143:
+ 1153 0540 541C     		adds	r4, r2, #1
+ 1154 0542 3B46     		mov	r3, r7
+ 1155 0544 5946     		mov	r1, fp
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 21
+
+
+ 1156 0546 2020     		movs	r0, #32
+ 1157 0548 C047     		blx	r8
+ 1158 054a 3346     		mov	r3, r6
+ 1159 054c 2246     		mov	r2, r4
+ 1160              	.L141:
+ 1161 054e 5E1C     		adds	r6, r3, #1
+ 1162 0550 9A45     		cmp	r10, r3
+ 1163 0552 F5D8     		bhi	.L143
+ 1164 0554 2C46     		mov	r4, r5
+ 1165 0556 3346     		mov	r3, r6
+ 1166 0558 0D94     		str	r4, [sp, #52]
+ 1167 055a CDF838A0 		str	r10, [sp, #56]
+ 1168 055e 0B9E     		ldr	r6, [sp, #44]
+ 1169 0560 0C9D     		ldr	r5, [sp, #48]
+ 1170 0562 9A46     		mov	r10, r3
+ 1171 0564 07E0     		b	.L144
+ 1172              	.L161:
+ 1173 0566 1E46     		mov	r6, r3
+ 1174              	.L146:
+ 1175 0568 09F10109 		add	r9, r9, #1
+ 1176 056c 541C     		adds	r4, r2, #1
+ 1177 056e 3B46     		mov	r3, r7
+ 1178 0570 5946     		mov	r1, fp
+ 1179 0572 C047     		blx	r8
+ 1180 0574 2246     		mov	r2, r4
+ 1181              	.L144:
+ 1182 0576 99F80000 		ldrb	r0, [r9]	@ zero_extendqisi2
+ 1183 057a 20B1     		cbz	r0, .L145
+ 1184 057c 002D     		cmp	r5, #0
+ 1185 057e F3D0     		beq	.L146
+ 1186 0580 731E     		subs	r3, r6, #1
+ 1187 0582 002E     		cmp	r6, #0
+ 1188 0584 EFD1     		bne	.L161
+ 1189              	.L145:
+ 1190 0586 0D9C     		ldr	r4, [sp, #52]
+ 1191 0588 1546     		mov	r5, r2
+ 1192 058a 5346     		mov	r3, r10
+ 1193 058c DDF838A0 		ldr	r10, [sp, #56]
+ 1194 0590 54B9     		cbnz	r4, .L147
+ 1195              	.L148:
+ 1196 0592 0F9B     		ldr	r3, [sp, #60]
+ 1197 0594 0133     		adds	r3, r3, #1
+ 1198 0596 0F93     		str	r3, [sp, #60]
+ 1199 0598 3DE5     		b	.L150
+ 1200              	.L149:
+ 1201 059a 551C     		adds	r5, r2, #1
+ 1202 059c 3B46     		mov	r3, r7
+ 1203 059e 5946     		mov	r1, fp
+ 1204 05a0 2020     		movs	r0, #32
+ 1205 05a2 C047     		blx	r8
+ 1206 05a4 2346     		mov	r3, r4
+ 1207 05a6 2A46     		mov	r2, r5
+ 1208              	.L147:
+ 1209 05a8 5C1C     		adds	r4, r3, #1
+ 1210 05aa 9A45     		cmp	r10, r3
+ 1211 05ac F5D8     		bhi	.L149
+ 1212 05ae 1546     		mov	r5, r2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 22
+
+
+ 1213 05b0 EFE7     		b	.L148
+ 1214              	.L166:
+ 1215 05b2 DFF82080 		ldr	r8, .L190
+ 1216 05b6 2DE5     		b	.L73
+ 1217              	.L167:
+ 1218 05b8 BD42     		cmp	r5, r7
+ 1219 05ba 08D3     		bcc	.L162
+ 1220 05bc 7A1E     		subs	r2, r7, #1
+ 1221              	.L152:
+ 1222 05be 3B46     		mov	r3, r7
+ 1223 05c0 5946     		mov	r1, fp
+ 1224 05c2 0020     		movs	r0, #0
+ 1225 05c4 C047     		blx	r8
+ 1226 05c6 2846     		mov	r0, r5
+ 1227 05c8 13B0     		add	sp, sp, #76
+ 1228              		@ sp needed
+ 1229 05ca BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 1230              	.L162:
+ 1231 05ce 2A46     		mov	r2, r5
+ 1232 05d0 F5E7     		b	.L152
+ 1233              	.L191:
+ 1234 05d2 00BF     		.align	2
+ 1235              	.L190:
+ 1236 05d4 00000000 		.word	_out_null
+ 1238              		.section	.text.lv_snprintf,"ax",%progbits
+ 1239              		.align	1
+ 1240              		.global	lv_snprintf
+ 1241              		.syntax unified
+ 1242              		.thumb
+ 1243              		.thumb_func
+ 1245              	lv_snprintf:
+ 1246              		@ args = 4, pretend = 8, frame = 8
+ 1247              		@ frame_needed = 0, uses_anonymous_args = 1
+ 1248 0000 0CB4     		push	{r2, r3}
+ 1249 0002 10B5     		push	{r4, lr}
+ 1250 0004 84B0     		sub	sp, sp, #16
+ 1251 0006 0A46     		mov	r2, r1
+ 1252 0008 06AC     		add	r4, sp, #24
+ 1253 000a 54F8043B 		ldr	r3, [r4], #4
+ 1254 000e 0394     		str	r4, [sp, #12]
+ 1255 0010 0094     		str	r4, [sp]
+ 1256 0012 0146     		mov	r1, r0
+ 1257 0014 0348     		ldr	r0, .L194
+ 1258 0016 FFF7FEFF 		bl	_vsnprintf
+ 1259 001a 04B0     		add	sp, sp, #16
+ 1260              		@ sp needed
+ 1261 001c BDE81040 		pop	{r4, lr}
+ 1262 0020 02B0     		add	sp, sp, #8
+ 1263 0022 7047     		bx	lr
+ 1264              	.L195:
+ 1265              		.align	2
+ 1266              	.L194:
+ 1267 0024 00000000 		.word	_out_buffer
+ 1269              		.section	.text.lv_vsnprintf,"ax",%progbits
+ 1270              		.align	1
+ 1271              		.global	lv_vsnprintf
+ 1272              		.syntax unified
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 23
+
+
+ 1273              		.thumb
+ 1274              		.thumb_func
+ 1276              	lv_vsnprintf:
+ 1277              		@ args = 0, pretend = 0, frame = 0
+ 1278              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1279 0000 00B5     		push	{lr}
+ 1280 0002 83B0     		sub	sp, sp, #12
+ 1281 0004 0093     		str	r3, [sp]
+ 1282 0006 1346     		mov	r3, r2
+ 1283 0008 0A46     		mov	r2, r1
+ 1284 000a 0146     		mov	r1, r0
+ 1285 000c 0248     		ldr	r0, .L198
+ 1286 000e FFF7FEFF 		bl	_vsnprintf
+ 1287 0012 03B0     		add	sp, sp, #12
+ 1288              		@ sp needed
+ 1289 0014 5DF804FB 		ldr	pc, [sp], #4
+ 1290              	.L199:
+ 1291              		.align	2
+ 1292              	.L198:
+ 1293 0018 00000000 		.word	_out_buffer
+ 1295              		.ident	"GCC: (xPack GNU Arm Embedded GCC arm64) 13.3.1 20240614"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s 			page 24
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_printf.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:18     .text._out_buffer:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:23     .text._out_buffer:00000000 _out_buffer
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:34     .text._out_null:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:39     .text._out_null:00000000 _out_null
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:46     .text._atoi:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:51     .text._atoi:00000000 _atoi
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:75     .text._out_rev:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:80     .text._out_rev:00000000 _out_rev
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:143    .text._ntoa_format:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:148    .text._ntoa_format:00000000 _ntoa_format
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:291    .text._ntoa_long:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:296    .text._ntoa_long:00000000 _ntoa_long
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:366    .text._ntoa_long_long:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:371    .text._ntoa_long_long:00000000 _ntoa_long_long
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:461    .text._vsnprintf:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:466    .text._vsnprintf:00000000 _vsnprintf
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:545    .text._vsnprintf:00000090 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:562    .text._vsnprintf:000000d4 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:587    .text._vsnprintf:00000102 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:752    .text._vsnprintf:0000023a $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:992    .text._vsnprintf:00000404 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:994    .text._vsnprintf:00000408 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:1236   .text._vsnprintf:000005d4 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:1239   .text.lv_snprintf:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:1245   .text.lv_snprintf:00000000 lv_snprintf
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:1267   .text.lv_snprintf:00000024 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:1270   .text.lv_vsnprintf:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:1276   .text.lv_vsnprintf:00000000 lv_vsnprintf
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:1293   .text.lv_vsnprintf:00000018 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:606    .text._vsnprintf:00000115 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:606    .text._vsnprintf:00000116 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:793    .text._vsnprintf:00000263 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccRGlSiE.s:793    .text._vsnprintf:00000264 $t
+
+UNDEFINED SYMBOLS
+__aeabi_uldivmod

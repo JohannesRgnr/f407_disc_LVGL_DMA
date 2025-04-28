@@ -1,0 +1,1056 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_draw_sw_polygon.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c"
+  20              		.section	.text.lv_draw_sw_polygon,"ax",%progbits
+  21              		.align	1
+  22              		.global	lv_draw_sw_polygon
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	lv_draw_sw_polygon:
+  28              	.LVL0:
+  29              	.LFB56:
+   1:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** /**
+   2:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  * @file lv_draw_sw_polygon.c
+   3:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  *
+   4:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  */
+   5:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+   6:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** /*********************
+   7:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  *      INCLUDES
+   8:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  *********************/
+   9:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** #include "lv_draw_sw.h"
+  10:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** #include "../../misc/lv_math.h"
+  11:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** #include "../../misc/lv_mem.h"
+  12:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** #include "../../misc/lv_area.h"
+  13:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** #include "../../misc/lv_color.h"
+  14:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** #include "../lv_draw_rect.h"
+  15:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+  16:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** /*********************
+  17:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  *      DEFINES
+  18:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  *********************/
+  19:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+  20:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** /**********************
+  21:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  *      TYPEDEFS
+  22:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  **********************/
+  23:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+  24:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** /**********************
+  25:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  *  STATIC PROTOTYPES
+  26:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  **********************/
+  27:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+  28:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** /**********************
+  29:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  *  STATIC VARIABLES
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 2
+
+
+  30:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  **********************/
+  31:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+  32:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** /**********************
+  33:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  *      MACROS
+  34:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  **********************/
+  35:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+  36:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** /**********************
+  37:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  *   GLOBAL FUNCTIONS
+  38:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  **********************/
+  39:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+  40:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** /**
+  41:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  * Draw a polygon. Only convex polygons are supported
+  42:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  * @param points an array of points
+  43:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  * @param point_cnt number of points
+  44:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  * @param clip_area polygon will be drawn only in this area
+  45:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  * @param draw_dsc pointer to an initialized `lv_draw_rect_dsc_t` variable
+  46:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****  */
+  47:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** void lv_draw_sw_polygon(lv_draw_ctx_t * draw_ctx, const lv_draw_rect_dsc_t * draw_dsc, const lv_poi
+  48:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                         uint16_t point_cnt)
+  49:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** {
+  30              		.loc 1 49 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 40
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 49 1 is_stmt 0 view .LVU1
+  35 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+  36              		.cfi_def_cfa_offset 36
+  37              		.cfi_offset 4, -36
+  38              		.cfi_offset 5, -32
+  39              		.cfi_offset 6, -28
+  40              		.cfi_offset 7, -24
+  41              		.cfi_offset 8, -20
+  42              		.cfi_offset 9, -16
+  43              		.cfi_offset 10, -12
+  44              		.cfi_offset 11, -8
+  45              		.cfi_offset 14, -4
+  46 0004 8DB0     		sub	sp, sp, #52
+  47              		.cfi_def_cfa_offset 88
+  48 0006 0591     		str	r1, [sp, #20]
+  50:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** #if LV_DRAW_COMPLEX
+  51:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     if(point_cnt < 3) return;
+  49              		.loc 1 51 5 is_stmt 1 view .LVU2
+  50              		.loc 1 51 7 is_stmt 0 view .LVU3
+  51 0008 022B     		cmp	r3, #2
+  52 000a 40F25481 		bls	.L1
+  53 000e 0546     		mov	r5, r0
+  54 0010 1746     		mov	r7, r2
+  55 0012 9846     		mov	r8, r3
+  52:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     if(points == NULL) return;
+  56              		.loc 1 52 5 is_stmt 1 view .LVU4
+  57              		.loc 1 52 7 is_stmt 0 view .LVU5
+  58 0014 002A     		cmp	r2, #0
+  59 0016 00F04E81 		beq	.L1
+  53:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+  54:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     /*Join adjacent points if they are on the same coordinate*/
+  55:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     lv_point_t * p = lv_mem_buf_get(point_cnt * sizeof(lv_point_t));
+  60              		.loc 1 55 5 is_stmt 1 view .LVU6
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 3
+
+
+  61              		.loc 1 55 22 is_stmt 0 view .LVU7
+  62 001a 9800     		lsls	r0, r3, #2
+  63              	.LVL1:
+  64              		.loc 1 55 22 view .LVU8
+  65 001c FFF7FEFF 		bl	lv_mem_buf_get
+  66              	.LVL2:
+  56:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     if(p == NULL) return;
+  67              		.loc 1 56 5 is_stmt 1 view .LVU9
+  68              		.loc 1 56 7 is_stmt 0 view .LVU10
+  69 0020 0446     		mov	r4, r0
+  70 0022 0028     		cmp	r0, #0
+  71 0024 00F04781 		beq	.L1
+  57:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     uint16_t i;
+  72              		.loc 1 57 5 is_stmt 1 view .LVU11
+  58:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     uint16_t pcnt = 0;
+  73              		.loc 1 58 5 view .LVU12
+  74              	.LVL3:
+  59:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     p[0] = points[0];
+  75              		.loc 1 59 5 view .LVU13
+  76              		.loc 1 59 10 is_stmt 0 view .LVU14
+  77 0028 3B68     		ldr	r3, [r7]	@ unaligned
+  78 002a 0360     		str	r3, [r0]	@ unaligned
+  60:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     for(i = 0; i < point_cnt - 1; i++) {
+  79              		.loc 1 60 5 is_stmt 1 view .LVU15
+  80              	.LVL4:
+  58:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     uint16_t pcnt = 0;
+  81              		.loc 1 58 14 is_stmt 0 view .LVU16
+  82 002c 0026     		movs	r6, #0
+  83              		.loc 1 60 11 view .LVU17
+  84 002e 3146     		mov	r1, r6
+  85              		.loc 1 60 5 view .LVU18
+  86 0030 06E0     		b	.L3
+  87              	.LVL5:
+  88              	.L4:
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(points[i].x != points[i + 1].x || points[i].y != points[i + 1].y) {
+  62:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             p[pcnt] = points[i];
+  89              		.loc 1 62 13 is_stmt 1 view .LVU19
+  90              		.loc 1 62 21 is_stmt 0 view .LVU20
+  91 0032 3B58     		ldr	r3, [r7, r0]	@ unaligned
+  92 0034 44F82630 		str	r3, [r4, r6, lsl #2]	@ unaligned
+  63:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             pcnt++;
+  93              		.loc 1 63 13 is_stmt 1 view .LVU21
+  94              		.loc 1 63 17 is_stmt 0 view .LVU22
+  95 0038 0136     		adds	r6, r6, #1
+  96              	.LVL6:
+  97              		.loc 1 63 17 view .LVU23
+  98 003a B6B2     		uxth	r6, r6
+  99              	.LVL7:
+ 100              	.L5:
+  60:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     for(i = 0; i < point_cnt - 1; i++) {
+ 101              		.loc 1 60 36 is_stmt 1 discriminator 2 view .LVU24
+ 102 003c 0131     		adds	r1, r1, #1
+ 103              	.LVL8:
+  60:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     for(i = 0; i < point_cnt - 1; i++) {
+ 104              		.loc 1 60 36 is_stmt 0 discriminator 2 view .LVU25
+ 105 003e 89B2     		uxth	r1, r1
+ 106              	.LVL9:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 4
+
+
+ 107              	.L3:
+  60:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     for(i = 0; i < point_cnt - 1; i++) {
+ 108              		.loc 1 60 18 is_stmt 1 discriminator 1 view .LVU26
+  60:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     for(i = 0; i < point_cnt - 1; i++) {
+ 109              		.loc 1 60 30 is_stmt 0 discriminator 1 view .LVU27
+ 110 0040 08F1FF33 		add	r3, r8, #-1
+  60:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     for(i = 0; i < point_cnt - 1; i++) {
+ 111              		.loc 1 60 18 discriminator 1 view .LVU28
+ 112 0044 9942     		cmp	r1, r3
+ 113 0046 12DA     		bge	.L34
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(points[i].x != points[i + 1].x || points[i].y != points[i + 1].y) {
+ 114              		.loc 1 61 9 is_stmt 1 view .LVU29
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(points[i].x != points[i + 1].x || points[i].y != points[i + 1].y) {
+ 115              		.loc 1 61 18 is_stmt 0 view .LVU30
+ 116 0048 8800     		lsls	r0, r1, #2
+ 117 004a 07EB810E 		add	lr, r7, r1, lsl #2
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(points[i].x != points[i + 1].x || points[i].y != points[i + 1].y) {
+ 118              		.loc 1 61 21 view .LVU31
+ 119 004e 37F92120 		ldrsh	r2, [r7, r1, lsl #2]
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(points[i].x != points[i + 1].x || points[i].y != points[i + 1].y) {
+ 120              		.loc 1 61 33 view .LVU32
+ 121 0052 4B1C     		adds	r3, r1, #1
+ 122 0054 07EB830C 		add	ip, r7, r3, lsl #2
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(points[i].x != points[i + 1].x || points[i].y != points[i + 1].y) {
+ 123              		.loc 1 61 40 view .LVU33
+ 124 0058 37F92330 		ldrsh	r3, [r7, r3, lsl #2]
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(points[i].x != points[i + 1].x || points[i].y != points[i + 1].y) {
+ 125              		.loc 1 61 11 view .LVU34
+ 126 005c 9A42     		cmp	r2, r3
+ 127 005e E8D1     		bne	.L4
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(points[i].x != points[i + 1].x || points[i].y != points[i + 1].y) {
+ 128              		.loc 1 61 55 discriminator 1 view .LVU35
+ 129 0060 BEF90220 		ldrsh	r2, [lr, #2]
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(points[i].x != points[i + 1].x || points[i].y != points[i + 1].y) {
+ 130              		.loc 1 61 74 discriminator 1 view .LVU36
+ 131 0064 BCF90230 		ldrsh	r3, [ip, #2]
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(points[i].x != points[i + 1].x || points[i].y != points[i + 1].y) {
+ 132              		.loc 1 61 43 discriminator 1 view .LVU37
+ 133 0068 9A42     		cmp	r2, r3
+ 134 006a E2D1     		bne	.L4
+ 135 006c E6E7     		b	.L5
+ 136              	.L34:
+  64:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         }
+  65:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     }
+  66:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     /*The first and the last points are also adjacent*/
+  67:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     if(points[0].x != points[point_cnt - 1].x || points[0].y != points[point_cnt - 1].y) {
+ 137              		.loc 1 67 5 is_stmt 1 view .LVU38
+ 138              		.loc 1 67 17 is_stmt 0 view .LVU39
+ 139 006e B7F90020 		ldrsh	r2, [r7]
+ 140              		.loc 1 67 29 view .LVU40
+ 141 0072 08F18048 		add	r8, r8, #1073741824
+ 142              	.LVL10:
+ 143              		.loc 1 67 29 view .LVU41
+ 144 0076 08F1FF38 		add	r8, r8, #-1
+ 145 007a 07EB8801 		add	r1, r7, r8, lsl #2
+ 146              	.LVL11:
+ 147              		.loc 1 67 44 view .LVU42
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 5
+
+
+ 148 007e 37F92830 		ldrsh	r3, [r7, r8, lsl #2]
+ 149              	.LVL12:
+ 150              		.loc 1 67 7 view .LVU43
+ 151 0082 9A42     		cmp	r2, r3
+ 152 0084 0FD0     		beq	.L35
+ 153              	.L7:
+  68:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         p[pcnt] = points[point_cnt - 1];
+ 154              		.loc 1 68 9 is_stmt 1 view .LVU44
+ 155              		.loc 1 68 17 is_stmt 0 view .LVU45
+ 156 0086 57F82830 		ldr	r3, [r7, r8, lsl #2]	@ unaligned
+ 157 008a 44F82630 		str	r3, [r4, r6, lsl #2]	@ unaligned
+  69:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         pcnt++;
+ 158              		.loc 1 69 9 is_stmt 1 view .LVU46
+ 159              		.loc 1 69 13 is_stmt 0 view .LVU47
+ 160 008e 0136     		adds	r6, r6, #1
+ 161              	.LVL13:
+ 162              		.loc 1 69 13 view .LVU48
+ 163 0090 B6B2     		uxth	r6, r6
+ 164              	.LVL14:
+ 165              	.L8:
+  70:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     }
+  71:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+  72:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     point_cnt = pcnt;
+ 166              		.loc 1 72 5 is_stmt 1 view .LVU49
+  73:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     if(point_cnt < 3) {
+ 167              		.loc 1 73 5 view .LVU50
+ 168              		.loc 1 73 7 is_stmt 0 view .LVU51
+ 169 0092 022E     		cmp	r6, #2
+ 170 0094 0ED9     		bls	.L36
+  74:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         lv_mem_buf_release(p);
+  75:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         return;
+  76:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     }
+  77:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+  78:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     lv_area_t poly_coords = {.x1 = LV_COORD_MAX, .y1 = LV_COORD_MAX, .x2 = LV_COORD_MIN, .y2 = LV_C
+ 171              		.loc 1 78 5 is_stmt 1 view .LVU52
+ 172              		.loc 1 78 15 is_stmt 0 view .LVU53
+ 173 0096 894B     		ldr	r3, .L44
+ 174 0098 93E80300 		ldm	r3, {r0, r1}
+ 175 009c 0CAB     		add	r3, sp, #48
+ 176 009e 03E90300 		stmdb	r3, {r0, r1}
+  79:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+  80:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     for(i = 0; i < point_cnt; i++) {
+ 177              		.loc 1 80 5 is_stmt 1 view .LVU54
+ 178              	.LVL15:
+ 179              		.loc 1 80 11 is_stmt 0 view .LVU55
+ 180 00a2 0022     		movs	r2, #0
+ 181              		.loc 1 80 5 view .LVU56
+ 182 00a4 32E0     		b	.L10
+ 183              	.LVL16:
+ 184              	.L35:
+  67:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         p[pcnt] = points[point_cnt - 1];
+ 185              		.loc 1 67 59 discriminator 1 view .LVU57
+ 186 00a6 B7F90220 		ldrsh	r2, [r7, #2]
+  67:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         p[pcnt] = points[point_cnt - 1];
+ 187              		.loc 1 67 86 discriminator 1 view .LVU58
+ 188 00aa B1F90230 		ldrsh	r3, [r1, #2]
+  67:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         p[pcnt] = points[point_cnt - 1];
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 6
+
+
+ 189              		.loc 1 67 47 discriminator 1 view .LVU59
+ 190 00ae 9A42     		cmp	r2, r3
+ 191 00b0 E9D1     		bne	.L7
+ 192 00b2 EEE7     		b	.L8
+ 193              	.LVL17:
+ 194              	.L36:
+  74:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         lv_mem_buf_release(p);
+ 195              		.loc 1 74 9 is_stmt 1 view .LVU60
+ 196 00b4 2046     		mov	r0, r4
+ 197 00b6 FFF7FEFF 		bl	lv_mem_buf_release
+ 198              	.LVL18:
+  75:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     }
+ 199              		.loc 1 75 9 view .LVU61
+ 200 00ba FCE0     		b	.L1
+ 201              	.LVL19:
+ 202              	.L11:
+  81:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         poly_coords.x1 = LV_MIN(poly_coords.x1, p[i].x);
+ 203              		.loc 1 81 9 view .LVU62
+ 204              		.loc 1 81 26 is_stmt 0 view .LVU63
+ 205 00bc 04EB8201 		add	r1, r4, r2, lsl #2
+ 206 00c0 34F92230 		ldrsh	r3, [r4, r2, lsl #2]
+ 207 00c4 BDF92800 		ldrsh	r0, [sp, #40]
+ 208 00c8 8342     		cmp	r3, r0
+ 209 00ca A8BF     		it	ge
+ 210 00cc 0346     		movge	r3, r0
+ 211              		.loc 1 81 24 view .LVU64
+ 212 00ce ADF82830 		strh	r3, [sp, #40]	@ movhi
+  82:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         poly_coords.y1 = LV_MIN(poly_coords.y1, p[i].y);
+ 213              		.loc 1 82 9 is_stmt 1 view .LVU65
+ 214              		.loc 1 82 26 is_stmt 0 view .LVU66
+ 215 00d2 B1F90230 		ldrsh	r3, [r1, #2]
+ 216 00d6 BDF92A00 		ldrsh	r0, [sp, #42]
+ 217 00da 8342     		cmp	r3, r0
+ 218 00dc A8BF     		it	ge
+ 219 00de 0346     		movge	r3, r0
+ 220              		.loc 1 82 24 view .LVU67
+ 221 00e0 ADF82A30 		strh	r3, [sp, #42]	@ movhi
+  83:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         poly_coords.x2 = LV_MAX(poly_coords.x2, p[i].x);
+ 222              		.loc 1 83 9 is_stmt 1 view .LVU68
+ 223              		.loc 1 83 26 is_stmt 0 view .LVU69
+ 224 00e4 34F92230 		ldrsh	r3, [r4, r2, lsl #2]
+ 225 00e8 BDF92C00 		ldrsh	r0, [sp, #44]
+ 226 00ec 8342     		cmp	r3, r0
+ 227 00ee B8BF     		it	lt
+ 228 00f0 0346     		movlt	r3, r0
+ 229              		.loc 1 83 24 view .LVU70
+ 230 00f2 ADF82C30 		strh	r3, [sp, #44]	@ movhi
+  84:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         poly_coords.y2 = LV_MAX(poly_coords.y2, p[i].y);
+ 231              		.loc 1 84 9 is_stmt 1 view .LVU71
+ 232              		.loc 1 84 26 is_stmt 0 view .LVU72
+ 233 00f6 B1F90230 		ldrsh	r3, [r1, #2]
+ 234 00fa BDF92E10 		ldrsh	r1, [sp, #46]
+ 235 00fe 8B42     		cmp	r3, r1
+ 236 0100 B8BF     		it	lt
+ 237 0102 0B46     		movlt	r3, r1
+ 238              		.loc 1 84 24 view .LVU73
+ 239 0104 ADF82E30 		strh	r3, [sp, #46]	@ movhi
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 7
+
+
+  80:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         poly_coords.x1 = LV_MIN(poly_coords.x1, p[i].x);
+ 240              		.loc 1 80 32 is_stmt 1 discriminator 3 view .LVU74
+ 241 0108 0132     		adds	r2, r2, #1
+ 242              	.LVL20:
+  80:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         poly_coords.x1 = LV_MIN(poly_coords.x1, p[i].x);
+ 243              		.loc 1 80 32 is_stmt 0 discriminator 3 view .LVU75
+ 244 010a 92B2     		uxth	r2, r2
+ 245              	.LVL21:
+ 246              	.L10:
+  80:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         poly_coords.x1 = LV_MIN(poly_coords.x1, p[i].x);
+ 247              		.loc 1 80 18 is_stmt 1 discriminator 1 view .LVU76
+ 248 010c B242     		cmp	r2, r6
+ 249 010e D5D3     		bcc	.L11
+  85:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     }
+  86:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+  87:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     bool is_common;
+ 250              		.loc 1 87 5 view .LVU77
+  88:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     lv_area_t clip_area;
+ 251              		.loc 1 88 5 view .LVU78
+  89:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     is_common = _lv_area_intersect(&clip_area, &poly_coords, draw_ctx->clip_area);
+ 252              		.loc 1 89 5 view .LVU79
+ 253              		.loc 1 89 17 is_stmt 0 view .LVU80
+ 254 0110 AA68     		ldr	r2, [r5, #8]
+ 255              	.LVL22:
+ 256              		.loc 1 89 17 view .LVU81
+ 257 0112 0AA9     		add	r1, sp, #40
+ 258 0114 08A8     		add	r0, sp, #32
+ 259 0116 FFF7FEFF 		bl	_lv_area_intersect
+ 260              	.LVL23:
+  90:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     if(!is_common) {
+ 261              		.loc 1 90 5 is_stmt 1 view .LVU82
+ 262              		.loc 1 90 7 is_stmt 0 view .LVU83
+ 263 011a 0390     		str	r0, [sp, #12]
+ 264 011c 48B1     		cbz	r0, .L37
+  91:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         lv_mem_buf_release(p);
+  92:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         return;
+  93:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     }
+  94:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+  95:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     const lv_area_t * clip_area_ori = draw_ctx->clip_area;
+ 265              		.loc 1 95 5 is_stmt 1 view .LVU84
+ 266              		.loc 1 95 23 is_stmt 0 view .LVU85
+ 267 011e AB68     		ldr	r3, [r5, #8]
+ 268 0120 0693     		str	r3, [sp, #24]
+ 269              	.LVL24:
+  96:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     draw_ctx->clip_area = &clip_area;
+ 270              		.loc 1 96 5 is_stmt 1 view .LVU86
+ 271              		.loc 1 96 25 is_stmt 0 view .LVU87
+ 272 0122 08AB     		add	r3, sp, #32
+ 273              	.LVL25:
+ 274              		.loc 1 96 25 view .LVU88
+ 275 0124 AB60     		str	r3, [r5, #8]
+ 276              	.LVL26:
+  97:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+  98:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     /*Find the lowest point*/
+  99:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     lv_coord_t y_min = p[0].y;
+ 277              		.loc 1 99 5 is_stmt 1 view .LVU89
+ 278              		.loc 1 99 16 is_stmt 0 view .LVU90
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 8
+
+
+ 279 0126 B4F90210 		ldrsh	r1, [r4, #2]
+ 280              	.LVL27:
+ 100:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     int16_t y_min_i = 0;
+ 281              		.loc 1 100 5 is_stmt 1 view .LVU91
+ 101:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 102:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     for(i = 1; i < point_cnt; i++) {
+ 282              		.loc 1 102 5 view .LVU92
+ 100:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     int16_t y_min_i = 0;
+ 283              		.loc 1 100 13 is_stmt 0 view .LVU93
+ 284 012a 4FF00008 		mov	r8, #0
+ 285              		.loc 1 102 11 view .LVU94
+ 286 012e 0123     		movs	r3, #1
+ 287              		.loc 1 102 5 view .LVU95
+ 288 0130 05E0     		b	.L13
+ 289              	.LVL28:
+ 290              	.L37:
+  91:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         return;
+ 291              		.loc 1 91 9 is_stmt 1 view .LVU96
+ 292 0132 2046     		mov	r0, r4
+ 293              	.LVL29:
+  91:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         return;
+ 294              		.loc 1 91 9 is_stmt 0 view .LVU97
+ 295 0134 FFF7FEFF 		bl	lv_mem_buf_release
+ 296              	.LVL30:
+  92:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     }
+ 297              		.loc 1 92 9 is_stmt 1 view .LVU98
+ 298 0138 BDE0     		b	.L1
+ 299              	.LVL31:
+ 300              	.L14:
+ 301              		.loc 1 102 32 discriminator 2 view .LVU99
+ 302 013a 0133     		adds	r3, r3, #1
+ 303              	.LVL32:
+ 304              		.loc 1 102 32 is_stmt 0 discriminator 2 view .LVU100
+ 305 013c 9BB2     		uxth	r3, r3
+ 306              	.LVL33:
+ 307              	.L13:
+ 308              		.loc 1 102 18 is_stmt 1 discriminator 1 view .LVU101
+ 309 013e B342     		cmp	r3, r6
+ 310 0140 09D2     		bcs	.L38
+ 103:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(p[i].y < y_min) {
+ 311              		.loc 1 103 9 view .LVU102
+ 312              		.loc 1 103 13 is_stmt 0 view .LVU103
+ 313 0142 04EB8302 		add	r2, r4, r3, lsl #2
+ 314              		.loc 1 103 16 view .LVU104
+ 315 0146 B2F90220 		ldrsh	r2, [r2, #2]
+ 316              		.loc 1 103 11 view .LVU105
+ 317 014a 8A42     		cmp	r2, r1
+ 318 014c F5DA     		bge	.L14
+ 104:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             y_min = p[i].y;
+ 319              		.loc 1 104 13 is_stmt 1 view .LVU106
+ 320              	.LVL34:
+ 105:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             y_min_i = i;
+ 321              		.loc 1 105 13 view .LVU107
+ 322              		.loc 1 105 21 is_stmt 0 view .LVU108
+ 323 014e 0FFA83F8 		sxth	r8, r3
+ 324              	.LVL35:
+ 104:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             y_min = p[i].y;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 9
+
+
+ 325              		.loc 1 104 19 view .LVU109
+ 326 0152 1146     		mov	r1, r2
+ 327 0154 F1E7     		b	.L14
+ 328              	.LVL36:
+ 329              	.L38:
+ 106:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         }
+ 107:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     }
+ 108:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 109:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     lv_draw_mask_line_param_t * mp = lv_mem_buf_get(sizeof(lv_draw_mask_line_param_t) * point_cnt);
+ 330              		.loc 1 109 5 is_stmt 1 view .LVU110
+ 331              		.loc 1 109 38 is_stmt 0 view .LVU111
+ 332 0156 B246     		mov	r10, r6
+ 333 0158 2C20     		movs	r0, #44
+ 334              	.LVL37:
+ 335              		.loc 1 109 38 view .LVU112
+ 336 015a 06FB00F0 		mul	r0, r6, r0
+ 337 015e FFF7FEFF 		bl	lv_mem_buf_get
+ 338              	.LVL38:
+ 339              		.loc 1 109 38 view .LVU113
+ 340 0162 0490     		str	r0, [sp, #16]
+ 341              	.LVL39:
+ 110:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     lv_draw_mask_line_param_t * mp_next = mp;
+ 342              		.loc 1 110 5 is_stmt 1 view .LVU114
+ 111:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 112:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     int32_t i_prev_left = y_min_i;
+ 343              		.loc 1 112 5 view .LVU115
+ 344              		.loc 1 112 13 is_stmt 0 view .LVU116
+ 345 0164 4746     		mov	r7, r8
+ 346              	.LVL40:
+ 113:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     int32_t i_prev_right = y_min_i;
+ 347              		.loc 1 113 5 is_stmt 1 view .LVU117
+ 114:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     int32_t i_next_left;
+ 348              		.loc 1 114 5 view .LVU118
+ 115:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     int32_t i_next_right;
+ 349              		.loc 1 115 5 view .LVU119
+ 116:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     uint32_t mask_cnt = 0;
+ 350              		.loc 1 116 5 view .LVU120
+ 117:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 118:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     /*Get the index of the left and right points*/
+ 119:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     i_next_left = y_min_i - 1;
+ 351              		.loc 1 119 5 view .LVU121
+ 120:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     if(i_next_left < 0) i_next_left = point_cnt + i_next_left;
+ 352              		.loc 1 120 5 view .LVU122
+ 353              		.loc 1 120 7 is_stmt 0 view .LVU123
+ 354 0166 B8F10101 		subs	r1, r8, #1
+ 355              	.LVL41:
+ 356              		.loc 1 120 7 view .LVU124
+ 357 016a 2DD4     		bmi	.L39
+ 358              	.L16:
+ 121:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 122:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     i_next_right = y_min_i + 1;
+ 359              		.loc 1 122 5 is_stmt 1 view .LVU125
+ 360              		.loc 1 122 18 is_stmt 0 view .LVU126
+ 361 016c 7B1C     		adds	r3, r7, #1
+ 362              	.LVL42:
+ 123:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     if(i_next_right > point_cnt - 1) i_next_right = 0;
+ 363              		.loc 1 123 5 is_stmt 1 view .LVU127
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 10
+
+
+ 364              		.loc 1 123 21 is_stmt 0 view .LVU128
+ 365 016e B346     		mov	fp, r6
+ 366              		.loc 1 123 7 view .LVU129
+ 367 0170 9E42     		cmp	r6, r3
+ 368 0172 00DC     		bgt	.L17
+ 369              		.loc 1 123 51 discriminator 1 view .LVU130
+ 370 0174 0023     		movs	r3, #0
+ 371              	.LVL43:
+ 372              	.L17:
+ 124:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 125:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     /**
+ 126:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****      * Check if the order of points is inverted or not.
+ 127:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****      * The normal case is when the left point is on `y_min_i - 1`
+ 128:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****      * Explanation:
+ 129:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****      *   if angle(p_left) < angle(p_right) -> inverted
+ 130:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****      *   dy_left/dx_left < dy_right/dx_right
+ 131:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****      *   dy_left * dx_right < dy_right * dx_left
+ 132:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****      */
+ 133:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     lv_coord_t dxl = p[i_next_left].x - p[y_min_i].x;
+ 373              		.loc 1 133 5 is_stmt 1 view .LVU131
+ 374              		.loc 1 133 23 is_stmt 0 view .LVU132
+ 375 0176 04EB8102 		add	r2, r4, r1, lsl #2
+ 376              		.loc 1 133 36 view .LVU133
+ 377 017a 34F82110 		ldrh	r1, [r4, r1, lsl #2]
+ 378              	.LVL44:
+ 379              		.loc 1 133 42 view .LVU134
+ 380 017e 04EB8806 		add	r6, r4, r8, lsl #2
+ 381              	.LVL45:
+ 382              		.loc 1 133 51 view .LVU135
+ 383 0182 34F828E0 		ldrh	lr, [r4, r8, lsl #2]
+ 384              		.loc 1 133 39 view .LVU136
+ 385 0186 A1EB0E01 		sub	r1, r1, lr
+ 386              		.loc 1 133 16 view .LVU137
+ 387 018a 09B2     		sxth	r1, r1
+ 388              	.LVL46:
+ 134:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     lv_coord_t dxr = p[i_next_right].x - p[y_min_i].x;
+ 389              		.loc 1 134 5 is_stmt 1 view .LVU138
+ 390              		.loc 1 134 23 is_stmt 0 view .LVU139
+ 391 018c 04EB830C 		add	ip, r4, r3, lsl #2
+ 392              		.loc 1 134 37 view .LVU140
+ 393 0190 34F82300 		ldrh	r0, [r4, r3, lsl #2]
+ 394              	.LVL47:
+ 395              		.loc 1 134 40 view .LVU141
+ 396 0194 A0EB0E00 		sub	r0, r0, lr
+ 397              		.loc 1 134 16 view .LVU142
+ 398 0198 00B2     		sxth	r0, r0
+ 399              	.LVL48:
+ 135:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     lv_coord_t dyl = p[i_next_left].y - p[y_min_i].y;
+ 400              		.loc 1 135 5 is_stmt 1 view .LVU143
+ 401              		.loc 1 135 36 is_stmt 0 view .LVU144
+ 402 019a 5288     		ldrh	r2, [r2, #2]
+ 403              		.loc 1 135 51 view .LVU145
+ 404 019c 7688     		ldrh	r6, [r6, #2]
+ 405              		.loc 1 135 39 view .LVU146
+ 406 019e 921B     		subs	r2, r2, r6
+ 407              		.loc 1 135 16 view .LVU147
+ 408 01a0 12B2     		sxth	r2, r2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 11
+
+
+ 409              	.LVL49:
+ 136:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     lv_coord_t dyr = p[i_next_right].y - p[y_min_i].y;
+ 410              		.loc 1 136 5 is_stmt 1 view .LVU148
+ 411              		.loc 1 136 37 is_stmt 0 view .LVU149
+ 412 01a2 BCF80230 		ldrh	r3, [ip, #2]
+ 413              	.LVL50:
+ 414              		.loc 1 136 40 view .LVU150
+ 415 01a6 9B1B     		subs	r3, r3, r6
+ 416              		.loc 1 136 16 view .LVU151
+ 417 01a8 1BB2     		sxth	r3, r3
+ 418              	.LVL51:
+ 137:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 138:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     bool inv = false;
+ 419              		.loc 1 138 5 is_stmt 1 view .LVU152
+ 139:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     if(dyl * dxr < dyr * dxl) inv = true;
+ 420              		.loc 1 139 5 view .LVU153
+ 421              		.loc 1 139 12 is_stmt 0 view .LVU154
+ 422 01aa 00FB02F2 		mul	r2, r0, r2
+ 423              	.LVL52:
+ 424              		.loc 1 139 24 view .LVU155
+ 425 01ae 01FB03F3 		mul	r3, r1, r3
+ 426              	.LVL53:
+ 427              		.loc 1 139 7 view .LVU156
+ 428 01b2 9A42     		cmp	r2, r3
+ 429 01b4 01DB     		blt	.L18
+ 138:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     if(dyl * dxr < dyr * dxl) inv = true;
+ 430              		.loc 1 138 10 view .LVU157
+ 431 01b6 0023     		movs	r3, #0
+ 432 01b8 0393     		str	r3, [sp, #12]
+ 433              	.LVL54:
+ 434              	.L18:
+ 138:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     if(dyl * dxr < dyr * dxl) inv = true;
+ 435              		.loc 1 138 10 view .LVU158
+ 436 01ba B946     		mov	r9, r7
+ 437 01bc 049B     		ldr	r3, [sp, #16]
+ 438 01be 9E46     		mov	lr, r3
+ 439 01c0 4FF00008 		mov	r8, #0
+ 440              	.LVL55:
+ 138:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     if(dyl * dxr < dyr * dxl) inv = true;
+ 441              		.loc 1 138 10 view .LVU159
+ 442 01c4 0795     		str	r5, [sp, #28]
+ 443 01c6 39E0     		b	.L28
+ 444              	.LVL56:
+ 445              	.L39:
+ 120:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 446              		.loc 1 120 25 is_stmt 1 discriminator 1 view .LVU160
+ 120:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 447              		.loc 1 120 37 is_stmt 0 discriminator 1 view .LVU161
+ 448 01c8 3144     		add	r1, r1, r6
+ 449              	.LVL57:
+ 120:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 450              		.loc 1 120 37 discriminator 1 view .LVU162
+ 451 01ca CFE7     		b	.L16
+ 452              	.LVL58:
+ 453              	.L43:
+ 140:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 141:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     do {
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 12
+
+
+ 142:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(!inv) {
+ 143:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             i_next_left = i_prev_left - 1;
+ 144:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             if(i_next_left < 0) i_next_left = point_cnt + i_next_left;
+ 454              		.loc 1 144 33 is_stmt 1 discriminator 1 view .LVU163
+ 455              		.loc 1 144 45 is_stmt 0 discriminator 1 view .LVU164
+ 456 01cc 5D44     		add	r5, r5, fp
+ 457              	.LVL59:
+ 458              		.loc 1 144 45 discriminator 1 view .LVU165
+ 459 01ce 3AE0     		b	.L20
+ 460              	.LVL60:
+ 461              	.L19:
+ 145:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 146:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             i_next_right = i_prev_right + 1;
+ 147:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             if(i_next_right > point_cnt - 1) i_next_right = 0;
+ 148:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         }
+ 149:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         else {
+ 150:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             i_next_left = i_prev_left + 1;
+ 462              		.loc 1 150 13 is_stmt 1 view .LVU166
+ 463              		.loc 1 150 25 is_stmt 0 view .LVU167
+ 464 01d0 7D1C     		adds	r5, r7, #1
+ 465              	.LVL61:
+ 151:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             if(i_next_left > point_cnt - 1) i_next_left = 0;
+ 466              		.loc 1 151 13 is_stmt 1 view .LVU168
+ 467              		.loc 1 151 15 is_stmt 0 view .LVU169
+ 468 01d2 AB45     		cmp	fp, r5
+ 469 01d4 00DC     		bgt	.L22
+ 470              		.loc 1 151 57 discriminator 1 view .LVU170
+ 471 01d6 0025     		movs	r5, #0
+ 472              	.LVL62:
+ 473              	.L22:
+ 152:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 153:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             i_next_right = i_prev_right - 1;
+ 474              		.loc 1 153 13 is_stmt 1 view .LVU171
+ 154:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             if(i_next_right < 0) i_next_right = point_cnt + i_next_right;
+ 475              		.loc 1 154 13 view .LVU172
+ 476              		.loc 1 154 15 is_stmt 0 view .LVU173
+ 477 01d8 B9F10106 		subs	r6, r9, #1
+ 478              	.LVL63:
+ 479              		.loc 1 154 15 view .LVU174
+ 480 01dc 39D4     		bmi	.L40
+ 481              	.LVL64:
+ 482              	.L21:
+ 155:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         }
+ 156:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 157:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(p[i_next_left].y >= p[i_prev_left].y) {
+ 483              		.loc 1 157 9 is_stmt 1 view .LVU175
+ 484              		.loc 1 157 13 is_stmt 0 view .LVU176
+ 485 01de 4FEA850C 		lsl	ip, r5, #2
+ 486 01e2 04EB8503 		add	r3, r4, r5, lsl #2
+ 487              		.loc 1 157 26 view .LVU177
+ 488 01e6 B3F90200 		ldrsh	r0, [r3, #2]
+ 489              		.loc 1 157 33 view .LVU178
+ 490 01ea B900     		lsls	r1, r7, #2
+ 491 01ec 04EB8703 		add	r3, r4, r7, lsl #2
+ 492              		.loc 1 157 46 view .LVU179
+ 493 01f0 B3F90220 		ldrsh	r2, [r3, #2]
+ 494              		.loc 1 157 11 view .LVU180
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 13
+
+
+ 495 01f4 9042     		cmp	r0, r2
+ 496 01f6 08DB     		blt	.L23
+ 158:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             if(p[i_next_left].y != p[i_prev_left].y &&
+ 497              		.loc 1 158 13 is_stmt 1 view .LVU181
+ 498              		.loc 1 158 15 is_stmt 0 view .LVU182
+ 499 01f8 04D0     		beq	.L24
+ 159:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                p[i_next_left].x != p[i_prev_left].x) {
+ 500              		.loc 1 159 30 view .LVU183
+ 501 01fa 34F90C30 		ldrsh	r3, [r4, ip]
+ 502              		.loc 1 159 50 view .LVU184
+ 503 01fe 615E     		ldrsh	r1, [r4, r1]
+ 158:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             if(p[i_next_left].y != p[i_prev_left].y &&
+ 504              		.loc 1 158 53 discriminator 1 view .LVU185
+ 505 0200 8B42     		cmp	r3, r1
+ 506 0202 28D1     		bne	.L41
+ 507              	.LVL65:
+ 508              	.L24:
+ 160:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                 lv_draw_mask_line_points_init(mp_next, p[i_prev_left].x, p[i_prev_left].y,
+ 161:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                                               p[i_next_left].x, p[i_next_left].y,
+ 162:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                                               LV_DRAW_MASK_LINE_SIDE_RIGHT);
+ 163:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                 lv_draw_mask_add(mp_next, mp);
+ 164:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                 mp_next++;
+ 165:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             }
+ 166:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             mask_cnt++;
+ 509              		.loc 1 166 13 is_stmt 1 view .LVU186
+ 510              		.loc 1 166 21 is_stmt 0 view .LVU187
+ 511 0204 08F10108 		add	r8, r8, #1
+ 512              	.LVL66:
+ 167:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             i_prev_left = i_next_left;
+ 513              		.loc 1 167 13 is_stmt 1 view .LVU188
+ 514              		.loc 1 167 25 is_stmt 0 view .LVU189
+ 515 0208 2F46     		mov	r7, r5
+ 516              	.LVL67:
+ 517              	.L23:
+ 168:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         }
+ 169:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 170:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(mask_cnt == point_cnt) break;
+ 518              		.loc 1 170 9 is_stmt 1 view .LVU190
+ 519              		.loc 1 170 11 is_stmt 0 view .LVU191
+ 520 020a C245     		cmp	r10, r8
+ 521 020c 41D0     		beq	.L25
+ 171:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 172:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(p[i_next_right].y >= p[i_prev_right].y) {
+ 522              		.loc 1 172 9 is_stmt 1 view .LVU192
+ 523              		.loc 1 172 13 is_stmt 0 view .LVU193
+ 524 020e B500     		lsls	r5, r6, #2
+ 525              	.LVL68:
+ 526              		.loc 1 172 13 view .LVU194
+ 527 0210 04EB8603 		add	r3, r4, r6, lsl #2
+ 528              		.loc 1 172 27 view .LVU195
+ 529 0214 B3F90200 		ldrsh	r0, [r3, #2]
+ 530              		.loc 1 172 34 view .LVU196
+ 531 0218 4FEA8901 		lsl	r1, r9, #2
+ 532 021c 04EB8903 		add	r3, r4, r9, lsl #2
+ 533              		.loc 1 172 48 view .LVU197
+ 534 0220 B3F90220 		ldrsh	r2, [r3, #2]
+ 535              		.loc 1 172 11 view .LVU198
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 14
+
+
+ 536 0224 9042     		cmp	r0, r2
+ 537 0226 07DB     		blt	.L26
+ 173:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             if(p[i_next_right].y != p[i_prev_right].y &&
+ 538              		.loc 1 173 13 is_stmt 1 view .LVU199
+ 539              		.loc 1 173 15 is_stmt 0 view .LVU200
+ 540 0228 03D0     		beq	.L27
+ 174:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                p[i_next_right].x != p[i_prev_right].x) {
+ 541              		.loc 1 174 31 view .LVU201
+ 542 022a 635F     		ldrsh	r3, [r4, r5]
+ 543              		.loc 1 174 52 view .LVU202
+ 544 022c 615E     		ldrsh	r1, [r4, r1]
+ 173:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             if(p[i_next_right].y != p[i_prev_right].y &&
+ 545              		.loc 1 173 55 discriminator 1 view .LVU203
+ 546 022e 8B42     		cmp	r3, r1
+ 547 0230 20D1     		bne	.L42
+ 548              	.L27:
+ 175:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 176:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                 lv_draw_mask_line_points_init(mp_next, p[i_prev_right].x, p[i_prev_right].y,
+ 177:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                                               p[i_next_right].x, p[i_next_right].y,
+ 178:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                                               LV_DRAW_MASK_LINE_SIDE_LEFT);
+ 179:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                 lv_draw_mask_add(mp_next, mp);
+ 180:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                 mp_next++;
+ 181:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             }
+ 182:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             mask_cnt++;
+ 549              		.loc 1 182 13 is_stmt 1 view .LVU204
+ 550              		.loc 1 182 21 is_stmt 0 view .LVU205
+ 551 0232 08F10108 		add	r8, r8, #1
+ 552              	.LVL69:
+ 183:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             i_prev_right = i_next_right;
+ 553              		.loc 1 183 13 is_stmt 1 view .LVU206
+ 554              		.loc 1 183 26 is_stmt 0 view .LVU207
+ 555 0236 B146     		mov	r9, r6
+ 556              	.LVL70:
+ 557              	.L26:
+ 184:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         }
+ 185:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 186:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     } while(mask_cnt < point_cnt);
+ 558              		.loc 1 186 22 is_stmt 1 view .LVU208
+ 559 0238 C245     		cmp	r10, r8
+ 560 023a 2AD9     		bls	.L25
+ 561              	.LVL71:
+ 562              	.L28:
+ 141:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         if(!inv) {
+ 563              		.loc 1 141 5 view .LVU209
+ 142:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             i_next_left = i_prev_left - 1;
+ 564              		.loc 1 142 9 view .LVU210
+ 142:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             i_next_left = i_prev_left - 1;
+ 565              		.loc 1 142 11 is_stmt 0 view .LVU211
+ 566 023c 039B     		ldr	r3, [sp, #12]
+ 567 023e 002B     		cmp	r3, #0
+ 568 0240 C6D1     		bne	.L19
+ 143:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             if(i_next_left < 0) i_next_left = point_cnt + i_next_left;
+ 569              		.loc 1 143 13 is_stmt 1 view .LVU212
+ 570              	.LVL72:
+ 144:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 571              		.loc 1 144 13 view .LVU213
+ 144:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 15
+
+
+ 572              		.loc 1 144 15 is_stmt 0 view .LVU214
+ 573 0242 7D1E     		subs	r5, r7, #1
+ 574              	.LVL73:
+ 144:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 575              		.loc 1 144 15 view .LVU215
+ 576 0244 C2D4     		bmi	.L43
+ 577              	.L20:
+ 146:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             if(i_next_right > point_cnt - 1) i_next_right = 0;
+ 578              		.loc 1 146 13 is_stmt 1 view .LVU216
+ 146:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             if(i_next_right > point_cnt - 1) i_next_right = 0;
+ 579              		.loc 1 146 26 is_stmt 0 view .LVU217
+ 580 0246 09F10106 		add	r6, r9, #1
+ 581              	.LVL74:
+ 147:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         }
+ 582              		.loc 1 147 13 is_stmt 1 view .LVU218
+ 147:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         }
+ 583              		.loc 1 147 15 is_stmt 0 view .LVU219
+ 584 024a B345     		cmp	fp, r6
+ 585 024c C7DC     		bgt	.L21
+ 147:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         }
+ 586              		.loc 1 147 59 discriminator 1 view .LVU220
+ 587 024e 0026     		movs	r6, #0
+ 588              	.LVL75:
+ 147:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         }
+ 589              		.loc 1 147 59 discriminator 1 view .LVU221
+ 590 0250 C5E7     		b	.L21
+ 591              	.LVL76:
+ 592              	.L40:
+ 154:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         }
+ 593              		.loc 1 154 34 is_stmt 1 discriminator 1 view .LVU222
+ 154:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         }
+ 594              		.loc 1 154 47 is_stmt 0 discriminator 1 view .LVU223
+ 595 0252 5E44     		add	r6, r6, fp
+ 596              	.LVL77:
+ 154:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****         }
+ 597              		.loc 1 154 47 discriminator 1 view .LVU224
+ 598 0254 C3E7     		b	.L21
+ 599              	.L41:
+ 160:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                                               p[i_next_left].x, p[i_next_left].y,
+ 600              		.loc 1 160 17 is_stmt 1 view .LVU225
+ 601 0256 0127     		movs	r7, #1
+ 602              	.LVL78:
+ 160:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                                               p[i_next_left].x, p[i_next_left].y,
+ 603              		.loc 1 160 17 is_stmt 0 view .LVU226
+ 604 0258 0197     		str	r7, [sp, #4]
+ 605 025a 0090     		str	r0, [sp]
+ 606 025c 7746     		mov	r7, lr
+ 607 025e 7046     		mov	r0, lr
+ 608 0260 FFF7FEFF 		bl	lv_draw_mask_line_points_init
+ 609              	.LVL79:
+ 163:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                 mp_next++;
+ 610              		.loc 1 163 17 is_stmt 1 view .LVU227
+ 611 0264 0499     		ldr	r1, [sp, #16]
+ 612 0266 3846     		mov	r0, r7
+ 613 0268 FFF7FEFF 		bl	lv_draw_mask_add
+ 614              	.LVL80:
+ 164:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             }
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 16
+
+
+ 615              		.loc 1 164 17 view .LVU228
+ 164:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             }
+ 616              		.loc 1 164 24 is_stmt 0 view .LVU229
+ 617 026c 3B46     		mov	r3, r7
+ 618 026e 2C33     		adds	r3, r3, #44
+ 619 0270 9E46     		mov	lr, r3
+ 620              	.LVL81:
+ 164:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             }
+ 621              		.loc 1 164 24 view .LVU230
+ 622 0272 C7E7     		b	.L24
+ 623              	.LVL82:
+ 624              	.L42:
+ 176:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                                               p[i_next_right].x, p[i_next_right].y,
+ 625              		.loc 1 176 17 is_stmt 1 view .LVU231
+ 626 0274 0025     		movs	r5, #0
+ 627 0276 0195     		str	r5, [sp, #4]
+ 628 0278 0090     		str	r0, [sp]
+ 629 027a 7546     		mov	r5, lr
+ 630 027c 7046     		mov	r0, lr
+ 631 027e FFF7FEFF 		bl	lv_draw_mask_line_points_init
+ 632              	.LVL83:
+ 179:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****                 mp_next++;
+ 633              		.loc 1 179 17 view .LVU232
+ 634 0282 0499     		ldr	r1, [sp, #16]
+ 635 0284 2846     		mov	r0, r5
+ 636 0286 FFF7FEFF 		bl	lv_draw_mask_add
+ 637              	.LVL84:
+ 180:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             }
+ 638              		.loc 1 180 17 view .LVU233
+ 180:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             }
+ 639              		.loc 1 180 24 is_stmt 0 view .LVU234
+ 640 028a 2B46     		mov	r3, r5
+ 641 028c 2C33     		adds	r3, r3, #44
+ 642 028e 9E46     		mov	lr, r3
+ 643              	.LVL85:
+ 180:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****             }
+ 644              		.loc 1 180 24 view .LVU235
+ 645 0290 CFE7     		b	.L27
+ 646              	.LVL86:
+ 647              	.L25:
+ 187:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 188:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     lv_draw_rect(draw_ctx, draw_dsc, &poly_coords);
+ 648              		.loc 1 188 5 view .LVU236
+ 649 0292 079D     		ldr	r5, [sp, #28]
+ 650              		.loc 1 188 5 is_stmt 1 view .LVU237
+ 651 0294 0AAA     		add	r2, sp, #40
+ 652 0296 0599     		ldr	r1, [sp, #20]
+ 653 0298 2846     		mov	r0, r5
+ 654 029a FFF7FEFF 		bl	lv_draw_rect
+ 655              	.LVL87:
+ 189:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 190:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     lv_draw_mask_remove_custom(mp);
+ 656              		.loc 1 190 5 view .LVU238
+ 657 029e 049E     		ldr	r6, [sp, #16]
+ 658              	.LVL88:
+ 659              		.loc 1 190 5 is_stmt 0 view .LVU239
+ 660 02a0 3046     		mov	r0, r6
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 17
+
+
+ 661 02a2 FFF7FEFF 		bl	lv_draw_mask_remove_custom
+ 662              	.LVL89:
+ 191:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 192:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     lv_mem_buf_release(mp);
+ 663              		.loc 1 192 5 is_stmt 1 view .LVU240
+ 664 02a6 3046     		mov	r0, r6
+ 665 02a8 FFF7FEFF 		bl	lv_mem_buf_release
+ 666              	.LVL90:
+ 193:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     lv_mem_buf_release(p);
+ 667              		.loc 1 193 5 view .LVU241
+ 668 02ac 2046     		mov	r0, r4
+ 669 02ae FFF7FEFF 		bl	lv_mem_buf_release
+ 670              	.LVL91:
+ 194:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** 
+ 195:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     draw_ctx->clip_area = clip_area_ori;
+ 671              		.loc 1 195 5 view .LVU242
+ 672              		.loc 1 195 25 is_stmt 0 view .LVU243
+ 673 02b2 069B     		ldr	r3, [sp, #24]
+ 674 02b4 AB60     		str	r3, [r5, #8]
+ 675              	.LVL92:
+ 676              	.L1:
+ 196:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** #else
+ 197:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     LV_UNUSED(points);
+ 198:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     LV_UNUSED(point_cnt);
+ 199:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     LV_UNUSED(draw_ctx);
+ 200:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     LV_UNUSED(draw_dsc);
+ 201:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c ****     LV_LOG_WARN("Can't draw polygon with LV_DRAW_COMPLEX == 0");
+ 202:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** #endif /*LV_DRAW_COMPLEX*/
+ 203:Drivers/lvgl/src/draw/sw/lv_draw_sw_polygon.c **** }
+ 677              		.loc 1 203 1 view .LVU244
+ 678 02b6 0DB0     		add	sp, sp, #52
+ 679              		.cfi_def_cfa_offset 36
+ 680              		@ sp needed
+ 681 02b8 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 682              	.LVL93:
+ 683              	.L45:
+ 684              		.loc 1 203 1 view .LVU245
+ 685              		.align	2
+ 686              	.L44:
+ 687 02bc 00000000 		.word	.LANCHOR0
+ 688              		.cfi_endproc
+ 689              	.LFE56:
+ 691              		.section	.rodata
+ 692              		.align	2
+ 693              		.set	.LANCHOR0,. + 0
+ 694              	.LC0:
+ 695 0000 FF1F     		.short	8191
+ 696 0002 FF1F     		.short	8191
+ 697 0004 01E0     		.short	-8191
+ 698 0006 01E0     		.short	-8191
+ 699              		.text
+ 700              	.Letext0:
+ 701              		.file 2 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 702              		.file 3 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 703              		.file 4 "Drivers/lvgl/src/draw/sw/../../misc/lv_types.h"
+ 704              		.file 5 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 705              		.file 6 "Drivers/lvgl/src/draw/sw/../../misc/lv_color.h"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 18
+
+
+ 706              		.file 7 "Drivers/lvgl/src/draw/sw/../../misc/lv_area.h"
+ 707              		.file 8 "Drivers/lvgl/src/draw/sw/../../misc/../font/lv_font.h"
+ 708              		.file 9 "Drivers/lvgl/src/draw/sw/../../misc/lv_txt.h"
+ 709              		.file 10 "Drivers/lvgl/src/draw/sw/../../misc/lv_bidi.h"
+ 710              		.file 11 "Drivers/lvgl/src/draw/sw/../../misc/lv_style.h"
+ 711              		.file 12 "Drivers/lvgl/src/draw/sw/../lv_draw_mask.h"
+ 712              		.file 13 "Drivers/lvgl/src/draw/sw/../lv_img_buf.h"
+ 713              		.file 14 "Drivers/lvgl/src/draw/sw/../lv_draw_rect.h"
+ 714              		.file 15 "Drivers/lvgl/src/draw/sw/../lv_draw_label.h"
+ 715              		.file 16 "Drivers/lvgl/src/draw/sw/../lv_draw_img.h"
+ 716              		.file 17 "Drivers/lvgl/src/draw/sw/../lv_draw_line.h"
+ 717              		.file 18 "Drivers/lvgl/src/draw/sw/../lv_draw_arc.h"
+ 718              		.file 19 "Drivers/lvgl/src/draw/sw/../lv_draw_layer.h"
+ 719              		.file 20 "Drivers/lvgl/src/draw/sw/../lv_draw.h"
+ 720              		.file 21 "Drivers/lvgl/src/draw/sw/../../misc/lv_mem.h"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s 			page 19
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_draw_sw_polygon.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s:21     .text.lv_draw_sw_polygon:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s:27     .text.lv_draw_sw_polygon:00000000 lv_draw_sw_polygon
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s:687    .text.lv_draw_sw_polygon:000002bc $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccIFh0dE.s:692    .rodata:00000000 $d
+
+UNDEFINED SYMBOLS
+lv_mem_buf_get
+lv_mem_buf_release
+_lv_area_intersect
+lv_draw_mask_line_points_init
+lv_draw_mask_add
+lv_draw_rect
+lv_draw_mask_remove_custom

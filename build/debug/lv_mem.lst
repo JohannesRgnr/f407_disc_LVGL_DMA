@@ -1,0 +1,3144 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_mem.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Drivers/lvgl/src/misc/lv_mem.c"
+  20              		.section	.text.lv_mem_walker,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	lv_mem_walker:
+  27              	.LVL0:
+  28              	.LFB38:
+   1:Drivers/lvgl/src/misc/lv_mem.c **** /**
+   2:Drivers/lvgl/src/misc/lv_mem.c ****  * @file lv_mem.c
+   3:Drivers/lvgl/src/misc/lv_mem.c ****  * General and portable implementation of malloc and free.
+   4:Drivers/lvgl/src/misc/lv_mem.c ****  * The dynamic memory monitoring is also supported.
+   5:Drivers/lvgl/src/misc/lv_mem.c ****  */
+   6:Drivers/lvgl/src/misc/lv_mem.c **** 
+   7:Drivers/lvgl/src/misc/lv_mem.c **** /*********************
+   8:Drivers/lvgl/src/misc/lv_mem.c ****  *      INCLUDES
+   9:Drivers/lvgl/src/misc/lv_mem.c ****  *********************/
+  10:Drivers/lvgl/src/misc/lv_mem.c **** #include "lv_mem.h"
+  11:Drivers/lvgl/src/misc/lv_mem.c **** #include "lv_tlsf.h"
+  12:Drivers/lvgl/src/misc/lv_mem.c **** #include "lv_gc.h"
+  13:Drivers/lvgl/src/misc/lv_mem.c **** #include "lv_assert.h"
+  14:Drivers/lvgl/src/misc/lv_mem.c **** #include "lv_log.h"
+  15:Drivers/lvgl/src/misc/lv_mem.c **** 
+  16:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM != 0
+  17:Drivers/lvgl/src/misc/lv_mem.c ****     #include LV_MEM_CUSTOM_INCLUDE
+  18:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+  19:Drivers/lvgl/src/misc/lv_mem.c **** 
+  20:Drivers/lvgl/src/misc/lv_mem.c **** #ifdef LV_MEM_POOL_INCLUDE
+  21:Drivers/lvgl/src/misc/lv_mem.c ****     #include LV_MEM_POOL_INCLUDE
+  22:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+  23:Drivers/lvgl/src/misc/lv_mem.c **** 
+  24:Drivers/lvgl/src/misc/lv_mem.c **** /*********************
+  25:Drivers/lvgl/src/misc/lv_mem.c ****  *      DEFINES
+  26:Drivers/lvgl/src/misc/lv_mem.c ****  *********************/
+  27:Drivers/lvgl/src/misc/lv_mem.c **** /*memset the allocated memories to 0xaa and freed memories to 0xbb (just for testing purposes)*/
+  28:Drivers/lvgl/src/misc/lv_mem.c **** #ifndef LV_MEM_ADD_JUNK
+  29:Drivers/lvgl/src/misc/lv_mem.c ****     #define LV_MEM_ADD_JUNK  0
+  30:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 2
+
+
+  31:Drivers/lvgl/src/misc/lv_mem.c **** 
+  32:Drivers/lvgl/src/misc/lv_mem.c **** #ifdef LV_ARCH_64
+  33:Drivers/lvgl/src/misc/lv_mem.c ****     #define MEM_UNIT         uint64_t
+  34:Drivers/lvgl/src/misc/lv_mem.c ****     #define ALIGN_MASK       0x7
+  35:Drivers/lvgl/src/misc/lv_mem.c **** #else
+  36:Drivers/lvgl/src/misc/lv_mem.c ****     #define MEM_UNIT         uint32_t
+  37:Drivers/lvgl/src/misc/lv_mem.c ****     #define ALIGN_MASK       0x3
+  38:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+  39:Drivers/lvgl/src/misc/lv_mem.c **** 
+  40:Drivers/lvgl/src/misc/lv_mem.c **** #define ZERO_MEM_SENTINEL  0xa1b2c3d4
+  41:Drivers/lvgl/src/misc/lv_mem.c **** 
+  42:Drivers/lvgl/src/misc/lv_mem.c **** /**********************
+  43:Drivers/lvgl/src/misc/lv_mem.c ****  *      TYPEDEFS
+  44:Drivers/lvgl/src/misc/lv_mem.c ****  **********************/
+  45:Drivers/lvgl/src/misc/lv_mem.c **** 
+  46:Drivers/lvgl/src/misc/lv_mem.c **** /**********************
+  47:Drivers/lvgl/src/misc/lv_mem.c ****  *  STATIC PROTOTYPES
+  48:Drivers/lvgl/src/misc/lv_mem.c ****  **********************/
+  49:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+  50:Drivers/lvgl/src/misc/lv_mem.c ****     static void lv_mem_walker(void * ptr, size_t size, int used, void * user);
+  51:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+  52:Drivers/lvgl/src/misc/lv_mem.c **** 
+  53:Drivers/lvgl/src/misc/lv_mem.c **** /**********************
+  54:Drivers/lvgl/src/misc/lv_mem.c ****  *  STATIC VARIABLES
+  55:Drivers/lvgl/src/misc/lv_mem.c ****  **********************/
+  56:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+  57:Drivers/lvgl/src/misc/lv_mem.c ****     static lv_tlsf_t tlsf;
+  58:Drivers/lvgl/src/misc/lv_mem.c ****     static uint32_t cur_used;
+  59:Drivers/lvgl/src/misc/lv_mem.c ****     static uint32_t max_used;
+  60:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+  61:Drivers/lvgl/src/misc/lv_mem.c **** 
+  62:Drivers/lvgl/src/misc/lv_mem.c **** static uint32_t zero_mem = ZERO_MEM_SENTINEL; /*Give the address of this variable if 0 byte should 
+  63:Drivers/lvgl/src/misc/lv_mem.c **** 
+  64:Drivers/lvgl/src/misc/lv_mem.c **** /**********************
+  65:Drivers/lvgl/src/misc/lv_mem.c ****  *      MACROS
+  66:Drivers/lvgl/src/misc/lv_mem.c ****  **********************/
+  67:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_LOG_TRACE_MEM
+  68:Drivers/lvgl/src/misc/lv_mem.c ****     #define MEM_TRACE(...) LV_LOG_TRACE(__VA_ARGS__)
+  69:Drivers/lvgl/src/misc/lv_mem.c **** #else
+  70:Drivers/lvgl/src/misc/lv_mem.c ****     #define MEM_TRACE(...)
+  71:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+  72:Drivers/lvgl/src/misc/lv_mem.c **** 
+  73:Drivers/lvgl/src/misc/lv_mem.c **** #define COPY32 *d32 = *s32; d32++; s32++;
+  74:Drivers/lvgl/src/misc/lv_mem.c **** #define COPY8 *d8 = *s8; d8++; s8++;
+  75:Drivers/lvgl/src/misc/lv_mem.c **** #define SET32(x) *d32 = x; d32++;
+  76:Drivers/lvgl/src/misc/lv_mem.c **** #define SET8(x) *d8 = x; d8++;
+  77:Drivers/lvgl/src/misc/lv_mem.c **** #define REPEAT8(expr) expr expr expr expr expr expr expr expr
+  78:Drivers/lvgl/src/misc/lv_mem.c **** 
+  79:Drivers/lvgl/src/misc/lv_mem.c **** /**********************
+  80:Drivers/lvgl/src/misc/lv_mem.c ****  *   GLOBAL FUNCTIONS
+  81:Drivers/lvgl/src/misc/lv_mem.c ****  **********************/
+  82:Drivers/lvgl/src/misc/lv_mem.c **** 
+  83:Drivers/lvgl/src/misc/lv_mem.c **** /**
+  84:Drivers/lvgl/src/misc/lv_mem.c ****  * Initialize the dyn_mem module (work memory and other variables)
+  85:Drivers/lvgl/src/misc/lv_mem.c ****  */
+  86:Drivers/lvgl/src/misc/lv_mem.c **** void lv_mem_init(void)
+  87:Drivers/lvgl/src/misc/lv_mem.c **** {
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 3
+
+
+  88:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+  89:Drivers/lvgl/src/misc/lv_mem.c **** 
+  90:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_ADR == 0
+  91:Drivers/lvgl/src/misc/lv_mem.c **** #ifdef LV_MEM_POOL_ALLOC
+  92:Drivers/lvgl/src/misc/lv_mem.c ****     tlsf = lv_tlsf_create_with_pool((void *)LV_MEM_POOL_ALLOC(LV_MEM_SIZE), LV_MEM_SIZE);
+  93:Drivers/lvgl/src/misc/lv_mem.c **** #else
+  94:Drivers/lvgl/src/misc/lv_mem.c ****     /*Allocate a large array to store the dynamically allocated data*/
+  95:Drivers/lvgl/src/misc/lv_mem.c ****     static LV_ATTRIBUTE_LARGE_RAM_ARRAY MEM_UNIT work_mem_int[LV_MEM_SIZE / sizeof(MEM_UNIT)];
+  96:Drivers/lvgl/src/misc/lv_mem.c ****     tlsf = lv_tlsf_create_with_pool((void *)work_mem_int, LV_MEM_SIZE);
+  97:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+  98:Drivers/lvgl/src/misc/lv_mem.c **** #else
+  99:Drivers/lvgl/src/misc/lv_mem.c ****     tlsf = lv_tlsf_create_with_pool((void *)LV_MEM_ADR, LV_MEM_SIZE);
+ 100:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 101:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 102:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 103:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_ADD_JUNK
+ 104:Drivers/lvgl/src/misc/lv_mem.c ****     LV_LOG_WARN("LV_MEM_ADD_JUNK is enabled which makes LVGL much slower");
+ 105:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 106:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 107:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 108:Drivers/lvgl/src/misc/lv_mem.c **** /**
+ 109:Drivers/lvgl/src/misc/lv_mem.c ****  * Clean up the memory buffer which frees all the allocated memories.
+ 110:Drivers/lvgl/src/misc/lv_mem.c ****  * @note It work only if `LV_MEM_CUSTOM == 0`
+ 111:Drivers/lvgl/src/misc/lv_mem.c ****  */
+ 112:Drivers/lvgl/src/misc/lv_mem.c **** void lv_mem_deinit(void)
+ 113:Drivers/lvgl/src/misc/lv_mem.c **** {
+ 114:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 115:Drivers/lvgl/src/misc/lv_mem.c ****     lv_tlsf_destroy(tlsf);
+ 116:Drivers/lvgl/src/misc/lv_mem.c ****     lv_mem_init();
+ 117:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 118:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 119:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 120:Drivers/lvgl/src/misc/lv_mem.c **** /**
+ 121:Drivers/lvgl/src/misc/lv_mem.c ****  * Allocate a memory dynamically
+ 122:Drivers/lvgl/src/misc/lv_mem.c ****  * @param size size of the memory to allocate in bytes
+ 123:Drivers/lvgl/src/misc/lv_mem.c ****  * @return pointer to the allocated memory
+ 124:Drivers/lvgl/src/misc/lv_mem.c ****  */
+ 125:Drivers/lvgl/src/misc/lv_mem.c **** void * lv_mem_alloc(size_t size)
+ 126:Drivers/lvgl/src/misc/lv_mem.c **** {
+ 127:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("allocating %lu bytes", (unsigned long)size);
+ 128:Drivers/lvgl/src/misc/lv_mem.c ****     if(size == 0) {
+ 129:Drivers/lvgl/src/misc/lv_mem.c ****         MEM_TRACE("using zero_mem");
+ 130:Drivers/lvgl/src/misc/lv_mem.c ****         return &zero_mem;
+ 131:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 132:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 133:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 134:Drivers/lvgl/src/misc/lv_mem.c ****     void * alloc = lv_tlsf_malloc(tlsf, size);
+ 135:Drivers/lvgl/src/misc/lv_mem.c **** #else
+ 136:Drivers/lvgl/src/misc/lv_mem.c ****     void * alloc = LV_MEM_CUSTOM_ALLOC(size);
+ 137:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 138:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 139:Drivers/lvgl/src/misc/lv_mem.c ****     if(alloc == NULL) {
+ 140:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_INFO("couldn't allocate memory (%lu bytes)", (unsigned long)size);
+ 141:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_LOG_LEVEL <= LV_LOG_LEVEL_INFO
+ 142:Drivers/lvgl/src/misc/lv_mem.c ****         lv_mem_monitor_t mon;
+ 143:Drivers/lvgl/src/misc/lv_mem.c ****         lv_mem_monitor(&mon);
+ 144:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_INFO("used: %6d (%3d %%), frag: %3d %%, biggest free: %6d",
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 4
+
+
+ 145:Drivers/lvgl/src/misc/lv_mem.c ****                     (int)(mon.total_size - mon.free_size), mon.used_pct, mon.frag_pct,
+ 146:Drivers/lvgl/src/misc/lv_mem.c ****                     (int)mon.free_biggest_size);
+ 147:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 148:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 149:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_ADD_JUNK
+ 150:Drivers/lvgl/src/misc/lv_mem.c ****     else {
+ 151:Drivers/lvgl/src/misc/lv_mem.c ****         lv_memset(alloc, 0xaa, size);
+ 152:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 153:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 154:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 155:Drivers/lvgl/src/misc/lv_mem.c ****     if(alloc) {
+ 156:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 157:Drivers/lvgl/src/misc/lv_mem.c ****         cur_used += size;
+ 158:Drivers/lvgl/src/misc/lv_mem.c ****         max_used = LV_MAX(cur_used, max_used);
+ 159:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 160:Drivers/lvgl/src/misc/lv_mem.c ****         MEM_TRACE("allocated at %p", alloc);
+ 161:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 162:Drivers/lvgl/src/misc/lv_mem.c ****     return alloc;
+ 163:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 164:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 165:Drivers/lvgl/src/misc/lv_mem.c **** /**
+ 166:Drivers/lvgl/src/misc/lv_mem.c ****  * Free an allocated data
+ 167:Drivers/lvgl/src/misc/lv_mem.c ****  * @param data pointer to an allocated memory
+ 168:Drivers/lvgl/src/misc/lv_mem.c ****  */
+ 169:Drivers/lvgl/src/misc/lv_mem.c **** void lv_mem_free(void * data)
+ 170:Drivers/lvgl/src/misc/lv_mem.c **** {
+ 171:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("freeing %p", data);
+ 172:Drivers/lvgl/src/misc/lv_mem.c ****     if(data == &zero_mem) return;
+ 173:Drivers/lvgl/src/misc/lv_mem.c ****     if(data == NULL) return;
+ 174:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 175:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 176:Drivers/lvgl/src/misc/lv_mem.c **** #  if LV_MEM_ADD_JUNK
+ 177:Drivers/lvgl/src/misc/lv_mem.c ****     lv_memset(data, 0xbb, lv_tlsf_block_size(data));
+ 178:Drivers/lvgl/src/misc/lv_mem.c **** #  endif
+ 179:Drivers/lvgl/src/misc/lv_mem.c ****     size_t size = lv_tlsf_free(tlsf, data);
+ 180:Drivers/lvgl/src/misc/lv_mem.c ****     if(cur_used > size) cur_used -= size;
+ 181:Drivers/lvgl/src/misc/lv_mem.c ****     else cur_used = 0;
+ 182:Drivers/lvgl/src/misc/lv_mem.c **** #else
+ 183:Drivers/lvgl/src/misc/lv_mem.c ****     LV_MEM_CUSTOM_FREE(data);
+ 184:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 185:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 186:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 187:Drivers/lvgl/src/misc/lv_mem.c **** /**
+ 188:Drivers/lvgl/src/misc/lv_mem.c ****  * Reallocate a memory with a new size. The old content will be kept.
+ 189:Drivers/lvgl/src/misc/lv_mem.c ****  * @param data pointer to an allocated memory.
+ 190:Drivers/lvgl/src/misc/lv_mem.c ****  * Its content will be copied to the new memory block and freed
+ 191:Drivers/lvgl/src/misc/lv_mem.c ****  * @param new_size the desired new size in byte
+ 192:Drivers/lvgl/src/misc/lv_mem.c ****  * @return pointer to the new memory
+ 193:Drivers/lvgl/src/misc/lv_mem.c ****  */
+ 194:Drivers/lvgl/src/misc/lv_mem.c **** void * lv_mem_realloc(void * data_p, size_t new_size)
+ 195:Drivers/lvgl/src/misc/lv_mem.c **** {
+ 196:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("reallocating %p with %lu size", data_p, (unsigned long)new_size);
+ 197:Drivers/lvgl/src/misc/lv_mem.c ****     if(new_size == 0) {
+ 198:Drivers/lvgl/src/misc/lv_mem.c ****         MEM_TRACE("using zero_mem");
+ 199:Drivers/lvgl/src/misc/lv_mem.c ****         lv_mem_free(data_p);
+ 200:Drivers/lvgl/src/misc/lv_mem.c ****         return &zero_mem;
+ 201:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 5
+
+
+ 202:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 203:Drivers/lvgl/src/misc/lv_mem.c ****     if(data_p == &zero_mem) return lv_mem_alloc(new_size);
+ 204:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 205:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 206:Drivers/lvgl/src/misc/lv_mem.c ****     void * new_p = lv_tlsf_realloc(tlsf, data_p, new_size);
+ 207:Drivers/lvgl/src/misc/lv_mem.c **** #else
+ 208:Drivers/lvgl/src/misc/lv_mem.c ****     void * new_p = LV_MEM_CUSTOM_REALLOC(data_p, new_size);
+ 209:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 210:Drivers/lvgl/src/misc/lv_mem.c ****     if(new_p == NULL) {
+ 211:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_ERROR("couldn't allocate memory");
+ 212:Drivers/lvgl/src/misc/lv_mem.c ****         return NULL;
+ 213:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 214:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 215:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("allocated at %p", new_p);
+ 216:Drivers/lvgl/src/misc/lv_mem.c ****     return new_p;
+ 217:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 218:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 219:Drivers/lvgl/src/misc/lv_mem.c **** lv_res_t lv_mem_test(void)
+ 220:Drivers/lvgl/src/misc/lv_mem.c **** {
+ 221:Drivers/lvgl/src/misc/lv_mem.c ****     if(zero_mem != ZERO_MEM_SENTINEL) {
+ 222:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_WARN("zero_mem is written");
+ 223:Drivers/lvgl/src/misc/lv_mem.c ****         return LV_RES_INV;
+ 224:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 225:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 226:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 227:Drivers/lvgl/src/misc/lv_mem.c ****     if(lv_tlsf_check(tlsf)) {
+ 228:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_WARN("failed");
+ 229:Drivers/lvgl/src/misc/lv_mem.c ****         return LV_RES_INV;
+ 230:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 231:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 232:Drivers/lvgl/src/misc/lv_mem.c ****     if(lv_tlsf_check_pool(lv_tlsf_get_pool(tlsf))) {
+ 233:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_WARN("pool failed");
+ 234:Drivers/lvgl/src/misc/lv_mem.c ****         return LV_RES_INV;
+ 235:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 236:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 237:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("passed");
+ 238:Drivers/lvgl/src/misc/lv_mem.c ****     return LV_RES_OK;
+ 239:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 240:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 241:Drivers/lvgl/src/misc/lv_mem.c **** /**
+ 242:Drivers/lvgl/src/misc/lv_mem.c ****  * Give information about the work memory of dynamic allocation
+ 243:Drivers/lvgl/src/misc/lv_mem.c ****  * @param mon_p pointer to a lv_mem_monitor_t variable,
+ 244:Drivers/lvgl/src/misc/lv_mem.c ****  *              the result of the analysis will be stored here
+ 245:Drivers/lvgl/src/misc/lv_mem.c ****  */
+ 246:Drivers/lvgl/src/misc/lv_mem.c **** void lv_mem_monitor(lv_mem_monitor_t * mon_p)
+ 247:Drivers/lvgl/src/misc/lv_mem.c **** {
+ 248:Drivers/lvgl/src/misc/lv_mem.c ****     /*Init the data*/
+ 249:Drivers/lvgl/src/misc/lv_mem.c ****     lv_memset(mon_p, 0, sizeof(lv_mem_monitor_t));
+ 250:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 251:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("begin");
+ 252:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 253:Drivers/lvgl/src/misc/lv_mem.c ****     lv_tlsf_walk_pool(lv_tlsf_get_pool(tlsf), lv_mem_walker, mon_p);
+ 254:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 255:Drivers/lvgl/src/misc/lv_mem.c ****     mon_p->total_size = LV_MEM_SIZE;
+ 256:Drivers/lvgl/src/misc/lv_mem.c ****     mon_p->used_pct = 100 - (100U * mon_p->free_size) / mon_p->total_size;
+ 257:Drivers/lvgl/src/misc/lv_mem.c ****     if(mon_p->free_size > 0) {
+ 258:Drivers/lvgl/src/misc/lv_mem.c ****         mon_p->frag_pct = mon_p->free_biggest_size * 100U / mon_p->free_size;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 6
+
+
+ 259:Drivers/lvgl/src/misc/lv_mem.c ****         mon_p->frag_pct = 100 - mon_p->frag_pct;
+ 260:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 261:Drivers/lvgl/src/misc/lv_mem.c ****     else {
+ 262:Drivers/lvgl/src/misc/lv_mem.c ****         mon_p->frag_pct = 0; /*no fragmentation if all the RAM is used*/
+ 263:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 264:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 265:Drivers/lvgl/src/misc/lv_mem.c ****     mon_p->max_used = max_used;
+ 266:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 267:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("finished");
+ 268:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 269:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 270:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 271:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 272:Drivers/lvgl/src/misc/lv_mem.c **** /**
+ 273:Drivers/lvgl/src/misc/lv_mem.c ****  * Get a temporal buffer with the given size.
+ 274:Drivers/lvgl/src/misc/lv_mem.c ****  * @param size the required size
+ 275:Drivers/lvgl/src/misc/lv_mem.c ****  */
+ 276:Drivers/lvgl/src/misc/lv_mem.c **** void * lv_mem_buf_get(uint32_t size)
+ 277:Drivers/lvgl/src/misc/lv_mem.c **** {
+ 278:Drivers/lvgl/src/misc/lv_mem.c ****     if(size == 0) return NULL;
+ 279:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 280:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("begin, getting %d bytes", size);
+ 281:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 282:Drivers/lvgl/src/misc/lv_mem.c ****     /*Try to find a free buffer with suitable size*/
+ 283:Drivers/lvgl/src/misc/lv_mem.c ****     int8_t i_guess = -1;
+ 284:Drivers/lvgl/src/misc/lv_mem.c ****     for(uint8_t i = 0; i < LV_MEM_BUF_MAX_NUM; i++) {
+ 285:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).used == 0 && LV_GC_ROOT(lv_mem_buf[i]).size >= size) {
+ 286:Drivers/lvgl/src/misc/lv_mem.c ****             if(LV_GC_ROOT(lv_mem_buf[i]).size == size) {
+ 287:Drivers/lvgl/src/misc/lv_mem.c ****                 LV_GC_ROOT(lv_mem_buf[i]).used = 1;
+ 288:Drivers/lvgl/src/misc/lv_mem.c ****                 return LV_GC_ROOT(lv_mem_buf[i]).p;
+ 289:Drivers/lvgl/src/misc/lv_mem.c ****             }
+ 290:Drivers/lvgl/src/misc/lv_mem.c ****             else if(i_guess < 0) {
+ 291:Drivers/lvgl/src/misc/lv_mem.c ****                 i_guess = i;
+ 292:Drivers/lvgl/src/misc/lv_mem.c ****             }
+ 293:Drivers/lvgl/src/misc/lv_mem.c ****             /*If size of `i` is closer to `size` prefer it*/
+ 294:Drivers/lvgl/src/misc/lv_mem.c ****             else if(LV_GC_ROOT(lv_mem_buf[i]).size < LV_GC_ROOT(lv_mem_buf[i_guess]).size) {
+ 295:Drivers/lvgl/src/misc/lv_mem.c ****                 i_guess = i;
+ 296:Drivers/lvgl/src/misc/lv_mem.c ****             }
+ 297:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 298:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 299:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 300:Drivers/lvgl/src/misc/lv_mem.c ****     if(i_guess >= 0) {
+ 301:Drivers/lvgl/src/misc/lv_mem.c ****         LV_GC_ROOT(lv_mem_buf[i_guess]).used = 1;
+ 302:Drivers/lvgl/src/misc/lv_mem.c ****         MEM_TRACE("returning already allocated buffer (buffer id: %d, address: %p)", i_guess,
+ 303:Drivers/lvgl/src/misc/lv_mem.c ****                   LV_GC_ROOT(lv_mem_buf[i_guess]).p);
+ 304:Drivers/lvgl/src/misc/lv_mem.c ****         return LV_GC_ROOT(lv_mem_buf[i_guess]).p;
+ 305:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 306:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 307:Drivers/lvgl/src/misc/lv_mem.c ****     /*Reallocate a free buffer*/
+ 308:Drivers/lvgl/src/misc/lv_mem.c ****     for(uint8_t i = 0; i < LV_MEM_BUF_MAX_NUM; i++) {
+ 309:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).used == 0) {
+ 310:Drivers/lvgl/src/misc/lv_mem.c ****             /*if this fails you probably need to increase your LV_MEM_SIZE/heap size*/
+ 311:Drivers/lvgl/src/misc/lv_mem.c ****             void * buf = lv_mem_realloc(LV_GC_ROOT(lv_mem_buf[i]).p, size);
+ 312:Drivers/lvgl/src/misc/lv_mem.c ****             LV_ASSERT_MSG(buf != NULL, "Out of memory, can't allocate a new buffer (increase your L
+ 313:Drivers/lvgl/src/misc/lv_mem.c ****             if(buf == NULL) return NULL;
+ 314:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 315:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).used = 1;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 7
+
+
+ 316:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).size = size;
+ 317:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).p    = buf;
+ 318:Drivers/lvgl/src/misc/lv_mem.c ****             MEM_TRACE("allocated (buffer id: %d, address: %p)", i, LV_GC_ROOT(lv_mem_buf[i]).p);
+ 319:Drivers/lvgl/src/misc/lv_mem.c ****             return LV_GC_ROOT(lv_mem_buf[i]).p;
+ 320:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 321:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 322:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 323:Drivers/lvgl/src/misc/lv_mem.c ****     LV_LOG_ERROR("no more buffers. (increase LV_MEM_BUF_MAX_NUM)");
+ 324:Drivers/lvgl/src/misc/lv_mem.c ****     LV_ASSERT_MSG(false, "No more buffers. Increase LV_MEM_BUF_MAX_NUM.");
+ 325:Drivers/lvgl/src/misc/lv_mem.c ****     return NULL;
+ 326:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 327:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 328:Drivers/lvgl/src/misc/lv_mem.c **** /**
+ 329:Drivers/lvgl/src/misc/lv_mem.c ****  * Release a memory buffer
+ 330:Drivers/lvgl/src/misc/lv_mem.c ****  * @param p buffer to release
+ 331:Drivers/lvgl/src/misc/lv_mem.c ****  */
+ 332:Drivers/lvgl/src/misc/lv_mem.c **** void lv_mem_buf_release(void * p)
+ 333:Drivers/lvgl/src/misc/lv_mem.c **** {
+ 334:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("begin (address: %p)", p);
+ 335:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 336:Drivers/lvgl/src/misc/lv_mem.c ****     for(uint8_t i = 0; i < LV_MEM_BUF_MAX_NUM; i++) {
+ 337:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p == p) {
+ 338:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).used = 0;
+ 339:Drivers/lvgl/src/misc/lv_mem.c ****             return;
+ 340:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 341:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 342:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 343:Drivers/lvgl/src/misc/lv_mem.c ****     LV_LOG_ERROR("p is not a known buffer");
+ 344:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 345:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 346:Drivers/lvgl/src/misc/lv_mem.c **** /**
+ 347:Drivers/lvgl/src/misc/lv_mem.c ****  * Free all memory buffers
+ 348:Drivers/lvgl/src/misc/lv_mem.c ****  */
+ 349:Drivers/lvgl/src/misc/lv_mem.c **** void lv_mem_buf_free_all(void)
+ 350:Drivers/lvgl/src/misc/lv_mem.c **** {
+ 351:Drivers/lvgl/src/misc/lv_mem.c ****     for(uint8_t i = 0; i < LV_MEM_BUF_MAX_NUM; i++) {
+ 352:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p) {
+ 353:Drivers/lvgl/src/misc/lv_mem.c ****             lv_mem_free(LV_GC_ROOT(lv_mem_buf[i]).p);
+ 354:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).p = NULL;
+ 355:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).used = 0;
+ 356:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).size = 0;
+ 357:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 358:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 359:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 360:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 361:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEMCPY_MEMSET_STD == 0
+ 362:Drivers/lvgl/src/misc/lv_mem.c **** /**
+ 363:Drivers/lvgl/src/misc/lv_mem.c ****  * Same as `memcpy` but optimized for 4 byte operation.
+ 364:Drivers/lvgl/src/misc/lv_mem.c ****  * @param dst pointer to the destination buffer
+ 365:Drivers/lvgl/src/misc/lv_mem.c ****  * @param src pointer to the source buffer
+ 366:Drivers/lvgl/src/misc/lv_mem.c ****  * @param len number of byte to copy
+ 367:Drivers/lvgl/src/misc/lv_mem.c ****  */
+ 368:Drivers/lvgl/src/misc/lv_mem.c **** void * LV_ATTRIBUTE_FAST_MEM lv_memcpy(void * dst, const void * src, size_t len)
+ 369:Drivers/lvgl/src/misc/lv_mem.c **** {
+ 370:Drivers/lvgl/src/misc/lv_mem.c ****     uint8_t * d8 = dst;
+ 371:Drivers/lvgl/src/misc/lv_mem.c ****     const uint8_t * s8 = src;
+ 372:Drivers/lvgl/src/misc/lv_mem.c **** 
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 8
+
+
+ 373:Drivers/lvgl/src/misc/lv_mem.c ****     lv_uintptr_t d_align = (lv_uintptr_t)d8 & ALIGN_MASK;
+ 374:Drivers/lvgl/src/misc/lv_mem.c ****     lv_uintptr_t s_align = (lv_uintptr_t)s8 & ALIGN_MASK;
+ 375:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 376:Drivers/lvgl/src/misc/lv_mem.c ****     /*Byte copy for unaligned memories*/
+ 377:Drivers/lvgl/src/misc/lv_mem.c ****     if(s_align != d_align) {
+ 378:Drivers/lvgl/src/misc/lv_mem.c ****         while(len > 32) {
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 383:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 384:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 385:Drivers/lvgl/src/misc/lv_mem.c ****         while(len) {
+ 386:Drivers/lvgl/src/misc/lv_mem.c ****             COPY8
+ 387:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 388:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 389:Drivers/lvgl/src/misc/lv_mem.c ****         return dst;
+ 390:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 391:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 392:Drivers/lvgl/src/misc/lv_mem.c ****     /*Make the memories aligned*/
+ 393:Drivers/lvgl/src/misc/lv_mem.c ****     if(d_align) {
+ 394:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 395:Drivers/lvgl/src/misc/lv_mem.c ****         while(d_align && len) {
+ 396:Drivers/lvgl/src/misc/lv_mem.c ****             COPY8;
+ 397:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 398:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 399:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 400:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 401:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 402:Drivers/lvgl/src/misc/lv_mem.c ****     uint32_t * d32 = (uint32_t *)d8;
+ 403:Drivers/lvgl/src/misc/lv_mem.c ****     const uint32_t * s32 = (uint32_t *)s8;
+ 404:Drivers/lvgl/src/misc/lv_mem.c ****     while(len > 32) {
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         REPEAT8(COPY32)
+ 406:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 407:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 408:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 409:Drivers/lvgl/src/misc/lv_mem.c ****     while(len > 4) {
+ 410:Drivers/lvgl/src/misc/lv_mem.c ****         COPY32;
+ 411:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 412:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 413:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 414:Drivers/lvgl/src/misc/lv_mem.c ****     d8 = (uint8_t *)d32;
+ 415:Drivers/lvgl/src/misc/lv_mem.c ****     s8 = (const uint8_t *)s32;
+ 416:Drivers/lvgl/src/misc/lv_mem.c ****     while(len) {
+ 417:Drivers/lvgl/src/misc/lv_mem.c ****         COPY8
+ 418:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 419:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 420:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 421:Drivers/lvgl/src/misc/lv_mem.c ****     return dst;
+ 422:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 423:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 424:Drivers/lvgl/src/misc/lv_mem.c **** /**
+ 425:Drivers/lvgl/src/misc/lv_mem.c ****  * Same as `memset` but optimized for 4 byte operation.
+ 426:Drivers/lvgl/src/misc/lv_mem.c ****  * @param dst pointer to the destination buffer
+ 427:Drivers/lvgl/src/misc/lv_mem.c ****  * @param v value to set [0..255]
+ 428:Drivers/lvgl/src/misc/lv_mem.c ****  * @param len number of byte to set
+ 429:Drivers/lvgl/src/misc/lv_mem.c ****  */
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 9
+
+
+ 430:Drivers/lvgl/src/misc/lv_mem.c **** void LV_ATTRIBUTE_FAST_MEM lv_memset(void * dst, uint8_t v, size_t len)
+ 431:Drivers/lvgl/src/misc/lv_mem.c **** {
+ 432:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 433:Drivers/lvgl/src/misc/lv_mem.c ****     uint8_t * d8 = (uint8_t *)dst;
+ 434:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 435:Drivers/lvgl/src/misc/lv_mem.c ****     uintptr_t d_align = (lv_uintptr_t) d8 & ALIGN_MASK;
+ 436:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 437:Drivers/lvgl/src/misc/lv_mem.c ****     /*Make the address aligned*/
+ 438:Drivers/lvgl/src/misc/lv_mem.c ****     if(d_align) {
+ 439:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 440:Drivers/lvgl/src/misc/lv_mem.c ****         while(d_align && len) {
+ 441:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(v);
+ 442:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 443:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 444:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 445:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 446:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 447:Drivers/lvgl/src/misc/lv_mem.c ****     uint32_t v32 = (uint32_t)v + ((uint32_t)v << 8) + ((uint32_t)v << 16) + ((uint32_t)v << 24);
+ 448:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 449:Drivers/lvgl/src/misc/lv_mem.c ****     uint32_t * d32 = (uint32_t *)d8;
+ 450:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 451:Drivers/lvgl/src/misc/lv_mem.c ****     while(len > 32) {
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         REPEAT8(SET32(v32));
+ 453:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 454:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 455:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 456:Drivers/lvgl/src/misc/lv_mem.c ****     while(len > 4) {
+ 457:Drivers/lvgl/src/misc/lv_mem.c ****         SET32(v32);
+ 458:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 459:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 460:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 461:Drivers/lvgl/src/misc/lv_mem.c ****     d8 = (uint8_t *)d32;
+ 462:Drivers/lvgl/src/misc/lv_mem.c ****     while(len) {
+ 463:Drivers/lvgl/src/misc/lv_mem.c ****         SET8(v);
+ 464:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 465:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 466:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 467:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 468:Drivers/lvgl/src/misc/lv_mem.c **** /**
+ 469:Drivers/lvgl/src/misc/lv_mem.c ****  * Same as `memset(dst, 0x00, len)` but optimized for 4 byte operation.
+ 470:Drivers/lvgl/src/misc/lv_mem.c ****  * @param dst pointer to the destination buffer
+ 471:Drivers/lvgl/src/misc/lv_mem.c ****  * @param len number of byte to set
+ 472:Drivers/lvgl/src/misc/lv_mem.c ****  */
+ 473:Drivers/lvgl/src/misc/lv_mem.c **** void LV_ATTRIBUTE_FAST_MEM lv_memset_00(void * dst, size_t len)
+ 474:Drivers/lvgl/src/misc/lv_mem.c **** {
+ 475:Drivers/lvgl/src/misc/lv_mem.c ****     uint8_t * d8 = (uint8_t *)dst;
+ 476:Drivers/lvgl/src/misc/lv_mem.c ****     uintptr_t d_align = (lv_uintptr_t) d8 & ALIGN_MASK;
+ 477:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 478:Drivers/lvgl/src/misc/lv_mem.c ****     /*Make the address aligned*/
+ 479:Drivers/lvgl/src/misc/lv_mem.c ****     if(d_align) {
+ 480:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 481:Drivers/lvgl/src/misc/lv_mem.c ****         while(d_align && len) {
+ 482:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(0);
+ 483:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 484:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 485:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 486:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 10
+
+
+ 487:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 488:Drivers/lvgl/src/misc/lv_mem.c ****     uint32_t * d32 = (uint32_t *)d8;
+ 489:Drivers/lvgl/src/misc/lv_mem.c ****     while(len > 32) {
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         REPEAT8(SET32(0));
+ 491:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 492:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 493:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 494:Drivers/lvgl/src/misc/lv_mem.c ****     while(len > 4) {
+ 495:Drivers/lvgl/src/misc/lv_mem.c ****         SET32(0);
+ 496:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 497:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 498:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 499:Drivers/lvgl/src/misc/lv_mem.c ****     d8 = (uint8_t *)d32;
+ 500:Drivers/lvgl/src/misc/lv_mem.c ****     while(len) {
+ 501:Drivers/lvgl/src/misc/lv_mem.c ****         SET8(0);
+ 502:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 503:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 504:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 505:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 506:Drivers/lvgl/src/misc/lv_mem.c **** /**
+ 507:Drivers/lvgl/src/misc/lv_mem.c ****  * Same as `memset(dst, 0xFF, len)` but optimized for 4 byte operation.
+ 508:Drivers/lvgl/src/misc/lv_mem.c ****  * @param dst pointer to the destination buffer
+ 509:Drivers/lvgl/src/misc/lv_mem.c ****  * @param len number of byte to set
+ 510:Drivers/lvgl/src/misc/lv_mem.c ****  */
+ 511:Drivers/lvgl/src/misc/lv_mem.c **** void LV_ATTRIBUTE_FAST_MEM lv_memset_ff(void * dst, size_t len)
+ 512:Drivers/lvgl/src/misc/lv_mem.c **** {
+ 513:Drivers/lvgl/src/misc/lv_mem.c ****     uint8_t * d8 = (uint8_t *)dst;
+ 514:Drivers/lvgl/src/misc/lv_mem.c ****     uintptr_t d_align = (lv_uintptr_t) d8 & ALIGN_MASK;
+ 515:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 516:Drivers/lvgl/src/misc/lv_mem.c ****     /*Make the address aligned*/
+ 517:Drivers/lvgl/src/misc/lv_mem.c ****     if(d_align) {
+ 518:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 519:Drivers/lvgl/src/misc/lv_mem.c ****         while(d_align && len) {
+ 520:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(0xFF);
+ 521:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 522:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 523:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 524:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 525:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 526:Drivers/lvgl/src/misc/lv_mem.c ****     uint32_t * d32 = (uint32_t *)d8;
+ 527:Drivers/lvgl/src/misc/lv_mem.c ****     while(len > 32) {
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         REPEAT8(SET32(0xFFFFFFFF));
+ 529:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 530:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 531:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 532:Drivers/lvgl/src/misc/lv_mem.c ****     while(len > 4) {
+ 533:Drivers/lvgl/src/misc/lv_mem.c ****         SET32(0xFFFFFFFF);
+ 534:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 535:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 536:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 537:Drivers/lvgl/src/misc/lv_mem.c ****     d8 = (uint8_t *)d32;
+ 538:Drivers/lvgl/src/misc/lv_mem.c ****     while(len) {
+ 539:Drivers/lvgl/src/misc/lv_mem.c ****         SET8(0xFF);
+ 540:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 541:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 542:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 543:Drivers/lvgl/src/misc/lv_mem.c **** 
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 11
+
+
+ 544:Drivers/lvgl/src/misc/lv_mem.c **** #endif /*LV_MEMCPY_MEMSET_STD*/
+ 545:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 546:Drivers/lvgl/src/misc/lv_mem.c **** /**********************
+ 547:Drivers/lvgl/src/misc/lv_mem.c ****  *   STATIC FUNCTIONS
+ 548:Drivers/lvgl/src/misc/lv_mem.c ****  **********************/
+ 549:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 550:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 551:Drivers/lvgl/src/misc/lv_mem.c **** static void lv_mem_walker(void * ptr, size_t size, int used, void * user)
+ 552:Drivers/lvgl/src/misc/lv_mem.c **** {
+  29              		.loc 1 552 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+ 553:Drivers/lvgl/src/misc/lv_mem.c ****     LV_UNUSED(ptr);
+  34              		.loc 1 553 5 view .LVU1
+ 554:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 555:Drivers/lvgl/src/misc/lv_mem.c ****     lv_mem_monitor_t * mon_p = user;
+  35              		.loc 1 555 5 view .LVU2
+ 556:Drivers/lvgl/src/misc/lv_mem.c ****     if(used) {
+  36              		.loc 1 556 5 view .LVU3
+  37              		.loc 1 556 7 is_stmt 0 view .LVU4
+  38 0000 1AB1     		cbz	r2, .L2
+ 557:Drivers/lvgl/src/misc/lv_mem.c ****         mon_p->used_cnt++;
+  39              		.loc 1 557 9 is_stmt 1 view .LVU5
+  40              		.loc 1 557 14 is_stmt 0 view .LVU6
+  41 0002 1A69     		ldr	r2, [r3, #16]
+  42              	.LVL1:
+  43              		.loc 1 557 24 view .LVU7
+  44 0004 0132     		adds	r2, r2, #1
+  45 0006 1A61     		str	r2, [r3, #16]
+  46 0008 7047     		bx	lr
+  47              	.LVL2:
+  48              	.L2:
+ 558:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 559:Drivers/lvgl/src/misc/lv_mem.c ****     else {
+ 560:Drivers/lvgl/src/misc/lv_mem.c ****         mon_p->free_cnt++;
+  49              		.loc 1 560 9 is_stmt 1 view .LVU8
+  50              		.loc 1 560 14 is_stmt 0 view .LVU9
+  51 000a 5A68     		ldr	r2, [r3, #4]
+  52              	.LVL3:
+  53              		.loc 1 560 24 view .LVU10
+  54 000c 0132     		adds	r2, r2, #1
+  55 000e 5A60     		str	r2, [r3, #4]
+ 561:Drivers/lvgl/src/misc/lv_mem.c ****         mon_p->free_size += size;
+  56              		.loc 1 561 9 is_stmt 1 view .LVU11
+  57              		.loc 1 561 14 is_stmt 0 view .LVU12
+  58 0010 9A68     		ldr	r2, [r3, #8]
+  59              		.loc 1 561 26 view .LVU13
+  60 0012 0A44     		add	r2, r2, r1
+  61 0014 9A60     		str	r2, [r3, #8]
+ 562:Drivers/lvgl/src/misc/lv_mem.c ****         if(size > mon_p->free_biggest_size)
+  62              		.loc 1 562 9 is_stmt 1 view .LVU14
+  63              		.loc 1 562 24 is_stmt 0 view .LVU15
+  64 0016 DA68     		ldr	r2, [r3, #12]
+  65              		.loc 1 562 11 view .LVU16
+  66 0018 8A42     		cmp	r2, r1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 12
+
+
+  67 001a 00D2     		bcs	.L1
+ 563:Drivers/lvgl/src/misc/lv_mem.c ****             mon_p->free_biggest_size = size;
+  68              		.loc 1 563 13 is_stmt 1 view .LVU17
+  69              		.loc 1 563 38 is_stmt 0 view .LVU18
+  70 001c D960     		str	r1, [r3, #12]
+  71              	.L1:
+ 564:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 565:Drivers/lvgl/src/misc/lv_mem.c **** }
+  72              		.loc 1 565 1 view .LVU19
+  73 001e 7047     		bx	lr
+  74              		.cfi_endproc
+  75              	.LFE38:
+  77              		.section	.text.lv_mem_init,"ax",%progbits
+  78              		.align	1
+  79              		.global	lv_mem_init
+  80              		.syntax unified
+  81              		.thumb
+  82              		.thumb_func
+  84              	lv_mem_init:
+  85              	.LFB24:
+  87:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+  86              		.loc 1 87 1 is_stmt 1 view -0
+  87              		.cfi_startproc
+  88              		@ args = 0, pretend = 0, frame = 0
+  89              		@ frame_needed = 0, uses_anonymous_args = 0
+  90 0000 08B5     		push	{r3, lr}
+  91              		.cfi_def_cfa_offset 8
+  92              		.cfi_offset 3, -8
+  93              		.cfi_offset 14, -4
+  95:Drivers/lvgl/src/misc/lv_mem.c ****     tlsf = lv_tlsf_create_with_pool((void *)work_mem_int, LV_MEM_SIZE);
+  94              		.loc 1 95 5 view .LVU21
+  96:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+  95              		.loc 1 96 5 view .LVU22
+  96:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+  96              		.loc 1 96 12 is_stmt 0 view .LVU23
+  97 0002 4FF40051 		mov	r1, #8192
+  98 0006 0348     		ldr	r0, .L6
+  99 0008 FFF7FEFF 		bl	lv_tlsf_create_with_pool
+ 100              	.LVL4:
+  96:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 101              		.loc 1 96 10 discriminator 1 view .LVU24
+ 102 000c 024B     		ldr	r3, .L6+4
+ 103 000e 1860     		str	r0, [r3]
+ 106:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 104              		.loc 1 106 1 view .LVU25
+ 105 0010 08BD     		pop	{r3, pc}
+ 106              	.L7:
+ 107 0012 00BF     		.align	2
+ 108              	.L6:
+ 109 0014 00000000 		.word	work_mem_int.0
+ 110 0018 00000000 		.word	tlsf
+ 111              		.cfi_endproc
+ 112              	.LFE24:
+ 114              		.section	.text.lv_mem_deinit,"ax",%progbits
+ 115              		.align	1
+ 116              		.global	lv_mem_deinit
+ 117              		.syntax unified
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 13
+
+
+ 118              		.thumb
+ 119              		.thumb_func
+ 121              	lv_mem_deinit:
+ 122              	.LFB25:
+ 113:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 123              		.loc 1 113 1 is_stmt 1 view -0
+ 124              		.cfi_startproc
+ 125              		@ args = 0, pretend = 0, frame = 0
+ 126              		@ frame_needed = 0, uses_anonymous_args = 0
+ 127 0000 08B5     		push	{r3, lr}
+ 128              		.cfi_def_cfa_offset 8
+ 129              		.cfi_offset 3, -8
+ 130              		.cfi_offset 14, -4
+ 115:Drivers/lvgl/src/misc/lv_mem.c ****     lv_mem_init();
+ 131              		.loc 1 115 5 view .LVU27
+ 132 0002 034B     		ldr	r3, .L10
+ 133 0004 1868     		ldr	r0, [r3]
+ 134 0006 FFF7FEFF 		bl	lv_tlsf_destroy
+ 135              	.LVL5:
+ 116:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 136              		.loc 1 116 5 view .LVU28
+ 137 000a FFF7FEFF 		bl	lv_mem_init
+ 138              	.LVL6:
+ 118:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 139              		.loc 1 118 1 is_stmt 0 view .LVU29
+ 140 000e 08BD     		pop	{r3, pc}
+ 141              	.L11:
+ 142              		.align	2
+ 143              	.L10:
+ 144 0010 00000000 		.word	tlsf
+ 145              		.cfi_endproc
+ 146              	.LFE25:
+ 148              		.section	.text.lv_mem_alloc,"ax",%progbits
+ 149              		.align	1
+ 150              		.global	lv_mem_alloc
+ 151              		.syntax unified
+ 152              		.thumb
+ 153              		.thumb_func
+ 155              	lv_mem_alloc:
+ 156              	.LVL7:
+ 157              	.LFB26:
+ 126:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("allocating %lu bytes", (unsigned long)size);
+ 158              		.loc 1 126 1 is_stmt 1 view -0
+ 159              		.cfi_startproc
+ 160              		@ args = 0, pretend = 0, frame = 0
+ 161              		@ frame_needed = 0, uses_anonymous_args = 0
+ 127:Drivers/lvgl/src/misc/lv_mem.c ****     if(size == 0) {
+ 162              		.loc 1 127 59 view .LVU31
+ 128:Drivers/lvgl/src/misc/lv_mem.c ****         MEM_TRACE("using zero_mem");
+ 163              		.loc 1 128 5 view .LVU32
+ 128:Drivers/lvgl/src/misc/lv_mem.c ****         MEM_TRACE("using zero_mem");
+ 164              		.loc 1 128 7 is_stmt 0 view .LVU33
+ 165 0000 08B9     		cbnz	r0, .L19
+ 130:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 166              		.loc 1 130 16 view .LVU34
+ 167 0002 0A48     		ldr	r0, .L20
+ 168              	.LVL8:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 14
+
+
+ 163:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 169              		.loc 1 163 1 view .LVU35
+ 170 0004 7047     		bx	lr
+ 171              	.LVL9:
+ 172              	.L19:
+ 126:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("allocating %lu bytes", (unsigned long)size);
+ 173              		.loc 1 126 1 view .LVU36
+ 174 0006 10B5     		push	{r4, lr}
+ 175              		.cfi_def_cfa_offset 8
+ 176              		.cfi_offset 4, -8
+ 177              		.cfi_offset 14, -4
+ 178 0008 0446     		mov	r4, r0
+ 134:Drivers/lvgl/src/misc/lv_mem.c **** #else
+ 179              		.loc 1 134 5 is_stmt 1 view .LVU37
+ 134:Drivers/lvgl/src/misc/lv_mem.c **** #else
+ 180              		.loc 1 134 20 is_stmt 0 view .LVU38
+ 181 000a 0146     		mov	r1, r0
+ 182 000c 084B     		ldr	r3, .L20+4
+ 183 000e 1868     		ldr	r0, [r3]
+ 184              	.LVL10:
+ 134:Drivers/lvgl/src/misc/lv_mem.c **** #else
+ 185              		.loc 1 134 20 view .LVU39
+ 186 0010 FFF7FEFF 		bl	lv_tlsf_malloc
+ 187              	.LVL11:
+ 139:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_INFO("couldn't allocate memory (%lu bytes)", (unsigned long)size);
+ 188              		.loc 1 139 5 is_stmt 1 view .LVU40
+ 140:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_LOG_LEVEL <= LV_LOG_LEVEL_INFO
+ 189              		.loc 1 140 9 view .LVU41
+ 140:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_LOG_LEVEL <= LV_LOG_LEVEL_INFO
+ 190              		.loc 1 140 9 view .LVU42
+ 140:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_LOG_LEVEL <= LV_LOG_LEVEL_INFO
+ 191              		.loc 1 140 9 view .LVU43
+ 155:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 192              		.loc 1 155 5 view .LVU44
+ 155:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 193              		.loc 1 155 7 is_stmt 0 view .LVU45
+ 194 0014 48B1     		cbz	r0, .L12
+ 157:Drivers/lvgl/src/misc/lv_mem.c ****         max_used = LV_MAX(cur_used, max_used);
+ 195              		.loc 1 157 9 is_stmt 1 view .LVU46
+ 157:Drivers/lvgl/src/misc/lv_mem.c ****         max_used = LV_MAX(cur_used, max_used);
+ 196              		.loc 1 157 18 is_stmt 0 view .LVU47
+ 197 0016 074B     		ldr	r3, .L20+8
+ 198 0018 1A68     		ldr	r2, [r3]
+ 199 001a 1444     		add	r4, r4, r2
+ 200              	.LVL12:
+ 157:Drivers/lvgl/src/misc/lv_mem.c ****         max_used = LV_MAX(cur_used, max_used);
+ 201              		.loc 1 157 18 view .LVU48
+ 202 001c 1C60     		str	r4, [r3]
+ 158:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 203              		.loc 1 158 9 is_stmt 1 view .LVU49
+ 158:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 204              		.loc 1 158 20 is_stmt 0 view .LVU50
+ 205 001e 064B     		ldr	r3, .L20+12
+ 206 0020 1A68     		ldr	r2, [r3]
+ 207 0022 9442     		cmp	r4, r2
+ 208 0024 38BF     		it	cc
+ 209 0026 1446     		movcc	r4, r2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 15
+
+
+ 158:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 210              		.loc 1 158 18 view .LVU51
+ 211 0028 1C60     		str	r4, [r3]
+ 212              	.L12:
+ 163:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 213              		.loc 1 163 1 view .LVU52
+ 214 002a 10BD     		pop	{r4, pc}
+ 215              	.L21:
+ 216              		.align	2
+ 217              	.L20:
+ 218 002c 00000000 		.word	zero_mem
+ 219 0030 00000000 		.word	tlsf
+ 220 0034 00000000 		.word	cur_used
+ 221 0038 00000000 		.word	max_used
+ 222              		.cfi_endproc
+ 223              	.LFE26:
+ 225              		.section	.text.lv_mem_free,"ax",%progbits
+ 226              		.align	1
+ 227              		.global	lv_mem_free
+ 228              		.syntax unified
+ 229              		.thumb
+ 230              		.thumb_func
+ 232              	lv_mem_free:
+ 233              	.LVL13:
+ 234              	.LFB27:
+ 170:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("freeing %p", data);
+ 235              		.loc 1 170 1 is_stmt 1 view -0
+ 236              		.cfi_startproc
+ 237              		@ args = 0, pretend = 0, frame = 0
+ 238              		@ frame_needed = 0, uses_anonymous_args = 0
+ 170:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("freeing %p", data);
+ 239              		.loc 1 170 1 is_stmt 0 view .LVU54
+ 240 0000 08B5     		push	{r3, lr}
+ 241              		.cfi_def_cfa_offset 8
+ 242              		.cfi_offset 3, -8
+ 243              		.cfi_offset 14, -4
+ 171:Drivers/lvgl/src/misc/lv_mem.c ****     if(data == &zero_mem) return;
+ 244              		.loc 1 171 34 is_stmt 1 view .LVU55
+ 172:Drivers/lvgl/src/misc/lv_mem.c ****     if(data == NULL) return;
+ 245              		.loc 1 172 5 view .LVU56
+ 172:Drivers/lvgl/src/misc/lv_mem.c ****     if(data == NULL) return;
+ 246              		.loc 1 172 7 is_stmt 0 view .LVU57
+ 247 0002 0A4B     		ldr	r3, .L26
+ 248 0004 9842     		cmp	r0, r3
+ 249 0006 0CD0     		beq	.L22
+ 250 0008 0146     		mov	r1, r0
+ 173:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 251              		.loc 1 173 5 is_stmt 1 view .LVU58
+ 173:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 252              		.loc 1 173 7 is_stmt 0 view .LVU59
+ 253 000a 50B1     		cbz	r0, .L22
+ 179:Drivers/lvgl/src/misc/lv_mem.c ****     if(cur_used > size) cur_used -= size;
+ 254              		.loc 1 179 5 is_stmt 1 view .LVU60
+ 179:Drivers/lvgl/src/misc/lv_mem.c ****     if(cur_used > size) cur_used -= size;
+ 255              		.loc 1 179 19 is_stmt 0 view .LVU61
+ 256 000c 084B     		ldr	r3, .L26+4
+ 257 000e 1868     		ldr	r0, [r3]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 16
+
+
+ 258              	.LVL14:
+ 179:Drivers/lvgl/src/misc/lv_mem.c ****     if(cur_used > size) cur_used -= size;
+ 259              		.loc 1 179 19 view .LVU62
+ 260 0010 FFF7FEFF 		bl	lv_tlsf_free
+ 261              	.LVL15:
+ 180:Drivers/lvgl/src/misc/lv_mem.c ****     else cur_used = 0;
+ 262              		.loc 1 180 5 is_stmt 1 view .LVU63
+ 180:Drivers/lvgl/src/misc/lv_mem.c ****     else cur_used = 0;
+ 263              		.loc 1 180 17 is_stmt 0 view .LVU64
+ 264 0014 074B     		ldr	r3, .L26+8
+ 265 0016 1B68     		ldr	r3, [r3]
+ 180:Drivers/lvgl/src/misc/lv_mem.c ****     else cur_used = 0;
+ 266              		.loc 1 180 7 view .LVU65
+ 267 0018 8342     		cmp	r3, r0
+ 268 001a 03D9     		bls	.L24
+ 180:Drivers/lvgl/src/misc/lv_mem.c ****     else cur_used = 0;
+ 269              		.loc 1 180 25 is_stmt 1 discriminator 1 view .LVU66
+ 180:Drivers/lvgl/src/misc/lv_mem.c ****     else cur_used = 0;
+ 270              		.loc 1 180 34 is_stmt 0 discriminator 1 view .LVU67
+ 271 001c 1B1A     		subs	r3, r3, r0
+ 272 001e 054A     		ldr	r2, .L26+8
+ 273 0020 1360     		str	r3, [r2]
+ 274              	.LVL16:
+ 275              	.L22:
+ 185:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 276              		.loc 1 185 1 view .LVU68
+ 277 0022 08BD     		pop	{r3, pc}
+ 278              	.LVL17:
+ 279              	.L24:
+ 181:Drivers/lvgl/src/misc/lv_mem.c **** #else
+ 280              		.loc 1 181 10 is_stmt 1 view .LVU69
+ 181:Drivers/lvgl/src/misc/lv_mem.c **** #else
+ 281              		.loc 1 181 19 is_stmt 0 view .LVU70
+ 282 0024 034B     		ldr	r3, .L26+8
+ 283 0026 0022     		movs	r2, #0
+ 284 0028 1A60     		str	r2, [r3]
+ 285 002a FAE7     		b	.L22
+ 286              	.L27:
+ 287              		.align	2
+ 288              	.L26:
+ 289 002c 00000000 		.word	zero_mem
+ 290 0030 00000000 		.word	tlsf
+ 291 0034 00000000 		.word	cur_used
+ 292              		.cfi_endproc
+ 293              	.LFE27:
+ 295              		.section	.text.lv_mem_realloc,"ax",%progbits
+ 296              		.align	1
+ 297              		.global	lv_mem_realloc
+ 298              		.syntax unified
+ 299              		.thumb
+ 300              		.thumb_func
+ 302              	lv_mem_realloc:
+ 303              	.LVL18:
+ 304              	.LFB28:
+ 195:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("reallocating %p with %lu size", data_p, (unsigned long)new_size);
+ 305              		.loc 1 195 1 is_stmt 1 view -0
+ 306              		.cfi_startproc
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 17
+
+
+ 307              		@ args = 0, pretend = 0, frame = 0
+ 308              		@ frame_needed = 0, uses_anonymous_args = 0
+ 195:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("reallocating %p with %lu size", data_p, (unsigned long)new_size);
+ 309              		.loc 1 195 1 is_stmt 0 view .LVU72
+ 310 0000 08B5     		push	{r3, lr}
+ 311              		.cfi_def_cfa_offset 8
+ 312              		.cfi_offset 3, -8
+ 313              		.cfi_offset 14, -4
+ 196:Drivers/lvgl/src/misc/lv_mem.c ****     if(new_size == 0) {
+ 314              		.loc 1 196 80 is_stmt 1 view .LVU73
+ 197:Drivers/lvgl/src/misc/lv_mem.c ****         MEM_TRACE("using zero_mem");
+ 315              		.loc 1 197 5 view .LVU74
+ 197:Drivers/lvgl/src/misc/lv_mem.c ****         MEM_TRACE("using zero_mem");
+ 316              		.loc 1 197 7 is_stmt 0 view .LVU75
+ 317 0002 49B1     		cbz	r1, .L33
+ 318 0004 0A46     		mov	r2, r1
+ 203:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 319              		.loc 1 203 5 is_stmt 1 view .LVU76
+ 203:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 320              		.loc 1 203 7 is_stmt 0 view .LVU77
+ 321 0006 084B     		ldr	r3, .L35
+ 322 0008 9842     		cmp	r0, r3
+ 323 000a 09D0     		beq	.L34
+ 206:Drivers/lvgl/src/misc/lv_mem.c **** #else
+ 324              		.loc 1 206 5 is_stmt 1 view .LVU78
+ 206:Drivers/lvgl/src/misc/lv_mem.c **** #else
+ 325              		.loc 1 206 20 is_stmt 0 view .LVU79
+ 326 000c 0146     		mov	r1, r0
+ 327              	.LVL19:
+ 206:Drivers/lvgl/src/misc/lv_mem.c **** #else
+ 328              		.loc 1 206 20 view .LVU80
+ 329 000e 074B     		ldr	r3, .L35+4
+ 330 0010 1868     		ldr	r0, [r3]
+ 331              	.LVL20:
+ 206:Drivers/lvgl/src/misc/lv_mem.c **** #else
+ 332              		.loc 1 206 20 view .LVU81
+ 333 0012 FFF7FEFF 		bl	lv_tlsf_realloc
+ 334              	.LVL21:
+ 210:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_ERROR("couldn't allocate memory");
+ 335              		.loc 1 210 5 is_stmt 1 view .LVU82
+ 336              	.L28:
+ 217:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 337              		.loc 1 217 1 is_stmt 0 view .LVU83
+ 338 0016 08BD     		pop	{r3, pc}
+ 339              	.LVL22:
+ 340              	.L33:
+ 198:Drivers/lvgl/src/misc/lv_mem.c ****         lv_mem_free(data_p);
+ 341              		.loc 1 198 36 is_stmt 1 view .LVU84
+ 199:Drivers/lvgl/src/misc/lv_mem.c ****         return &zero_mem;
+ 342              		.loc 1 199 9 view .LVU85
+ 343 0018 FFF7FEFF 		bl	lv_mem_free
+ 344              	.LVL23:
+ 200:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 345              		.loc 1 200 9 view .LVU86
+ 200:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 346              		.loc 1 200 16 is_stmt 0 view .LVU87
+ 347 001c 0248     		ldr	r0, .L35
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 18
+
+
+ 348 001e FAE7     		b	.L28
+ 349              	.LVL24:
+ 350              	.L34:
+ 203:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 351              		.loc 1 203 29 is_stmt 1 discriminator 1 view .LVU88
+ 203:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 352              		.loc 1 203 36 is_stmt 0 discriminator 1 view .LVU89
+ 353 0020 0846     		mov	r0, r1
+ 354              	.LVL25:
+ 203:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 355              		.loc 1 203 36 discriminator 1 view .LVU90
+ 356 0022 FFF7FEFF 		bl	lv_mem_alloc
+ 357              	.LVL26:
+ 203:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 358              		.loc 1 203 36 view .LVU91
+ 359 0026 F6E7     		b	.L28
+ 360              	.L36:
+ 361              		.align	2
+ 362              	.L35:
+ 363 0028 00000000 		.word	zero_mem
+ 364 002c 00000000 		.word	tlsf
+ 365              		.cfi_endproc
+ 366              	.LFE28:
+ 368              		.section	.text.lv_mem_test,"ax",%progbits
+ 369              		.align	1
+ 370              		.global	lv_mem_test
+ 371              		.syntax unified
+ 372              		.thumb
+ 373              		.thumb_func
+ 375              	lv_mem_test:
+ 376              	.LFB29:
+ 220:Drivers/lvgl/src/misc/lv_mem.c ****     if(zero_mem != ZERO_MEM_SENTINEL) {
+ 377              		.loc 1 220 1 is_stmt 1 view -0
+ 378              		.cfi_startproc
+ 379              		@ args = 0, pretend = 0, frame = 0
+ 380              		@ frame_needed = 0, uses_anonymous_args = 0
+ 381 0000 08B5     		push	{r3, lr}
+ 382              		.cfi_def_cfa_offset 8
+ 383              		.cfi_offset 3, -8
+ 384              		.cfi_offset 14, -4
+ 221:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_WARN("zero_mem is written");
+ 385              		.loc 1 221 5 view .LVU93
+ 221:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_WARN("zero_mem is written");
+ 386              		.loc 1 221 17 is_stmt 0 view .LVU94
+ 387 0002 0C4B     		ldr	r3, .L45
+ 388 0004 1A68     		ldr	r2, [r3]
+ 221:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_WARN("zero_mem is written");
+ 389              		.loc 1 221 7 view .LVU95
+ 390 0006 0C4B     		ldr	r3, .L45+4
+ 391 0008 9A42     		cmp	r2, r3
+ 392 000a 01D0     		beq	.L43
+ 223:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 393              		.loc 1 223 16 view .LVU96
+ 394 000c 0020     		movs	r0, #0
+ 395              	.L38:
+ 239:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 396              		.loc 1 239 1 view .LVU97
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 19
+
+
+ 397 000e 08BD     		pop	{r3, pc}
+ 398              	.L43:
+ 227:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_WARN("failed");
+ 399              		.loc 1 227 5 is_stmt 1 view .LVU98
+ 227:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_WARN("failed");
+ 400              		.loc 1 227 8 is_stmt 0 view .LVU99
+ 401 0010 0A4B     		ldr	r3, .L45+8
+ 402 0012 1868     		ldr	r0, [r3]
+ 403 0014 FFF7FEFF 		bl	lv_tlsf_check
+ 404              	.LVL27:
+ 227:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_WARN("failed");
+ 405              		.loc 1 227 7 discriminator 1 view .LVU100
+ 406 0018 08B1     		cbz	r0, .L44
+ 229:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 407              		.loc 1 229 16 view .LVU101
+ 408 001a 0020     		movs	r0, #0
+ 409 001c F7E7     		b	.L38
+ 410              	.L44:
+ 232:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_WARN("pool failed");
+ 411              		.loc 1 232 5 is_stmt 1 view .LVU102
+ 232:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_WARN("pool failed");
+ 412              		.loc 1 232 8 is_stmt 0 view .LVU103
+ 413 001e 074B     		ldr	r3, .L45+8
+ 414 0020 1868     		ldr	r0, [r3]
+ 415 0022 FFF7FEFF 		bl	lv_tlsf_get_pool
+ 416              	.LVL28:
+ 232:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_WARN("pool failed");
+ 417              		.loc 1 232 8 discriminator 1 view .LVU104
+ 418 0026 FFF7FEFF 		bl	lv_tlsf_check_pool
+ 419              	.LVL29:
+ 232:Drivers/lvgl/src/misc/lv_mem.c ****         LV_LOG_WARN("pool failed");
+ 420              		.loc 1 232 7 discriminator 2 view .LVU105
+ 421 002a 08B9     		cbnz	r0, .L41
+ 238:Drivers/lvgl/src/misc/lv_mem.c **** }
+ 422              		.loc 1 238 12 view .LVU106
+ 423 002c 0120     		movs	r0, #1
+ 424 002e EEE7     		b	.L38
+ 425              	.L41:
+ 234:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 426              		.loc 1 234 16 view .LVU107
+ 427 0030 0020     		movs	r0, #0
+ 428 0032 ECE7     		b	.L38
+ 429              	.L46:
+ 430              		.align	2
+ 431              	.L45:
+ 432 0034 00000000 		.word	zero_mem
+ 433 0038 D4C3B2A1 		.word	-1582119980
+ 434 003c 00000000 		.word	tlsf
+ 435              		.cfi_endproc
+ 436              	.LFE29:
+ 438              		.section	.text.lv_mem_buf_get,"ax",%progbits
+ 439              		.align	1
+ 440              		.global	lv_mem_buf_get
+ 441              		.syntax unified
+ 442              		.thumb
+ 443              		.thumb_func
+ 445              	lv_mem_buf_get:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 20
+
+
+ 446              	.LVL30:
+ 447              	.LFB31:
+ 277:Drivers/lvgl/src/misc/lv_mem.c ****     if(size == 0) return NULL;
+ 448              		.loc 1 277 1 is_stmt 1 view -0
+ 449              		.cfi_startproc
+ 450              		@ args = 0, pretend = 0, frame = 0
+ 451              		@ frame_needed = 0, uses_anonymous_args = 0
+ 278:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 452              		.loc 1 278 5 view .LVU109
+ 278:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 453              		.loc 1 278 7 is_stmt 0 view .LVU110
+ 454 0000 0028     		cmp	r0, #0
+ 455 0002 5BD0     		beq	.L60
+ 277:Drivers/lvgl/src/misc/lv_mem.c ****     if(size == 0) return NULL;
+ 456              		.loc 1 277 1 view .LVU111
+ 457 0004 38B5     		push	{r3, r4, r5, lr}
+ 458              		.cfi_def_cfa_offset 16
+ 459              		.cfi_offset 3, -16
+ 460              		.cfi_offset 4, -12
+ 461              		.cfi_offset 5, -8
+ 462              		.cfi_offset 14, -4
+ 463 0006 0446     		mov	r4, r0
+ 464              	.LBB2:
+ 284:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).used == 0 && LV_GC_ROOT(lv_mem_buf[i]).size >= size) {
+ 465              		.loc 1 284 17 view .LVU112
+ 466 0008 0023     		movs	r3, #0
+ 467              	.LBE2:
+ 283:Drivers/lvgl/src/misc/lv_mem.c ****     for(uint8_t i = 0; i < LV_MEM_BUF_MAX_NUM; i++) {
+ 468              		.loc 1 283 12 view .LVU113
+ 469 000a 4FF0FF30 		mov	r0, #-1
+ 470              	.LVL31:
+ 283:Drivers/lvgl/src/misc/lv_mem.c ****     for(uint8_t i = 0; i < LV_MEM_BUF_MAX_NUM; i++) {
+ 471              		.loc 1 283 12 view .LVU114
+ 472 000e 0CE0     		b	.L49
+ 473              	.LVL32:
+ 474              	.L67:
+ 475              	.LBB3:
+ 287:Drivers/lvgl/src/misc/lv_mem.c ****                 return LV_GC_ROOT(lv_mem_buf[i]).p;
+ 476              		.loc 1 287 17 is_stmt 1 view .LVU115
+ 287:Drivers/lvgl/src/misc/lv_mem.c ****                 return LV_GC_ROOT(lv_mem_buf[i]).p;
+ 477              		.loc 1 287 48 is_stmt 0 view .LVU116
+ 478 0010 2B4A     		ldr	r2, .L71
+ 479 0012 02EBC300 		add	r0, r2, r3, lsl #3
+ 480              	.LVL33:
+ 287:Drivers/lvgl/src/misc/lv_mem.c ****                 return LV_GC_ROOT(lv_mem_buf[i]).p;
+ 481              		.loc 1 287 48 view .LVU117
+ 482 0016 8379     		ldrb	r3, [r0, #6]	@ zero_extendqisi2
+ 483              	.LVL34:
+ 287:Drivers/lvgl/src/misc/lv_mem.c ****                 return LV_GC_ROOT(lv_mem_buf[i]).p;
+ 484              		.loc 1 287 48 view .LVU118
+ 485 0018 43F00103 		orr	r3, r3, #1
+ 486 001c 8371     		strb	r3, [r0, #6]
+ 288:Drivers/lvgl/src/misc/lv_mem.c ****             }
+ 487              		.loc 1 288 17 is_stmt 1 view .LVU119
+ 288:Drivers/lvgl/src/misc/lv_mem.c ****             }
+ 488              		.loc 1 288 49 is_stmt 0 view .LVU120
+ 489 001e 52F83100 		ldr	r0, [r2, r1, lsl #3]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 21
+
+
+ 490 0022 36E0     		b	.L47
+ 491              	.LVL35:
+ 492              	.L68:
+ 291:Drivers/lvgl/src/misc/lv_mem.c ****             }
+ 493              		.loc 1 291 17 is_stmt 1 view .LVU121
+ 291:Drivers/lvgl/src/misc/lv_mem.c ****             }
+ 494              		.loc 1 291 25 is_stmt 0 view .LVU122
+ 495 0024 58B2     		sxtb	r0, r3
+ 496              	.LVL36:
+ 497              	.L50:
+ 284:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).used == 0 && LV_GC_ROOT(lv_mem_buf[i]).size >= size) {
+ 498              		.loc 1 284 49 is_stmt 1 discriminator 2 view .LVU123
+ 499 0026 0133     		adds	r3, r3, #1
+ 500              	.LVL37:
+ 284:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).used == 0 && LV_GC_ROOT(lv_mem_buf[i]).size >= size) {
+ 501              		.loc 1 284 49 is_stmt 0 discriminator 2 view .LVU124
+ 502 0028 DBB2     		uxtb	r3, r3
+ 503              	.LVL38:
+ 504              	.L49:
+ 284:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).used == 0 && LV_GC_ROOT(lv_mem_buf[i]).size >= size) {
+ 505              		.loc 1 284 26 is_stmt 1 discriminator 1 view .LVU125
+ 506 002a 0F2B     		cmp	r3, #15
+ 507 002c 18D8     		bhi	.L66
+ 285:Drivers/lvgl/src/misc/lv_mem.c ****             if(LV_GC_ROOT(lv_mem_buf[i]).size == size) {
+ 508              		.loc 1 285 9 view .LVU126
+ 285:Drivers/lvgl/src/misc/lv_mem.c ****             if(LV_GC_ROOT(lv_mem_buf[i]).size == size) {
+ 509              		.loc 1 285 37 is_stmt 0 view .LVU127
+ 510 002e 1946     		mov	r1, r3
+ 511 0030 234A     		ldr	r2, .L71
+ 512 0032 02EBC302 		add	r2, r2, r3, lsl #3
+ 513 0036 9279     		ldrb	r2, [r2, #6]	@ zero_extendqisi2
+ 285:Drivers/lvgl/src/misc/lv_mem.c ****             if(LV_GC_ROOT(lv_mem_buf[i]).size == size) {
+ 514              		.loc 1 285 11 view .LVU128
+ 515 0038 12F0010F 		tst	r2, #1
+ 516 003c F3D1     		bne	.L50
+ 285:Drivers/lvgl/src/misc/lv_mem.c ****             if(LV_GC_ROOT(lv_mem_buf[i]).size == size) {
+ 517              		.loc 1 285 76 discriminator 1 view .LVU129
+ 518 003e 204A     		ldr	r2, .L71
+ 519 0040 02EBC302 		add	r2, r2, r3, lsl #3
+ 520 0044 9288     		ldrh	r2, [r2, #4]
+ 285:Drivers/lvgl/src/misc/lv_mem.c ****             if(LV_GC_ROOT(lv_mem_buf[i]).size == size) {
+ 521              		.loc 1 285 48 discriminator 1 view .LVU130
+ 522 0046 A242     		cmp	r2, r4
+ 523 0048 EDD3     		bcc	.L50
+ 286:Drivers/lvgl/src/misc/lv_mem.c ****                 LV_GC_ROOT(lv_mem_buf[i]).used = 1;
+ 524              		.loc 1 286 13 is_stmt 1 view .LVU131
+ 286:Drivers/lvgl/src/misc/lv_mem.c ****                 LV_GC_ROOT(lv_mem_buf[i]).used = 1;
+ 525              		.loc 1 286 15 is_stmt 0 view .LVU132
+ 526 004a E1D0     		beq	.L67
+ 290:Drivers/lvgl/src/misc/lv_mem.c ****                 i_guess = i;
+ 527              		.loc 1 290 18 is_stmt 1 view .LVU133
+ 290:Drivers/lvgl/src/misc/lv_mem.c ****                 i_guess = i;
+ 528              		.loc 1 290 20 is_stmt 0 view .LVU134
+ 529 004c 0028     		cmp	r0, #0
+ 530 004e E9DB     		blt	.L68
+ 294:Drivers/lvgl/src/misc/lv_mem.c ****                 i_guess = i;
+ 531              		.loc 1 294 18 is_stmt 1 view .LVU135
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 22
+
+
+ 294:Drivers/lvgl/src/misc/lv_mem.c ****                 i_guess = i;
+ 532              		.loc 1 294 85 is_stmt 0 view .LVU136
+ 533 0050 1B49     		ldr	r1, .L71
+ 534 0052 01EBC001 		add	r1, r1, r0, lsl #3
+ 535 0056 8988     		ldrh	r1, [r1, #4]
+ 294:Drivers/lvgl/src/misc/lv_mem.c ****                 i_guess = i;
+ 536              		.loc 1 294 20 view .LVU137
+ 537 0058 8A42     		cmp	r2, r1
+ 538 005a E4D2     		bcs	.L50
+ 295:Drivers/lvgl/src/misc/lv_mem.c ****             }
+ 539              		.loc 1 295 17 is_stmt 1 view .LVU138
+ 295:Drivers/lvgl/src/misc/lv_mem.c ****             }
+ 540              		.loc 1 295 25 is_stmt 0 view .LVU139
+ 541 005c 58B2     		sxtb	r0, r3
+ 542              	.LVL39:
+ 295:Drivers/lvgl/src/misc/lv_mem.c ****             }
+ 543              		.loc 1 295 25 view .LVU140
+ 544 005e E2E7     		b	.L50
+ 545              	.L66:
+ 295:Drivers/lvgl/src/misc/lv_mem.c ****             }
+ 546              		.loc 1 295 25 view .LVU141
+ 547              	.LBE3:
+ 300:Drivers/lvgl/src/misc/lv_mem.c ****         LV_GC_ROOT(lv_mem_buf[i_guess]).used = 1;
+ 548              		.loc 1 300 5 is_stmt 1 view .LVU142
+ 300:Drivers/lvgl/src/misc/lv_mem.c ****         LV_GC_ROOT(lv_mem_buf[i_guess]).used = 1;
+ 549              		.loc 1 300 7 is_stmt 0 view .LVU143
+ 550 0060 0028     		cmp	r0, #0
+ 551 0062 0DDA     		bge	.L69
+ 552              	.LBB4:
+ 308:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).used == 0) {
+ 553              		.loc 1 308 17 view .LVU144
+ 554 0064 0023     		movs	r3, #0
+ 555              	.LVL40:
+ 556              	.L54:
+ 308:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).used == 0) {
+ 557              		.loc 1 308 26 is_stmt 1 discriminator 1 view .LVU145
+ 558 0066 0F2B     		cmp	r3, #15
+ 559 0068 27D8     		bhi	.L59
+ 309:Drivers/lvgl/src/misc/lv_mem.c ****             /*if this fails you probably need to increase your LV_MEM_SIZE/heap size*/
+ 560              		.loc 1 309 9 view .LVU146
+ 309:Drivers/lvgl/src/misc/lv_mem.c ****             /*if this fails you probably need to increase your LV_MEM_SIZE/heap size*/
+ 561              		.loc 1 309 37 is_stmt 0 view .LVU147
+ 562 006a 1D46     		mov	r5, r3
+ 563 006c 144A     		ldr	r2, .L71
+ 564 006e 02EBC302 		add	r2, r2, r3, lsl #3
+ 565 0072 9279     		ldrb	r2, [r2, #6]	@ zero_extendqisi2
+ 309:Drivers/lvgl/src/misc/lv_mem.c ****             /*if this fails you probably need to increase your LV_MEM_SIZE/heap size*/
+ 566              		.loc 1 309 11 view .LVU148
+ 567 0074 12F0010F 		tst	r2, #1
+ 568 0078 0CD0     		beq	.L70
+ 308:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).used == 0) {
+ 569              		.loc 1 308 49 is_stmt 1 discriminator 2 view .LVU149
+ 570 007a 0133     		adds	r3, r3, #1
+ 571              	.LVL41:
+ 308:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).used == 0) {
+ 572              		.loc 1 308 49 is_stmt 0 discriminator 2 view .LVU150
+ 573 007c DBB2     		uxtb	r3, r3
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 23
+
+
+ 574              	.LVL42:
+ 308:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).used == 0) {
+ 575              		.loc 1 308 49 discriminator 2 view .LVU151
+ 576 007e F2E7     		b	.L54
+ 577              	.LVL43:
+ 578              	.L69:
+ 308:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).used == 0) {
+ 579              		.loc 1 308 49 discriminator 2 view .LVU152
+ 580              	.LBE4:
+ 301:Drivers/lvgl/src/misc/lv_mem.c ****         MEM_TRACE("returning already allocated buffer (buffer id: %d, address: %p)", i_guess,
+ 581              		.loc 1 301 9 is_stmt 1 view .LVU153
+ 301:Drivers/lvgl/src/misc/lv_mem.c ****         MEM_TRACE("returning already allocated buffer (buffer id: %d, address: %p)", i_guess,
+ 582              		.loc 1 301 46 is_stmt 0 view .LVU154
+ 583 0080 0F4A     		ldr	r2, .L71
+ 584 0082 02EBC001 		add	r1, r2, r0, lsl #3
+ 585 0086 8B79     		ldrb	r3, [r1, #6]	@ zero_extendqisi2
+ 586              	.LVL44:
+ 301:Drivers/lvgl/src/misc/lv_mem.c ****         MEM_TRACE("returning already allocated buffer (buffer id: %d, address: %p)", i_guess,
+ 587              		.loc 1 301 46 view .LVU155
+ 588 0088 43F00103 		orr	r3, r3, #1
+ 589 008c 8B71     		strb	r3, [r1, #6]
+ 303:Drivers/lvgl/src/misc/lv_mem.c ****         return LV_GC_ROOT(lv_mem_buf[i_guess]).p;
+ 590              		.loc 1 303 53 is_stmt 1 view .LVU156
+ 304:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 591              		.loc 1 304 9 view .LVU157
+ 304:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 592              		.loc 1 304 47 is_stmt 0 view .LVU158
+ 593 008e 52F83000 		ldr	r0, [r2, r0, lsl #3]
+ 594              	.LVL45:
+ 595              	.L47:
+ 326:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 596              		.loc 1 326 1 view .LVU159
+ 597 0092 38BD     		pop	{r3, r4, r5, pc}
+ 598              	.LVL46:
+ 599              	.L70:
+ 600              	.LBB6:
+ 601              	.LBB5:
+ 311:Drivers/lvgl/src/misc/lv_mem.c ****             LV_ASSERT_MSG(buf != NULL, "Out of memory, can't allocate a new buffer (increase your L
+ 602              		.loc 1 311 13 is_stmt 1 view .LVU160
+ 311:Drivers/lvgl/src/misc/lv_mem.c ****             LV_ASSERT_MSG(buf != NULL, "Out of memory, can't allocate a new buffer (increase your L
+ 603              		.loc 1 311 26 is_stmt 0 view .LVU161
+ 604 0094 2146     		mov	r1, r4
+ 605 0096 0A4A     		ldr	r2, .L71
+ 606 0098 52F83300 		ldr	r0, [r2, r3, lsl #3]
+ 607              	.LVL47:
+ 311:Drivers/lvgl/src/misc/lv_mem.c ****             LV_ASSERT_MSG(buf != NULL, "Out of memory, can't allocate a new buffer (increase your L
+ 608              		.loc 1 311 26 view .LVU162
+ 609 009c FFF7FEFF 		bl	lv_mem_realloc
+ 610              	.LVL48:
+ 312:Drivers/lvgl/src/misc/lv_mem.c ****             if(buf == NULL) return NULL;
+ 611              		.loc 1 312 13 is_stmt 1 view .LVU163
+ 312:Drivers/lvgl/src/misc/lv_mem.c ****             if(buf == NULL) return NULL;
+ 612              		.loc 1 312 13 view .LVU164
+ 613 00a0 50B1     		cbz	r0, .L57
+ 312:Drivers/lvgl/src/misc/lv_mem.c ****             if(buf == NULL) return NULL;
+ 614              		.loc 1 312 13 discriminator 2 view .LVU165
+ 313:Drivers/lvgl/src/misc/lv_mem.c **** 
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 24
+
+
+ 615              		.loc 1 313 13 view .LVU166
+ 315:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).size = size;
+ 616              		.loc 1 315 13 view .LVU167
+ 315:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).size = size;
+ 617              		.loc 1 315 44 is_stmt 0 view .LVU168
+ 618 00a2 0749     		ldr	r1, .L71
+ 619 00a4 01EBC503 		add	r3, r1, r5, lsl #3
+ 620 00a8 9A79     		ldrb	r2, [r3, #6]	@ zero_extendqisi2
+ 621 00aa 42F00102 		orr	r2, r2, #1
+ 622 00ae 9A71     		strb	r2, [r3, #6]
+ 316:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).p    = buf;
+ 623              		.loc 1 316 13 is_stmt 1 view .LVU169
+ 316:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).p    = buf;
+ 624              		.loc 1 316 44 is_stmt 0 view .LVU170
+ 625 00b0 9C80     		strh	r4, [r3, #4]	@ movhi
+ 317:Drivers/lvgl/src/misc/lv_mem.c ****             MEM_TRACE("allocated (buffer id: %d, address: %p)", i, LV_GC_ROOT(lv_mem_buf[i]).p);
+ 626              		.loc 1 317 13 is_stmt 1 view .LVU171
+ 317:Drivers/lvgl/src/misc/lv_mem.c ****             MEM_TRACE("allocated (buffer id: %d, address: %p)", i, LV_GC_ROOT(lv_mem_buf[i]).p);
+ 627              		.loc 1 317 44 is_stmt 0 view .LVU172
+ 628 00b2 41F83500 		str	r0, [r1, r5, lsl #3]
+ 318:Drivers/lvgl/src/misc/lv_mem.c ****             return LV_GC_ROOT(lv_mem_buf[i]).p;
+ 629              		.loc 1 318 96 is_stmt 1 view .LVU173
+ 319:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 630              		.loc 1 319 13 view .LVU174
+ 319:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 631              		.loc 1 319 45 is_stmt 0 view .LVU175
+ 632 00b6 ECE7     		b	.L47
+ 633              	.L57:
+ 312:Drivers/lvgl/src/misc/lv_mem.c ****             if(buf == NULL) return NULL;
+ 634              		.loc 1 312 13 is_stmt 1 discriminator 1 view .LVU176
+ 312:Drivers/lvgl/src/misc/lv_mem.c ****             if(buf == NULL) return NULL;
+ 635              		.loc 1 312 13 discriminator 1 view .LVU177
+ 312:Drivers/lvgl/src/misc/lv_mem.c ****             if(buf == NULL) return NULL;
+ 636              		.loc 1 312 13 discriminator 1 view .LVU178
+ 312:Drivers/lvgl/src/misc/lv_mem.c ****             if(buf == NULL) return NULL;
+ 637              		.loc 1 312 13 discriminator 1 view .LVU179
+ 312:Drivers/lvgl/src/misc/lv_mem.c ****             if(buf == NULL) return NULL;
+ 638              		.loc 1 312 13 discriminator 1 view .LVU180
+ 639 00b8 FEE7     		b	.L57
+ 640              	.LVL49:
+ 641              	.L59:
+ 312:Drivers/lvgl/src/misc/lv_mem.c ****             if(buf == NULL) return NULL;
+ 642              		.loc 1 312 13 is_stmt 0 discriminator 1 view .LVU181
+ 643              	.LBE5:
+ 644              	.LBE6:
+ 324:Drivers/lvgl/src/misc/lv_mem.c ****     return NULL;
+ 645              		.loc 1 324 5 is_stmt 1 discriminator 1 view .LVU182
+ 324:Drivers/lvgl/src/misc/lv_mem.c ****     return NULL;
+ 646              		.loc 1 324 5 discriminator 1 view .LVU183
+ 324:Drivers/lvgl/src/misc/lv_mem.c ****     return NULL;
+ 647              		.loc 1 324 5 discriminator 1 view .LVU184
+ 324:Drivers/lvgl/src/misc/lv_mem.c ****     return NULL;
+ 648              		.loc 1 324 5 discriminator 1 view .LVU185
+ 324:Drivers/lvgl/src/misc/lv_mem.c ****     return NULL;
+ 649              		.loc 1 324 5 discriminator 1 view .LVU186
+ 650 00ba FEE7     		b	.L59
+ 651              	.LVL50:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 25
+
+
+ 652              	.L60:
+ 653              		.cfi_def_cfa_offset 0
+ 654              		.cfi_restore 3
+ 655              		.cfi_restore 4
+ 656              		.cfi_restore 5
+ 657              		.cfi_restore 14
+ 278:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 658              		.loc 1 278 26 is_stmt 0 discriminator 1 view .LVU187
+ 659 00bc 0020     		movs	r0, #0
+ 660              	.LVL51:
+ 326:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 661              		.loc 1 326 1 view .LVU188
+ 662 00be 7047     		bx	lr
+ 663              	.L72:
+ 664              		.align	2
+ 665              	.L71:
+ 666 00c0 00000000 		.word	lv_mem_buf
+ 667              		.cfi_endproc
+ 668              	.LFE31:
+ 670              		.section	.text.lv_mem_buf_release,"ax",%progbits
+ 671              		.align	1
+ 672              		.global	lv_mem_buf_release
+ 673              		.syntax unified
+ 674              		.thumb
+ 675              		.thumb_func
+ 677              	lv_mem_buf_release:
+ 678              	.LVL52:
+ 679              	.LFB32:
+ 333:Drivers/lvgl/src/misc/lv_mem.c ****     MEM_TRACE("begin (address: %p)", p);
+ 680              		.loc 1 333 1 is_stmt 1 view -0
+ 681              		.cfi_startproc
+ 682              		@ args = 0, pretend = 0, frame = 0
+ 683              		@ frame_needed = 0, uses_anonymous_args = 0
+ 684              		@ link register save eliminated.
+ 334:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 685              		.loc 1 334 40 view .LVU190
+ 336:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p == p) {
+ 686              		.loc 1 336 5 view .LVU191
+ 687              	.LBB7:
+ 336:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p == p) {
+ 688              		.loc 1 336 9 view .LVU192
+ 336:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p == p) {
+ 689              		.loc 1 336 17 is_stmt 0 view .LVU193
+ 690 0000 0023     		movs	r3, #0
+ 691              	.LVL53:
+ 692              	.L74:
+ 336:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p == p) {
+ 693              		.loc 1 336 26 is_stmt 1 discriminator 1 view .LVU194
+ 694 0002 0F2B     		cmp	r3, #15
+ 695 0004 0FD8     		bhi	.L78
+ 337:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).used = 0;
+ 696              		.loc 1 337 9 view .LVU195
+ 337:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).used = 0;
+ 697              		.loc 1 337 37 is_stmt 0 view .LVU196
+ 698 0006 084A     		ldr	r2, .L80
+ 699 0008 52F83320 		ldr	r2, [r2, r3, lsl #3]
+ 337:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).used = 0;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 26
+
+
+ 700              		.loc 1 337 11 view .LVU197
+ 701 000c 8242     		cmp	r2, r0
+ 702 000e 02D0     		beq	.L79
+ 336:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p == p) {
+ 703              		.loc 1 336 49 is_stmt 1 discriminator 2 view .LVU198
+ 704 0010 0133     		adds	r3, r3, #1
+ 705              	.LVL54:
+ 336:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p == p) {
+ 706              		.loc 1 336 49 is_stmt 0 discriminator 2 view .LVU199
+ 707 0012 DBB2     		uxtb	r3, r3
+ 708              	.LVL55:
+ 336:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p == p) {
+ 709              		.loc 1 336 49 discriminator 2 view .LVU200
+ 710 0014 F5E7     		b	.L74
+ 711              	.L79:
+ 338:Drivers/lvgl/src/misc/lv_mem.c ****             return;
+ 712              		.loc 1 338 13 is_stmt 1 view .LVU201
+ 338:Drivers/lvgl/src/misc/lv_mem.c ****             return;
+ 713              		.loc 1 338 44 is_stmt 0 view .LVU202
+ 714 0016 044A     		ldr	r2, .L80
+ 715 0018 02EBC303 		add	r3, r2, r3, lsl #3
+ 716              	.LVL56:
+ 338:Drivers/lvgl/src/misc/lv_mem.c ****             return;
+ 717              		.loc 1 338 44 view .LVU203
+ 718 001c 9A79     		ldrb	r2, [r3, #6]	@ zero_extendqisi2
+ 719 001e 22F00102 		bic	r2, r2, #1
+ 720 0022 9A71     		strb	r2, [r3, #6]
+ 339:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 721              		.loc 1 339 13 is_stmt 1 view .LVU204
+ 722 0024 7047     		bx	lr
+ 723              	.LVL57:
+ 724              	.L78:
+ 339:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 725              		.loc 1 339 13 is_stmt 0 view .LVU205
+ 726              	.LBE7:
+ 344:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 727              		.loc 1 344 1 view .LVU206
+ 728 0026 7047     		bx	lr
+ 729              	.L81:
+ 730              		.align	2
+ 731              	.L80:
+ 732 0028 00000000 		.word	lv_mem_buf
+ 733              		.cfi_endproc
+ 734              	.LFE32:
+ 736              		.section	.text.lv_mem_buf_free_all,"ax",%progbits
+ 737              		.align	1
+ 738              		.global	lv_mem_buf_free_all
+ 739              		.syntax unified
+ 740              		.thumb
+ 741              		.thumb_func
+ 743              	lv_mem_buf_free_all:
+ 744              	.LFB33:
+ 350:Drivers/lvgl/src/misc/lv_mem.c ****     for(uint8_t i = 0; i < LV_MEM_BUF_MAX_NUM; i++) {
+ 745              		.loc 1 350 1 is_stmt 1 view -0
+ 746              		.cfi_startproc
+ 747              		@ args = 0, pretend = 0, frame = 0
+ 748              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 27
+
+
+ 749 0000 10B5     		push	{r4, lr}
+ 750              		.cfi_def_cfa_offset 8
+ 751              		.cfi_offset 4, -8
+ 752              		.cfi_offset 14, -4
+ 351:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p) {
+ 753              		.loc 1 351 5 view .LVU208
+ 754              	.LBB8:
+ 351:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p) {
+ 755              		.loc 1 351 9 view .LVU209
+ 756              	.LVL58:
+ 351:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p) {
+ 757              		.loc 1 351 17 is_stmt 0 view .LVU210
+ 758 0002 0024     		movs	r4, #0
+ 351:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p) {
+ 759              		.loc 1 351 5 view .LVU211
+ 760 0004 01E0     		b	.L83
+ 761              	.LVL59:
+ 762              	.L84:
+ 351:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p) {
+ 763              		.loc 1 351 49 is_stmt 1 discriminator 2 view .LVU212
+ 764 0006 0134     		adds	r4, r4, #1
+ 765              	.LVL60:
+ 351:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p) {
+ 766              		.loc 1 351 49 is_stmt 0 discriminator 2 view .LVU213
+ 767 0008 E4B2     		uxtb	r4, r4
+ 768              	.LVL61:
+ 769              	.L83:
+ 351:Drivers/lvgl/src/misc/lv_mem.c ****         if(LV_GC_ROOT(lv_mem_buf[i]).p) {
+ 770              		.loc 1 351 26 is_stmt 1 discriminator 1 view .LVU214
+ 771 000a 0F2C     		cmp	r4, #15
+ 772 000c 12D8     		bhi	.L87
+ 352:Drivers/lvgl/src/misc/lv_mem.c ****             lv_mem_free(LV_GC_ROOT(lv_mem_buf[i]).p);
+ 773              		.loc 1 352 9 view .LVU215
+ 352:Drivers/lvgl/src/misc/lv_mem.c ****             lv_mem_free(LV_GC_ROOT(lv_mem_buf[i]).p);
+ 774              		.loc 1 352 37 is_stmt 0 view .LVU216
+ 775 000e 0A4B     		ldr	r3, .L88
+ 776 0010 53F83400 		ldr	r0, [r3, r4, lsl #3]
+ 352:Drivers/lvgl/src/misc/lv_mem.c ****             lv_mem_free(LV_GC_ROOT(lv_mem_buf[i]).p);
+ 777              		.loc 1 352 11 view .LVU217
+ 778 0014 0028     		cmp	r0, #0
+ 779 0016 F6D0     		beq	.L84
+ 353:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).p = NULL;
+ 780              		.loc 1 353 13 is_stmt 1 view .LVU218
+ 781 0018 FFF7FEFF 		bl	lv_mem_free
+ 782              	.LVL62:
+ 354:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).used = 0;
+ 783              		.loc 1 354 13 view .LVU219
+ 354:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).used = 0;
+ 784              		.loc 1 354 41 is_stmt 0 view .LVU220
+ 785 001c 064B     		ldr	r3, .L88
+ 786 001e 0022     		movs	r2, #0
+ 787 0020 43F83420 		str	r2, [r3, r4, lsl #3]
+ 355:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).size = 0;
+ 788              		.loc 1 355 13 is_stmt 1 view .LVU221
+ 355:Drivers/lvgl/src/misc/lv_mem.c ****             LV_GC_ROOT(lv_mem_buf[i]).size = 0;
+ 789              		.loc 1 355 44 is_stmt 0 view .LVU222
+ 790 0024 03EBC403 		add	r3, r3, r4, lsl #3
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 28
+
+
+ 791 0028 9979     		ldrb	r1, [r3, #6]	@ zero_extendqisi2
+ 792 002a 62F30001 		bfi	r1, r2, #0, #1
+ 793 002e 9971     		strb	r1, [r3, #6]
+ 356:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 794              		.loc 1 356 13 is_stmt 1 view .LVU223
+ 356:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 795              		.loc 1 356 44 is_stmt 0 view .LVU224
+ 796 0030 9A80     		strh	r2, [r3, #4]	@ movhi
+ 797 0032 E8E7     		b	.L84
+ 798              	.L87:
+ 799              	.LBE8:
+ 359:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 800              		.loc 1 359 1 view .LVU225
+ 801 0034 10BD     		pop	{r4, pc}
+ 802              	.LVL63:
+ 803              	.L89:
+ 359:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 804              		.loc 1 359 1 view .LVU226
+ 805 0036 00BF     		.align	2
+ 806              	.L88:
+ 807 0038 00000000 		.word	lv_mem_buf
+ 808              		.cfi_endproc
+ 809              	.LFE33:
+ 811              		.section	.text.lv_memcpy,"ax",%progbits
+ 812              		.align	1
+ 813              		.global	lv_memcpy
+ 814              		.syntax unified
+ 815              		.thumb
+ 816              		.thumb_func
+ 818              	lv_memcpy:
+ 819              	.LVL64:
+ 820              	.LFB34:
+ 369:Drivers/lvgl/src/misc/lv_mem.c ****     uint8_t * d8 = dst;
+ 821              		.loc 1 369 1 is_stmt 1 view -0
+ 822              		.cfi_startproc
+ 823              		@ args = 0, pretend = 0, frame = 0
+ 824              		@ frame_needed = 0, uses_anonymous_args = 0
+ 825              		@ link register save eliminated.
+ 369:Drivers/lvgl/src/misc/lv_mem.c ****     uint8_t * d8 = dst;
+ 826              		.loc 1 369 1 is_stmt 0 view .LVU228
+ 827 0000 10B4     		push	{r4}
+ 828              		.cfi_def_cfa_offset 4
+ 829              		.cfi_offset 4, -4
+ 370:Drivers/lvgl/src/misc/lv_mem.c ****     const uint8_t * s8 = src;
+ 830              		.loc 1 370 5 is_stmt 1 view .LVU229
+ 831              	.LVL65:
+ 371:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 832              		.loc 1 371 5 view .LVU230
+ 373:Drivers/lvgl/src/misc/lv_mem.c ****     lv_uintptr_t s_align = (lv_uintptr_t)s8 & ALIGN_MASK;
+ 833              		.loc 1 373 5 view .LVU231
+ 373:Drivers/lvgl/src/misc/lv_mem.c ****     lv_uintptr_t s_align = (lv_uintptr_t)s8 & ALIGN_MASK;
+ 834              		.loc 1 373 18 is_stmt 0 view .LVU232
+ 835 0002 00F00304 		and	r4, r0, #3
+ 836              	.LVL66:
+ 374:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 837              		.loc 1 374 5 is_stmt 1 view .LVU233
+ 374:Drivers/lvgl/src/misc/lv_mem.c **** 
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 29
+
+
+ 838              		.loc 1 374 18 is_stmt 0 view .LVU234
+ 839 0006 01F00303 		and	r3, r1, #3
+ 840              	.LVL67:
+ 377:Drivers/lvgl/src/misc/lv_mem.c ****         while(len > 32) {
+ 841              		.loc 1 377 5 is_stmt 1 view .LVU235
+ 377:Drivers/lvgl/src/misc/lv_mem.c ****         while(len > 32) {
+ 842              		.loc 1 377 7 is_stmt 0 view .LVU236
+ 843 000a 9C42     		cmp	r4, r3
+ 844 000c 4BD1     		bne	.L106
+ 393:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 845              		.loc 1 393 5 is_stmt 1 view .LVU237
+ 393:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 846              		.loc 1 393 7 is_stmt 0 view .LVU238
+ 847 000e 002C     		cmp	r4, #0
+ 848 0010 75D0     		beq	.L107
+ 394:Drivers/lvgl/src/misc/lv_mem.c ****         while(d_align && len) {
+ 849              		.loc 1 394 9 is_stmt 1 view .LVU239
+ 394:Drivers/lvgl/src/misc/lv_mem.c ****         while(d_align && len) {
+ 850              		.loc 1 394 17 is_stmt 0 view .LVU240
+ 851 0012 C4F10404 		rsb	r4, r4, #4
+ 852              	.LVL68:
+ 395:Drivers/lvgl/src/misc/lv_mem.c ****             COPY8;
+ 853              		.loc 1 395 9 is_stmt 1 view .LVU241
+ 370:Drivers/lvgl/src/misc/lv_mem.c ****     const uint8_t * s8 = src;
+ 854              		.loc 1 370 15 is_stmt 0 view .LVU242
+ 855 0016 0346     		mov	r3, r0
+ 856              	.LVL69:
+ 395:Drivers/lvgl/src/misc/lv_mem.c ****             COPY8;
+ 857              		.loc 1 395 14 view .LVU243
+ 858 0018 57E0     		b	.L98
+ 859              	.LVL70:
+ 860              	.L93:
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 861              		.loc 1 379 13 is_stmt 1 view .LVU244
+ 862 001a 0C78     		ldrb	r4, [r1]	@ zero_extendqisi2
+ 863 001c 1C70     		strb	r4, [r3]
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 864              		.loc 1 379 13 view .LVU245
+ 865              	.LVL71:
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 866              		.loc 1 379 13 view .LVU246
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 867              		.loc 1 379 13 view .LVU247
+ 868 001e 4C78     		ldrb	r4, [r1, #1]	@ zero_extendqisi2
+ 869 0020 5C70     		strb	r4, [r3, #1]
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 870              		.loc 1 379 13 view .LVU248
+ 871              	.LVL72:
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 872              		.loc 1 379 13 view .LVU249
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 873              		.loc 1 379 13 view .LVU250
+ 874 0022 8C78     		ldrb	r4, [r1, #2]	@ zero_extendqisi2
+ 875 0024 9C70     		strb	r4, [r3, #2]
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 876              		.loc 1 379 13 view .LVU251
+ 877              	.LVL73:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 30
+
+
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 878              		.loc 1 379 13 view .LVU252
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 879              		.loc 1 379 13 view .LVU253
+ 880 0026 CC78     		ldrb	r4, [r1, #3]	@ zero_extendqisi2
+ 881 0028 DC70     		strb	r4, [r3, #3]
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 882              		.loc 1 379 13 view .LVU254
+ 883              	.LVL74:
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 884              		.loc 1 379 13 view .LVU255
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 885              		.loc 1 379 13 view .LVU256
+ 886 002a 0C79     		ldrb	r4, [r1, #4]	@ zero_extendqisi2
+ 887 002c 1C71     		strb	r4, [r3, #4]
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 888              		.loc 1 379 13 view .LVU257
+ 889              	.LVL75:
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 890              		.loc 1 379 13 view .LVU258
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 891              		.loc 1 379 13 view .LVU259
+ 892 002e 4C79     		ldrb	r4, [r1, #5]	@ zero_extendqisi2
+ 893 0030 5C71     		strb	r4, [r3, #5]
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 894              		.loc 1 379 13 view .LVU260
+ 895              	.LVL76:
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 896              		.loc 1 379 13 view .LVU261
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 897              		.loc 1 379 13 view .LVU262
+ 898 0032 8C79     		ldrb	r4, [r1, #6]	@ zero_extendqisi2
+ 899 0034 9C71     		strb	r4, [r3, #6]
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 900              		.loc 1 379 13 view .LVU263
+ 901              	.LVL77:
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 902              		.loc 1 379 13 view .LVU264
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 903              		.loc 1 379 13 view .LVU265
+ 904 0036 CC79     		ldrb	r4, [r1, #7]	@ zero_extendqisi2
+ 905 0038 DC71     		strb	r4, [r3, #7]
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 906              		.loc 1 379 13 view .LVU266
+ 907              	.LVL78:
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 908              		.loc 1 379 13 view .LVU267
+ 379:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 909              		.loc 1 379 27 view .LVU268
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 910              		.loc 1 380 13 view .LVU269
+ 911 003a 0C7A     		ldrb	r4, [r1, #8]	@ zero_extendqisi2
+ 912 003c 1C72     		strb	r4, [r3, #8]
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 913              		.loc 1 380 13 view .LVU270
+ 914              	.LVL79:
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 31
+
+
+ 915              		.loc 1 380 13 view .LVU271
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 916              		.loc 1 380 13 view .LVU272
+ 917 003e 4C7A     		ldrb	r4, [r1, #9]	@ zero_extendqisi2
+ 918 0040 5C72     		strb	r4, [r3, #9]
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 919              		.loc 1 380 13 view .LVU273
+ 920              	.LVL80:
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 921              		.loc 1 380 13 view .LVU274
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 922              		.loc 1 380 13 view .LVU275
+ 923 0042 8C7A     		ldrb	r4, [r1, #10]	@ zero_extendqisi2
+ 924 0044 9C72     		strb	r4, [r3, #10]
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 925              		.loc 1 380 13 view .LVU276
+ 926              	.LVL81:
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 927              		.loc 1 380 13 view .LVU277
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 928              		.loc 1 380 13 view .LVU278
+ 929 0046 CC7A     		ldrb	r4, [r1, #11]	@ zero_extendqisi2
+ 930 0048 DC72     		strb	r4, [r3, #11]
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 931              		.loc 1 380 13 view .LVU279
+ 932              	.LVL82:
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 933              		.loc 1 380 13 view .LVU280
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 934              		.loc 1 380 13 view .LVU281
+ 935 004a 0C7B     		ldrb	r4, [r1, #12]	@ zero_extendqisi2
+ 936 004c 1C73     		strb	r4, [r3, #12]
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 937              		.loc 1 380 13 view .LVU282
+ 938              	.LVL83:
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 939              		.loc 1 380 13 view .LVU283
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 940              		.loc 1 380 13 view .LVU284
+ 941 004e 4C7B     		ldrb	r4, [r1, #13]	@ zero_extendqisi2
+ 942 0050 5C73     		strb	r4, [r3, #13]
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 943              		.loc 1 380 13 view .LVU285
+ 944              	.LVL84:
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 945              		.loc 1 380 13 view .LVU286
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 946              		.loc 1 380 13 view .LVU287
+ 947 0052 8C7B     		ldrb	r4, [r1, #14]	@ zero_extendqisi2
+ 948 0054 9C73     		strb	r4, [r3, #14]
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 949              		.loc 1 380 13 view .LVU288
+ 950              	.LVL85:
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 951              		.loc 1 380 13 view .LVU289
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 952              		.loc 1 380 13 view .LVU290
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 32
+
+
+ 953 0056 CC7B     		ldrb	r4, [r1, #15]	@ zero_extendqisi2
+ 954 0058 DC73     		strb	r4, [r3, #15]
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 955              		.loc 1 380 13 view .LVU291
+ 956              	.LVL86:
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 957              		.loc 1 380 13 view .LVU292
+ 380:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 958              		.loc 1 380 27 view .LVU293
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 959              		.loc 1 381 13 view .LVU294
+ 960 005a 0C7C     		ldrb	r4, [r1, #16]	@ zero_extendqisi2
+ 961 005c 1C74     		strb	r4, [r3, #16]
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 962              		.loc 1 381 13 view .LVU295
+ 963              	.LVL87:
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 964              		.loc 1 381 13 view .LVU296
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 965              		.loc 1 381 13 view .LVU297
+ 966 005e 4C7C     		ldrb	r4, [r1, #17]	@ zero_extendqisi2
+ 967 0060 5C74     		strb	r4, [r3, #17]
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 968              		.loc 1 381 13 view .LVU298
+ 969              	.LVL88:
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 970              		.loc 1 381 13 view .LVU299
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 971              		.loc 1 381 13 view .LVU300
+ 972 0062 8C7C     		ldrb	r4, [r1, #18]	@ zero_extendqisi2
+ 973 0064 9C74     		strb	r4, [r3, #18]
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 974              		.loc 1 381 13 view .LVU301
+ 975              	.LVL89:
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 976              		.loc 1 381 13 view .LVU302
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 977              		.loc 1 381 13 view .LVU303
+ 978 0066 CC7C     		ldrb	r4, [r1, #19]	@ zero_extendqisi2
+ 979 0068 DC74     		strb	r4, [r3, #19]
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 980              		.loc 1 381 13 view .LVU304
+ 981              	.LVL90:
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 982              		.loc 1 381 13 view .LVU305
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 983              		.loc 1 381 13 view .LVU306
+ 984 006a 0C7D     		ldrb	r4, [r1, #20]	@ zero_extendqisi2
+ 985 006c 1C75     		strb	r4, [r3, #20]
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 986              		.loc 1 381 13 view .LVU307
+ 987              	.LVL91:
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 988              		.loc 1 381 13 view .LVU308
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 989              		.loc 1 381 13 view .LVU309
+ 990 006e 4C7D     		ldrb	r4, [r1, #21]	@ zero_extendqisi2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 33
+
+
+ 991 0070 5C75     		strb	r4, [r3, #21]
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 992              		.loc 1 381 13 view .LVU310
+ 993              	.LVL92:
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 994              		.loc 1 381 13 view .LVU311
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 995              		.loc 1 381 13 view .LVU312
+ 996 0072 8C7D     		ldrb	r4, [r1, #22]	@ zero_extendqisi2
+ 997 0074 9C75     		strb	r4, [r3, #22]
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 998              		.loc 1 381 13 view .LVU313
+ 999              	.LVL93:
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 1000              		.loc 1 381 13 view .LVU314
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 1001              		.loc 1 381 13 view .LVU315
+ 1002 0076 CC7D     		ldrb	r4, [r1, #23]	@ zero_extendqisi2
+ 1003 0078 DC75     		strb	r4, [r3, #23]
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 1004              		.loc 1 381 13 view .LVU316
+ 1005              	.LVL94:
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 1006              		.loc 1 381 13 view .LVU317
+ 381:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 1007              		.loc 1 381 27 view .LVU318
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1008              		.loc 1 382 13 view .LVU319
+ 1009 007a 0C7E     		ldrb	r4, [r1, #24]	@ zero_extendqisi2
+ 1010 007c 1C76     		strb	r4, [r3, #24]
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1011              		.loc 1 382 13 view .LVU320
+ 1012              	.LVL95:
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1013              		.loc 1 382 13 view .LVU321
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1014              		.loc 1 382 13 view .LVU322
+ 1015 007e 4C7E     		ldrb	r4, [r1, #25]	@ zero_extendqisi2
+ 1016 0080 5C76     		strb	r4, [r3, #25]
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1017              		.loc 1 382 13 view .LVU323
+ 1018              	.LVL96:
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1019              		.loc 1 382 13 view .LVU324
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1020              		.loc 1 382 13 view .LVU325
+ 1021 0082 8C7E     		ldrb	r4, [r1, #26]	@ zero_extendqisi2
+ 1022 0084 9C76     		strb	r4, [r3, #26]
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1023              		.loc 1 382 13 view .LVU326
+ 1024              	.LVL97:
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1025              		.loc 1 382 13 view .LVU327
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1026              		.loc 1 382 13 view .LVU328
+ 1027 0086 CC7E     		ldrb	r4, [r1, #27]	@ zero_extendqisi2
+ 1028 0088 DC76     		strb	r4, [r3, #27]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 34
+
+
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1029              		.loc 1 382 13 view .LVU329
+ 1030              	.LVL98:
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1031              		.loc 1 382 13 view .LVU330
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1032              		.loc 1 382 13 view .LVU331
+ 1033 008a 0C7F     		ldrb	r4, [r1, #28]	@ zero_extendqisi2
+ 1034 008c 1C77     		strb	r4, [r3, #28]
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1035              		.loc 1 382 13 view .LVU332
+ 1036              	.LVL99:
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1037              		.loc 1 382 13 view .LVU333
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1038              		.loc 1 382 13 view .LVU334
+ 1039 008e 4C7F     		ldrb	r4, [r1, #29]	@ zero_extendqisi2
+ 1040 0090 5C77     		strb	r4, [r3, #29]
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1041              		.loc 1 382 13 view .LVU335
+ 1042              	.LVL100:
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1043              		.loc 1 382 13 view .LVU336
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1044              		.loc 1 382 13 view .LVU337
+ 1045 0092 8C7F     		ldrb	r4, [r1, #30]	@ zero_extendqisi2
+ 1046 0094 9C77     		strb	r4, [r3, #30]
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1047              		.loc 1 382 13 view .LVU338
+ 1048              	.LVL101:
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1049              		.loc 1 382 13 view .LVU339
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1050              		.loc 1 382 13 view .LVU340
+ 1051 0096 CC7F     		ldrb	r4, [r1, #31]	@ zero_extendqisi2
+ 1052 0098 DC77     		strb	r4, [r3, #31]
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1053              		.loc 1 382 13 view .LVU341
+ 1054 009a 2033     		adds	r3, r3, #32
+ 1055              	.LVL102:
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1056              		.loc 1 382 13 view .LVU342
+ 1057 009c 2031     		adds	r1, r1, #32
+ 1058              	.LVL103:
+ 382:Drivers/lvgl/src/misc/lv_mem.c ****             len -= 32;
+ 1059              		.loc 1 382 27 view .LVU343
+ 383:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 1060              		.loc 1 383 13 view .LVU344
+ 383:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 1061              		.loc 1 383 17 is_stmt 0 view .LVU345
+ 1062 009e 203A     		subs	r2, r2, #32
+ 1063              	.LVL104:
+ 1064              	.L91:
+ 378:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 1065              		.loc 1 378 19 is_stmt 1 view .LVU346
+ 1066 00a0 202A     		cmp	r2, #32
+ 1067 00a2 BAD8     		bhi	.L93
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 35
+
+
+ 378:Drivers/lvgl/src/misc/lv_mem.c ****             REPEAT8(COPY8);
+ 1068              		.loc 1 378 19 is_stmt 0 view .LVU347
+ 1069 00a4 06E0     		b	.L94
+ 1070              	.LVL105:
+ 1071              	.L106:
+ 370:Drivers/lvgl/src/misc/lv_mem.c ****     const uint8_t * s8 = src;
+ 1072              		.loc 1 370 15 view .LVU348
+ 1073 00a6 0346     		mov	r3, r0
+ 1074              	.LVL106:
+ 370:Drivers/lvgl/src/misc/lv_mem.c ****     const uint8_t * s8 = src;
+ 1075              		.loc 1 370 15 view .LVU349
+ 1076 00a8 FAE7     		b	.L91
+ 1077              	.LVL107:
+ 1078              	.L95:
+ 386:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1079              		.loc 1 386 13 is_stmt 1 view .LVU350
+ 1080 00aa 11F8014B 		ldrb	r4, [r1], #1	@ zero_extendqisi2
+ 1081              	.LVL108:
+ 386:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1082              		.loc 1 386 13 is_stmt 0 view .LVU351
+ 1083 00ae 03F8014B 		strb	r4, [r3], #1
+ 1084              	.LVL109:
+ 386:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1085              		.loc 1 386 13 is_stmt 1 view .LVU352
+ 386:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1086              		.loc 1 386 13 view .LVU353
+ 387:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 1087              		.loc 1 387 13 view .LVU354
+ 387:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 1088              		.loc 1 387 16 is_stmt 0 view .LVU355
+ 1089 00b2 013A     		subs	r2, r2, #1
+ 1090              	.LVL110:
+ 1091              	.L94:
+ 385:Drivers/lvgl/src/misc/lv_mem.c ****             COPY8
+ 1092              		.loc 1 385 15 is_stmt 1 view .LVU356
+ 1093 00b4 002A     		cmp	r2, #0
+ 1094 00b6 F8D1     		bne	.L95
+ 1095              	.LVL111:
+ 1096              	.L96:
+ 422:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1097              		.loc 1 422 1 is_stmt 0 view .LVU357
+ 1098 00b8 5DF8044B 		ldr	r4, [sp], #4
+ 1099              		.cfi_remember_state
+ 1100              		.cfi_restore 4
+ 1101              		.cfi_def_cfa_offset 0
+ 1102 00bc 7047     		bx	lr
+ 1103              	.LVL112:
+ 1104              	.L99:
+ 1105              		.cfi_restore_state
+ 396:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 1106              		.loc 1 396 13 is_stmt 1 view .LVU358
+ 1107 00be 11F801CB 		ldrb	ip, [r1], #1	@ zero_extendqisi2
+ 1108              	.LVL113:
+ 396:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 1109              		.loc 1 396 13 is_stmt 0 view .LVU359
+ 1110 00c2 03F801CB 		strb	ip, [r3], #1
+ 1111              	.LVL114:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 36
+
+
+ 396:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 1112              		.loc 1 396 13 is_stmt 1 view .LVU360
+ 396:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 1113              		.loc 1 396 13 view .LVU361
+ 396:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 1114              		.loc 1 396 18 view .LVU362
+ 397:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1115              		.loc 1 397 13 view .LVU363
+ 397:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1116              		.loc 1 397 20 is_stmt 0 view .LVU364
+ 1117 00c6 013C     		subs	r4, r4, #1
+ 1118              	.LVL115:
+ 398:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 1119              		.loc 1 398 13 is_stmt 1 view .LVU365
+ 398:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 1120              		.loc 1 398 16 is_stmt 0 view .LVU366
+ 1121 00c8 013A     		subs	r2, r2, #1
+ 1122              	.LVL116:
+ 1123              	.L98:
+ 395:Drivers/lvgl/src/misc/lv_mem.c ****             COPY8;
+ 1124              		.loc 1 395 23 is_stmt 1 view .LVU367
+ 1125 00ca ACB1     		cbz	r4, .L100
+ 395:Drivers/lvgl/src/misc/lv_mem.c ****             COPY8;
+ 1126              		.loc 1 395 23 is_stmt 0 discriminator 1 view .LVU368
+ 1127 00cc 002A     		cmp	r2, #0
+ 1128 00ce F6D1     		bne	.L99
+ 1129 00d0 12E0     		b	.L100
+ 1130              	.LVL117:
+ 1131              	.L101:
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1132              		.loc 1 405 9 is_stmt 1 view .LVU369
+ 1133 00d2 0C68     		ldr	r4, [r1]
+ 1134 00d4 1C60     		str	r4, [r3]
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1135              		.loc 1 405 9 view .LVU370
+ 1136              	.LVL118:
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1137              		.loc 1 405 9 view .LVU371
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1138              		.loc 1 405 9 view .LVU372
+ 1139 00d6 4C68     		ldr	r4, [r1, #4]
+ 1140 00d8 5C60     		str	r4, [r3, #4]
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1141              		.loc 1 405 9 view .LVU373
+ 1142              	.LVL119:
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1143              		.loc 1 405 9 view .LVU374
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1144              		.loc 1 405 9 view .LVU375
+ 1145 00da 8C68     		ldr	r4, [r1, #8]
+ 1146 00dc 9C60     		str	r4, [r3, #8]
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1147              		.loc 1 405 9 view .LVU376
+ 1148              	.LVL120:
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1149              		.loc 1 405 9 view .LVU377
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 37
+
+
+ 1150              		.loc 1 405 9 view .LVU378
+ 1151 00de CC68     		ldr	r4, [r1, #12]
+ 1152 00e0 DC60     		str	r4, [r3, #12]
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1153              		.loc 1 405 9 view .LVU379
+ 1154              	.LVL121:
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1155              		.loc 1 405 9 view .LVU380
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1156              		.loc 1 405 9 view .LVU381
+ 1157 00e2 0C69     		ldr	r4, [r1, #16]
+ 1158 00e4 1C61     		str	r4, [r3, #16]
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1159              		.loc 1 405 9 view .LVU382
+ 1160              	.LVL122:
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1161              		.loc 1 405 9 view .LVU383
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1162              		.loc 1 405 9 view .LVU384
+ 1163 00e6 4C69     		ldr	r4, [r1, #20]
+ 1164 00e8 5C61     		str	r4, [r3, #20]
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1165              		.loc 1 405 9 view .LVU385
+ 1166              	.LVL123:
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1167              		.loc 1 405 9 view .LVU386
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1168              		.loc 1 405 9 view .LVU387
+ 1169 00ea 8C69     		ldr	r4, [r1, #24]
+ 1170 00ec 9C61     		str	r4, [r3, #24]
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1171              		.loc 1 405 9 view .LVU388
+ 1172              	.LVL124:
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1173              		.loc 1 405 9 view .LVU389
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1174              		.loc 1 405 9 view .LVU390
+ 1175 00ee CC69     		ldr	r4, [r1, #28]
+ 1176 00f0 DC61     		str	r4, [r3, #28]
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1177              		.loc 1 405 9 view .LVU391
+ 1178 00f2 2033     		adds	r3, r3, #32
+ 1179              	.LVL125:
+ 405:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1180              		.loc 1 405 9 view .LVU392
+ 1181 00f4 2031     		adds	r1, r1, #32
+ 1182              	.LVL126:
+ 406:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1183              		.loc 1 406 9 view .LVU393
+ 406:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1184              		.loc 1 406 13 is_stmt 0 view .LVU394
+ 1185 00f6 203A     		subs	r2, r2, #32
+ 1186              	.LVL127:
+ 1187              	.L100:
+ 404:Drivers/lvgl/src/misc/lv_mem.c ****         REPEAT8(COPY32)
+ 1188              		.loc 1 404 15 is_stmt 1 view .LVU395
+ 1189 00f8 202A     		cmp	r2, #32
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 38
+
+
+ 1190 00fa EAD8     		bhi	.L101
+ 404:Drivers/lvgl/src/misc/lv_mem.c ****         REPEAT8(COPY32)
+ 1191              		.loc 1 404 15 is_stmt 0 view .LVU396
+ 1192 00fc 06E0     		b	.L102
+ 1193              	.LVL128:
+ 1194              	.L107:
+ 370:Drivers/lvgl/src/misc/lv_mem.c ****     const uint8_t * s8 = src;
+ 1195              		.loc 1 370 15 view .LVU397
+ 1196 00fe 0346     		mov	r3, r0
+ 1197              	.LVL129:
+ 370:Drivers/lvgl/src/misc/lv_mem.c ****     const uint8_t * s8 = src;
+ 1198              		.loc 1 370 15 view .LVU398
+ 1199 0100 FAE7     		b	.L100
+ 1200              	.LVL130:
+ 1201              	.L103:
+ 410:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 1202              		.loc 1 410 9 is_stmt 1 view .LVU399
+ 1203 0102 51F8044B 		ldr	r4, [r1], #4
+ 1204              	.LVL131:
+ 410:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 1205              		.loc 1 410 9 is_stmt 0 view .LVU400
+ 1206 0106 43F8044B 		str	r4, [r3], #4
+ 1207              	.LVL132:
+ 410:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 1208              		.loc 1 410 9 is_stmt 1 view .LVU401
+ 410:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 1209              		.loc 1 410 9 view .LVU402
+ 410:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 1210              		.loc 1 410 15 view .LVU403
+ 411:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1211              		.loc 1 411 9 view .LVU404
+ 411:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1212              		.loc 1 411 13 is_stmt 0 view .LVU405
+ 1213 010a 043A     		subs	r2, r2, #4
+ 1214              	.LVL133:
+ 1215              	.L102:
+ 409:Drivers/lvgl/src/misc/lv_mem.c ****         COPY32;
+ 1216              		.loc 1 409 15 is_stmt 1 view .LVU406
+ 1217 010c 042A     		cmp	r2, #4
+ 1218 010e F8D8     		bhi	.L103
+ 1219              	.LVL134:
+ 1220              	.L104:
+ 416:Drivers/lvgl/src/misc/lv_mem.c ****         COPY8
+ 1221              		.loc 1 416 11 view .LVU407
+ 1222 0110 002A     		cmp	r2, #0
+ 1223 0112 D1D0     		beq	.L96
+ 417:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 1224              		.loc 1 417 9 view .LVU408
+ 1225 0114 11F8014B 		ldrb	r4, [r1], #1	@ zero_extendqisi2
+ 1226              	.LVL135:
+ 417:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 1227              		.loc 1 417 9 is_stmt 0 view .LVU409
+ 1228 0118 03F8014B 		strb	r4, [r3], #1
+ 1229              	.LVL136:
+ 417:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 1230              		.loc 1 417 9 is_stmt 1 view .LVU410
+ 417:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 39
+
+
+ 1231              		.loc 1 417 9 view .LVU411
+ 418:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1232              		.loc 1 418 9 view .LVU412
+ 418:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1233              		.loc 1 418 12 is_stmt 0 view .LVU413
+ 1234 011c 013A     		subs	r2, r2, #1
+ 1235              	.LVL137:
+ 418:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1236              		.loc 1 418 12 view .LVU414
+ 1237 011e F7E7     		b	.L104
+ 1238              		.cfi_endproc
+ 1239              	.LFE34:
+ 1241              		.section	.text.lv_memset,"ax",%progbits
+ 1242              		.align	1
+ 1243              		.global	lv_memset
+ 1244              		.syntax unified
+ 1245              		.thumb
+ 1246              		.thumb_func
+ 1248              	lv_memset:
+ 1249              	.LVL138:
+ 1250              	.LFB35:
+ 431:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1251              		.loc 1 431 1 is_stmt 1 view -0
+ 1252              		.cfi_startproc
+ 1253              		@ args = 0, pretend = 0, frame = 0
+ 1254              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1255              		@ link register save eliminated.
+ 433:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1256              		.loc 1 433 5 view .LVU416
+ 435:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1257              		.loc 1 435 5 view .LVU417
+ 438:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 1258              		.loc 1 438 5 view .LVU418
+ 438:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 1259              		.loc 1 438 7 is_stmt 0 view .LVU419
+ 1260 0000 10F00303 		ands	r3, r0, #3
+ 1261              	.LVL139:
+ 438:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 1262              		.loc 1 438 7 view .LVU420
+ 1263 0004 09D0     		beq	.L111
+ 439:Drivers/lvgl/src/misc/lv_mem.c ****         while(d_align && len) {
+ 1264              		.loc 1 439 9 is_stmt 1 view .LVU421
+ 439:Drivers/lvgl/src/misc/lv_mem.c ****         while(d_align && len) {
+ 1265              		.loc 1 439 17 is_stmt 0 view .LVU422
+ 1266 0006 C3F10403 		rsb	r3, r3, #4
+ 1267              	.LVL140:
+ 440:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(v);
+ 1268              		.loc 1 440 9 is_stmt 1 view .LVU423
+ 440:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(v);
+ 1269              		.loc 1 440 14 is_stmt 0 view .LVU424
+ 1270 000a 03E0     		b	.L112
+ 1271              	.LVL141:
+ 1272              	.L113:
+ 441:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1273              		.loc 1 441 13 is_stmt 1 view .LVU425
+ 1274 000c 00F8011B 		strb	r1, [r0], #1
+ 1275              	.LVL142:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 40
+
+
+ 441:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1276              		.loc 1 441 13 view .LVU426
+ 441:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1277              		.loc 1 441 20 view .LVU427
+ 442:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 1278              		.loc 1 442 13 view .LVU428
+ 442:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 1279              		.loc 1 442 16 is_stmt 0 view .LVU429
+ 1280 0010 013A     		subs	r2, r2, #1
+ 1281              	.LVL143:
+ 443:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 1282              		.loc 1 443 13 is_stmt 1 view .LVU430
+ 443:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 1283              		.loc 1 443 20 is_stmt 0 view .LVU431
+ 1284 0012 013B     		subs	r3, r3, #1
+ 1285              	.LVL144:
+ 1286              	.L112:
+ 440:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(v);
+ 1287              		.loc 1 440 23 is_stmt 1 view .LVU432
+ 1288 0014 0BB1     		cbz	r3, .L111
+ 440:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(v);
+ 1289              		.loc 1 440 23 is_stmt 0 discriminator 1 view .LVU433
+ 1290 0016 002A     		cmp	r2, #0
+ 1291 0018 F8D1     		bne	.L113
+ 1292              	.L111:
+ 447:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1293              		.loc 1 447 5 is_stmt 1 view .LVU434
+ 447:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1294              		.loc 1 447 32 is_stmt 0 view .LVU435
+ 1295 001a 01EB0123 		add	r3, r1, r1, lsl #8
+ 1296              	.LVL145:
+ 447:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1297              		.loc 1 447 53 view .LVU436
+ 1298 001e 03EB0143 		add	r3, r3, r1, lsl #16
+ 447:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1299              		.loc 1 447 14 view .LVU437
+ 1300 0022 03EB0163 		add	r3, r3, r1, lsl #24
+ 1301              	.LVL146:
+ 449:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1302              		.loc 1 449 5 is_stmt 1 view .LVU438
+ 451:Drivers/lvgl/src/misc/lv_mem.c ****         REPEAT8(SET32(v32));
+ 1303              		.loc 1 451 5 view .LVU439
+ 451:Drivers/lvgl/src/misc/lv_mem.c ****         REPEAT8(SET32(v32));
+ 1304              		.loc 1 451 10 is_stmt 0 view .LVU440
+ 1305 0026 09E0     		b	.L114
+ 1306              	.LVL147:
+ 1307              	.L115:
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1308              		.loc 1 452 9 is_stmt 1 view .LVU441
+ 1309 0028 0360     		str	r3, [r0]
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1310              		.loc 1 452 9 view .LVU442
+ 1311              	.LVL148:
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1312              		.loc 1 452 9 view .LVU443
+ 1313 002a 4360     		str	r3, [r0, #4]
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 41
+
+
+ 1314              		.loc 1 452 9 view .LVU444
+ 1315              	.LVL149:
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1316              		.loc 1 452 9 view .LVU445
+ 1317 002c 8360     		str	r3, [r0, #8]
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1318              		.loc 1 452 9 view .LVU446
+ 1319              	.LVL150:
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1320              		.loc 1 452 9 view .LVU447
+ 1321 002e C360     		str	r3, [r0, #12]
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1322              		.loc 1 452 9 view .LVU448
+ 1323              	.LVL151:
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1324              		.loc 1 452 9 view .LVU449
+ 1325 0030 0361     		str	r3, [r0, #16]
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1326              		.loc 1 452 9 view .LVU450
+ 1327              	.LVL152:
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1328              		.loc 1 452 9 view .LVU451
+ 1329 0032 4361     		str	r3, [r0, #20]
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1330              		.loc 1 452 9 view .LVU452
+ 1331              	.LVL153:
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1332              		.loc 1 452 9 view .LVU453
+ 1333 0034 8361     		str	r3, [r0, #24]
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1334              		.loc 1 452 9 view .LVU454
+ 1335              	.LVL154:
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1336              		.loc 1 452 9 view .LVU455
+ 1337 0036 C361     		str	r3, [r0, #28]
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1338              		.loc 1 452 9 view .LVU456
+ 1339 0038 2030     		adds	r0, r0, #32
+ 1340              	.LVL155:
+ 452:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1341              		.loc 1 452 28 view .LVU457
+ 453:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1342              		.loc 1 453 9 view .LVU458
+ 453:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1343              		.loc 1 453 13 is_stmt 0 view .LVU459
+ 1344 003a 203A     		subs	r2, r2, #32
+ 1345              	.LVL156:
+ 1346              	.L114:
+ 451:Drivers/lvgl/src/misc/lv_mem.c ****         REPEAT8(SET32(v32));
+ 1347              		.loc 1 451 15 is_stmt 1 view .LVU460
+ 1348 003c 202A     		cmp	r2, #32
+ 1349 003e F3D8     		bhi	.L115
+ 451:Drivers/lvgl/src/misc/lv_mem.c ****         REPEAT8(SET32(v32));
+ 1350              		.loc 1 451 15 is_stmt 0 view .LVU461
+ 1351 0040 02E0     		b	.L116
+ 1352              	.L117:
+ 457:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 42
+
+
+ 1353              		.loc 1 457 9 is_stmt 1 view .LVU462
+ 1354 0042 40F8043B 		str	r3, [r0], #4
+ 1355              	.LVL157:
+ 457:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 1356              		.loc 1 457 9 view .LVU463
+ 457:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 1357              		.loc 1 457 19 view .LVU464
+ 458:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1358              		.loc 1 458 9 view .LVU465
+ 458:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1359              		.loc 1 458 13 is_stmt 0 view .LVU466
+ 1360 0046 043A     		subs	r2, r2, #4
+ 1361              	.LVL158:
+ 1362              	.L116:
+ 456:Drivers/lvgl/src/misc/lv_mem.c ****         SET32(v32);
+ 1363              		.loc 1 456 15 is_stmt 1 view .LVU467
+ 1364 0048 042A     		cmp	r2, #4
+ 1365 004a FAD8     		bhi	.L117
+ 1366              	.LVL159:
+ 1367              	.L118:
+ 462:Drivers/lvgl/src/misc/lv_mem.c ****         SET8(v);
+ 1368              		.loc 1 462 11 view .LVU468
+ 1369 004c 1AB1     		cbz	r2, .L120
+ 463:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 1370              		.loc 1 463 9 view .LVU469
+ 1371 004e 00F8011B 		strb	r1, [r0], #1
+ 1372              	.LVL160:
+ 463:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 1373              		.loc 1 463 9 view .LVU470
+ 463:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 1374              		.loc 1 463 16 view .LVU471
+ 464:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1375              		.loc 1 464 9 view .LVU472
+ 464:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1376              		.loc 1 464 12 is_stmt 0 view .LVU473
+ 1377 0052 013A     		subs	r2, r2, #1
+ 1378              	.LVL161:
+ 464:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1379              		.loc 1 464 12 view .LVU474
+ 1380 0054 FAE7     		b	.L118
+ 1381              	.L120:
+ 466:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1382              		.loc 1 466 1 view .LVU475
+ 1383 0056 7047     		bx	lr
+ 1384              		.cfi_endproc
+ 1385              	.LFE35:
+ 1387              		.section	.text.lv_mem_monitor,"ax",%progbits
+ 1388              		.align	1
+ 1389              		.global	lv_mem_monitor
+ 1390              		.syntax unified
+ 1391              		.thumb
+ 1392              		.thumb_func
+ 1394              	lv_mem_monitor:
+ 1395              	.LVL162:
+ 1396              	.LFB30:
+ 247:Drivers/lvgl/src/misc/lv_mem.c ****     /*Init the data*/
+ 1397              		.loc 1 247 1 is_stmt 1 view -0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 43
+
+
+ 1398              		.cfi_startproc
+ 1399              		@ args = 0, pretend = 0, frame = 0
+ 1400              		@ frame_needed = 0, uses_anonymous_args = 0
+ 247:Drivers/lvgl/src/misc/lv_mem.c ****     /*Init the data*/
+ 1401              		.loc 1 247 1 is_stmt 0 view .LVU477
+ 1402 0000 10B5     		push	{r4, lr}
+ 1403              		.cfi_def_cfa_offset 8
+ 1404              		.cfi_offset 4, -8
+ 1405              		.cfi_offset 14, -4
+ 1406 0002 0446     		mov	r4, r0
+ 249:Drivers/lvgl/src/misc/lv_mem.c **** #if LV_MEM_CUSTOM == 0
+ 1407              		.loc 1 249 5 is_stmt 1 view .LVU478
+ 1408 0004 1C22     		movs	r2, #28
+ 1409 0006 0021     		movs	r1, #0
+ 1410 0008 FFF7FEFF 		bl	lv_memset
+ 1411              	.LVL163:
+ 251:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1412              		.loc 1 251 23 view .LVU479
+ 253:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1413              		.loc 1 253 5 view .LVU480
+ 1414 000c 124B     		ldr	r3, .L125
+ 1415 000e 1868     		ldr	r0, [r3]
+ 1416 0010 FFF7FEFF 		bl	lv_tlsf_get_pool
+ 1417              	.LVL164:
+ 253:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1418              		.loc 1 253 5 is_stmt 0 discriminator 1 view .LVU481
+ 1419 0014 2246     		mov	r2, r4
+ 1420 0016 1149     		ldr	r1, .L125+4
+ 1421 0018 FFF7FEFF 		bl	lv_tlsf_walk_pool
+ 1422              	.LVL165:
+ 255:Drivers/lvgl/src/misc/lv_mem.c ****     mon_p->used_pct = 100 - (100U * mon_p->free_size) / mon_p->total_size;
+ 1423              		.loc 1 255 5 is_stmt 1 view .LVU482
+ 255:Drivers/lvgl/src/misc/lv_mem.c ****     mon_p->used_pct = 100 - (100U * mon_p->free_size) / mon_p->total_size;
+ 1424              		.loc 1 255 23 is_stmt 0 view .LVU483
+ 1425 001c 4FF40053 		mov	r3, #8192
+ 1426 0020 2360     		str	r3, [r4]
+ 256:Drivers/lvgl/src/misc/lv_mem.c ****     if(mon_p->free_size > 0) {
+ 1427              		.loc 1 256 5 is_stmt 1 view .LVU484
+ 256:Drivers/lvgl/src/misc/lv_mem.c ****     if(mon_p->free_size > 0) {
+ 1428              		.loc 1 256 42 is_stmt 0 view .LVU485
+ 1429 0022 A268     		ldr	r2, [r4, #8]
+ 256:Drivers/lvgl/src/misc/lv_mem.c ****     if(mon_p->free_size > 0) {
+ 1430              		.loc 1 256 35 view .LVU486
+ 1431 0024 6423     		movs	r3, #100
+ 1432 0026 02FB03F3 		mul	r3, r2, r3
+ 256:Drivers/lvgl/src/misc/lv_mem.c ****     if(mon_p->free_size > 0) {
+ 1433              		.loc 1 256 55 view .LVU487
+ 1434 002a 5B0B     		lsrs	r3, r3, #13
+ 256:Drivers/lvgl/src/misc/lv_mem.c ****     if(mon_p->free_size > 0) {
+ 1435              		.loc 1 256 27 view .LVU488
+ 1436 002c C3F16403 		rsb	r3, r3, #100
+ 256:Drivers/lvgl/src/misc/lv_mem.c ****     if(mon_p->free_size > 0) {
+ 1437              		.loc 1 256 21 view .LVU489
+ 1438 0030 2376     		strb	r3, [r4, #24]
+ 257:Drivers/lvgl/src/misc/lv_mem.c ****         mon_p->frag_pct = mon_p->free_biggest_size * 100U / mon_p->free_size;
+ 1439              		.loc 1 257 5 is_stmt 1 view .LVU490
+ 257:Drivers/lvgl/src/misc/lv_mem.c ****         mon_p->frag_pct = mon_p->free_biggest_size * 100U / mon_p->free_size;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 44
+
+
+ 1440              		.loc 1 257 7 is_stmt 0 view .LVU491
+ 1441 0032 6AB1     		cbz	r2, .L122
+ 258:Drivers/lvgl/src/misc/lv_mem.c ****         mon_p->frag_pct = 100 - mon_p->frag_pct;
+ 1442              		.loc 1 258 9 is_stmt 1 view .LVU492
+ 258:Drivers/lvgl/src/misc/lv_mem.c ****         mon_p->frag_pct = 100 - mon_p->frag_pct;
+ 1443              		.loc 1 258 32 is_stmt 0 view .LVU493
+ 1444 0034 E368     		ldr	r3, [r4, #12]
+ 258:Drivers/lvgl/src/misc/lv_mem.c ****         mon_p->frag_pct = 100 - mon_p->frag_pct;
+ 1445              		.loc 1 258 52 view .LVU494
+ 1446 0036 6421     		movs	r1, #100
+ 1447 0038 01FB03F3 		mul	r3, r1, r3
+ 258:Drivers/lvgl/src/misc/lv_mem.c ****         mon_p->frag_pct = 100 - mon_p->frag_pct;
+ 1448              		.loc 1 258 59 view .LVU495
+ 1449 003c B3FBF2F3 		udiv	r3, r3, r2
+ 258:Drivers/lvgl/src/misc/lv_mem.c ****         mon_p->frag_pct = 100 - mon_p->frag_pct;
+ 1450              		.loc 1 258 25 view .LVU496
+ 1451 0040 DBB2     		uxtb	r3, r3
+ 1452 0042 6376     		strb	r3, [r4, #25]
+ 259:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1453              		.loc 1 259 9 is_stmt 1 view .LVU497
+ 259:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1454              		.loc 1 259 31 is_stmt 0 view .LVU498
+ 1455 0044 CB1A     		subs	r3, r1, r3
+ 259:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1456              		.loc 1 259 25 view .LVU499
+ 1457 0046 6376     		strb	r3, [r4, #25]
+ 1458              	.L123:
+ 265:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1459              		.loc 1 265 5 is_stmt 1 view .LVU500
+ 265:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1460              		.loc 1 265 21 is_stmt 0 view .LVU501
+ 1461 0048 054B     		ldr	r3, .L125+8
+ 1462 004a 1B68     		ldr	r3, [r3]
+ 1463 004c 6361     		str	r3, [r4, #20]
+ 267:Drivers/lvgl/src/misc/lv_mem.c **** #endif
+ 1464              		.loc 1 267 26 is_stmt 1 view .LVU502
+ 269:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1465              		.loc 1 269 1 is_stmt 0 view .LVU503
+ 1466 004e 10BD     		pop	{r4, pc}
+ 1467              	.LVL166:
+ 1468              	.L122:
+ 262:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1469              		.loc 1 262 9 is_stmt 1 view .LVU504
+ 262:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1470              		.loc 1 262 25 is_stmt 0 view .LVU505
+ 1471 0050 0023     		movs	r3, #0
+ 1472 0052 6376     		strb	r3, [r4, #25]
+ 1473 0054 F8E7     		b	.L123
+ 1474              	.L126:
+ 1475 0056 00BF     		.align	2
+ 1476              	.L125:
+ 1477 0058 00000000 		.word	tlsf
+ 1478 005c 00000000 		.word	lv_mem_walker
+ 1479 0060 00000000 		.word	max_used
+ 1480              		.cfi_endproc
+ 1481              	.LFE30:
+ 1483              		.section	.text.lv_memset_00,"ax",%progbits
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 45
+
+
+ 1484              		.align	1
+ 1485              		.global	lv_memset_00
+ 1486              		.syntax unified
+ 1487              		.thumb
+ 1488              		.thumb_func
+ 1490              	lv_memset_00:
+ 1491              	.LVL167:
+ 1492              	.LFB36:
+ 474:Drivers/lvgl/src/misc/lv_mem.c ****     uint8_t * d8 = (uint8_t *)dst;
+ 1493              		.loc 1 474 1 is_stmt 1 view -0
+ 1494              		.cfi_startproc
+ 1495              		@ args = 0, pretend = 0, frame = 0
+ 1496              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1497              		@ link register save eliminated.
+ 475:Drivers/lvgl/src/misc/lv_mem.c ****     uintptr_t d_align = (lv_uintptr_t) d8 & ALIGN_MASK;
+ 1498              		.loc 1 475 5 view .LVU507
+ 476:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1499              		.loc 1 476 5 view .LVU508
+ 479:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 1500              		.loc 1 479 5 view .LVU509
+ 479:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 1501              		.loc 1 479 7 is_stmt 0 view .LVU510
+ 1502 0000 10F00303 		ands	r3, r0, #3
+ 1503              	.LVL168:
+ 479:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 1504              		.loc 1 479 7 view .LVU511
+ 1505 0004 16D0     		beq	.L131
+ 480:Drivers/lvgl/src/misc/lv_mem.c ****         while(d_align && len) {
+ 1506              		.loc 1 480 9 is_stmt 1 view .LVU512
+ 480:Drivers/lvgl/src/misc/lv_mem.c ****         while(d_align && len) {
+ 1507              		.loc 1 480 17 is_stmt 0 view .LVU513
+ 1508 0006 C3F10403 		rsb	r3, r3, #4
+ 1509              	.LVL169:
+ 481:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(0);
+ 1510              		.loc 1 481 9 is_stmt 1 view .LVU514
+ 481:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(0);
+ 1511              		.loc 1 481 14 is_stmt 0 view .LVU515
+ 1512 000a 04E0     		b	.L129
+ 1513              	.LVL170:
+ 1514              	.L130:
+ 482:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1515              		.loc 1 482 13 is_stmt 1 view .LVU516
+ 1516 000c 0022     		movs	r2, #0
+ 1517 000e 00F8012B 		strb	r2, [r0], #1
+ 1518              	.LVL171:
+ 482:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1519              		.loc 1 482 13 view .LVU517
+ 482:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1520              		.loc 1 482 20 view .LVU518
+ 483:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 1521              		.loc 1 483 13 view .LVU519
+ 483:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 1522              		.loc 1 483 16 is_stmt 0 view .LVU520
+ 1523 0012 0139     		subs	r1, r1, #1
+ 1524              	.LVL172:
+ 484:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 1525              		.loc 1 484 13 is_stmt 1 view .LVU521
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 46
+
+
+ 484:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 1526              		.loc 1 484 20 is_stmt 0 view .LVU522
+ 1527 0014 013B     		subs	r3, r3, #1
+ 1528              	.LVL173:
+ 1529              	.L129:
+ 481:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(0);
+ 1530              		.loc 1 481 23 is_stmt 1 view .LVU523
+ 1531 0016 6BB1     		cbz	r3, .L131
+ 481:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(0);
+ 1532              		.loc 1 481 23 is_stmt 0 discriminator 1 view .LVU524
+ 1533 0018 0029     		cmp	r1, #0
+ 1534 001a F7D1     		bne	.L130
+ 1535 001c 0AE0     		b	.L131
+ 1536              	.LVL174:
+ 1537              	.L132:
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1538              		.loc 1 490 9 is_stmt 1 view .LVU525
+ 1539 001e 0023     		movs	r3, #0
+ 1540 0020 0360     		str	r3, [r0]
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1541              		.loc 1 490 9 view .LVU526
+ 1542              	.LVL175:
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1543              		.loc 1 490 9 view .LVU527
+ 1544 0022 4360     		str	r3, [r0, #4]
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1545              		.loc 1 490 9 view .LVU528
+ 1546              	.LVL176:
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1547              		.loc 1 490 9 view .LVU529
+ 1548 0024 8360     		str	r3, [r0, #8]
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1549              		.loc 1 490 9 view .LVU530
+ 1550              	.LVL177:
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1551              		.loc 1 490 9 view .LVU531
+ 1552 0026 C360     		str	r3, [r0, #12]
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1553              		.loc 1 490 9 view .LVU532
+ 1554              	.LVL178:
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1555              		.loc 1 490 9 view .LVU533
+ 1556 0028 0361     		str	r3, [r0, #16]
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1557              		.loc 1 490 9 view .LVU534
+ 1558              	.LVL179:
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1559              		.loc 1 490 9 view .LVU535
+ 1560 002a 4361     		str	r3, [r0, #20]
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1561              		.loc 1 490 9 view .LVU536
+ 1562              	.LVL180:
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1563              		.loc 1 490 9 view .LVU537
+ 1564 002c 8361     		str	r3, [r0, #24]
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1565              		.loc 1 490 9 view .LVU538
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 47
+
+
+ 1566              	.LVL181:
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1567              		.loc 1 490 9 view .LVU539
+ 1568 002e C361     		str	r3, [r0, #28]
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1569              		.loc 1 490 9 view .LVU540
+ 1570 0030 2030     		adds	r0, r0, #32
+ 1571              	.LVL182:
+ 490:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1572              		.loc 1 490 26 view .LVU541
+ 491:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1573              		.loc 1 491 9 view .LVU542
+ 491:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1574              		.loc 1 491 13 is_stmt 0 view .LVU543
+ 1575 0032 2039     		subs	r1, r1, #32
+ 1576              	.LVL183:
+ 1577              	.L131:
+ 489:Drivers/lvgl/src/misc/lv_mem.c ****         REPEAT8(SET32(0));
+ 1578              		.loc 1 489 15 is_stmt 1 view .LVU544
+ 1579 0034 2029     		cmp	r1, #32
+ 1580 0036 F2D8     		bhi	.L132
+ 489:Drivers/lvgl/src/misc/lv_mem.c ****         REPEAT8(SET32(0));
+ 1581              		.loc 1 489 15 is_stmt 0 view .LVU545
+ 1582 0038 03E0     		b	.L133
+ 1583              	.L134:
+ 495:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 1584              		.loc 1 495 9 is_stmt 1 view .LVU546
+ 1585 003a 0023     		movs	r3, #0
+ 1586 003c 40F8043B 		str	r3, [r0], #4
+ 1587              	.LVL184:
+ 495:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 1588              		.loc 1 495 9 view .LVU547
+ 495:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 1589              		.loc 1 495 17 view .LVU548
+ 496:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1590              		.loc 1 496 9 view .LVU549
+ 496:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1591              		.loc 1 496 13 is_stmt 0 view .LVU550
+ 1592 0040 0439     		subs	r1, r1, #4
+ 1593              	.LVL185:
+ 1594              	.L133:
+ 494:Drivers/lvgl/src/misc/lv_mem.c ****         SET32(0);
+ 1595              		.loc 1 494 15 is_stmt 1 view .LVU551
+ 1596 0042 0429     		cmp	r1, #4
+ 1597 0044 F9D8     		bhi	.L134
+ 1598              	.LVL186:
+ 1599              	.L135:
+ 500:Drivers/lvgl/src/misc/lv_mem.c ****         SET8(0);
+ 1600              		.loc 1 500 11 view .LVU552
+ 1601 0046 21B1     		cbz	r1, .L137
+ 501:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 1602              		.loc 1 501 9 view .LVU553
+ 1603 0048 0023     		movs	r3, #0
+ 1604 004a 00F8013B 		strb	r3, [r0], #1
+ 1605              	.LVL187:
+ 501:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 1606              		.loc 1 501 9 view .LVU554
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 48
+
+
+ 501:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 1607              		.loc 1 501 16 view .LVU555
+ 502:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1608              		.loc 1 502 9 view .LVU556
+ 502:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1609              		.loc 1 502 12 is_stmt 0 view .LVU557
+ 1610 004e 0139     		subs	r1, r1, #1
+ 1611              	.LVL188:
+ 502:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1612              		.loc 1 502 12 view .LVU558
+ 1613 0050 F9E7     		b	.L135
+ 1614              	.L137:
+ 504:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1615              		.loc 1 504 1 view .LVU559
+ 1616 0052 7047     		bx	lr
+ 1617              		.cfi_endproc
+ 1618              	.LFE36:
+ 1620              		.section	.text.lv_memset_ff,"ax",%progbits
+ 1621              		.align	1
+ 1622              		.global	lv_memset_ff
+ 1623              		.syntax unified
+ 1624              		.thumb
+ 1625              		.thumb_func
+ 1627              	lv_memset_ff:
+ 1628              	.LVL189:
+ 1629              	.LFB37:
+ 512:Drivers/lvgl/src/misc/lv_mem.c ****     uint8_t * d8 = (uint8_t *)dst;
+ 1630              		.loc 1 512 1 is_stmt 1 view -0
+ 1631              		.cfi_startproc
+ 1632              		@ args = 0, pretend = 0, frame = 0
+ 1633              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1634              		@ link register save eliminated.
+ 513:Drivers/lvgl/src/misc/lv_mem.c ****     uintptr_t d_align = (lv_uintptr_t) d8 & ALIGN_MASK;
+ 1635              		.loc 1 513 5 view .LVU561
+ 514:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1636              		.loc 1 514 5 view .LVU562
+ 517:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 1637              		.loc 1 517 5 view .LVU563
+ 517:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 1638              		.loc 1 517 7 is_stmt 0 view .LVU564
+ 1639 0000 10F00303 		ands	r3, r0, #3
+ 1640              	.LVL190:
+ 517:Drivers/lvgl/src/misc/lv_mem.c ****         d_align = ALIGN_MASK + 1 - d_align;
+ 1641              		.loc 1 517 7 view .LVU565
+ 1642 0004 17D0     		beq	.L142
+ 518:Drivers/lvgl/src/misc/lv_mem.c ****         while(d_align && len) {
+ 1643              		.loc 1 518 9 is_stmt 1 view .LVU566
+ 518:Drivers/lvgl/src/misc/lv_mem.c ****         while(d_align && len) {
+ 1644              		.loc 1 518 17 is_stmt 0 view .LVU567
+ 1645 0006 C3F10403 		rsb	r3, r3, #4
+ 1646              	.LVL191:
+ 519:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(0xFF);
+ 1647              		.loc 1 519 9 is_stmt 1 view .LVU568
+ 519:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(0xFF);
+ 1648              		.loc 1 519 14 is_stmt 0 view .LVU569
+ 1649 000a 04E0     		b	.L140
+ 1650              	.LVL192:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 49
+
+
+ 1651              	.L141:
+ 520:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1652              		.loc 1 520 13 is_stmt 1 view .LVU570
+ 1653 000c FF22     		movs	r2, #255
+ 1654 000e 00F8012B 		strb	r2, [r0], #1
+ 1655              	.LVL193:
+ 520:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1656              		.loc 1 520 13 view .LVU571
+ 520:Drivers/lvgl/src/misc/lv_mem.c ****             len--;
+ 1657              		.loc 1 520 23 view .LVU572
+ 521:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 1658              		.loc 1 521 13 view .LVU573
+ 521:Drivers/lvgl/src/misc/lv_mem.c ****             d_align--;
+ 1659              		.loc 1 521 16 is_stmt 0 view .LVU574
+ 1660 0012 0139     		subs	r1, r1, #1
+ 1661              	.LVL194:
+ 522:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 1662              		.loc 1 522 13 is_stmt 1 view .LVU575
+ 522:Drivers/lvgl/src/misc/lv_mem.c ****         }
+ 1663              		.loc 1 522 20 is_stmt 0 view .LVU576
+ 1664 0014 013B     		subs	r3, r3, #1
+ 1665              	.LVL195:
+ 1666              	.L140:
+ 519:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(0xFF);
+ 1667              		.loc 1 519 23 is_stmt 1 view .LVU577
+ 1668 0016 73B1     		cbz	r3, .L142
+ 519:Drivers/lvgl/src/misc/lv_mem.c ****             SET8(0xFF);
+ 1669              		.loc 1 519 23 is_stmt 0 discriminator 1 view .LVU578
+ 1670 0018 0029     		cmp	r1, #0
+ 1671 001a F7D1     		bne	.L141
+ 1672 001c 0BE0     		b	.L142
+ 1673              	.LVL196:
+ 1674              	.L143:
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1675              		.loc 1 528 9 is_stmt 1 view .LVU579
+ 1676 001e 4FF0FF33 		mov	r3, #-1
+ 1677 0022 0360     		str	r3, [r0]
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1678              		.loc 1 528 9 view .LVU580
+ 1679              	.LVL197:
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1680              		.loc 1 528 9 view .LVU581
+ 1681 0024 4360     		str	r3, [r0, #4]
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1682              		.loc 1 528 9 view .LVU582
+ 1683              	.LVL198:
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1684              		.loc 1 528 9 view .LVU583
+ 1685 0026 8360     		str	r3, [r0, #8]
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1686              		.loc 1 528 9 view .LVU584
+ 1687              	.LVL199:
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1688              		.loc 1 528 9 view .LVU585
+ 1689 0028 C360     		str	r3, [r0, #12]
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1690              		.loc 1 528 9 view .LVU586
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 50
+
+
+ 1691              	.LVL200:
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1692              		.loc 1 528 9 view .LVU587
+ 1693 002a 0361     		str	r3, [r0, #16]
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1694              		.loc 1 528 9 view .LVU588
+ 1695              	.LVL201:
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1696              		.loc 1 528 9 view .LVU589
+ 1697 002c 4361     		str	r3, [r0, #20]
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1698              		.loc 1 528 9 view .LVU590
+ 1699              	.LVL202:
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1700              		.loc 1 528 9 view .LVU591
+ 1701 002e 8361     		str	r3, [r0, #24]
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1702              		.loc 1 528 9 view .LVU592
+ 1703              	.LVL203:
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1704              		.loc 1 528 9 view .LVU593
+ 1705 0030 C361     		str	r3, [r0, #28]
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1706              		.loc 1 528 9 view .LVU594
+ 1707 0032 2030     		adds	r0, r0, #32
+ 1708              	.LVL204:
+ 528:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 32;
+ 1709              		.loc 1 528 35 view .LVU595
+ 529:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1710              		.loc 1 529 9 view .LVU596
+ 529:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1711              		.loc 1 529 13 is_stmt 0 view .LVU597
+ 1712 0034 2039     		subs	r1, r1, #32
+ 1713              	.LVL205:
+ 1714              	.L142:
+ 527:Drivers/lvgl/src/misc/lv_mem.c ****         REPEAT8(SET32(0xFFFFFFFF));
+ 1715              		.loc 1 527 15 is_stmt 1 view .LVU598
+ 1716 0036 2029     		cmp	r1, #32
+ 1717 0038 F1D8     		bhi	.L143
+ 527:Drivers/lvgl/src/misc/lv_mem.c ****         REPEAT8(SET32(0xFFFFFFFF));
+ 1718              		.loc 1 527 15 is_stmt 0 view .LVU599
+ 1719 003a 04E0     		b	.L144
+ 1720              	.L145:
+ 533:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 1721              		.loc 1 533 9 is_stmt 1 view .LVU600
+ 1722 003c 4FF0FF33 		mov	r3, #-1
+ 1723 0040 40F8043B 		str	r3, [r0], #4
+ 1724              	.LVL206:
+ 533:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 1725              		.loc 1 533 9 view .LVU601
+ 533:Drivers/lvgl/src/misc/lv_mem.c ****         len -= 4;
+ 1726              		.loc 1 533 26 view .LVU602
+ 534:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1727              		.loc 1 534 9 view .LVU603
+ 534:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1728              		.loc 1 534 13 is_stmt 0 view .LVU604
+ 1729 0044 0439     		subs	r1, r1, #4
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 51
+
+
+ 1730              	.LVL207:
+ 1731              	.L144:
+ 532:Drivers/lvgl/src/misc/lv_mem.c ****         SET32(0xFFFFFFFF);
+ 1732              		.loc 1 532 15 is_stmt 1 view .LVU605
+ 1733 0046 0429     		cmp	r1, #4
+ 1734 0048 F8D8     		bhi	.L145
+ 1735              	.LVL208:
+ 1736              	.L146:
+ 538:Drivers/lvgl/src/misc/lv_mem.c ****         SET8(0xFF);
+ 1737              		.loc 1 538 11 view .LVU606
+ 1738 004a 21B1     		cbz	r1, .L148
+ 539:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 1739              		.loc 1 539 9 view .LVU607
+ 1740 004c FF23     		movs	r3, #255
+ 1741 004e 00F8013B 		strb	r3, [r0], #1
+ 1742              	.LVL209:
+ 539:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 1743              		.loc 1 539 9 view .LVU608
+ 539:Drivers/lvgl/src/misc/lv_mem.c ****         len--;
+ 1744              		.loc 1 539 19 view .LVU609
+ 540:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1745              		.loc 1 540 9 view .LVU610
+ 540:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1746              		.loc 1 540 12 is_stmt 0 view .LVU611
+ 1747 0052 0139     		subs	r1, r1, #1
+ 1748              	.LVL210:
+ 540:Drivers/lvgl/src/misc/lv_mem.c ****     }
+ 1749              		.loc 1 540 12 view .LVU612
+ 1750 0054 F9E7     		b	.L146
+ 1751              	.L148:
+ 542:Drivers/lvgl/src/misc/lv_mem.c **** 
+ 1752              		.loc 1 542 1 view .LVU613
+ 1753 0056 7047     		bx	lr
+ 1754              		.cfi_endproc
+ 1755              	.LFE37:
+ 1757              		.section	.bss.work_mem_int.0,"aw",%nobits
+ 1758              		.align	2
+ 1761              	work_mem_int.0:
+ 1762 0000 00000000 		.space	8192
+ 1762      00000000 
+ 1762      00000000 
+ 1762      00000000 
+ 1762      00000000 
+ 1763              		.section	.data.zero_mem,"aw"
+ 1764              		.align	2
+ 1767              	zero_mem:
+ 1768 0000 D4C3B2A1 		.word	-1582119980
+ 1769              		.section	.bss.max_used,"aw",%nobits
+ 1770              		.align	2
+ 1773              	max_used:
+ 1774 0000 00000000 		.space	4
+ 1775              		.section	.bss.cur_used,"aw",%nobits
+ 1776              		.align	2
+ 1779              	cur_used:
+ 1780 0000 00000000 		.space	4
+ 1781              		.section	.bss.tlsf,"aw",%nobits
+ 1782              		.align	2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 52
+
+
+ 1785              	tlsf:
+ 1786 0000 00000000 		.space	4
+ 1787              		.text
+ 1788              	.Letext0:
+ 1789              		.file 2 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 1790              		.file 3 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 1791              		.file 4 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 1792              		.file 5 "Drivers/lvgl/src/misc/lv_types.h"
+ 1793              		.file 6 "Drivers/lvgl/src/misc/lv_mem.h"
+ 1794              		.file 7 "Drivers/lvgl/src/misc/lv_tlsf.h"
+ 1795              		.file 8 "Drivers/lvgl/src/misc/lv_gc.h"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 53
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_mem.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:21     .text.lv_mem_walker:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:26     .text.lv_mem_walker:00000000 lv_mem_walker
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:78     .text.lv_mem_init:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:84     .text.lv_mem_init:00000000 lv_mem_init
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:109    .text.lv_mem_init:00000014 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1761   .bss.work_mem_int.0:00000000 work_mem_int.0
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1785   .bss.tlsf:00000000 tlsf
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:115    .text.lv_mem_deinit:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:121    .text.lv_mem_deinit:00000000 lv_mem_deinit
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:144    .text.lv_mem_deinit:00000010 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:149    .text.lv_mem_alloc:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:155    .text.lv_mem_alloc:00000000 lv_mem_alloc
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:218    .text.lv_mem_alloc:0000002c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1767   .data.zero_mem:00000000 zero_mem
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1779   .bss.cur_used:00000000 cur_used
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1773   .bss.max_used:00000000 max_used
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:226    .text.lv_mem_free:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:232    .text.lv_mem_free:00000000 lv_mem_free
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:289    .text.lv_mem_free:0000002c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:296    .text.lv_mem_realloc:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:302    .text.lv_mem_realloc:00000000 lv_mem_realloc
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:363    .text.lv_mem_realloc:00000028 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:369    .text.lv_mem_test:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:375    .text.lv_mem_test:00000000 lv_mem_test
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:432    .text.lv_mem_test:00000034 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:439    .text.lv_mem_buf_get:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:445    .text.lv_mem_buf_get:00000000 lv_mem_buf_get
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:666    .text.lv_mem_buf_get:000000c0 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:671    .text.lv_mem_buf_release:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:677    .text.lv_mem_buf_release:00000000 lv_mem_buf_release
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:732    .text.lv_mem_buf_release:00000028 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:737    .text.lv_mem_buf_free_all:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:743    .text.lv_mem_buf_free_all:00000000 lv_mem_buf_free_all
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:807    .text.lv_mem_buf_free_all:00000038 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:812    .text.lv_memcpy:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:818    .text.lv_memcpy:00000000 lv_memcpy
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1242   .text.lv_memset:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1248   .text.lv_memset:00000000 lv_memset
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1388   .text.lv_mem_monitor:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1394   .text.lv_mem_monitor:00000000 lv_mem_monitor
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1477   .text.lv_mem_monitor:00000058 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1484   .text.lv_memset_00:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1490   .text.lv_memset_00:00000000 lv_memset_00
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1621   .text.lv_memset_ff:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1627   .text.lv_memset_ff:00000000 lv_memset_ff
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1758   .bss.work_mem_int.0:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1764   .data.zero_mem:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1770   .bss.max_used:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1776   .bss.cur_used:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s:1782   .bss.tlsf:00000000 $d
+
+UNDEFINED SYMBOLS
+lv_tlsf_create_with_pool
+lv_tlsf_destroy
+lv_tlsf_malloc
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccxYVrZr.s 			page 54
+
+
+lv_tlsf_free
+lv_tlsf_realloc
+lv_tlsf_check
+lv_tlsf_get_pool
+lv_tlsf_check_pool
+lv_mem_buf
+lv_tlsf_walk_pool

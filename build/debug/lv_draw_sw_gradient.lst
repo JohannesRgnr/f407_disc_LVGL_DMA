@@ -1,0 +1,2520 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_draw_sw_gradient.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c"
+  20              		.section	.text.lv_color_to32,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	lv_color_to32:
+  27              	.LVL0:
+  28              	.LFB5:
+  29              		.file 2 "Drivers/lvgl/src/draw/sw/../../misc/lv_color.h"
+   1:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /**
+   2:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * @file lv_color.h
+   3:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *
+   4:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  */
+   5:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+   6:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #ifndef LV_COLOR_H
+   7:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_H
+   8:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+   9:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #ifdef __cplusplus
+  10:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** extern "C" {
+  11:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  12:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  13:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*********************
+  14:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *      INCLUDES
+  15:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *********************/
+  16:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #include "../lv_conf_internal.h"
+  17:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #include "lv_assert.h"
+  18:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #include "lv_math.h"
+  19:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #include "lv_types.h"
+  20:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  21:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*Error checking*/
+  22:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH == 24
+  23:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #error "LV_COLOR_DEPTH 24 is deprecated. Use LV_COLOR_DEPTH 32 instead (lv_conf.h)"
+  24:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  25:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  26:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH != 16 && LV_COLOR_16_SWAP != 0
+  27:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #error "LV_COLOR_16_SWAP requires LV_COLOR_DEPTH == 16. Set it in lv_conf.h"
+  28:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  29:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 2
+
+
+  30:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #include <stdint.h>
+  31:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  32:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*********************
+  33:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *      DEFINES
+  34:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *********************/
+  35:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** LV_EXPORT_CONST_INT(LV_COLOR_DEPTH);
+  36:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** LV_EXPORT_CONST_INT(LV_COLOR_16_SWAP);
+  37:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  38:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /**
+  39:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * Opacity percentages.
+  40:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  */
+  41:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** enum {
+  42:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_TRANSP = 0,
+  43:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_0      = 0,
+  44:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_10     = 25,
+  45:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_20     = 51,
+  46:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_30     = 76,
+  47:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_40     = 102,
+  48:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_50     = 127,
+  49:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_60     = 153,
+  50:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_70     = 178,
+  51:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_80     = 204,
+  52:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_90     = 229,
+  53:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_100    = 255,
+  54:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_OPA_COVER  = 255,
+  55:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** };
+  56:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  57:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_OPA_MIN 2    /*Opacities below this will be transparent*/
+  58:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_OPA_MAX 253  /*Opacities above this will fully cover*/
+  59:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  60:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+  61:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SIZE 8
+  62:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+  63:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SIZE 8
+  64:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+  65:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SIZE 16
+  66:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+  67:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SIZE 32
+  68:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+  69:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #error "Invalid LV_COLOR_DEPTH in lv_conf.h! Set it to 1, 8, 16 or 32!"
+  70:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  71:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  72:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if defined(__cplusplus) && !defined(_LV_COLOR_HAS_MODERN_CPP)
+  73:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /**
+  74:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** * MSVC compiler's definition of the __cplusplus indicating 199711L regardless to C++ standard versi
+  75:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** * see https://devblogs.microsoft.com/cppblog/msvc-now-correctly-reports-cplusplus
+  76:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** * so we use _MSC_VER macro instead of __cplusplus
+  77:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** */
+  78:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #ifdef _MSC_VER
+  79:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if _MSC_VER >= 1900 /*Visual Studio 2015*/
+  80:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define _LV_COLOR_HAS_MODERN_CPP 1
+  81:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  82:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+  83:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if __cplusplus >= 201103L
+  84:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define _LV_COLOR_HAS_MODERN_CPP 1
+  85:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  86:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 3
+
+
+  87:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif /*__cplusplus*/
+  88:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  89:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #ifndef _LV_COLOR_HAS_MODERN_CPP
+  90:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define _LV_COLOR_HAS_MODERN_CPP 0
+  91:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  92:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+  93:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if _LV_COLOR_HAS_MODERN_CPP
+  94:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*Fix msvc compiler error C4576 inside C++ code*/
+  95:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define _LV_COLOR_MAKE_TYPE_HELPER lv_color_t
+  96:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+  97:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define _LV_COLOR_MAKE_TYPE_HELPER (lv_color_t)
+  98:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+  99:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 100:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*---------------------------------------
+ 101:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * Macros for all existing color depths
+ 102:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * to set/get values of the color channels
+ 103:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *------------------------------------------*/
+ 104:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_R1(c, v) (c).ch.red = (uint8_t)((v) & 0x1)
+ 105:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_G1(c, v) (c).ch.green = (uint8_t)((v) & 0x1)
+ 106:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_B1(c, v) (c).ch.blue = (uint8_t)((v) & 0x1)
+ 107:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_A1(c, v) do {} while(0)
+ 108:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 109:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_R1(c) (c).ch.red
+ 110:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_G1(c) (c).ch.green
+ 111:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_B1(c) (c).ch.blue
+ 112:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_A1(c) 0xFF
+ 113:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 114:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER1 {0x00}
+ 115:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_MAKE1(r8, g8, b8)  {(uint8_t)((b8 >> 7) | (g8 >> 7) | (r8 >> 7))}
+ 116:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 117:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_R8(c, v) (c).ch.red = (uint8_t)((v) & 0x7U)
+ 118:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_G8(c, v) (c).ch.green = (uint8_t)((v) & 0x7U)
+ 119:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_B8(c, v) (c).ch.blue = (uint8_t)((v) & 0x3U)
+ 120:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_A8(c, v) do {} while(0)
+ 121:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 122:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_R8(c) (c).ch.red
+ 123:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_G8(c) (c).ch.green
+ 124:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_B8(c) (c).ch.blue
+ 125:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_A8(c) 0xFF
+ 126:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 127:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER8 {{0x00, 0x00, 0x00}}
+ 128:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_MAKE8(r8, g8, b8) {{(uint8_t)((b8 >> 6) & 0x3U), (uint8_t)((g8 >> 5) & 0x7U), (ui
+ 129:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 130:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_R16(c, v) (c).ch.red = (uint8_t)((v) & 0x1FU)
+ 131:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 0
+ 132:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_G16(c, v) (c).ch.green = (uint8_t)((v) & 0x3FU)
+ 133:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 134:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_G16(c, v) {(c).ch.green_h = (uint8_t)(((v) >> 3) & 0x7); (c).ch.green_l = (ui
+ 135:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 136:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_B16(c, v) (c).ch.blue = (uint8_t)((v) & 0x1FU)
+ 137:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_A16(c, v) do {} while(0)
+ 138:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 139:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_R16(c) (c).ch.red
+ 140:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 0
+ 141:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_G16(c) (c).ch.green
+ 142:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 143:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_G16(c) (((c).ch.green_h << 3) + (c).ch.green_l)
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 4
+
+
+ 144:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 145:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_B16(c) (c).ch.blue
+ 146:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_A16(c) 0xFF
+ 147:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 148:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 0
+ 149:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER16  {{0x00, 0x00, 0x00}}
+ 150:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_MAKE16(r8, g8, b8) {{(uint8_t)((b8 >> 3) & 0x1FU), (uint8_t)((g8 >> 2) & 0x3FU), 
+ 151:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 152:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER16 {{0x00, 0x00, 0x00, 0x00}}
+ 153:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_MAKE16(r8, g8, b8) {{(uint8_t)((g8 >> 5) & 0x7U), (uint8_t)((r8 >> 3) & 0x1FU), (
+ 154:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 155:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 156:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_R32(c, v) (c).ch.red = (uint8_t)((v) & 0xFF)
+ 157:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_G32(c, v) (c).ch.green = (uint8_t)((v) & 0xFF)
+ 158:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_B32(c, v) (c).ch.blue = (uint8_t)((v) & 0xFF)
+ 159:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_SET_A32(c, v) (c).ch.alpha = (uint8_t)((v) & 0xFF)
+ 160:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 161:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_R32(c) (c).ch.red
+ 162:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_G32(c) (c).ch.green
+ 163:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_B32(c) (c).ch.blue
+ 164:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_GET_A32(c) (c).ch.alpha
+ 165:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 166:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define _LV_COLOR_ZERO_INITIALIZER32  {{0x00, 0x00, 0x00, 0x00}}
+ 167:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** # define LV_COLOR_MAKE32(r8, g8, b8) {{b8, g8, r8, 0xff}} /*Fix 0xff alpha*/
+ 168:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 169:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*---------------------------------------
+ 170:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * Macros for the current color depth
+ 171:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * to set/get values of the color channels
+ 172:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *------------------------------------------*/
+ 173:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SET_R(c, v) LV_CONCAT(LV_COLOR_SET_R, LV_COLOR_DEPTH)(c, v)
+ 174:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SET_G(c, v) LV_CONCAT(LV_COLOR_SET_G, LV_COLOR_DEPTH)(c, v)
+ 175:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SET_B(c, v) LV_CONCAT(LV_COLOR_SET_B, LV_COLOR_DEPTH)(c, v)
+ 176:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_SET_A(c, v) LV_CONCAT(LV_COLOR_SET_A, LV_COLOR_DEPTH)(c, v)
+ 177:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 178:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_GET_R(c) LV_CONCAT(LV_COLOR_GET_R, LV_COLOR_DEPTH)(c)
+ 179:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_GET_G(c) LV_CONCAT(LV_COLOR_GET_G, LV_COLOR_DEPTH)(c)
+ 180:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_GET_B(c) LV_CONCAT(LV_COLOR_GET_B, LV_COLOR_DEPTH)(c)
+ 181:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_GET_A(c) LV_CONCAT(LV_COLOR_GET_A, LV_COLOR_DEPTH)(c)
+ 182:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 183:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define _LV_COLOR_ZERO_INITIALIZER LV_CONCAT(_LV_COLOR_ZERO_INITIALIZER, LV_COLOR_DEPTH)
+ 184:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #define LV_COLOR_MAKE(r8, g8, b8) LV_CONCAT(LV_COLOR_MAKE, LV_COLOR_DEPTH)(r8, g8, b8)
+ 185:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 186:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /**********************
+ 187:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *      TYPEDEFS
+ 188:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  **********************/
+ 189:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 190:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef union {
+ 191:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint8_t full; /*must be declared first to set all bits of byte via initializer list*/
+ 192:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     union {
+ 193:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t blue : 1;
+ 194:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t green : 1;
+ 195:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t red : 1;
+ 196:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     } ch;
+ 197:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** } lv_color1_t;
+ 198:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 199:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef union {
+ 200:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     struct {
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 5
+
+
+ 201:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t blue : 2;
+ 202:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t green : 3;
+ 203:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t red : 3;
+ 204:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     } ch;
+ 205:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint8_t full;
+ 206:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** } lv_color8_t;
+ 207:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 208:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef union {
+ 209:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     struct {
+ 210:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_16_SWAP == 0
+ 211:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint16_t blue : 5;
+ 212:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint16_t green : 6;
+ 213:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint16_t red : 5;
+ 214:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #else
+ 215:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint16_t green_h : 3;
+ 216:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint16_t red : 5;
+ 217:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint16_t blue : 5;
+ 218:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint16_t green_l : 3;
+ 219:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 220:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     } ch;
+ 221:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint16_t full;
+ 222:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** } lv_color16_t;
+ 223:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 224:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef union {
+ 225:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     struct {
+ 226:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t blue;
+ 227:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t green;
+ 228:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t red;
+ 229:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         uint8_t alpha;
+ 230:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     } ch;
+ 231:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint32_t full;
+ 232:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** } lv_color32_t;
+ 233:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 234:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef LV_CONCAT3(uint, LV_COLOR_SIZE, _t) lv_color_int_t;
+ 235:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef LV_CONCAT3(lv_color, LV_COLOR_DEPTH, _t) lv_color_t;
+ 236:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 237:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef struct {
+ 238:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint16_t h;
+ 239:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint8_t s;
+ 240:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     uint8_t v;
+ 241:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** } lv_color_hsv_t;
+ 242:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 243:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** //! @cond Doxygen_Suppress
+ 244:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*No idea where the guard is required but else throws warnings in the docs*/
+ 245:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef uint8_t lv_opa_t;
+ 246:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** //! @endcond
+ 247:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 248:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** struct _lv_color_filter_dsc_t;
+ 249:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 250:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef lv_color_t (*lv_color_filter_cb_t)(const struct _lv_color_filter_dsc_t *, lv_color_t, lv_op
+ 251:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 252:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef struct _lv_color_filter_dsc_t {
+ 253:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color_filter_cb_t filter_cb;
+ 254:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     void * user_data;
+ 255:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** } lv_color_filter_dsc_t;
+ 256:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 257:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 6
+
+
+ 258:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** typedef enum {
+ 259:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_RED,
+ 260:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_PINK,
+ 261:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_PURPLE,
+ 262:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_DEEP_PURPLE,
+ 263:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_INDIGO,
+ 264:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_BLUE,
+ 265:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_LIGHT_BLUE,
+ 266:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_CYAN,
+ 267:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_TEAL,
+ 268:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_GREEN,
+ 269:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_LIGHT_GREEN,
+ 270:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_LIME,
+ 271:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_YELLOW,
+ 272:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_AMBER,
+ 273:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_ORANGE,
+ 274:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_DEEP_ORANGE,
+ 275:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_BROWN,
+ 276:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_BLUE_GREY,
+ 277:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_GREY,
+ 278:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     _LV_PALETTE_LAST,
+ 279:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_PALETTE_NONE = 0xff,
+ 280:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** } lv_palette_t;
+ 281:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 282:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /**********************
+ 283:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * GLOBAL PROTOTYPES
+ 284:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  **********************/
+ 285:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 286:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** /*In color conversations:
+ 287:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * - When converting to bigger color type the LSB weight of 1 LSB is calculated
+ 288:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *   E.g. 16 bit Red has 5 bits
+ 289:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *         8 bit Red has 3 bits
+ 290:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *        ----------------------
+ 291:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *        8 bit red LSB = (2^5 - 1) / (2^3 - 1) = 31 / 7 = 4
+ 292:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *
+ 293:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  * - When calculating to smaller color type simply shift out the LSBs
+ 294:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *   E.g.  8 bit Red has 3 bits
+ 295:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *        16 bit Red has 5 bits
+ 296:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *        ----------------------
+ 297:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  *         Shift right with 5 - 3 = 2
+ 298:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****  */
+ 299:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline uint8_t lv_color_to1(lv_color_t color)
+ 300:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 301:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 302:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return color.full;
+ 303:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 304:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     if((LV_COLOR_GET_R(color) & 0x4) || (LV_COLOR_GET_G(color) & 0x4) || (LV_COLOR_GET_B(color) & 0
+ 305:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 1;
+ 306:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 307:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else {
+ 308:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0;
+ 309:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 310:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 311:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     if((LV_COLOR_GET_R(color) & 0x10) || (LV_COLOR_GET_G(color) & 0x20) || (LV_COLOR_GET_B(color) &
+ 312:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 1;
+ 313:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 314:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else {
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 7
+
+
+ 315:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0;
+ 316:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 317:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 318:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     if((LV_COLOR_GET_R(color) & 0x80) || (LV_COLOR_GET_G(color) & 0x80) || (LV_COLOR_GET_B(color) &
+ 319:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 1;
+ 320:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 321:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else {
+ 322:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0;
+ 323:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     }
+ 324:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 325:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 326:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 327:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline uint8_t lv_color_to8(lv_color_t color)
+ 328:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 329:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 330:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     if(color.full == 0)
+ 331:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0;
+ 332:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else
+ 333:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0xFF;
+ 334:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 335:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return color.full;
+ 336:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 337:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color8_t ret;
+ 338:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R8(ret, LV_COLOR_GET_R(color) >> 2); /*5 - 3  = 2*/
+ 339:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G8(ret, LV_COLOR_GET_G(color) >> 3); /*6 - 3  = 3*/
+ 340:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B8(ret, LV_COLOR_GET_B(color) >> 3); /*5 - 2  = 3*/
+ 341:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return ret.full;
+ 342:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 343:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color8_t ret;
+ 344:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R8(ret, LV_COLOR_GET_R(color) >> 5); /*8 - 3  = 5*/
+ 345:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G8(ret, LV_COLOR_GET_G(color) >> 5); /*8 - 3  = 5*/
+ 346:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B8(ret, LV_COLOR_GET_B(color) >> 6); /*8 - 2  = 6*/
+ 347:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return ret.full;
+ 348:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 349:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 350:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 351:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline uint16_t lv_color_to16(lv_color_t color)
+ 352:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+ 353:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 354:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     if(color.full == 0)
+ 355:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0;
+ 356:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else
+ 357:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0xFFFF;
+ 358:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 359:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color16_t ret;
+ 360:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R16(ret, LV_COLOR_GET_R(color) * 4);  /*(2^5 - 1)/(2^3 - 1) = 31/7 = 4*/
+ 361:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G16(ret, LV_COLOR_GET_G(color) * 9);  /*(2^6 - 1)/(2^3 - 1) = 63/7 = 9*/
+ 362:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B16(ret, LV_COLOR_GET_B(color) * 10); /*(2^5 - 1)/(2^2 - 1) = 31/3 = 10*/
+ 363:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return ret.full;
+ 364:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 365:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return color.full;
+ 366:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 367:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color16_t ret;
+ 368:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R16(ret, LV_COLOR_GET_R(color) >> 3); /*8 - 5  = 3*/
+ 369:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G16(ret, LV_COLOR_GET_G(color) >> 2); /*8 - 6  = 2*/
+ 370:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B16(ret, LV_COLOR_GET_B(color) >> 3); /*8 - 5  = 3*/
+ 371:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return ret.full;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 8
+
+
+ 372:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 373:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+ 374:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 375:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** static inline uint32_t lv_color_to32(lv_color_t color)
+ 376:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** {
+  30              		.loc 2 376 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+ 377:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #if LV_COLOR_DEPTH == 1
+ 378:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     if(color.full == 0)
+ 379:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0xFF000000;
+ 380:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     else
+ 381:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****         return 0xFFFFFFFF;
+ 382:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 8
+ 383:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color32_t ret;
+ 384:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R32(ret, LV_COLOR_GET_R(color) * 36); /*(2^8 - 1)/(2^3 - 1) = 255/7 = 36*/
+ 385:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G32(ret, LV_COLOR_GET_G(color) * 36); /*(2^8 - 1)/(2^3 - 1) = 255/7 = 36*/
+ 386:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B32(ret, LV_COLOR_GET_B(color) * 85); /*(2^8 - 1)/(2^2 - 1) = 255/3 = 85*/
+ 387:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_A32(ret, 0xFF);
+ 388:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return ret.full;
+ 389:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 16
+ 390:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     /**
+ 391:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      * The floating point math for conversion is:
+ 392:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *  valueto = valuefrom * ( (2^bitsto - 1) / (float)(2^bitsfrom - 1) )
+ 393:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      * The faster integer math for conversion is:
+ 394:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *  valueto = ( valuefrom * multiplier + adder ) >> divisor
+ 395:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *   multiplier = FLOOR( ( (2^bitsto - 1) << divisor ) / (float)(2^bitsfrom - 1) )
+ 396:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *
+ 397:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      * Find the first divisor where ( adder >> divisor ) <= 0
+ 398:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *
+ 399:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      * 5-bit to 8-bit: ( 31 * multiplier + adder ) >> divisor = 255
+ 400:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      * divisor  multiplier  adder  min (0)  max (31)
+ 401:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       0           8      7        7       255
+ 402:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       1          16     14        7       255
+ 403:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       2          32     28        7       255
+ 404:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       3          65     25        3       255
+ 405:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       4         131     19        1       255
+ 406:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       5         263      7        0       255
+ 407:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *
+ 408:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      * 6-bit to 8-bit: 255 = ( 63 * multiplier + adder ) >> divisor
+ 409:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      * divisor  multiplier  adder  min (0)  max (63)
+ 410:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       0           4      3        3       255
+ 411:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       1           8      6        3       255
+ 412:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       2          16     12        3       255
+ 413:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       3          32     24        3       255
+ 414:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       4          64     48        3       255
+ 415:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       5         129     33        1       255
+ 416:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      *       6         259      3        0       255
+ 417:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****      */
+ 418:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** 
+ 419:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     lv_color32_t ret;
+  35              		.loc 2 419 5 view .LVU1
+ 420:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_R32(ret, (LV_COLOR_GET_R(color) * 263 + 7) >> 5);
+  36              		.loc 2 420 5 view .LVU2
+  37 0000 C0F3C403 		ubfx	r3, r0, #3, #5
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 9
+
+
+  38 0004 03EB4312 		add	r2, r3, r3, lsl #5
+  39 0008 C3EBC203 		rsb	r3, r3, r2, lsl #3
+  40 000c 0733     		adds	r3, r3, #7
+  41 000e C3F34713 		ubfx	r3, r3, #5, #8
+  42 0012 0022     		movs	r2, #0
+  43              	.LVL1:
+  44              		.loc 2 420 5 is_stmt 0 view .LVU3
+  45 0014 63F31742 		bfi	r2, r3, #16, #8
+  46              	.LVL2:
+ 421:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_G32(ret, (LV_COLOR_GET_G(color) * 259 + 3) >> 6);
+  47              		.loc 2 421 5 is_stmt 1 view .LVU4
+  48 0018 00F00701 		and	r1, r0, #7
+  49 001c C0F34233 		ubfx	r3, r0, #13, #3
+  50 0020 03EBC103 		add	r3, r3, r1, lsl #3
+  51 0024 03EBC311 		add	r1, r3, r3, lsl #7
+  52 0028 03EB4103 		add	r3, r3, r1, lsl #1
+  53 002c 0333     		adds	r3, r3, #3
+  54 002e C3F38713 		ubfx	r3, r3, #6, #8
+  55 0032 63F30F22 		bfi	r2, r3, #8, #8
+ 422:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_B32(ret, (LV_COLOR_GET_B(color) * 263 + 7) >> 5);
+  56              		.loc 2 422 5 view .LVU5
+  57 0036 C0F30420 		ubfx	r0, r0, #8, #5
+  58              	.LVL3:
+  59              		.loc 2 422 5 is_stmt 0 view .LVU6
+  60 003a 00EB4013 		add	r3, r0, r0, lsl #5
+  61 003e C0EBC303 		rsb	r3, r0, r3, lsl #3
+  62 0042 0733     		adds	r3, r3, #7
+  63 0044 C3F34713 		ubfx	r3, r3, #5, #8
+  64 0048 63F30702 		bfi	r2, r3, #0, #8
+ 423:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     LV_COLOR_SET_A32(ret, 0xFF);
+  65              		.loc 2 423 5 is_stmt 1 view .LVU7
+ 424:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return ret.full;
+  66              		.loc 2 424 5 view .LVU8
+ 425:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #elif LV_COLOR_DEPTH == 32
+ 426:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h ****     return color.full;
+ 427:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** #endif
+ 428:Drivers/lvgl/src/draw/sw/../../misc/lv_color.h **** }
+  67              		.loc 2 428 1 is_stmt 0 view .LVU9
+  68 004c 42F07F40 		orr	r0, r2, #-16777216
+  69 0050 7047     		bx	lr
+  70              		.cfi_endproc
+  71              	.LFE5:
+  73              		.section	.text.compute_key,"ax",%progbits
+  74              		.align	1
+  75              		.syntax unified
+  76              		.thumb
+  77              		.thumb_func
+  79              	compute_key:
+  80              	.LVL4:
+  81              	.LFB56:
+   1:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** /**
+   2:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  * @file lv_draw_sw_gradient.c
+   3:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  *
+   4:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  */
+   5:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+   6:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** /*********************
+   7:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  *      INCLUDES
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 10
+
+
+   8:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  *********************/
+   9:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #include "lv_draw_sw_gradient.h"
+  10:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #include "../../misc/lv_gc.h"
+  11:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #include "../../misc/lv_types.h"
+  12:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+  13:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** /*********************
+  14:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  *      DEFINES
+  15:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  *********************/
+  16:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if _DITHER_GRADIENT
+  17:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     #define GRAD_CM(r,g,b) LV_COLOR_MAKE32(r,g,b)
+  18:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     #define GRAD_CONV(t, x) t.full = lv_color_to32(x)
+  19:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #else
+  20:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     #define GRAD_CM(r,g,b) LV_COLOR_MAKE(r,g,b)
+  21:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     #define GRAD_CONV(t, x) t = x
+  22:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+  23:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+  24:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #undef ALIGN
+  25:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if defined(LV_ARCH_64)
+  26:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     #define ALIGN(X)    (((X) + 7) & ~7)
+  27:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #else
+  28:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     #define ALIGN(X)    (((X) + 3) & ~3)
+  29:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+  30:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+  31:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if LV_GRAD_CACHE_DEF_SIZE != 0 && LV_GRAD_CACHE_DEF_SIZE < 256
+  32:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     #error "LV_GRAD_CACHE_DEF_SIZE is too small"
+  33:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+  34:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+  35:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** /**********************
+  36:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  *  STATIC PROTOTYPES
+  37:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  **********************/
+  38:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static lv_grad_t * next_in_cache(lv_grad_t * item);
+  39:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+  40:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** typedef lv_res_t (*op_cache_t)(lv_grad_t * c, void * ctx);
+  41:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static lv_res_t iterate_cache(op_cache_t func, void * ctx, lv_grad_t ** out);
+  42:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static size_t get_cache_item_size(lv_grad_t * c);
+  43:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static lv_grad_t * allocate_item(const lv_grad_dsc_t * g, lv_coord_t w, lv_coord_t h);
+  44:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static lv_res_t find_oldest_item_life(lv_grad_t * c, void * ctx);
+  45:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static lv_res_t kill_oldest_item(lv_grad_t * c, void * ctx);
+  46:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static lv_res_t find_item(lv_grad_t * c, void * ctx);
+  47:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static void free_item(lv_grad_t * c);
+  48:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static  uint32_t compute_key(const lv_grad_dsc_t * g, lv_coord_t w, lv_coord_t h);
+  49:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+  50:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+  51:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** /**********************
+  52:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  *   STATIC VARIABLE
+  53:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  **********************/
+  54:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static size_t    grad_cache_size = 0;
+  55:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static uint8_t * grad_cache_end = 0;
+  56:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+  57:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** /**********************
+  58:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  *   STATIC FUNCTIONS
+  59:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  **********************/
+  60:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** union void_cast {
+  61:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     const void * ptr;
+  62:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     const uint32_t value;
+  63:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** };
+  64:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 11
+
+
+  65:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static uint32_t compute_key(const lv_grad_dsc_t * g, lv_coord_t size, lv_coord_t w)
+  66:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** {
+  82              		.loc 1 66 1 is_stmt 1 view -0
+  83              		.cfi_startproc
+  84              		@ args = 0, pretend = 0, frame = 0
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86              		@ link register save eliminated.
+  67:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     union void_cast v;
+  87              		.loc 1 67 5 view .LVU11
+  68:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     v.ptr = g;
+  88              		.loc 1 68 5 view .LVU12
+  69:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     return (v.value ^ size ^ (w >> 1)); /*Yes, this is correct, it's like a hash that changes if th
+  89              		.loc 1 69 5 view .LVU13
+  90              		.loc 1 69 21 is_stmt 0 view .LVU14
+  91 0000 4840     		eors	r0, r0, r1
+  92              	.LVL5:
+  70:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+  93              		.loc 1 70 1 view .LVU15
+  94 0002 80EA6200 		eor	r0, r0, r2, asr #1
+  95 0006 7047     		bx	lr
+  96              		.cfi_endproc
+  97              	.LFE56:
+  99              		.section	.text.get_cache_item_size,"ax",%progbits
+ 100              		.align	1
+ 101              		.syntax unified
+ 102              		.thumb
+ 103              		.thumb_func
+ 105              	get_cache_item_size:
+ 106              	.LVL6:
+ 107              	.LFB57:
+  71:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+  72:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static size_t get_cache_item_size(lv_grad_t * c)
+  73:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** {
+ 108              		.loc 1 73 1 is_stmt 1 view -0
+ 109              		.cfi_startproc
+ 110              		@ args = 0, pretend = 0, frame = 0
+ 111              		@ frame_needed = 0, uses_anonymous_args = 0
+ 112              		@ link register save eliminated.
+  74:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     size_t s = ALIGN(sizeof(*c)) + ALIGN(c->alloc_size * sizeof(lv_color_t));
+ 113              		.loc 1 74 5 view .LVU17
+ 114              		.loc 1 74 36 is_stmt 0 view .LVU18
+ 115 0000 B0F90C00 		ldrsh	r0, [r0, #12]
+ 116              	.LVL7:
+ 117              		.loc 1 74 36 view .LVU19
+ 118 0004 4000     		lsls	r0, r0, #1
+ 119 0006 0330     		adds	r0, r0, #3
+ 120 0008 20F00300 		bic	r0, r0, #3
+ 121              	.LVL8:
+  75:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if _DITHER_GRADIENT
+  76:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     s += ALIGN(c->size * sizeof(lv_color32_t));
+  77:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if LV_DITHER_ERROR_DIFFUSION == 1
+  78:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     s += ALIGN(c->w * sizeof(lv_scolor24_t));
+  79:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+  80:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+  81:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     return s;
+ 122              		.loc 1 81 5 is_stmt 1 view .LVU20
+  82:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 12
+
+
+ 123              		.loc 1 82 1 is_stmt 0 view .LVU21
+ 124 000c 1030     		adds	r0, r0, #16
+ 125              	.LVL9:
+ 126              		.loc 1 82 1 view .LVU22
+ 127 000e 7047     		bx	lr
+ 128              		.cfi_endproc
+ 129              	.LFE57:
+ 131              		.section	.text.next_in_cache,"ax",%progbits
+ 132              		.align	1
+ 133              		.syntax unified
+ 134              		.thumb
+ 135              		.thumb_func
+ 137              	next_in_cache:
+ 138              	.LVL10:
+ 139              	.LFB58:
+  83:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+  84:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static lv_grad_t * next_in_cache(lv_grad_t * item)
+  85:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** {
+ 140              		.loc 1 85 1 is_stmt 1 view -0
+ 141              		.cfi_startproc
+ 142              		@ args = 0, pretend = 0, frame = 0
+ 143              		@ frame_needed = 0, uses_anonymous_args = 0
+  86:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(grad_cache_size == 0) return NULL;
+ 144              		.loc 1 86 5 view .LVU24
+ 145              		.loc 1 86 24 is_stmt 0 view .LVU25
+ 146 0000 0A4B     		ldr	r3, .L14
+ 147 0002 1B68     		ldr	r3, [r3]
+ 148              		.loc 1 86 7 view .LVU26
+ 149 0004 7BB1     		cbz	r3, .L7
+  85:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(grad_cache_size == 0) return NULL;
+ 150              		.loc 1 85 1 view .LVU27
+ 151 0006 10B5     		push	{r4, lr}
+ 152              		.cfi_def_cfa_offset 8
+ 153              		.cfi_offset 4, -8
+ 154              		.cfi_offset 14, -4
+ 155 0008 0446     		mov	r4, r0
+  87:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+  88:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(item == NULL)
+ 156              		.loc 1 88 5 is_stmt 1 view .LVU28
+ 157              		.loc 1 88 7 is_stmt 0 view .LVU29
+ 158 000a 38B1     		cbz	r0, .L12
+  89:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         return (lv_grad_t *)LV_GC_ROOT(_lv_grad_cache_mem);
+  90:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+  91:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     size_t s = get_cache_item_size(item);
+ 159              		.loc 1 91 5 is_stmt 1 view .LVU30
+ 160              		.loc 1 91 16 is_stmt 0 view .LVU31
+ 161 000c FFF7FEFF 		bl	get_cache_item_size
+ 162              	.LVL11:
+  92:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     /*Compute the size for this cache item*/
+  93:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if((uint8_t *)item + s >= grad_cache_end) return NULL;
+ 163              		.loc 1 93 5 is_stmt 1 view .LVU32
+ 164              		.loc 1 93 24 is_stmt 0 view .LVU33
+ 165 0010 2044     		add	r0, r0, r4
+ 166              	.LVL12:
+ 167              		.loc 1 93 28 view .LVU34
+ 168 0012 074B     		ldr	r3, .L14+4
+ 169 0014 1B68     		ldr	r3, [r3]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 13
+
+
+ 170              		.loc 1 93 7 view .LVU35
+ 171 0016 9842     		cmp	r0, r3
+ 172 0018 03D2     		bcs	.L13
+ 173              	.LVL13:
+ 174              	.L4:
+  94:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     else return (lv_grad_t *)((uint8_t *)item + s);
+  95:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 175              		.loc 1 95 1 view .LVU36
+ 176 001a 10BD     		pop	{r4, pc}
+ 177              	.LVL14:
+ 178              	.L12:
+  89:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 179              		.loc 1 89 9 is_stmt 1 view .LVU37
+  89:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 180              		.loc 1 89 16 is_stmt 0 view .LVU38
+ 181 001c 054B     		ldr	r3, .L14+8
+ 182 001e 1868     		ldr	r0, [r3]
+ 183              	.LVL15:
+  89:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 184              		.loc 1 89 16 view .LVU39
+ 185 0020 FBE7     		b	.L4
+ 186              	.LVL16:
+ 187              	.L13:
+  93:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     else return (lv_grad_t *)((uint8_t *)item + s);
+ 188              		.loc 1 93 54 discriminator 1 view .LVU40
+ 189 0022 0020     		movs	r0, #0
+ 190 0024 F9E7     		b	.L4
+ 191              	.LVL17:
+ 192              	.L7:
+ 193              		.cfi_def_cfa_offset 0
+ 194              		.cfi_restore 4
+ 195              		.cfi_restore 14
+  86:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 196              		.loc 1 86 37 discriminator 1 view .LVU41
+ 197 0026 0020     		movs	r0, #0
+ 198              	.LVL18:
+ 199              		.loc 1 95 1 view .LVU42
+ 200 0028 7047     		bx	lr
+ 201              	.L15:
+ 202 002a 00BF     		.align	2
+ 203              	.L14:
+ 204 002c 00000000 		.word	grad_cache_size
+ 205 0030 00000000 		.word	grad_cache_end
+ 206 0034 00000000 		.word	_lv_grad_cache_mem
+ 207              		.cfi_endproc
+ 208              	.LFE58:
+ 210              		.section	.text.iterate_cache,"ax",%progbits
+ 211              		.align	1
+ 212              		.syntax unified
+ 213              		.thumb
+ 214              		.thumb_func
+ 216              	iterate_cache:
+ 217              	.LVL19:
+ 218              	.LFB59:
+  96:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+  97:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static lv_res_t iterate_cache(op_cache_t func, void * ctx, lv_grad_t ** out)
+  98:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** {
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 14
+
+
+ 219              		.loc 1 98 1 is_stmt 1 view -0
+ 220              		.cfi_startproc
+ 221              		@ args = 0, pretend = 0, frame = 0
+ 222              		@ frame_needed = 0, uses_anonymous_args = 0
+ 223              		.loc 1 98 1 is_stmt 0 view .LVU44
+ 224 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 225              		.cfi_def_cfa_offset 24
+ 226              		.cfi_offset 3, -24
+ 227              		.cfi_offset 4, -20
+ 228              		.cfi_offset 5, -16
+ 229              		.cfi_offset 6, -12
+ 230              		.cfi_offset 7, -8
+ 231              		.cfi_offset 14, -4
+ 232 0002 0646     		mov	r6, r0
+ 233 0004 0D46     		mov	r5, r1
+ 234 0006 1746     		mov	r7, r2
+  99:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_grad_t * first = next_in_cache(NULL);
+ 235              		.loc 1 99 5 is_stmt 1 view .LVU45
+ 236              		.loc 1 99 25 is_stmt 0 view .LVU46
+ 237 0008 0020     		movs	r0, #0
+ 238              	.LVL20:
+ 239              		.loc 1 99 25 view .LVU47
+ 240 000a FFF7FEFF 		bl	next_in_cache
+ 241              	.LVL21:
+ 242              		.loc 1 99 25 view .LVU48
+ 243 000e 0446     		mov	r4, r0
+ 244              	.LVL22:
+ 100:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     while(first != NULL && first->life) {
+ 245              		.loc 1 100 5 is_stmt 1 view .LVU49
+ 246              		.loc 1 100 10 is_stmt 0 view .LVU50
+ 247 0010 03E0     		b	.L17
+ 248              	.LVL23:
+ 249              	.L18:
+ 101:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         if((*func)(first, ctx) == LV_RES_OK) {
+ 102:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             if(out != NULL) *out = first;
+ 103:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             return LV_RES_OK;
+ 104:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 105:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         first = next_in_cache(first);
+ 250              		.loc 1 105 9 is_stmt 1 view .LVU51
+ 251              		.loc 1 105 17 is_stmt 0 view .LVU52
+ 252 0012 2046     		mov	r0, r4
+ 253 0014 FFF7FEFF 		bl	next_in_cache
+ 254              	.LVL24:
+ 255 0018 0446     		mov	r4, r0
+ 256              	.LVL25:
+ 257              	.L17:
+ 100:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     while(first != NULL && first->life) {
+ 258              		.loc 1 100 25 is_stmt 1 view .LVU53
+ 259 001a 6CB1     		cbz	r4, .L22
+ 100:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     while(first != NULL && first->life) {
+ 260              		.loc 1 100 25 is_stmt 0 discriminator 1 view .LVU54
+ 261 001c 6368     		ldr	r3, [r4, #4]
+ 262 001e 33F04043 		bics	r3, r3, #-1073741824
+ 263 0022 07D0     		beq	.L24
+ 101:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         if((*func)(first, ctx) == LV_RES_OK) {
+ 264              		.loc 1 101 9 is_stmt 1 view .LVU55
+ 101:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         if((*func)(first, ctx) == LV_RES_OK) {
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 15
+
+
+ 265              		.loc 1 101 13 is_stmt 0 view .LVU56
+ 266 0024 2946     		mov	r1, r5
+ 267 0026 2046     		mov	r0, r4
+ 101:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         if((*func)(first, ctx) == LV_RES_OK) {
+ 268              		.loc 1 101 13 view .LVU57
+ 269 0028 B047     		blx	r6
+ 270              	.LVL26:
+ 101:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         if((*func)(first, ctx) == LV_RES_OK) {
+ 271              		.loc 1 101 11 discriminator 1 view .LVU58
+ 272 002a 0128     		cmp	r0, #1
+ 273 002c F1D1     		bne	.L18
+ 102:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             return LV_RES_OK;
+ 274              		.loc 1 102 13 is_stmt 1 view .LVU59
+ 102:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             return LV_RES_OK;
+ 275              		.loc 1 102 15 is_stmt 0 view .LVU60
+ 276 002e 27B1     		cbz	r7, .L20
+ 102:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             return LV_RES_OK;
+ 277              		.loc 1 102 29 is_stmt 1 discriminator 1 view .LVU61
+ 102:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             return LV_RES_OK;
+ 278              		.loc 1 102 34 is_stmt 0 discriminator 1 view .LVU62
+ 279 0030 3C60     		str	r4, [r7]
+ 103:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 280              		.loc 1 103 13 is_stmt 1 view .LVU63
+ 103:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 281              		.loc 1 103 20 is_stmt 0 view .LVU64
+ 282 0032 02E0     		b	.L20
+ 283              	.LVL27:
+ 284              	.L24:
+ 106:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 107:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     return LV_RES_INV;
+ 285              		.loc 1 107 12 view .LVU65
+ 286 0034 0020     		movs	r0, #0
+ 287              	.LVL28:
+ 288              		.loc 1 107 12 view .LVU66
+ 289 0036 00E0     		b	.L20
+ 290              	.LVL29:
+ 291              	.L22:
+ 292              		.loc 1 107 12 view .LVU67
+ 293 0038 0020     		movs	r0, #0
+ 294              	.LVL30:
+ 295              	.L20:
+ 108:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 296              		.loc 1 108 1 view .LVU68
+ 297 003a F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 298              		.loc 1 108 1 view .LVU69
+ 299              		.cfi_endproc
+ 300              	.LFE59:
+ 302              		.section	.text.find_oldest_item_life,"ax",%progbits
+ 303              		.align	1
+ 304              		.syntax unified
+ 305              		.thumb
+ 306              		.thumb_func
+ 308              	find_oldest_item_life:
+ 309              	.LVL31:
+ 310              	.LFB60:
+ 109:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 110:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static lv_res_t find_oldest_item_life(lv_grad_t * c, void * ctx)
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 16
+
+
+ 111:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** {
+ 311              		.loc 1 111 1 is_stmt 1 view -0
+ 312              		.cfi_startproc
+ 313              		@ args = 0, pretend = 0, frame = 0
+ 314              		@ frame_needed = 0, uses_anonymous_args = 0
+ 315              		@ link register save eliminated.
+ 112:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     uint32_t * min_life = (uint32_t *)ctx;
+ 316              		.loc 1 112 5 view .LVU71
+ 113:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(c->life < *min_life) *min_life = c->life;
+ 317              		.loc 1 113 5 view .LVU72
+ 318              		.loc 1 113 9 is_stmt 0 view .LVU73
+ 319 0000 4368     		ldr	r3, [r0, #4]
+ 320 0002 C3F31D03 		ubfx	r3, r3, #0, #30
+ 321              		.loc 1 113 18 view .LVU74
+ 322 0006 0A68     		ldr	r2, [r1]
+ 323              		.loc 1 113 7 view .LVU75
+ 324 0008 9342     		cmp	r3, r2
+ 325 000a 00D2     		bcs	.L26
+ 326              		.loc 1 113 29 is_stmt 1 discriminator 1 view .LVU76
+ 327              		.loc 1 113 39 is_stmt 0 discriminator 1 view .LVU77
+ 328 000c 0B60     		str	r3, [r1]
+ 329              	.L26:
+ 114:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     return LV_RES_INV;
+ 330              		.loc 1 114 5 is_stmt 1 view .LVU78
+ 115:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 331              		.loc 1 115 1 is_stmt 0 view .LVU79
+ 332 000e 0020     		movs	r0, #0
+ 333              	.LVL32:
+ 334              		.loc 1 115 1 view .LVU80
+ 335 0010 7047     		bx	lr
+ 336              		.cfi_endproc
+ 337              	.LFE60:
+ 339              		.section	.text.find_item,"ax",%progbits
+ 340              		.align	1
+ 341              		.syntax unified
+ 342              		.thumb
+ 343              		.thumb_func
+ 345              	find_item:
+ 346              	.LVL33:
+ 347              	.LFB63:
+ 116:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 117:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static void free_item(lv_grad_t * c)
+ 118:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** {
+ 119:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     size_t size = get_cache_item_size(c);
+ 120:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     size_t next_items_size = (size_t)(grad_cache_end - (uint8_t *)c) - size;
+ 121:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     grad_cache_end -= size;
+ 122:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(next_items_size) {
+ 123:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         uint8_t * old = (uint8_t *)c;
+ 124:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         lv_memcpy(c, ((uint8_t *)c) + size, next_items_size);
+ 125:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         /* Then need to fix all internal pointers too */
+ 126:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         while((uint8_t *)c != grad_cache_end) {
+ 127:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             c->map = (lv_color_t *)(((uint8_t *)c->map) - size);
+ 128:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if _DITHER_GRADIENT
+ 129:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             c->hmap = (lv_color32_t *)(((uint8_t *)c->hmap) - size);
+ 130:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if LV_DITHER_ERROR_DIFFUSION == 1
+ 131:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             c->error_acc = (lv_scolor24_t *)(((uint8_t *)c->error_acc) - size);
+ 132:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 17
+
+
+ 133:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+ 134:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             c = (lv_grad_t *)(((uint8_t *)c) + get_cache_item_size(c));
+ 135:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 136:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         lv_memset_00(old + next_items_size, size);
+ 137:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 138:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 139:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 140:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static lv_res_t kill_oldest_item(lv_grad_t * c, void * ctx)
+ 141:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** {
+ 142:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     uint32_t * min_life = (uint32_t *)ctx;
+ 143:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(c->life == *min_life) {
+ 144:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         /*Found, let's kill it*/
+ 145:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         free_item(c);
+ 146:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         return LV_RES_OK;
+ 147:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 148:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     return LV_RES_INV;
+ 149:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 150:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 151:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static lv_res_t find_item(lv_grad_t * c, void * ctx)
+ 152:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** {
+ 348              		.loc 1 152 1 is_stmt 1 view -0
+ 349              		.cfi_startproc
+ 350              		@ args = 0, pretend = 0, frame = 0
+ 351              		@ frame_needed = 0, uses_anonymous_args = 0
+ 352              		@ link register save eliminated.
+ 153:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     uint32_t * k = (uint32_t *)ctx;
+ 353              		.loc 1 153 5 view .LVU82
+ 154:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(c->key == *k) return LV_RES_OK;
+ 354              		.loc 1 154 5 view .LVU83
+ 355              		.loc 1 154 9 is_stmt 0 view .LVU84
+ 356 0000 0268     		ldr	r2, [r0]
+ 357              		.loc 1 154 18 view .LVU85
+ 358 0002 0B68     		ldr	r3, [r1]
+ 359              		.loc 1 154 7 view .LVU86
+ 360 0004 9A42     		cmp	r2, r3
+ 361 0006 01D0     		beq	.L29
+ 155:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     return LV_RES_INV;
+ 362              		.loc 1 155 12 view .LVU87
+ 363 0008 0020     		movs	r0, #0
+ 364              	.LVL34:
+ 365              		.loc 1 155 12 view .LVU88
+ 366 000a 7047     		bx	lr
+ 367              	.LVL35:
+ 368              	.L29:
+ 154:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(c->key == *k) return LV_RES_OK;
+ 369              		.loc 1 154 29 discriminator 1 view .LVU89
+ 370 000c 0120     		movs	r0, #1
+ 371              	.LVL36:
+ 156:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 372              		.loc 1 156 1 view .LVU90
+ 373 000e 7047     		bx	lr
+ 374              		.cfi_endproc
+ 375              	.LFE63:
+ 377              		.section	.text.allocate_item,"ax",%progbits
+ 378              		.align	1
+ 379              		.syntax unified
+ 380              		.thumb
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 18
+
+
+ 381              		.thumb_func
+ 383              	allocate_item:
+ 384              	.LVL37:
+ 385              	.LFB64:
+ 157:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 158:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** static lv_grad_t * allocate_item(const lv_grad_dsc_t * g, lv_coord_t w, lv_coord_t h)
+ 159:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** {
+ 386              		.loc 1 159 1 is_stmt 1 view -0
+ 387              		.cfi_startproc
+ 388              		@ args = 0, pretend = 0, frame = 8
+ 389              		@ frame_needed = 0, uses_anonymous_args = 0
+ 390              		.loc 1 159 1 is_stmt 0 view .LVU92
+ 391 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 392              		.cfi_def_cfa_offset 28
+ 393              		.cfi_offset 4, -28
+ 394              		.cfi_offset 5, -24
+ 395              		.cfi_offset 6, -20
+ 396              		.cfi_offset 7, -16
+ 397              		.cfi_offset 8, -12
+ 398              		.cfi_offset 9, -8
+ 399              		.cfi_offset 14, -4
+ 400 0004 83B0     		sub	sp, sp, #12
+ 401              		.cfi_def_cfa_offset 40
+ 402 0006 0746     		mov	r7, r0
+ 403 0008 0E46     		mov	r6, r1
+ 404 000a 1546     		mov	r5, r2
+ 160:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_coord_t size = g->dir == LV_GRAD_DIR_HOR ? w : h;
+ 405              		.loc 1 160 5 is_stmt 1 view .LVU93
+ 406              		.loc 1 160 30 is_stmt 0 view .LVU94
+ 407 000c 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 408 000e 03F00703 		and	r3, r3, #7
+ 409              		.loc 1 160 16 view .LVU95
+ 410 0012 022B     		cmp	r3, #2
+ 411 0014 41D0     		beq	.L44
+ 412              		.loc 1 160 16 discriminator 2 view .LVU96
+ 413 0016 9046     		mov	r8, r2
+ 414              	.L31:
+ 415              	.LVL38:
+ 161:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_coord_t map_size = LV_MAX(w, h); /* The map is being used horizontally (width) unless
+ 416              		.loc 1 161 5 is_stmt 1 view .LVU97
+ 417              		.loc 1 161 16 is_stmt 0 view .LVU98
+ 418 0018 B542     		cmp	r5, r6
+ 419 001a B8BF     		it	lt
+ 420 001c 3546     		movlt	r5, r6
+ 421              	.LVL39:
+ 162:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                            no dithering is selected where it's used vertically */
+ 163:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 164:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     size_t req_size = ALIGN(sizeof(lv_grad_t)) + ALIGN(map_size * sizeof(lv_color_t));
+ 422              		.loc 1 164 5 is_stmt 1 view .LVU99
+ 423              		.loc 1 164 50 is_stmt 0 view .LVU100
+ 424 001e 6C00     		lsls	r4, r5, #1
+ 425 0020 0334     		adds	r4, r4, #3
+ 426 0022 24F00304 		bic	r4, r4, #3
+ 427              		.loc 1 164 12 view .LVU101
+ 428 0026 1034     		adds	r4, r4, #16
+ 429              	.LVL40:
+ 165:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if _DITHER_GRADIENT
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 19
+
+
+ 166:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     req_size += ALIGN(size * sizeof(lv_color32_t));
+ 167:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if LV_DITHER_ERROR_DIFFUSION == 1
+ 168:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     req_size += ALIGN(w * sizeof(lv_scolor24_t));
+ 169:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+ 170:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+ 171:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 172:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     size_t act_size = (size_t)(grad_cache_end - LV_GC_ROOT(_lv_grad_cache_mem));
+ 430              		.loc 1 172 5 is_stmt 1 view .LVU102
+ 431              		.loc 1 172 47 is_stmt 0 view .LVU103
+ 432 0028 364B     		ldr	r3, .L46
+ 433 002a D3F80090 		ldr	r9, [r3]
+ 434 002e 364B     		ldr	r3, .L46+4
+ 435 0030 1B68     		ldr	r3, [r3]
+ 436 0032 A9EB0303 		sub	r3, r9, r3
+ 437              	.LVL41:
+ 173:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_grad_t * item = NULL;
+ 438              		.loc 1 173 5 is_stmt 1 view .LVU104
+ 174:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(req_size + act_size < grad_cache_size) {
+ 439              		.loc 1 174 5 view .LVU105
+ 440              		.loc 1 174 17 is_stmt 0 view .LVU106
+ 441 0036 E118     		adds	r1, r4, r3
+ 442              	.LVL42:
+ 443              		.loc 1 174 28 view .LVU107
+ 444 0038 344A     		ldr	r2, .L46+8
+ 445              	.LVL43:
+ 446              		.loc 1 174 28 view .LVU108
+ 447 003a 1268     		ldr	r2, [r2]
+ 448              		.loc 1 174 7 view .LVU109
+ 449 003c 9142     		cmp	r1, r2
+ 450 003e 2ED2     		bcs	.L32
+ 175:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item = (lv_grad_t *)grad_cache_end;
+ 451              		.loc 1 175 9 is_stmt 1 view .LVU110
+ 452              	.LVL44:
+ 176:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->not_cached = 0;
+ 453              		.loc 1 176 9 view .LVU111
+ 454              		.loc 1 176 26 is_stmt 0 view .LVU112
+ 455 0040 99F80730 		ldrb	r3, [r9, #7]	@ zero_extendqisi2
+ 456              	.LVL45:
+ 457              		.loc 1 176 26 view .LVU113
+ 458 0044 23F08003 		bic	r3, r3, #128
+ 459 0048 89F80730 		strb	r3, [r9, #7]
+ 460              	.LVL46:
+ 461              	.L33:
+ 177:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 178:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     else {
+ 179:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         /*Need to evict items from cache until we find enough space to allocate this one */
+ 180:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         if(req_size <= grad_cache_size) {
+ 181:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             while(act_size + req_size > grad_cache_size) {
+ 182:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                 uint32_t oldest_life = UINT32_MAX;
+ 183:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                 iterate_cache(&find_oldest_item_life, &oldest_life, NULL);
+ 184:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                 iterate_cache(&kill_oldest_item, &oldest_life, NULL);
+ 185:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                 act_size = (size_t)(grad_cache_end - LV_GC_ROOT(_lv_grad_cache_mem));
+ 186:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             }
+ 187:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             item = (lv_grad_t *)grad_cache_end;
+ 188:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             item->not_cached = 0;
+ 189:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 190:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         else {
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 20
+
+
+ 191:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             /*The cache is too small. Allocate the item manually and free it later.*/
+ 192:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             item = lv_mem_alloc(req_size);
+ 193:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             LV_ASSERT_MALLOC(item);
+ 194:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             if(item == NULL) return NULL;
+ 195:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             item->not_cached = 1;
+ 196:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 197:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 198:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 199:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     item->key = compute_key(g, size, w);
+ 462              		.loc 1 199 5 is_stmt 1 view .LVU114
+ 463              		.loc 1 199 17 is_stmt 0 view .LVU115
+ 464 004c 3246     		mov	r2, r6
+ 465 004e 4146     		mov	r1, r8
+ 466 0050 3846     		mov	r0, r7
+ 467 0052 FFF7FEFF 		bl	compute_key
+ 468              	.LVL47:
+ 469              		.loc 1 199 15 discriminator 1 view .LVU116
+ 470 0056 C9F80000 		str	r0, [r9]
+ 200:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     item->life = 1;
+ 471              		.loc 1 200 5 is_stmt 1 view .LVU117
+ 472              		.loc 1 200 16 is_stmt 0 view .LVU118
+ 473 005a D9F80430 		ldr	r3, [r9, #4]
+ 474 005e 0122     		movs	r2, #1
+ 475 0060 62F31D03 		bfi	r3, r2, #0, #30
+ 476 0064 C9F80430 		str	r3, [r9, #4]
+ 201:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     item->filled = 0;
+ 477              		.loc 1 201 5 is_stmt 1 view .LVU119
+ 478              		.loc 1 201 18 is_stmt 0 view .LVU120
+ 479 0068 99F80730 		ldrb	r3, [r9, #7]	@ zero_extendqisi2
+ 480 006c 23F04003 		bic	r3, r3, #64
+ 481 0070 89F80730 		strb	r3, [r9, #7]
+ 202:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     item->alloc_size = map_size;
+ 482              		.loc 1 202 5 is_stmt 1 view .LVU121
+ 483              		.loc 1 202 22 is_stmt 0 view .LVU122
+ 484 0074 A9F80C50 		strh	r5, [r9, #12]	@ movhi
+ 203:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     item->size = size;
+ 485              		.loc 1 203 5 is_stmt 1 view .LVU123
+ 486              		.loc 1 203 16 is_stmt 0 view .LVU124
+ 487 0078 A9F80E80 		strh	r8, [r9, #14]	@ movhi
+ 204:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(item->not_cached) {
+ 488              		.loc 1 204 5 is_stmt 1 view .LVU125
+ 489              		.loc 1 204 7 is_stmt 0 view .LVU126
+ 490 007c 5BB2     		sxtb	r3, r3
+ 491 007e 002B     		cmp	r3, #0
+ 492 0080 3BDB     		blt	.L45
+ 205:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         uint8_t * p = (uint8_t *)item;
+ 206:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->map = (lv_color_t *)(p + ALIGN(sizeof(*item)));
+ 207:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if _DITHER_GRADIENT
+ 208:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->hmap = (lv_color32_t *)(p + ALIGN(sizeof(*item)) + ALIGN(map_size * sizeof(lv_color_t
+ 209:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if LV_DITHER_ERROR_DIFFUSION == 1
+ 210:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->error_acc = (lv_scolor24_t *)(p + ALIGN(sizeof(*item)) + ALIGN(size * sizeof(lv_grad_
+ 211:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                             ALIGN(map_size * sizeof(lv_color_t)));
+ 212:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->w = w;
+ 213:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+ 214:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+ 215:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 216:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     else {
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 21
+
+
+ 217:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->map = (lv_color_t *)(grad_cache_end + ALIGN(sizeof(*item)));
+ 493              		.loc 1 217 9 is_stmt 1 view .LVU127
+ 494              		.loc 1 217 51 is_stmt 0 view .LVU128
+ 495 0082 204A     		ldr	r2, .L46
+ 496 0084 1368     		ldr	r3, [r2]
+ 497 0086 03F11001 		add	r1, r3, #16
+ 498              		.loc 1 217 19 view .LVU129
+ 499 008a C9F80810 		str	r1, [r9, #8]
+ 218:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if _DITHER_GRADIENT
+ 219:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->hmap = (lv_color32_t *)(grad_cache_end + ALIGN(sizeof(*item)) + ALIGN(map_size * size
+ 220:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if LV_DITHER_ERROR_DIFFUSION == 1
+ 221:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->error_acc = (lv_scolor24_t *)(grad_cache_end + ALIGN(sizeof(*item)) + ALIGN(size * si
+ 222:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                             ALIGN(map_size * sizeof(lv_color_t)));
+ 223:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->w = w;
+ 224:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+ 225:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+ 226:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         grad_cache_end += req_size;
+ 500              		.loc 1 226 9 is_stmt 1 view .LVU130
+ 501              		.loc 1 226 24 is_stmt 0 view .LVU131
+ 502 008e 2344     		add	r3, r3, r4
+ 503 0090 1360     		str	r3, [r2]
+ 227:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 228:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     return item;
+ 504              		.loc 1 228 5 is_stmt 1 view .LVU132
+ 505              	.L30:
+ 229:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 506              		.loc 1 229 1 is_stmt 0 view .LVU133
+ 507 0092 4846     		mov	r0, r9
+ 508 0094 03B0     		add	sp, sp, #12
+ 509              		.cfi_remember_state
+ 510              		.cfi_def_cfa_offset 28
+ 511              		@ sp needed
+ 512 0096 BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 513              	.LVL48:
+ 514              	.L44:
+ 515              		.cfi_restore_state
+ 160:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_coord_t map_size = LV_MAX(w, h); /* The map is being used horizontally (width) unless
+ 516              		.loc 1 160 16 discriminator 1 view .LVU134
+ 517 009a 8846     		mov	r8, r1
+ 518 009c BCE7     		b	.L31
+ 519              	.LVL49:
+ 520              	.L32:
+ 180:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             while(act_size + req_size > grad_cache_size) {
+ 521              		.loc 1 180 9 is_stmt 1 view .LVU135
+ 180:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             while(act_size + req_size > grad_cache_size) {
+ 522              		.loc 1 180 11 is_stmt 0 view .LVU136
+ 523 009e A242     		cmp	r2, r4
+ 524 00a0 1BD2     		bcs	.L34
+ 192:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             LV_ASSERT_MALLOC(item);
+ 525              		.loc 1 192 13 is_stmt 1 view .LVU137
+ 192:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             LV_ASSERT_MALLOC(item);
+ 526              		.loc 1 192 20 is_stmt 0 view .LVU138
+ 527 00a2 2046     		mov	r0, r4
+ 528              	.LVL50:
+ 192:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             LV_ASSERT_MALLOC(item);
+ 529              		.loc 1 192 20 view .LVU139
+ 530 00a4 FFF7FEFF 		bl	lv_mem_alloc
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 22
+
+
+ 531              	.LVL51:
+ 193:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             if(item == NULL) return NULL;
+ 532              		.loc 1 193 13 is_stmt 1 view .LVU140
+ 193:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             if(item == NULL) return NULL;
+ 533              		.loc 1 193 13 view .LVU141
+ 534 00a8 8146     		mov	r9, r0
+ 193:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             if(item == NULL) return NULL;
+ 535              		.loc 1 193 13 is_stmt 0 view .LVU142
+ 536 00aa 28B3     		cbz	r0, .L38
+ 193:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             if(item == NULL) return NULL;
+ 537              		.loc 1 193 13 is_stmt 1 discriminator 2 view .LVU143
+ 193:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             if(item == NULL) return NULL;
+ 538              		.loc 1 193 35 discriminator 2 view .LVU144
+ 194:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             item->not_cached = 1;
+ 539              		.loc 1 194 13 view .LVU145
+ 195:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 540              		.loc 1 195 13 view .LVU146
+ 195:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 541              		.loc 1 195 30 is_stmt 0 view .LVU147
+ 542 00ac C379     		ldrb	r3, [r0, #7]	@ zero_extendqisi2
+ 543 00ae 43F08003 		orr	r3, r3, #128
+ 544 00b2 C371     		strb	r3, [r0, #7]
+ 545 00b4 CAE7     		b	.L33
+ 546              	.LVL52:
+ 547              	.L36:
+ 548              	.LBB2:
+ 182:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                 iterate_cache(&find_oldest_item_life, &oldest_life, NULL);
+ 549              		.loc 1 182 17 is_stmt 1 view .LVU148
+ 182:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                 iterate_cache(&find_oldest_item_life, &oldest_life, NULL);
+ 550              		.loc 1 182 26 is_stmt 0 view .LVU149
+ 551 00b6 4FF0FF33 		mov	r3, #-1
+ 552 00ba 0193     		str	r3, [sp, #4]
+ 183:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                 iterate_cache(&kill_oldest_item, &oldest_life, NULL);
+ 553              		.loc 1 183 17 is_stmt 1 view .LVU150
+ 554 00bc 0022     		movs	r2, #0
+ 555 00be 01A9     		add	r1, sp, #4
+ 556 00c0 1348     		ldr	r0, .L46+12
+ 557 00c2 FFF7FEFF 		bl	iterate_cache
+ 558              	.LVL53:
+ 184:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                 act_size = (size_t)(grad_cache_end - LV_GC_ROOT(_lv_grad_cache_mem));
+ 559              		.loc 1 184 17 view .LVU151
+ 560 00c6 0022     		movs	r2, #0
+ 561 00c8 01A9     		add	r1, sp, #4
+ 562 00ca 1248     		ldr	r0, .L46+16
+ 563 00cc FFF7FEFF 		bl	iterate_cache
+ 564              	.LVL54:
+ 185:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             }
+ 565              		.loc 1 185 17 view .LVU152
+ 185:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             }
+ 566              		.loc 1 185 52 is_stmt 0 view .LVU153
+ 567 00d0 0C4B     		ldr	r3, .L46
+ 568 00d2 1B68     		ldr	r3, [r3]
+ 569 00d4 0C4A     		ldr	r2, .L46+4
+ 570 00d6 1268     		ldr	r2, [r2]
+ 571 00d8 9B1A     		subs	r3, r3, r2
+ 572              	.LVL55:
+ 573              	.L34:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 23
+
+
+ 185:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             }
+ 574              		.loc 1 185 52 view .LVU154
+ 575              	.LBE2:
+ 181:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                 uint32_t oldest_life = UINT32_MAX;
+ 576              		.loc 1 181 39 is_stmt 1 view .LVU155
+ 181:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                 uint32_t oldest_life = UINT32_MAX;
+ 577              		.loc 1 181 28 is_stmt 0 view .LVU156
+ 578 00da 2344     		add	r3, r3, r4
+ 579              	.LVL56:
+ 181:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                 uint32_t oldest_life = UINT32_MAX;
+ 580              		.loc 1 181 39 view .LVU157
+ 581 00dc 0B4A     		ldr	r2, .L46+8
+ 582 00de 1268     		ldr	r2, [r2]
+ 583 00e0 9342     		cmp	r3, r2
+ 584 00e2 E8D8     		bhi	.L36
+ 187:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             item->not_cached = 0;
+ 585              		.loc 1 187 13 is_stmt 1 view .LVU158
+ 187:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             item->not_cached = 0;
+ 586              		.loc 1 187 18 is_stmt 0 view .LVU159
+ 587 00e4 074B     		ldr	r3, .L46
+ 588 00e6 D3F80090 		ldr	r9, [r3]
+ 589              	.LVL57:
+ 188:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 590              		.loc 1 188 13 is_stmt 1 view .LVU160
+ 188:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 591              		.loc 1 188 30 is_stmt 0 view .LVU161
+ 592 00ea 99F80730 		ldrb	r3, [r9, #7]	@ zero_extendqisi2
+ 593 00ee 23F08003 		bic	r3, r3, #128
+ 594 00f2 89F80730 		strb	r3, [r9, #7]
+ 595 00f6 A9E7     		b	.L33
+ 596              	.LVL58:
+ 597              	.L38:
+ 193:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             if(item == NULL) return NULL;
+ 598              		.loc 1 193 13 is_stmt 1 discriminator 1 view .LVU162
+ 193:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             if(item == NULL) return NULL;
+ 599              		.loc 1 193 13 discriminator 1 view .LVU163
+ 193:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             if(item == NULL) return NULL;
+ 600              		.loc 1 193 13 discriminator 1 view .LVU164
+ 193:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             if(item == NULL) return NULL;
+ 601              		.loc 1 193 13 discriminator 1 view .LVU165
+ 193:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             if(item == NULL) return NULL;
+ 602              		.loc 1 193 13 discriminator 1 view .LVU166
+ 603 00f8 FEE7     		b	.L38
+ 604              	.LVL59:
+ 605              	.L45:
+ 606              	.LBB3:
+ 205:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->map = (lv_color_t *)(p + ALIGN(sizeof(*item)));
+ 607              		.loc 1 205 9 view .LVU167
+ 206:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if _DITHER_GRADIENT
+ 608              		.loc 1 206 9 view .LVU168
+ 206:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if _DITHER_GRADIENT
+ 609              		.loc 1 206 38 is_stmt 0 view .LVU169
+ 610 00fa 09F11003 		add	r3, r9, #16
+ 206:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if _DITHER_GRADIENT
+ 611              		.loc 1 206 19 view .LVU170
+ 612 00fe C9F80830 		str	r3, [r9, #8]
+ 613              	.LBE3:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 24
+
+
+ 614 0102 C6E7     		b	.L30
+ 615              	.L47:
+ 616              		.align	2
+ 617              	.L46:
+ 618 0104 00000000 		.word	grad_cache_end
+ 619 0108 00000000 		.word	_lv_grad_cache_mem
+ 620 010c 00000000 		.word	grad_cache_size
+ 621 0110 00000000 		.word	find_oldest_item_life
+ 622 0114 00000000 		.word	kill_oldest_item
+ 623              		.cfi_endproc
+ 624              	.LFE64:
+ 626              		.section	.text.free_item,"ax",%progbits
+ 627              		.align	1
+ 628              		.syntax unified
+ 629              		.thumb
+ 630              		.thumb_func
+ 632              	free_item:
+ 633              	.LVL60:
+ 634              	.LFB61:
+ 118:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     size_t size = get_cache_item_size(c);
+ 635              		.loc 1 118 1 is_stmt 1 view -0
+ 636              		.cfi_startproc
+ 637              		@ args = 0, pretend = 0, frame = 0
+ 638              		@ frame_needed = 0, uses_anonymous_args = 0
+ 118:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     size_t size = get_cache_item_size(c);
+ 639              		.loc 1 118 1 is_stmt 0 view .LVU172
+ 640 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 641              		.cfi_def_cfa_offset 24
+ 642              		.cfi_offset 4, -24
+ 643              		.cfi_offset 5, -20
+ 644              		.cfi_offset 6, -16
+ 645              		.cfi_offset 7, -12
+ 646              		.cfi_offset 8, -8
+ 647              		.cfi_offset 14, -4
+ 648 0004 0646     		mov	r6, r0
+ 119:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     size_t next_items_size = (size_t)(grad_cache_end - (uint8_t *)c) - size;
+ 649              		.loc 1 119 5 is_stmt 1 view .LVU173
+ 119:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     size_t next_items_size = (size_t)(grad_cache_end - (uint8_t *)c) - size;
+ 650              		.loc 1 119 19 is_stmt 0 view .LVU174
+ 651 0006 FFF7FEFF 		bl	get_cache_item_size
+ 652              	.LVL61:
+ 120:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     grad_cache_end -= size;
+ 653              		.loc 1 120 5 is_stmt 1 view .LVU175
+ 120:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     grad_cache_end -= size;
+ 654              		.loc 1 120 54 is_stmt 0 view .LVU176
+ 655 000a 114A     		ldr	r2, .L54
+ 656 000c 1368     		ldr	r3, [r2]
+ 657 000e 9F1B     		subs	r7, r3, r6
+ 658              	.LVL62:
+ 121:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(next_items_size) {
+ 659              		.loc 1 121 5 is_stmt 1 view .LVU177
+ 121:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(next_items_size) {
+ 660              		.loc 1 121 20 is_stmt 0 view .LVU178
+ 661 0010 1B1A     		subs	r3, r3, r0
+ 662 0012 1360     		str	r3, [r2]
+ 122:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         uint8_t * old = (uint8_t *)c;
+ 663              		.loc 1 122 5 is_stmt 1 view .LVU179
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 25
+
+
+ 122:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         uint8_t * old = (uint8_t *)c;
+ 664              		.loc 1 122 7 is_stmt 0 view .LVU180
+ 665 0014 3F1A     		subs	r7, r7, r0
+ 666              	.LVL63:
+ 122:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         uint8_t * old = (uint8_t *)c;
+ 667              		.loc 1 122 7 view .LVU181
+ 668 0016 01D1     		bne	.L53
+ 669              	.LVL64:
+ 670              	.L48:
+ 138:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 671              		.loc 1 138 1 view .LVU182
+ 672 0018 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 673              	.LVL65:
+ 674              	.L53:
+ 138:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 675              		.loc 1 138 1 view .LVU183
+ 676 001c 0546     		mov	r5, r0
+ 677 001e C0F10008 		rsb	r8, r0, #0
+ 678              	.LBB4:
+ 123:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         lv_memcpy(c, ((uint8_t *)c) + size, next_items_size);
+ 679              		.loc 1 123 9 is_stmt 1 view .LVU184
+ 680              	.LVL66:
+ 124:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         /* Then need to fix all internal pointers too */
+ 681              		.loc 1 124 9 view .LVU185
+ 682 0022 3A46     		mov	r2, r7
+ 683 0024 3118     		adds	r1, r6, r0
+ 684 0026 3046     		mov	r0, r6
+ 685              	.LVL67:
+ 124:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         /* Then need to fix all internal pointers too */
+ 686              		.loc 1 124 9 is_stmt 0 view .LVU186
+ 687 0028 FFF7FEFF 		bl	lv_memcpy
+ 688              	.LVL68:
+ 126:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             c->map = (lv_color_t *)(((uint8_t *)c->map) - size);
+ 689              		.loc 1 126 9 is_stmt 1 view .LVU187
+ 126:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             c->map = (lv_color_t *)(((uint8_t *)c->map) - size);
+ 690              		.loc 1 126 14 is_stmt 0 view .LVU188
+ 691 002c 3446     		mov	r4, r6
+ 692 002e 06E0     		b	.L50
+ 693              	.LVL69:
+ 694              	.L51:
+ 127:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if _DITHER_GRADIENT
+ 695              		.loc 1 127 13 is_stmt 1 view .LVU189
+ 127:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if _DITHER_GRADIENT
+ 696              		.loc 1 127 50 is_stmt 0 view .LVU190
+ 697 0030 A368     		ldr	r3, [r4, #8]
+ 127:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if _DITHER_GRADIENT
+ 698              		.loc 1 127 22 view .LVU191
+ 699 0032 4344     		add	r3, r3, r8
+ 127:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if _DITHER_GRADIENT
+ 700              		.loc 1 127 20 view .LVU192
+ 701 0034 A360     		str	r3, [r4, #8]
+ 134:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 702              		.loc 1 134 13 is_stmt 1 view .LVU193
+ 134:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 703              		.loc 1 134 48 is_stmt 0 view .LVU194
+ 704 0036 2046     		mov	r0, r4
+ 705 0038 FFF7FEFF 		bl	get_cache_item_size
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 26
+
+
+ 706              	.LVL70:
+ 134:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 707              		.loc 1 134 15 discriminator 1 view .LVU195
+ 708 003c 0444     		add	r4, r4, r0
+ 709              	.LVL71:
+ 710              	.L50:
+ 126:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             c->map = (lv_color_t *)(((uint8_t *)c->map) - size);
+ 711              		.loc 1 126 28 is_stmt 1 view .LVU196
+ 712 003e 044B     		ldr	r3, .L54
+ 713 0040 1B68     		ldr	r3, [r3]
+ 714 0042 A342     		cmp	r3, r4
+ 715 0044 F4D1     		bne	.L51
+ 136:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 716              		.loc 1 136 9 view .LVU197
+ 717 0046 2946     		mov	r1, r5
+ 718 0048 F019     		adds	r0, r6, r7
+ 719 004a FFF7FEFF 		bl	lv_memset_00
+ 720              	.LVL72:
+ 721              	.LBE4:
+ 138:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 722              		.loc 1 138 1 is_stmt 0 view .LVU198
+ 723 004e E3E7     		b	.L48
+ 724              	.L55:
+ 725              		.align	2
+ 726              	.L54:
+ 727 0050 00000000 		.word	grad_cache_end
+ 728              		.cfi_endproc
+ 729              	.LFE61:
+ 731              		.section	.text.kill_oldest_item,"ax",%progbits
+ 732              		.align	1
+ 733              		.syntax unified
+ 734              		.thumb
+ 735              		.thumb_func
+ 737              	kill_oldest_item:
+ 738              	.LVL73:
+ 739              	.LFB62:
+ 141:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     uint32_t * min_life = (uint32_t *)ctx;
+ 740              		.loc 1 141 1 is_stmt 1 view -0
+ 741              		.cfi_startproc
+ 742              		@ args = 0, pretend = 0, frame = 0
+ 743              		@ frame_needed = 0, uses_anonymous_args = 0
+ 141:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     uint32_t * min_life = (uint32_t *)ctx;
+ 744              		.loc 1 141 1 is_stmt 0 view .LVU200
+ 745 0000 08B5     		push	{r3, lr}
+ 746              		.cfi_def_cfa_offset 8
+ 747              		.cfi_offset 3, -8
+ 748              		.cfi_offset 14, -4
+ 142:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(c->life == *min_life) {
+ 749              		.loc 1 142 5 is_stmt 1 view .LVU201
+ 750              	.LVL74:
+ 143:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         /*Found, let's kill it*/
+ 751              		.loc 1 143 5 view .LVU202
+ 143:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         /*Found, let's kill it*/
+ 752              		.loc 1 143 9 is_stmt 0 view .LVU203
+ 753 0002 4368     		ldr	r3, [r0, #4]
+ 754 0004 C3F31D03 		ubfx	r3, r3, #0, #30
+ 143:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         /*Found, let's kill it*/
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 27
+
+
+ 755              		.loc 1 143 19 view .LVU204
+ 756 0008 0A68     		ldr	r2, [r1]
+ 143:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         /*Found, let's kill it*/
+ 757              		.loc 1 143 7 view .LVU205
+ 758 000a 9342     		cmp	r3, r2
+ 759 000c 01D0     		beq	.L60
+ 148:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 760              		.loc 1 148 12 view .LVU206
+ 761 000e 0020     		movs	r0, #0
+ 762              	.LVL75:
+ 763              	.L57:
+ 149:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 764              		.loc 1 149 1 view .LVU207
+ 765 0010 08BD     		pop	{r3, pc}
+ 766              	.LVL76:
+ 767              	.L60:
+ 145:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         return LV_RES_OK;
+ 768              		.loc 1 145 9 is_stmt 1 view .LVU208
+ 769 0012 FFF7FEFF 		bl	free_item
+ 770              	.LVL77:
+ 146:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 771              		.loc 1 146 9 view .LVU209
+ 146:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 772              		.loc 1 146 16 is_stmt 0 view .LVU210
+ 773 0016 0120     		movs	r0, #1
+ 774 0018 FAE7     		b	.L57
+ 775              		.cfi_endproc
+ 776              	.LFE62:
+ 778              		.section	.text.lv_gradient_free_cache,"ax",%progbits
+ 779              		.align	1
+ 780              		.global	lv_gradient_free_cache
+ 781              		.syntax unified
+ 782              		.thumb
+ 783              		.thumb_func
+ 785              	lv_gradient_free_cache:
+ 786              	.LFB65:
+ 230:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 231:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 232:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** /**********************
+ 233:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  *     FUNCTIONS
+ 234:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****  **********************/
+ 235:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** void lv_gradient_free_cache(void)
+ 236:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** {
+ 787              		.loc 1 236 1 is_stmt 1 view -0
+ 788              		.cfi_startproc
+ 789              		@ args = 0, pretend = 0, frame = 0
+ 790              		@ frame_needed = 0, uses_anonymous_args = 0
+ 791 0000 10B5     		push	{r4, lr}
+ 792              		.cfi_def_cfa_offset 8
+ 793              		.cfi_offset 4, -8
+ 794              		.cfi_offset 14, -4
+ 237:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_mem_free(LV_GC_ROOT(_lv_grad_cache_mem));
+ 795              		.loc 1 237 5 view .LVU212
+ 796 0002 054C     		ldr	r4, .L63
+ 797 0004 2068     		ldr	r0, [r4]
+ 798 0006 FFF7FEFF 		bl	lv_mem_free
+ 799              	.LVL78:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 28
+
+
+ 238:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     LV_GC_ROOT(_lv_grad_cache_mem) = grad_cache_end = NULL;
+ 800              		.loc 1 238 5 view .LVU213
+ 801              		.loc 1 238 53 is_stmt 0 view .LVU214
+ 802 000a 0023     		movs	r3, #0
+ 803 000c 034A     		ldr	r2, .L63+4
+ 804 000e 1360     		str	r3, [r2]
+ 805              		.loc 1 238 36 view .LVU215
+ 806 0010 2360     		str	r3, [r4]
+ 239:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     grad_cache_size = 0;
+ 807              		.loc 1 239 5 is_stmt 1 view .LVU216
+ 808              		.loc 1 239 21 is_stmt 0 view .LVU217
+ 809 0012 034A     		ldr	r2, .L63+8
+ 810 0014 1360     		str	r3, [r2]
+ 240:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 811              		.loc 1 240 1 view .LVU218
+ 812 0016 10BD     		pop	{r4, pc}
+ 813              	.L64:
+ 814              		.align	2
+ 815              	.L63:
+ 816 0018 00000000 		.word	_lv_grad_cache_mem
+ 817 001c 00000000 		.word	grad_cache_end
+ 818 0020 00000000 		.word	grad_cache_size
+ 819              		.cfi_endproc
+ 820              	.LFE65:
+ 822              		.section	.text.lv_gradient_set_cache_size,"ax",%progbits
+ 823              		.align	1
+ 824              		.global	lv_gradient_set_cache_size
+ 825              		.syntax unified
+ 826              		.thumb
+ 827              		.thumb_func
+ 829              	lv_gradient_set_cache_size:
+ 830              	.LVL79:
+ 831              	.LFB66:
+ 241:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 242:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** void lv_gradient_set_cache_size(size_t max_bytes)
+ 243:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** {
+ 832              		.loc 1 243 1 is_stmt 1 view -0
+ 833              		.cfi_startproc
+ 834              		@ args = 0, pretend = 0, frame = 0
+ 835              		@ frame_needed = 0, uses_anonymous_args = 0
+ 836              		.loc 1 243 1 is_stmt 0 view .LVU220
+ 837 0000 38B5     		push	{r3, r4, r5, lr}
+ 838              		.cfi_def_cfa_offset 16
+ 839              		.cfi_offset 3, -16
+ 840              		.cfi_offset 4, -12
+ 841              		.cfi_offset 5, -8
+ 842              		.cfi_offset 14, -4
+ 843 0002 0446     		mov	r4, r0
+ 244:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_mem_free(LV_GC_ROOT(_lv_grad_cache_mem));
+ 844              		.loc 1 244 5 is_stmt 1 view .LVU221
+ 845 0004 084D     		ldr	r5, .L69
+ 846 0006 2868     		ldr	r0, [r5]
+ 847              	.LVL80:
+ 848              		.loc 1 244 5 is_stmt 0 view .LVU222
+ 849 0008 FFF7FEFF 		bl	lv_mem_free
+ 850              	.LVL81:
+ 245:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     grad_cache_end = LV_GC_ROOT(_lv_grad_cache_mem) = lv_mem_alloc(max_bytes);
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 29
+
+
+ 851              		.loc 1 245 5 is_stmt 1 view .LVU223
+ 852              		.loc 1 245 55 is_stmt 0 view .LVU224
+ 853 000c 2046     		mov	r0, r4
+ 854 000e FFF7FEFF 		bl	lv_mem_alloc
+ 855              	.LVL82:
+ 856              		.loc 1 245 53 discriminator 1 view .LVU225
+ 857 0012 2860     		str	r0, [r5]
+ 858              		.loc 1 245 20 discriminator 1 view .LVU226
+ 859 0014 054B     		ldr	r3, .L69+4
+ 860 0016 1860     		str	r0, [r3]
+ 246:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     LV_ASSERT_MALLOC(LV_GC_ROOT(_lv_grad_cache_mem));
+ 861              		.loc 1 246 5 is_stmt 1 view .LVU227
+ 862              		.loc 1 246 5 view .LVU228
+ 863 0018 28B1     		cbz	r0, .L67
+ 864              		.loc 1 246 5 discriminator 2 view .LVU229
+ 865              		.loc 1 246 53 discriminator 2 view .LVU230
+ 247:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_memset_00(LV_GC_ROOT(_lv_grad_cache_mem), max_bytes);
+ 866              		.loc 1 247 5 view .LVU231
+ 867 001a 2146     		mov	r1, r4
+ 868 001c FFF7FEFF 		bl	lv_memset_00
+ 869              	.LVL83:
+ 248:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     grad_cache_size = max_bytes;
+ 870              		.loc 1 248 5 view .LVU232
+ 871              		.loc 1 248 21 is_stmt 0 view .LVU233
+ 872 0020 034B     		ldr	r3, .L69+8
+ 873 0022 1C60     		str	r4, [r3]
+ 249:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 874              		.loc 1 249 1 view .LVU234
+ 875 0024 38BD     		pop	{r3, r4, r5, pc}
+ 876              	.LVL84:
+ 877              	.L67:
+ 246:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_memset_00(LV_GC_ROOT(_lv_grad_cache_mem), max_bytes);
+ 878              		.loc 1 246 5 is_stmt 1 discriminator 1 view .LVU235
+ 246:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_memset_00(LV_GC_ROOT(_lv_grad_cache_mem), max_bytes);
+ 879              		.loc 1 246 5 discriminator 1 view .LVU236
+ 246:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_memset_00(LV_GC_ROOT(_lv_grad_cache_mem), max_bytes);
+ 880              		.loc 1 246 5 discriminator 1 view .LVU237
+ 246:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_memset_00(LV_GC_ROOT(_lv_grad_cache_mem), max_bytes);
+ 881              		.loc 1 246 5 discriminator 1 view .LVU238
+ 246:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_memset_00(LV_GC_ROOT(_lv_grad_cache_mem), max_bytes);
+ 882              		.loc 1 246 5 discriminator 1 view .LVU239
+ 883 0026 FEE7     		b	.L67
+ 884              	.L70:
+ 885              		.align	2
+ 886              	.L69:
+ 887 0028 00000000 		.word	_lv_grad_cache_mem
+ 888 002c 00000000 		.word	grad_cache_end
+ 889 0030 00000000 		.word	grad_cache_size
+ 890              		.cfi_endproc
+ 891              	.LFE66:
+ 893              		.section	.text.lv_gradient_calculate,"ax",%progbits
+ 894              		.align	1
+ 895              		.global	lv_gradient_calculate
+ 896              		.syntax unified
+ 897              		.thumb
+ 898              		.thumb_func
+ 900              	lv_gradient_calculate:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 30
+
+
+ 901              	.LVL85:
+ 902              	.LFB68:
+ 250:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 251:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** lv_grad_t * lv_gradient_get(const lv_grad_dsc_t * g, lv_coord_t w, lv_coord_t h)
+ 252:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** {
+ 253:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     /* No gradient, no cache */
+ 254:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(g->dir == LV_GRAD_DIR_NONE) return NULL;
+ 255:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 256:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     /* Step 0: Check if the cache exist (else create it) */
+ 257:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     static bool inited = false;
+ 258:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(!inited) {
+ 259:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         lv_gradient_set_cache_size(LV_GRAD_CACHE_DEF_SIZE);
+ 260:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         inited = true;
+ 261:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 262:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 263:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     /* Step 1: Search cache for the given key */
+ 264:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_coord_t size = g->dir == LV_GRAD_DIR_HOR ? w : h;
+ 265:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     uint32_t key = compute_key(g, size, w);
+ 266:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_grad_t * item = NULL;
+ 267:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(iterate_cache(&find_item, &key, &item) == LV_RES_OK) {
+ 268:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->life++; /* Don't forget to bump the counter */
+ 269:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         return item;
+ 270:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 271:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 272:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     /* Step 2: Need to allocate an item for it */
+ 273:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     item = allocate_item(g, w, h);
+ 274:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(item == NULL) {
+ 275:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         LV_LOG_WARN("Faild to allcoate item for teh gradient");
+ 276:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         return item;
+ 277:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 278:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 279:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     /* Step 3: Fill it with the gradient, as expected */
+ 280:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if _DITHER_GRADIENT
+ 281:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     for(lv_coord_t i = 0; i < item->size; i++) {
+ 282:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->hmap[i] = lv_gradient_calculate(g, item->size, i);
+ 283:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 284:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #if LV_DITHER_ERROR_DIFFUSION == 1
+ 285:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_memset_00(item->error_acc, w * sizeof(lv_scolor24_t));
+ 286:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+ 287:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #else
+ 288:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     for(lv_coord_t i = 0; i < item->size; i++) {
+ 289:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->map[i] = lv_gradient_calculate(g, item->size, i);
+ 290:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 291:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** #endif
+ 292:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 293:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     return item;
+ 294:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 295:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 296:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** lv_grad_color_t LV_ATTRIBUTE_FAST_MEM lv_gradient_calculate(const lv_grad_dsc_t * dsc, lv_coord_t r
+ 297:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                                             lv_coord_t frac)
+ 298:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** {
+ 903              		.loc 1 298 1 view -0
+ 904              		.cfi_startproc
+ 905              		@ args = 0, pretend = 0, frame = 0
+ 906              		@ frame_needed = 0, uses_anonymous_args = 0
+ 907              		.loc 1 298 1 is_stmt 0 view .LVU241
+ 908 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 31
+
+
+ 909              		.cfi_def_cfa_offset 32
+ 910              		.cfi_offset 4, -32
+ 911              		.cfi_offset 5, -28
+ 912              		.cfi_offset 6, -24
+ 913              		.cfi_offset 7, -20
+ 914              		.cfi_offset 8, -16
+ 915              		.cfi_offset 9, -12
+ 916              		.cfi_offset 10, -8
+ 917              		.cfi_offset 14, -4
+ 918 0004 0746     		mov	r7, r0
+ 299:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_grad_color_t tmp;
+ 919              		.loc 1 299 5 is_stmt 1 view .LVU242
+ 300:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_color32_t one, two;
+ 920              		.loc 1 300 5 view .LVU243
+ 301:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     /*Clip out-of-bounds first*/
+ 302:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     int32_t min = (dsc->stops[0].frac * range) >> 8;
+ 921              		.loc 1 302 5 view .LVU244
+ 922              		.loc 1 302 33 is_stmt 0 view .LVU245
+ 923 0006 8378     		ldrb	r3, [r0, #2]	@ zero_extendqisi2
+ 924              		.loc 1 302 39 view .LVU246
+ 925 0008 01FB03F3 		mul	r3, r1, r3
+ 926              	.LVL86:
+ 303:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(frac <= min) {
+ 927              		.loc 1 303 5 is_stmt 1 view .LVU247
+ 928              		.loc 1 303 7 is_stmt 0 view .LVU248
+ 929 000c B2EB232F 		cmp	r2, r3, asr #8
+ 930 0010 1CDD     		ble	.L82
+ 931 0012 8846     		mov	r8, r1
+ 932 0014 1546     		mov	r5, r2
+ 933 0016 1912     		asrs	r1, r3, #8
+ 934              	.LVL87:
+ 304:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         GRAD_CONV(tmp, dsc->stops[0].color);
+ 305:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         return tmp;
+ 306:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 307:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 308:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     int32_t max = (dsc->stops[dsc->stops_count - 1].frac * range) >> 8;
+ 935              		.loc 1 308 5 is_stmt 1 view .LVU249
+ 936              		.loc 1 308 34 is_stmt 0 view .LVU250
+ 937 0018 027A     		ldrb	r2, [r0, #8]	@ zero_extendqisi2
+ 938              	.LVL88:
+ 939              		.loc 1 308 48 view .LVU251
+ 940 001a 501E     		subs	r0, r2, #1
+ 941              	.LVL89:
+ 942              		.loc 1 308 52 view .LVU252
+ 943 001c 07EB8003 		add	r3, r7, r0, lsl #2
+ 944 0020 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 945              		.loc 1 308 58 view .LVU253
+ 946 0022 03FB08F3 		mul	r3, r3, r8
+ 947              	.LVL90:
+ 309:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(frac >= max) {
+ 948              		.loc 1 309 5 is_stmt 1 view .LVU254
+ 949              		.loc 1 309 7 is_stmt 0 view .LVU255
+ 950 0026 B5EB232F 		cmp	r5, r3, asr #8
+ 951 002a 12DA     		bge	.L83
+ 952              	.LBB5:
+ 310:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         GRAD_CONV(tmp, dsc->stops[dsc->stops_count - 1].color);
+ 311:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         return tmp;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 32
+
+
+ 312:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 313:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 314:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     /*Find the 2 closest stop now*/
+ 315:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     int32_t d = 0;
+ 316:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     for(uint8_t i = 1; i < dsc->stops_count; i++) {
+ 953              		.loc 1 316 17 view .LVU256
+ 954 002c 0124     		movs	r4, #1
+ 955              	.LVL91:
+ 956              	.L74:
+ 957              		.loc 1 316 26 is_stmt 1 discriminator 1 view .LVU257
+ 958 002e A242     		cmp	r2, r4
+ 959 0030 28D9     		bls	.L84
+ 960              	.LBB6:
+ 317:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         int32_t cur = (dsc->stops[i].frac * range) >> 8;
+ 961              		.loc 1 317 9 view .LVU258
+ 962              		.loc 1 317 37 is_stmt 0 view .LVU259
+ 963 0032 07EB8403 		add	r3, r7, r4, lsl #2
+ 964 0036 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 965              		.loc 1 317 43 view .LVU260
+ 966 0038 03FB08F3 		mul	r3, r3, r8
+ 967              		.loc 1 317 17 view .LVU261
+ 968 003c 4FEA2329 		asr	r9, r3, #8
+ 969              	.LVL92:
+ 318:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         if(frac <= cur) {
+ 970              		.loc 1 318 9 is_stmt 1 view .LVU262
+ 971              		.loc 1 318 11 is_stmt 0 view .LVU263
+ 972 0040 B5EB232F 		cmp	r5, r3, asr #8
+ 973 0044 08DD     		ble	.L85
+ 974              	.LBE6:
+ 316:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         int32_t cur = (dsc->stops[i].frac * range) >> 8;
+ 975              		.loc 1 316 47 is_stmt 1 discriminator 2 view .LVU264
+ 976 0046 0134     		adds	r4, r4, #1
+ 977              	.LVL93:
+ 316:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         int32_t cur = (dsc->stops[i].frac * range) >> 8;
+ 978              		.loc 1 316 47 is_stmt 0 discriminator 2 view .LVU265
+ 979 0048 E4B2     		uxtb	r4, r4
+ 980              	.LVL94:
+ 316:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         int32_t cur = (dsc->stops[i].frac * range) >> 8;
+ 981              		.loc 1 316 47 discriminator 2 view .LVU266
+ 982 004a F0E7     		b	.L74
+ 983              	.LVL95:
+ 984              	.L82:
+ 316:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         int32_t cur = (dsc->stops[i].frac * range) >> 8;
+ 985              		.loc 1 316 47 discriminator 2 view .LVU267
+ 986              	.LBE5:
+ 304:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         return tmp;
+ 987              		.loc 1 304 9 is_stmt 1 view .LVU268
+ 988 004c 0088     		ldrh	r0, [r0]
+ 989              	.LVL96:
+ 305:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 990              		.loc 1 305 9 view .LVU269
+ 991              	.L73:
+ 992              	.LVL97:
+ 319:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             one.full = lv_color_to32(dsc->stops[i - 1].color);
+ 320:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             two.full = lv_color_to32(dsc->stops[i].color);
+ 321:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             min = (dsc->stops[i - 1].frac * range) >> 8;
+ 322:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             max = (dsc->stops[i].frac * range) >> 8;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 33
+
+
+ 323:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             d = max - min;
+ 324:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             break;
+ 325:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 326:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 327:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 328:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     LV_ASSERT(d != 0);
+ 329:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 330:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     /*Then interpolate*/
+ 331:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     frac -= min;
+ 332:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_opa_t mix = (frac * 255) / d;
+ 333:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_opa_t imix = 255 - mix;
+ 334:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_grad_color_t r = GRAD_CM(LV_UDIV255(two.ch.red * mix   + one.ch.red * imix),
+ 336:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 337:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.blue * mix  + one.ch.blue * imix));
+ 338:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     return r;
+ 339:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 993              		.loc 1 339 1 is_stmt 0 view .LVU270
+ 994 004e BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 995              	.LVL98:
+ 996              	.L83:
+ 310:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         return tmp;
+ 997              		.loc 1 310 9 is_stmt 1 view .LVU271
+ 998 0052 37F82000 		ldrh	r0, [r7, r0, lsl #2]
+ 311:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 999              		.loc 1 311 9 view .LVU272
+ 311:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 1000              		.loc 1 311 16 is_stmt 0 view .LVU273
+ 1001 0056 FAE7     		b	.L73
+ 1002              	.LVL99:
+ 1003              	.L85:
+ 1004              	.LBB8:
+ 1005              	.LBB7:
+ 319:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             one.full = lv_color_to32(dsc->stops[i - 1].color);
+ 1006              		.loc 1 319 13 is_stmt 1 view .LVU274
+ 319:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             one.full = lv_color_to32(dsc->stops[i - 1].color);
+ 1007              		.loc 1 319 51 is_stmt 0 view .LVU275
+ 1008 0058 04F1FF3A 		add	r10, r4, #-1
+ 319:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             one.full = lv_color_to32(dsc->stops[i - 1].color);
+ 1009              		.loc 1 319 24 view .LVU276
+ 1010 005c 37F82A00 		ldrh	r0, [r7, r10, lsl #2]
+ 1011              	.LVL100:
+ 319:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             one.full = lv_color_to32(dsc->stops[i - 1].color);
+ 1012              		.loc 1 319 24 view .LVU277
+ 1013 0060 FFF7FEFF 		bl	lv_color_to32
+ 1014              	.LVL101:
+ 319:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             one.full = lv_color_to32(dsc->stops[i - 1].color);
+ 1015              		.loc 1 319 24 view .LVU278
+ 1016 0064 0646     		mov	r6, r0
+ 1017              	.LVL102:
+ 320:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             min = (dsc->stops[i - 1].frac * range) >> 8;
+ 1018              		.loc 1 320 13 is_stmt 1 view .LVU279
+ 320:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             min = (dsc->stops[i - 1].frac * range) >> 8;
+ 1019              		.loc 1 320 24 is_stmt 0 view .LVU280
+ 1020 0066 37F82400 		ldrh	r0, [r7, r4, lsl #2]
+ 1021 006a FFF7FEFF 		bl	lv_color_to32
+ 1022              	.LVL103:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 34
+
+
+ 1023 006e 8446     		mov	ip, r0
+ 1024              	.LVL104:
+ 321:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             max = (dsc->stops[i].frac * range) >> 8;
+ 1025              		.loc 1 321 13 is_stmt 1 view .LVU281
+ 321:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             max = (dsc->stops[i].frac * range) >> 8;
+ 1026              		.loc 1 321 37 is_stmt 0 view .LVU282
+ 1027 0070 07EB8A0A 		add	r10, r7, r10, lsl #2
+ 1028 0074 9AF80230 		ldrb	r3, [r10, #2]	@ zero_extendqisi2
+ 321:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             max = (dsc->stops[i].frac * range) >> 8;
+ 1029              		.loc 1 321 43 view .LVU283
+ 1030 0078 03FB08F3 		mul	r3, r3, r8
+ 321:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             max = (dsc->stops[i].frac * range) >> 8;
+ 1031              		.loc 1 321 17 view .LVU284
+ 1032 007c 1912     		asrs	r1, r3, #8
+ 1033              	.LVL105:
+ 322:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             d = max - min;
+ 1034              		.loc 1 322 13 is_stmt 1 view .LVU285
+ 323:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             break;
+ 1035              		.loc 1 323 13 view .LVU286
+ 323:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****             break;
+ 1036              		.loc 1 323 15 is_stmt 0 view .LVU287
+ 1037 007e A9EB2322 		sub	r2, r9, r3, asr #8
+ 1038              	.LVL106:
+ 324:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 1039              		.loc 1 324 13 is_stmt 1 view .LVU288
+ 1040 0082 00E0     		b	.L76
+ 1041              	.LVL107:
+ 1042              	.L84:
+ 324:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         }
+ 1043              		.loc 1 324 13 is_stmt 0 view .LVU289
+ 1044              	.LBE7:
+ 1045              	.LBE8:
+ 315:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     for(uint8_t i = 1; i < dsc->stops_count; i++) {
+ 1046              		.loc 1 315 13 view .LVU290
+ 1047 0084 0022     		movs	r2, #0
+ 1048              	.LVL108:
+ 1049              	.L76:
+ 328:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1050              		.loc 1 328 5 is_stmt 1 view .LVU291
+ 328:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1051              		.loc 1 328 5 view .LVU292
+ 1052 0086 02B9     		cbnz	r2, .L78
+ 1053              	.L79:
+ 328:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1054              		.loc 1 328 5 discriminator 1 view .LVU293
+ 328:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1055              		.loc 1 328 5 discriminator 1 view .LVU294
+ 328:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1056              		.loc 1 328 5 discriminator 1 view .LVU295
+ 328:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1057              		.loc 1 328 5 discriminator 1 view .LVU296
+ 328:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1058              		.loc 1 328 5 discriminator 1 view .LVU297
+ 1059 0088 FEE7     		b	.L79
+ 1060              	.L78:
+ 328:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1061              		.loc 1 328 5 discriminator 2 view .LVU298
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 35
+
+
+ 331:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_opa_t mix = (frac * 255) / d;
+ 1062              		.loc 1 331 5 view .LVU299
+ 331:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_opa_t mix = (frac * 255) / d;
+ 1063              		.loc 1 331 10 is_stmt 0 view .LVU300
+ 1064 008a 6B1A     		subs	r3, r5, r1
+ 1065 008c 1BB2     		sxth	r3, r3
+ 1066              	.LVL109:
+ 332:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_opa_t imix = 255 - mix;
+ 1067              		.loc 1 332 5 is_stmt 1 view .LVU301
+ 332:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_opa_t imix = 255 - mix;
+ 1068              		.loc 1 332 26 is_stmt 0 view .LVU302
+ 1069 008e C3EB0323 		rsb	r3, r3, r3, lsl #8
+ 1070              	.LVL110:
+ 332:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_opa_t imix = 255 - mix;
+ 1071              		.loc 1 332 33 view .LVU303
+ 1072 0092 93FBF2F3 		sdiv	r3, r3, r2
+ 332:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_opa_t imix = 255 - mix;
+ 1073              		.loc 1 332 14 view .LVU304
+ 1074 0096 DBB2     		uxtb	r3, r3
+ 1075              	.LVL111:
+ 333:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1076              		.loc 1 333 5 is_stmt 1 view .LVU305
+ 333:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1077              		.loc 1 333 14 is_stmt 0 view .LVU306
+ 1078 0098 DA43     		mvns	r2, r3
+ 1079              	.LVL112:
+ 333:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1080              		.loc 1 333 14 view .LVU307
+ 1081 009a D2B2     		uxtb	r2, r2
+ 1082              	.LVL113:
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1083              		.loc 1 335 5 is_stmt 1 view .LVU308
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1084              		.loc 1 335 25 is_stmt 0 view .LVU309
+ 1085 009c CCF30720 		ubfx	r0, ip, #8, #8
+ 1086              	.LVL114:
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1087              		.loc 1 335 25 view .LVU310
+ 1088 00a0 C6F30721 		ubfx	r1, r6, #8, #8
+ 1089              	.LVL115:
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1090              		.loc 1 335 25 view .LVU311
+ 1091 00a4 02FB01F1 		mul	r1, r2, r1
+ 1092 00a8 03FB0011 		mla	r1, r3, r0, r1
+ 1093 00ac 01EB0120 		add	r0, r1, r1, lsl #8
+ 1094 00b0 01EBC011 		add	r1, r1, r0, lsl #7
+ 1095 00b4 C1F30274 		ubfx	r4, r1, #28, #3
+ 1096              	.LVL116:
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1097              		.loc 1 335 21 view .LVU312
+ 1098 00b8 4FF00000 		mov	r0, #0	@ movhi
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1099              		.loc 1 335 21 view .LVU313
+ 1100 00bc 64F30200 		bfi	r0, r4, #0, #3
+ 1101              	.LVL117:
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1102              		.loc 1 335 25 view .LVU314
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 36
+
+
+ 1103 00c0 CCF30745 		ubfx	r5, ip, #16, #8
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1104              		.loc 1 335 25 view .LVU315
+ 1105 00c4 C6F30744 		ubfx	r4, r6, #16, #8
+ 1106 00c8 02FB04F4 		mul	r4, r2, r4
+ 1107 00cc 03FB0544 		mla	r4, r3, r5, r4
+ 1108 00d0 04EB0425 		add	r5, r4, r4, lsl #8
+ 1109 00d4 04EBC514 		add	r4, r4, r5, lsl #7
+ 1110 00d8 C4F38464 		ubfx	r4, r4, #26, #5
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1111              		.loc 1 335 21 view .LVU316
+ 1112 00dc 64F3C700 		bfi	r0, r4, #3, #5
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1113              		.loc 1 335 25 view .LVU317
+ 1114 00e0 5FFA8CFC 		uxtb	ip, ip
+ 1115              	.LVL118:
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1116              		.loc 1 335 25 view .LVU318
+ 1117 00e4 F6B2     		uxtb	r6, r6
+ 1118              	.LVL119:
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1119              		.loc 1 335 25 view .LVU319
+ 1120 00e6 06FB02F2 		mul	r2, r6, r2
+ 1121              	.LVL120:
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1122              		.loc 1 335 25 view .LVU320
+ 1123 00ea 03FB0C23 		mla	r3, r3, ip, r2
+ 1124              	.LVL121:
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1125              		.loc 1 335 25 view .LVU321
+ 1126 00ee 03EB0322 		add	r2, r3, r3, lsl #8
+ 1127 00f2 03EBC213 		add	r3, r3, r2, lsl #7
+ 1128 00f6 C3F38463 		ubfx	r3, r3, #26, #5
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1129              		.loc 1 335 21 view .LVU322
+ 1130 00fa 63F30C20 		bfi	r0, r3, #8, #5
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1131              		.loc 1 335 25 view .LVU323
+ 1132 00fe C1F34261 		ubfx	r1, r1, #25, #3
+ 335:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****                                 LV_UDIV255(two.ch.green * mix + one.ch.green * imix),
+ 1133              		.loc 1 335 21 view .LVU324
+ 1134 0102 61F34F30 		bfi	r0, r1, #13, #3
+ 338:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 1135              		.loc 1 338 5 is_stmt 1 view .LVU325
+ 338:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 1136              		.loc 1 338 12 is_stmt 0 view .LVU326
+ 1137 0106 A2E7     		b	.L73
+ 1138              		.cfi_endproc
+ 1139              	.LFE68:
+ 1141              		.section	.text.lv_gradient_get,"ax",%progbits
+ 1142              		.align	1
+ 1143              		.global	lv_gradient_get
+ 1144              		.syntax unified
+ 1145              		.thumb
+ 1146              		.thumb_func
+ 1148              	lv_gradient_get:
+ 1149              	.LVL122:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 37
+
+
+ 1150              	.LFB67:
+ 252:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     /* No gradient, no cache */
+ 1151              		.loc 1 252 1 is_stmt 1 view -0
+ 1152              		.cfi_startproc
+ 1153              		@ args = 0, pretend = 0, frame = 8
+ 1154              		@ frame_needed = 0, uses_anonymous_args = 0
+ 254:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1155              		.loc 1 254 5 view .LVU328
+ 254:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1156              		.loc 1 254 15 is_stmt 0 view .LVU329
+ 1157 0000 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 254:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1158              		.loc 1 254 7 view .LVU330
+ 1159 0002 13F0070F 		tst	r3, #7
+ 1160 0006 46D0     		beq	.L93
+ 252:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     /* No gradient, no cache */
+ 1161              		.loc 1 252 1 view .LVU331
+ 1162 0008 70B5     		push	{r4, r5, r6, lr}
+ 1163              		.cfi_def_cfa_offset 16
+ 1164              		.cfi_offset 4, -16
+ 1165              		.cfi_offset 5, -12
+ 1166              		.cfi_offset 6, -8
+ 1167              		.cfi_offset 14, -4
+ 1168 000a 82B0     		sub	sp, sp, #8
+ 1169              		.cfi_def_cfa_offset 24
+ 1170 000c 0546     		mov	r5, r0
+ 1171 000e 0C46     		mov	r4, r1
+ 1172 0010 1646     		mov	r6, r2
+ 257:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(!inited) {
+ 1173              		.loc 1 257 5 is_stmt 1 view .LVU332
+ 258:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         lv_gradient_set_cache_size(LV_GRAD_CACHE_DEF_SIZE);
+ 1174              		.loc 1 258 5 view .LVU333
+ 258:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         lv_gradient_set_cache_size(LV_GRAD_CACHE_DEF_SIZE);
+ 1175              		.loc 1 258 8 is_stmt 0 view .LVU334
+ 1176 0012 224B     		ldr	r3, .L102
+ 1177 0014 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 258:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         lv_gradient_set_cache_size(LV_GRAD_CACHE_DEF_SIZE);
+ 1178              		.loc 1 258 7 view .LVU335
+ 1179 0016 E3B1     		cbz	r3, .L99
+ 1180              	.LVL123:
+ 1181              	.L88:
+ 264:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     uint32_t key = compute_key(g, size, w);
+ 1182              		.loc 1 264 5 is_stmt 1 view .LVU336
+ 264:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     uint32_t key = compute_key(g, size, w);
+ 1183              		.loc 1 264 30 is_stmt 0 view .LVU337
+ 1184 0018 6B7A     		ldrb	r3, [r5, #9]	@ zero_extendqisi2
+ 1185 001a 03F00703 		and	r3, r3, #7
+ 264:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     uint32_t key = compute_key(g, size, w);
+ 1186              		.loc 1 264 16 view .LVU338
+ 1187 001e 022B     		cmp	r3, #2
+ 1188 0020 1ED0     		beq	.L100
+ 264:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     uint32_t key = compute_key(g, size, w);
+ 1189              		.loc 1 264 16 discriminator 2 view .LVU339
+ 1190 0022 3146     		mov	r1, r6
+ 1191              	.L89:
+ 1192              	.LVL124:
+ 265:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_grad_t * item = NULL;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 38
+
+
+ 1193              		.loc 1 265 5 is_stmt 1 view .LVU340
+ 265:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_grad_t * item = NULL;
+ 1194              		.loc 1 265 20 is_stmt 0 view .LVU341
+ 1195 0024 2246     		mov	r2, r4
+ 1196 0026 2846     		mov	r0, r5
+ 1197 0028 FFF7FEFF 		bl	compute_key
+ 1198              	.LVL125:
+ 265:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     lv_grad_t * item = NULL;
+ 1199              		.loc 1 265 14 discriminator 1 view .LVU342
+ 1200 002c 0190     		str	r0, [sp, #4]
+ 266:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(iterate_cache(&find_item, &key, &item) == LV_RES_OK) {
+ 1201              		.loc 1 266 5 is_stmt 1 view .LVU343
+ 266:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(iterate_cache(&find_item, &key, &item) == LV_RES_OK) {
+ 1202              		.loc 1 266 17 is_stmt 0 view .LVU344
+ 1203 002e 0023     		movs	r3, #0
+ 1204 0030 0093     		str	r3, [sp]
+ 267:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->life++; /* Don't forget to bump the counter */
+ 1205              		.loc 1 267 5 is_stmt 1 view .LVU345
+ 267:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->life++; /* Don't forget to bump the counter */
+ 1206              		.loc 1 267 8 is_stmt 0 view .LVU346
+ 1207 0032 6A46     		mov	r2, sp
+ 1208 0034 01A9     		add	r1, sp, #4
+ 1209 0036 1A48     		ldr	r0, .L102+4
+ 1210 0038 FFF7FEFF 		bl	iterate_cache
+ 1211              	.LVL126:
+ 267:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->life++; /* Don't forget to bump the counter */
+ 1212              		.loc 1 267 7 discriminator 1 view .LVU347
+ 1213 003c 0128     		cmp	r0, #1
+ 1214 003e 11D0     		beq	.L101
+ 273:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(item == NULL) {
+ 1215              		.loc 1 273 5 is_stmt 1 view .LVU348
+ 273:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(item == NULL) {
+ 1216              		.loc 1 273 12 is_stmt 0 view .LVU349
+ 1217 0040 3246     		mov	r2, r6
+ 1218 0042 2146     		mov	r1, r4
+ 1219 0044 2846     		mov	r0, r5
+ 1220 0046 FFF7FEFF 		bl	allocate_item
+ 1221              	.LVL127:
+ 273:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(item == NULL) {
+ 1222              		.loc 1 273 10 discriminator 1 view .LVU350
+ 1223 004a 0090     		str	r0, [sp]
+ 274:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         LV_LOG_WARN("Faild to allcoate item for teh gradient");
+ 1224              		.loc 1 274 5 is_stmt 1 view .LVU351
+ 274:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         LV_LOG_WARN("Faild to allcoate item for teh gradient");
+ 1225              		.loc 1 274 7 is_stmt 0 view .LVU352
+ 1226 004c 08B3     		cbz	r0, .L86
+ 1227              	.LBB9:
+ 288:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->map[i] = lv_gradient_calculate(g, item->size, i);
+ 1228              		.loc 1 288 20 view .LVU353
+ 1229 004e 0024     		movs	r4, #0
+ 1230              	.LVL128:
+ 288:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->map[i] = lv_gradient_calculate(g, item->size, i);
+ 1231              		.loc 1 288 20 view .LVU354
+ 1232 0050 1AE0     		b	.L91
+ 1233              	.LVL129:
+ 1234              	.L99:
+ 288:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->map[i] = lv_gradient_calculate(g, item->size, i);
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 39
+
+
+ 1235              		.loc 1 288 20 view .LVU355
+ 1236              	.LBE9:
+ 259:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         inited = true;
+ 1237              		.loc 1 259 9 is_stmt 1 view .LVU356
+ 1238 0052 0020     		movs	r0, #0
+ 1239              	.LVL130:
+ 259:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         inited = true;
+ 1240              		.loc 1 259 9 is_stmt 0 view .LVU357
+ 1241 0054 FFF7FEFF 		bl	lv_gradient_set_cache_size
+ 1242              	.LVL131:
+ 260:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 1243              		.loc 1 260 9 is_stmt 1 view .LVU358
+ 260:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 1244              		.loc 1 260 16 is_stmt 0 view .LVU359
+ 1245 0058 104B     		ldr	r3, .L102
+ 1246 005a 0122     		movs	r2, #1
+ 1247 005c 1A70     		strb	r2, [r3]
+ 1248 005e DBE7     		b	.L88
+ 1249              	.L100:
+ 264:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     uint32_t key = compute_key(g, size, w);
+ 1250              		.loc 1 264 16 discriminator 1 view .LVU360
+ 1251 0060 2146     		mov	r1, r4
+ 1252 0062 DFE7     		b	.L89
+ 1253              	.LVL132:
+ 1254              	.L101:
+ 268:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         return item;
+ 1255              		.loc 1 268 9 is_stmt 1 view .LVU361
+ 268:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         return item;
+ 1256              		.loc 1 268 13 is_stmt 0 view .LVU362
+ 1257 0064 0098     		ldr	r0, [sp]
+ 1258 0066 4368     		ldr	r3, [r0, #4]
+ 1259 0068 C3F31D02 		ubfx	r2, r3, #0, #30
+ 268:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         return item;
+ 1260              		.loc 1 268 19 view .LVU363
+ 1261 006c 0132     		adds	r2, r2, #1
+ 1262 006e 62F31D03 		bfi	r3, r2, #0, #30
+ 1263 0072 4360     		str	r3, [r0, #4]
+ 269:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 1264              		.loc 1 269 9 is_stmt 1 view .LVU364
+ 269:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 1265              		.loc 1 269 16 is_stmt 0 view .LVU365
+ 1266 0074 0DE0     		b	.L86
+ 1267              	.LVL133:
+ 1268              	.L92:
+ 1269              	.LBB10:
+ 289:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 1270              		.loc 1 289 9 is_stmt 1 view .LVU366
+ 289:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 1271              		.loc 1 289 13 is_stmt 0 view .LVU367
+ 1272 0076 8668     		ldr	r6, [r0, #8]
+ 289:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 1273              		.loc 1 289 24 view .LVU368
+ 1274 0078 2246     		mov	r2, r4
+ 1275 007a 2846     		mov	r0, r5
+ 1276 007c FFF7FEFF 		bl	lv_gradient_calculate
+ 1277              	.LVL134:
+ 1278 0080 26F81400 		strh	r0, [r6, r4, lsl #1]	@ movhi
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 40
+
+
+ 288:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->map[i] = lv_gradient_calculate(g, item->size, i);
+ 1279              		.loc 1 288 44 is_stmt 1 discriminator 3 view .LVU369
+ 1280 0084 0134     		adds	r4, r4, #1
+ 1281              	.LVL135:
+ 288:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->map[i] = lv_gradient_calculate(g, item->size, i);
+ 1282              		.loc 1 288 44 is_stmt 0 discriminator 3 view .LVU370
+ 1283 0086 24B2     		sxth	r4, r4
+ 1284              	.LVL136:
+ 1285              	.L91:
+ 288:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->map[i] = lv_gradient_calculate(g, item->size, i);
+ 1286              		.loc 1 288 29 is_stmt 1 discriminator 1 view .LVU371
+ 288:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->map[i] = lv_gradient_calculate(g, item->size, i);
+ 1287              		.loc 1 288 35 is_stmt 0 discriminator 1 view .LVU372
+ 1288 0088 0098     		ldr	r0, [sp]
+ 1289 008a B0F90E10 		ldrsh	r1, [r0, #14]
+ 288:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->map[i] = lv_gradient_calculate(g, item->size, i);
+ 1290              		.loc 1 288 29 discriminator 1 view .LVU373
+ 1291 008e A142     		cmp	r1, r4
+ 1292 0090 F1DC     		bgt	.L92
+ 1293              	.LVL137:
+ 1294              	.L86:
+ 288:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         item->map[i] = lv_gradient_calculate(g, item->size, i);
+ 1295              		.loc 1 288 29 discriminator 1 view .LVU374
+ 1296              	.LBE10:
+ 294:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1297              		.loc 1 294 1 view .LVU375
+ 1298 0092 02B0     		add	sp, sp, #8
+ 1299              		.cfi_def_cfa_offset 16
+ 1300              		@ sp needed
+ 1301 0094 70BD     		pop	{r4, r5, r6, pc}
+ 1302              	.LVL138:
+ 1303              	.L93:
+ 1304              		.cfi_def_cfa_offset 0
+ 1305              		.cfi_restore 4
+ 1306              		.cfi_restore 5
+ 1307              		.cfi_restore 6
+ 1308              		.cfi_restore 14
+ 254:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1309              		.loc 1 254 43 discriminator 1 view .LVU376
+ 1310 0096 0020     		movs	r0, #0
+ 1311              	.LVL139:
+ 294:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 1312              		.loc 1 294 1 view .LVU377
+ 1313 0098 7047     		bx	lr
+ 1314              	.L103:
+ 1315 009a 00BF     		.align	2
+ 1316              	.L102:
+ 1317 009c 00000000 		.word	inited.0
+ 1318 00a0 00000000 		.word	find_item
+ 1319              		.cfi_endproc
+ 1320              	.LFE67:
+ 1322              		.section	.text.lv_gradient_cleanup,"ax",%progbits
+ 1323              		.align	1
+ 1324              		.global	lv_gradient_cleanup
+ 1325              		.syntax unified
+ 1326              		.thumb
+ 1327              		.thumb_func
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 41
+
+
+ 1329              	lv_gradient_cleanup:
+ 1330              	.LVL140:
+ 1331              	.LFB69:
+ 340:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** 
+ 341:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** void lv_gradient_cleanup(lv_grad_t * grad)
+ 342:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** {
+ 1332              		.loc 1 342 1 is_stmt 1 view -0
+ 1333              		.cfi_startproc
+ 1334              		@ args = 0, pretend = 0, frame = 0
+ 1335              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1336              		.loc 1 342 1 is_stmt 0 view .LVU379
+ 1337 0000 08B5     		push	{r3, lr}
+ 1338              		.cfi_def_cfa_offset 8
+ 1339              		.cfi_offset 3, -8
+ 1340              		.cfi_offset 14, -4
+ 343:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     if(grad->not_cached) {
+ 1341              		.loc 1 343 5 is_stmt 1 view .LVU380
+ 1342              		.loc 1 343 7 is_stmt 0 view .LVU381
+ 1343 0002 90F90730 		ldrsb	r3, [r0, #7]
+ 1344 0006 002B     		cmp	r3, #0
+ 1345 0008 00DB     		blt	.L107
+ 1346              	.LVL141:
+ 1347              	.L104:
+ 344:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         lv_mem_free(grad);
+ 345:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****     }
+ 346:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c **** }
+ 1348              		.loc 1 346 1 view .LVU382
+ 1349 000a 08BD     		pop	{r3, pc}
+ 1350              	.LVL142:
+ 1351              	.L107:
+ 344:Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.c ****         lv_mem_free(grad);
+ 1352              		.loc 1 344 9 is_stmt 1 view .LVU383
+ 1353 000c FFF7FEFF 		bl	lv_mem_free
+ 1354              	.LVL143:
+ 1355              		.loc 1 346 1 is_stmt 0 view .LVU384
+ 1356 0010 FBE7     		b	.L104
+ 1357              		.cfi_endproc
+ 1358              	.LFE69:
+ 1360              		.section	.bss.inited.0,"aw",%nobits
+ 1363              	inited.0:
+ 1364 0000 00       		.space	1
+ 1365              		.section	.bss.grad_cache_end,"aw",%nobits
+ 1366              		.align	2
+ 1369              	grad_cache_end:
+ 1370 0000 00000000 		.space	4
+ 1371              		.section	.bss.grad_cache_size,"aw",%nobits
+ 1372              		.align	2
+ 1375              	grad_cache_size:
+ 1376 0000 00000000 		.space	4
+ 1377              		.text
+ 1378              	.Letext0:
+ 1379              		.file 3 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 1380              		.file 4 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 1381              		.file 5 "Drivers/lvgl/src/draw/sw/../../misc/lv_types.h"
+ 1382              		.file 6 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 1383              		.file 7 "Drivers/lvgl/src/draw/sw/../../misc/../font/../misc/lv_area.h"
+ 1384              		.file 8 "Drivers/lvgl/src/draw/sw/../../misc/lv_style.h"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 42
+
+
+ 1385              		.file 9 "Drivers/lvgl/src/draw/sw/lv_draw_sw_gradient.h"
+ 1386              		.file 10 "Drivers/lvgl/src/draw/sw/../../misc/lv_mem.h"
+ 1387              		.file 11 "Drivers/lvgl/src/draw/sw/../../misc/lv_gc.h"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s 			page 43
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_draw_sw_gradient.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:21     .text.lv_color_to32:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:26     .text.lv_color_to32:00000000 lv_color_to32
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:74     .text.compute_key:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:79     .text.compute_key:00000000 compute_key
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:100    .text.get_cache_item_size:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:105    .text.get_cache_item_size:00000000 get_cache_item_size
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:132    .text.next_in_cache:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:137    .text.next_in_cache:00000000 next_in_cache
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:204    .text.next_in_cache:0000002c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:1375   .bss.grad_cache_size:00000000 grad_cache_size
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:1369   .bss.grad_cache_end:00000000 grad_cache_end
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:211    .text.iterate_cache:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:216    .text.iterate_cache:00000000 iterate_cache
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:303    .text.find_oldest_item_life:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:308    .text.find_oldest_item_life:00000000 find_oldest_item_life
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:340    .text.find_item:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:345    .text.find_item:00000000 find_item
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:378    .text.allocate_item:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:383    .text.allocate_item:00000000 allocate_item
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:618    .text.allocate_item:00000104 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:737    .text.kill_oldest_item:00000000 kill_oldest_item
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:627    .text.free_item:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:632    .text.free_item:00000000 free_item
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:727    .text.free_item:00000050 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:732    .text.kill_oldest_item:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:779    .text.lv_gradient_free_cache:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:785    .text.lv_gradient_free_cache:00000000 lv_gradient_free_cache
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:816    .text.lv_gradient_free_cache:00000018 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:823    .text.lv_gradient_set_cache_size:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:829    .text.lv_gradient_set_cache_size:00000000 lv_gradient_set_cache_size
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:887    .text.lv_gradient_set_cache_size:00000028 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:894    .text.lv_gradient_calculate:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:900    .text.lv_gradient_calculate:00000000 lv_gradient_calculate
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:1142   .text.lv_gradient_get:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:1148   .text.lv_gradient_get:00000000 lv_gradient_get
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:1317   .text.lv_gradient_get:0000009c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:1363   .bss.inited.0:00000000 inited.0
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:1323   .text.lv_gradient_cleanup:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:1329   .text.lv_gradient_cleanup:00000000 lv_gradient_cleanup
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:1364   .bss.inited.0:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:1366   .bss.grad_cache_end:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccYiRz7z.s:1372   .bss.grad_cache_size:00000000 $d
+
+UNDEFINED SYMBOLS
+_lv_grad_cache_mem
+lv_mem_alloc
+lv_memcpy
+lv_memset_00
+lv_mem_free

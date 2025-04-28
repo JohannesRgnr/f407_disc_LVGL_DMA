@@ -1,0 +1,560 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_led.c"
+  16              		.text
+  17              		.section	.text.lv_color_to32,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	lv_color_to32:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 C0F3C403 		ubfx	r3, r0, #3, #5
+  28 0004 03EB4312 		add	r2, r3, r3, lsl #5
+  29 0008 C3EBC203 		rsb	r3, r3, r2, lsl #3
+  30 000c 0733     		adds	r3, r3, #7
+  31 000e C3F34713 		ubfx	r3, r3, #5, #8
+  32 0012 0022     		movs	r2, #0
+  33 0014 63F31742 		bfi	r2, r3, #16, #8
+  34 0018 00F00701 		and	r1, r0, #7
+  35 001c C0F34233 		ubfx	r3, r0, #13, #3
+  36 0020 03EBC103 		add	r3, r3, r1, lsl #3
+  37 0024 03EBC311 		add	r1, r3, r3, lsl #7
+  38 0028 03EB4103 		add	r3, r3, r1, lsl #1
+  39 002c 0333     		adds	r3, r3, #3
+  40 002e C3F38713 		ubfx	r3, r3, #6, #8
+  41 0032 63F30F22 		bfi	r2, r3, #8, #8
+  42 0036 C0F30420 		ubfx	r0, r0, #8, #5
+  43 003a 00EB4013 		add	r3, r0, r0, lsl #5
+  44 003e C0EBC303 		rsb	r3, r0, r3, lsl #3
+  45 0042 0733     		adds	r3, r3, #7
+  46 0044 C3F34713 		ubfx	r3, r3, #5, #8
+  47 0048 63F30702 		bfi	r2, r3, #0, #8
+  48 004c 42F07F40 		orr	r0, r2, #-16777216
+  49 0050 7047     		bx	lr
+  51              		.section	.text.lv_color_mix,"ax",%progbits
+  52              		.align	1
+  53              		.syntax unified
+  54              		.thumb
+  55              		.thumb_func
+  57              	lv_color_mix:
+  58              		@ args = 0, pretend = 0, frame = 0
+  59              		@ frame_needed = 0, uses_anonymous_args = 0
+  60              		@ link register save eliminated.
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s 			page 2
+
+
+  61 0000 83B2     		uxth	r3, r0
+  62 0002 C0F30720 		ubfx	r0, r0, #8, #8
+  63 0006 40EA0320 		orr	r0, r0, r3, lsl #8
+  64 000a 8BB2     		uxth	r3, r1
+  65 000c C1F30721 		ubfx	r1, r1, #8, #8
+  66 0010 41EA0321 		orr	r1, r1, r3, lsl #8
+  67 0014 0432     		adds	r2, r2, #4
+  68 0016 0B04     		lsls	r3, r1, #16
+  69 0018 13FA81F1 		uxtah	r1, r3, r1
+  70 001c 0A4B     		ldr	r3, .L3
+  71 001e 1940     		ands	r1, r1, r3
+  72 0020 4FEA004C 		lsl	ip, r0, #16
+  73 0024 1CFA80F0 		uxtah	r0, ip, r0
+  74 0028 1840     		ands	r0, r0, r3
+  75 002a 401A     		subs	r0, r0, r1
+  76 002c D208     		lsrs	r2, r2, #3
+  77 002e 00FB02F2 		mul	r2, r0, r2
+  78 0032 01EB5211 		add	r1, r1, r2, lsr #5
+  79 0036 1940     		ands	r1, r1, r3
+  80 0038 41EA1141 		orr	r1, r1, r1, lsr #16
+  81 003c 88B2     		uxth	r0, r1
+  82 003e C1F30721 		ubfx	r1, r1, #8, #8
+  83 0042 41EA0020 		orr	r0, r1, r0, lsl #8
+  84 0046 7047     		bx	lr
+  85              	.L4:
+  86              		.align	2
+  87              	.L3:
+  88 0048 1FF8E007 		.word	132184095
+  90              		.section	.text.lv_led_event,"ax",%progbits
+  91              		.align	1
+  92              		.syntax unified
+  93              		.thumb
+  94              		.thumb_func
+  96              	lv_led_event:
+  97              		@ args = 0, pretend = 0, frame = 128
+  98              		@ frame_needed = 0, uses_anonymous_args = 0
+  99 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 100 0002 A1B0     		sub	sp, sp, #132
+ 101 0004 0C46     		mov	r4, r1
+ 102 0006 0846     		mov	r0, r1
+ 103 0008 FFF7FEFF 		bl	lv_event_get_code
+ 104 000c 0546     		mov	r5, r0
+ 105 000e A0F11503 		sub	r3, r0, #21
+ 106 0012 DBB2     		uxtb	r3, r3
+ 107 0014 012B     		cmp	r3, #1
+ 108 0016 05D9     		bls	.L6
+ 109 0018 2146     		mov	r1, r4
+ 110 001a C248     		ldr	r0, .L10
+ 111 001c FFF7FEFF 		bl	lv_obj_event_base
+ 112 0020 0128     		cmp	r0, #1
+ 113 0022 05D1     		bne	.L5
+ 114              	.L6:
+ 115 0024 2046     		mov	r0, r4
+ 116 0026 FFF7FEFF 		bl	lv_event_get_target
+ 117 002a 0646     		mov	r6, r0
+ 118 002c 152D     		cmp	r5, #21
+ 119 002e 01D0     		beq	.L9
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s 			page 3
+
+
+ 120              	.L5:
+ 121 0030 21B0     		add	sp, sp, #132
+ 122              		@ sp needed
+ 123 0032 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 124              	.L9:
+ 125 0034 6846     		mov	r0, sp
+ 126 0036 FFF7FEFF 		bl	lv_draw_rect_dsc_init
+ 127 003a 6A46     		mov	r2, sp
+ 128 003c 0021     		movs	r1, #0
+ 129 003e 3046     		mov	r0, r6
+ 130 0040 FFF7FEFF 		bl	lv_obj_init_draw_rect_dsc
+ 131 0044 4FF00005 		mov	r5, #0	@ movhi
+ 132 0048 25F00705 		bic	r5, r5, #7
+ 133 004c 25F0F805 		bic	r5, r5, #248
+ 134 0050 25F4F855 		bic	r5, r5, #7936
+ 135 0054 25F46045 		bic	r5, r5, #57344
+ 136 0058 BDF80400 		ldrh	r0, [sp, #4]
+ 137 005c FFF7FEFF 		bl	lv_color_to32
+ 138 0060 C0F30742 		ubfx	r2, r0, #16, #8
+ 139 0064 02EB4202 		add	r2, r2, r2, lsl #1
+ 140 0068 C0F30723 		ubfx	r3, r0, #8, #8
+ 141 006c 02EB8302 		add	r2, r2, r3, lsl #2
+ 142 0070 C0B2     		uxtb	r0, r0
+ 143 0072 10FA82F2 		uxtah	r2, r0, r2
+ 144 0076 B78C     		ldrh	r7, [r6, #36]
+ 145 0078 C2F3C702 		ubfx	r2, r2, #3, #8
+ 146 007c 2946     		mov	r1, r5	@ movhi
+ 147 007e 3846     		mov	r0, r7	@ movhi
+ 148 0080 FFF7FEFF 		bl	lv_color_mix
+ 149 0084 ADF80400 		strh	r0, [sp, #4]	@ movhi
+ 150 0088 4FF00005 		mov	r5, #0	@ movhi
+ 151 008c 25F00705 		bic	r5, r5, #7
+ 152 0090 25F0F805 		bic	r5, r5, #248
+ 153 0094 25F4F855 		bic	r5, r5, #7936
+ 154 0098 25F46045 		bic	r5, r5, #57344
+ 155 009c BDF80600 		ldrh	r0, [sp, #6]
+ 156 00a0 FFF7FEFF 		bl	lv_color_to32
+ 157 00a4 C0F30742 		ubfx	r2, r0, #16, #8
+ 158 00a8 02EB4202 		add	r2, r2, r2, lsl #1
+ 159 00ac C0F30723 		ubfx	r3, r0, #8, #8
+ 160 00b0 02EB8302 		add	r2, r2, r3, lsl #2
+ 161 00b4 C0B2     		uxtb	r0, r0
+ 162 00b6 10FA82F2 		uxtah	r2, r0, r2
+ 163 00ba C2F3C702 		ubfx	r2, r2, #3, #8
+ 164 00be 2946     		mov	r1, r5	@ movhi
+ 165 00c0 3846     		mov	r0, r7	@ movhi
+ 166 00c2 FFF7FEFF 		bl	lv_color_mix
+ 167 00c6 ADF80600 		strh	r0, [sp, #6]	@ movhi
+ 168 00ca 4FF00005 		mov	r5, #0	@ movhi
+ 169 00ce 25F00705 		bic	r5, r5, #7
+ 170 00d2 25F0F805 		bic	r5, r5, #248
+ 171 00d6 25F4F855 		bic	r5, r5, #7936
+ 172 00da 25F46045 		bic	r5, r5, #57344
+ 173 00de BDF80A00 		ldrh	r0, [sp, #10]
+ 174 00e2 FFF7FEFF 		bl	lv_color_to32
+ 175 00e6 C0F30742 		ubfx	r2, r0, #16, #8
+ 176 00ea 02EB4202 		add	r2, r2, r2, lsl #1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s 			page 4
+
+
+ 177 00ee C0F30723 		ubfx	r3, r0, #8, #8
+ 178 00f2 02EB8302 		add	r2, r2, r3, lsl #2
+ 179 00f6 C0B2     		uxtb	r0, r0
+ 180 00f8 10FA82F2 		uxtah	r2, r0, r2
+ 181 00fc C2F3C702 		ubfx	r2, r2, #3, #8
+ 182 0100 2946     		mov	r1, r5	@ movhi
+ 183 0102 3846     		mov	r0, r7	@ movhi
+ 184 0104 FFF7FEFF 		bl	lv_color_mix
+ 185 0108 ADF80A00 		strh	r0, [sp, #10]	@ movhi
+ 186 010c 4FF00005 		mov	r5, #0	@ movhi
+ 187 0110 25F00705 		bic	r5, r5, #7
+ 188 0114 25F0F805 		bic	r5, r5, #248
+ 189 0118 25F4F855 		bic	r5, r5, #7936
+ 190 011c 25F46045 		bic	r5, r5, #57344
+ 191 0120 BDF82C00 		ldrh	r0, [sp, #44]
+ 192 0124 FFF7FEFF 		bl	lv_color_to32
+ 193 0128 C0F30742 		ubfx	r2, r0, #16, #8
+ 194 012c 02EB4202 		add	r2, r2, r2, lsl #1
+ 195 0130 C0F30723 		ubfx	r3, r0, #8, #8
+ 196 0134 02EB8302 		add	r2, r2, r3, lsl #2
+ 197 0138 C0B2     		uxtb	r0, r0
+ 198 013a 10FA82F2 		uxtah	r2, r0, r2
+ 199 013e C2F3C702 		ubfx	r2, r2, #3, #8
+ 200 0142 2946     		mov	r1, r5	@ movhi
+ 201 0144 3846     		mov	r0, r7	@ movhi
+ 202 0146 FFF7FEFF 		bl	lv_color_mix
+ 203 014a ADF82C00 		strh	r0, [sp, #44]	@ movhi
+ 204 014e 4FF00005 		mov	r5, #0	@ movhi
+ 205 0152 25F00705 		bic	r5, r5, #7
+ 206 0156 25F0F805 		bic	r5, r5, #248
+ 207 015a 25F4F855 		bic	r5, r5, #7936
+ 208 015e 25F46045 		bic	r5, r5, #57344
+ 209 0162 BDF81E00 		ldrh	r0, [sp, #30]
+ 210 0166 FFF7FEFF 		bl	lv_color_to32
+ 211 016a C0F30742 		ubfx	r2, r0, #16, #8
+ 212 016e 02EB4202 		add	r2, r2, r2, lsl #1
+ 213 0172 C0F30723 		ubfx	r3, r0, #8, #8
+ 214 0176 02EB8302 		add	r2, r2, r3, lsl #2
+ 215 017a C0B2     		uxtb	r0, r0
+ 216 017c 10FA82F2 		uxtah	r2, r0, r2
+ 217 0180 B78C     		ldrh	r7, [r6, #36]
+ 218 0182 C2F3C702 		ubfx	r2, r2, #3, #8
+ 219 0186 2946     		mov	r1, r5	@ movhi
+ 220 0188 3846     		mov	r0, r7	@ movhi
+ 221 018a FFF7FEFF 		bl	lv_color_mix
+ 222 018e ADF81E00 		strh	r0, [sp, #30]	@ movhi
+ 223 0192 4FF00005 		mov	r5, #0	@ movhi
+ 224 0196 25F00705 		bic	r5, r5, #7
+ 225 019a 25F0F805 		bic	r5, r5, #248
+ 226 019e 25F4F855 		bic	r5, r5, #7936
+ 227 01a2 25F46045 		bic	r5, r5, #57344
+ 228 01a6 BDF82400 		ldrh	r0, [sp, #36]
+ 229 01aa FFF7FEFF 		bl	lv_color_to32
+ 230 01ae C0F30742 		ubfx	r2, r0, #16, #8
+ 231 01b2 02EB4202 		add	r2, r2, r2, lsl #1
+ 232 01b6 C0F30723 		ubfx	r3, r0, #8, #8
+ 233 01ba 02EB8302 		add	r2, r2, r3, lsl #2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s 			page 5
+
+
+ 234 01be C0B2     		uxtb	r0, r0
+ 235 01c0 10FA82F2 		uxtah	r2, r0, r2
+ 236 01c4 C2F3C702 		ubfx	r2, r2, #3, #8
+ 237 01c8 2946     		mov	r1, r5	@ movhi
+ 238 01ca 3846     		mov	r0, r7	@ movhi
+ 239 01cc FFF7FEFF 		bl	lv_color_mix
+ 240 01d0 ADF82400 		strh	r0, [sp, #36]	@ movhi
+ 241 01d4 4FF00001 		mov	r1, #0	@ movhi
+ 242 01d8 21F00701 		bic	r1, r1, #7
+ 243 01dc 21F0F801 		bic	r1, r1, #248
+ 244 01e0 21F4F851 		bic	r1, r1, #7936
+ 245 01e4 21F46041 		bic	r1, r1, #57344
+ 246 01e8 96F82650 		ldrb	r5, [r6, #38]	@ zero_extendqisi2
+ 247 01ec 2A46     		mov	r2, r5
+ 248 01ee BDF80400 		ldrh	r0, [sp, #4]
+ 249 01f2 FFF7FEFF 		bl	lv_color_mix
+ 250 01f6 ADF80400 		strh	r0, [sp, #4]	@ movhi
+ 251 01fa 4FF00001 		mov	r1, #0	@ movhi
+ 252 01fe 21F00701 		bic	r1, r1, #7
+ 253 0202 21F0F801 		bic	r1, r1, #248
+ 254 0206 21F4F851 		bic	r1, r1, #7936
+ 255 020a 21F46041 		bic	r1, r1, #57344
+ 256 020e 2A46     		mov	r2, r5
+ 257 0210 BDF80600 		ldrh	r0, [sp, #6]
+ 258 0214 FFF7FEFF 		bl	lv_color_mix
+ 259 0218 ADF80600 		strh	r0, [sp, #6]	@ movhi
+ 260 021c 4FF00001 		mov	r1, #0	@ movhi
+ 261 0220 21F00701 		bic	r1, r1, #7
+ 262 0224 21F0F801 		bic	r1, r1, #248
+ 263 0228 21F4F851 		bic	r1, r1, #7936
+ 264 022c 21F46041 		bic	r1, r1, #57344
+ 265 0230 2A46     		mov	r2, r5
+ 266 0232 BDF80A00 		ldrh	r0, [sp, #10]
+ 267 0236 FFF7FEFF 		bl	lv_color_mix
+ 268 023a ADF80A00 		strh	r0, [sp, #10]	@ movhi
+ 269 023e 4FF00001 		mov	r1, #0	@ movhi
+ 270 0242 21F00701 		bic	r1, r1, #7
+ 271 0246 21F0F801 		bic	r1, r1, #248
+ 272 024a 21F4F851 		bic	r1, r1, #7936
+ 273 024e 21F46041 		bic	r1, r1, #57344
+ 274 0252 2A46     		mov	r2, r5
+ 275 0254 BDF81E00 		ldrh	r0, [sp, #30]
+ 276 0258 FFF7FEFF 		bl	lv_color_mix
+ 277 025c ADF81E00 		strh	r0, [sp, #30]	@ movhi
+ 278 0260 4FF00001 		mov	r1, #0	@ movhi
+ 279 0264 21F00701 		bic	r1, r1, #7
+ 280 0268 21F0F801 		bic	r1, r1, #248
+ 281 026c 21F4F851 		bic	r1, r1, #7936
+ 282 0270 21F46041 		bic	r1, r1, #57344
+ 283 0274 2A46     		mov	r2, r5
+ 284 0276 BDF82C00 		ldrh	r0, [sp, #44]
+ 285 027a FFF7FEFF 		bl	lv_color_mix
+ 286 027e ADF82C00 		strh	r0, [sp, #44]	@ movhi
+ 287 0282 4FF00001 		mov	r1, #0	@ movhi
+ 288 0286 21F00701 		bic	r1, r1, #7
+ 289 028a 21F0F801 		bic	r1, r1, #248
+ 290 028e 21F4F851 		bic	r1, r1, #7936
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s 			page 6
+
+
+ 291 0292 21F46041 		bic	r1, r1, #57344
+ 292 0296 96F82650 		ldrb	r5, [r6, #38]	@ zero_extendqisi2
+ 293 029a 2A46     		mov	r2, r5
+ 294 029c BDF82400 		ldrh	r0, [sp, #36]
+ 295 02a0 FFF7FEFF 		bl	lv_color_mix
+ 296 02a4 ADF82400 		strh	r0, [sp, #36]	@ movhi
+ 297 02a8 503D     		subs	r5, r5, #80
+ 298 02aa BDF92E30 		ldrsh	r3, [sp, #46]
+ 299 02ae 03FB05F5 		mul	r5, r3, r5
+ 300 02b2 1D4A     		ldr	r2, .L10+4
+ 301 02b4 82FB0513 		smull	r1, r3, r2, r5
+ 302 02b8 ED17     		asrs	r5, r5, #31
+ 303 02ba C5EBA315 		rsb	r5, r5, r3, asr #6
+ 304 02be ADF82E50 		strh	r5, [sp, #46]	@ movhi
+ 305 02c2 96F82630 		ldrb	r3, [r6, #38]	@ zero_extendqisi2
+ 306 02c6 503B     		subs	r3, r3, #80
+ 307 02c8 BDF93410 		ldrsh	r1, [sp, #52]
+ 308 02cc 01FB03F3 		mul	r3, r1, r3
+ 309 02d0 82FB0312 		smull	r1, r2, r2, r3
+ 310 02d4 DB17     		asrs	r3, r3, #31
+ 311 02d6 C3EBA213 		rsb	r3, r3, r2, asr #6
+ 312 02da ADF83430 		strh	r3, [sp, #52]	@ movhi
+ 313 02de 2046     		mov	r0, r4
+ 314 02e0 FFF7FEFF 		bl	lv_event_get_draw_ctx
+ 315 02e4 0446     		mov	r4, r0
+ 316 02e6 0146     		mov	r1, r0
+ 317 02e8 0EA8     		add	r0, sp, #56
+ 318 02ea FFF7FEFF 		bl	lv_obj_draw_dsc_init
+ 319 02ee 06F11405 		add	r5, r6, #20
+ 320 02f2 1195     		str	r5, [sp, #68]
+ 321 02f4 0B4B     		ldr	r3, .L10
+ 322 02f6 0F93     		str	r3, [sp, #60]
+ 323 02f8 0023     		movs	r3, #0
+ 324 02fa 1093     		str	r3, [sp, #64]
+ 325 02fc CDF848D0 		str	sp, [sp, #72]
+ 326 0300 1B93     		str	r3, [sp, #108]
+ 327 0302 0EAA     		add	r2, sp, #56
+ 328 0304 1A21     		movs	r1, #26
+ 329 0306 3046     		mov	r0, r6
+ 330 0308 FFF7FEFF 		bl	lv_event_send
+ 331 030c 2A46     		mov	r2, r5
+ 332 030e 6946     		mov	r1, sp
+ 333 0310 2046     		mov	r0, r4
+ 334 0312 FFF7FEFF 		bl	lv_draw_rect
+ 335 0316 0EAA     		add	r2, sp, #56
+ 336 0318 1B21     		movs	r1, #27
+ 337 031a 3046     		mov	r0, r6
+ 338 031c FFF7FEFF 		bl	lv_event_send
+ 339 0320 86E6     		b	.L5
+ 340              	.L11:
+ 341 0322 00BF     		.align	2
+ 342              	.L10:
+ 343 0324 00000000 		.word	lv_led_class
+ 344 0328 91739F5D 		.word	1570730897
+ 346              		.section	.text.lv_led_constructor,"ax",%progbits
+ 347              		.align	1
+ 348              		.syntax unified
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s 			page 7
+
+
+ 349              		.thumb
+ 350              		.thumb_func
+ 352              	lv_led_constructor:
+ 353              		@ args = 0, pretend = 0, frame = 0
+ 354              		@ frame_needed = 0, uses_anonymous_args = 0
+ 355 0000 10B5     		push	{r4, lr}
+ 356 0002 0C46     		mov	r4, r1
+ 357 0004 0846     		mov	r0, r1
+ 358 0006 FFF7FEFF 		bl	lv_theme_get_color_primary
+ 359 000a A084     		strh	r0, [r4, #36]	@ movhi
+ 360 000c FF23     		movs	r3, #255
+ 361 000e 84F82630 		strb	r3, [r4, #38]
+ 362 0012 10BD     		pop	{r4, pc}
+ 364              		.section	.text.lv_led_create,"ax",%progbits
+ 365              		.align	1
+ 366              		.global	lv_led_create
+ 367              		.syntax unified
+ 368              		.thumb
+ 369              		.thumb_func
+ 371              	lv_led_create:
+ 372              		@ args = 0, pretend = 0, frame = 0
+ 373              		@ frame_needed = 0, uses_anonymous_args = 0
+ 374 0000 10B5     		push	{r4, lr}
+ 375 0002 0146     		mov	r1, r0
+ 376 0004 0348     		ldr	r0, .L16
+ 377 0006 FFF7FEFF 		bl	lv_obj_class_create_obj
+ 378 000a 0446     		mov	r4, r0
+ 379 000c FFF7FEFF 		bl	lv_obj_class_init_obj
+ 380 0010 2046     		mov	r0, r4
+ 381 0012 10BD     		pop	{r4, pc}
+ 382              	.L17:
+ 383              		.align	2
+ 384              	.L16:
+ 385 0014 00000000 		.word	lv_led_class
+ 387              		.section	.text.lv_led_set_color,"ax",%progbits
+ 388              		.align	1
+ 389              		.global	lv_led_set_color
+ 390              		.syntax unified
+ 391              		.thumb
+ 392              		.thumb_func
+ 394              	lv_led_set_color:
+ 395              		@ args = 0, pretend = 0, frame = 0
+ 396              		@ frame_needed = 0, uses_anonymous_args = 0
+ 397 0000 08B5     		push	{r3, lr}
+ 398 0002 8184     		strh	r1, [r0, #36]	@ movhi
+ 399 0004 FFF7FEFF 		bl	lv_obj_invalidate
+ 400 0008 08BD     		pop	{r3, pc}
+ 402              		.section	.text.lv_led_set_brightness,"ax",%progbits
+ 403              		.align	1
+ 404              		.global	lv_led_set_brightness
+ 405              		.syntax unified
+ 406              		.thumb
+ 407              		.thumb_func
+ 409              	lv_led_set_brightness:
+ 410              		@ args = 0, pretend = 0, frame = 0
+ 411              		@ frame_needed = 0, uses_anonymous_args = 0
+ 412 0000 08B5     		push	{r3, lr}
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s 			page 8
+
+
+ 413 0002 90F82630 		ldrb	r3, [r0, #38]	@ zero_extendqisi2
+ 414 0006 8B42     		cmp	r3, r1
+ 415 0008 06D0     		beq	.L20
+ 416 000a 5029     		cmp	r1, #80
+ 417 000c 38BF     		it	cc
+ 418 000e 5021     		movcc	r1, #80
+ 419 0010 80F82610 		strb	r1, [r0, #38]
+ 420 0014 FFF7FEFF 		bl	lv_obj_invalidate
+ 421              	.L20:
+ 422 0018 08BD     		pop	{r3, pc}
+ 424              		.section	.text.lv_led_on,"ax",%progbits
+ 425              		.align	1
+ 426              		.global	lv_led_on
+ 427              		.syntax unified
+ 428              		.thumb
+ 429              		.thumb_func
+ 431              	lv_led_on:
+ 432              		@ args = 0, pretend = 0, frame = 0
+ 433              		@ frame_needed = 0, uses_anonymous_args = 0
+ 434 0000 08B5     		push	{r3, lr}
+ 435 0002 FF21     		movs	r1, #255
+ 436 0004 FFF7FEFF 		bl	lv_led_set_brightness
+ 437 0008 08BD     		pop	{r3, pc}
+ 439              		.section	.text.lv_led_off,"ax",%progbits
+ 440              		.align	1
+ 441              		.global	lv_led_off
+ 442              		.syntax unified
+ 443              		.thumb
+ 444              		.thumb_func
+ 446              	lv_led_off:
+ 447              		@ args = 0, pretend = 0, frame = 0
+ 448              		@ frame_needed = 0, uses_anonymous_args = 0
+ 449 0000 08B5     		push	{r3, lr}
+ 450 0002 5021     		movs	r1, #80
+ 451 0004 FFF7FEFF 		bl	lv_led_set_brightness
+ 452 0008 08BD     		pop	{r3, pc}
+ 454              		.section	.text.lv_led_get_brightness,"ax",%progbits
+ 455              		.align	1
+ 456              		.global	lv_led_get_brightness
+ 457              		.syntax unified
+ 458              		.thumb
+ 459              		.thumb_func
+ 461              	lv_led_get_brightness:
+ 462              		@ args = 0, pretend = 0, frame = 0
+ 463              		@ frame_needed = 0, uses_anonymous_args = 0
+ 464              		@ link register save eliminated.
+ 465 0000 90F82600 		ldrb	r0, [r0, #38]	@ zero_extendqisi2
+ 466 0004 7047     		bx	lr
+ 468              		.section	.text.lv_led_toggle,"ax",%progbits
+ 469              		.align	1
+ 470              		.global	lv_led_toggle
+ 471              		.syntax unified
+ 472              		.thumb
+ 473              		.thumb_func
+ 475              	lv_led_toggle:
+ 476              		@ args = 0, pretend = 0, frame = 0
+ 477              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s 			page 9
+
+
+ 478 0000 10B5     		push	{r4, lr}
+ 479 0002 0446     		mov	r4, r0
+ 480 0004 FFF7FEFF 		bl	lv_led_get_brightness
+ 481 0008 A728     		cmp	r0, #167
+ 482 000a 03D9     		bls	.L29
+ 483 000c 2046     		mov	r0, r4
+ 484 000e FFF7FEFF 		bl	lv_led_off
+ 485              	.L28:
+ 486 0012 10BD     		pop	{r4, pc}
+ 487              	.L29:
+ 488 0014 2046     		mov	r0, r4
+ 489 0016 FFF7FEFF 		bl	lv_led_on
+ 490 001a FAE7     		b	.L28
+ 492              		.global	lv_led_class
+ 493              		.section	.rodata.lv_led_class,"a"
+ 494              		.align	2
+ 497              	lv_led_class:
+ 498 0000 00000000 		.word	lv_obj_class
+ 499 0004 00000000 		.word	lv_led_constructor
+ 500 0008 00000000 		.space	8
+ 500      00000000 
+ 501 0010 00000000 		.word	lv_led_event
+ 502 0014 1A00     		.short	26
+ 503 0016 1A00     		.short	26
+ 504 0018 80       		.byte	128
+ 505 0019 02       		.byte	2
+ 506 001a 00       		.byte	0
+ 507 001b 00       		.space	1
+ 508              		.ident	"GCC: (xPack GNU Arm Embedded GCC arm64) 13.3.1 20240614"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_led.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:18     .text.lv_color_to32:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:23     .text.lv_color_to32:00000000 lv_color_to32
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:52     .text.lv_color_mix:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:57     .text.lv_color_mix:00000000 lv_color_mix
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:88     .text.lv_color_mix:00000048 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:91     .text.lv_led_event:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:96     .text.lv_led_event:00000000 lv_led_event
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:343    .text.lv_led_event:00000324 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:497    .rodata.lv_led_class:00000000 lv_led_class
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:347    .text.lv_led_constructor:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:352    .text.lv_led_constructor:00000000 lv_led_constructor
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:365    .text.lv_led_create:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:371    .text.lv_led_create:00000000 lv_led_create
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:385    .text.lv_led_create:00000014 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:388    .text.lv_led_set_color:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:394    .text.lv_led_set_color:00000000 lv_led_set_color
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:403    .text.lv_led_set_brightness:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:409    .text.lv_led_set_brightness:00000000 lv_led_set_brightness
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:425    .text.lv_led_on:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:431    .text.lv_led_on:00000000 lv_led_on
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:440    .text.lv_led_off:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:446    .text.lv_led_off:00000000 lv_led_off
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:455    .text.lv_led_get_brightness:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:461    .text.lv_led_get_brightness:00000000 lv_led_get_brightness
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:469    .text.lv_led_toggle:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:475    .text.lv_led_toggle:00000000 lv_led_toggle
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccbLRlrY.s:494    .rodata.lv_led_class:00000000 $d
+
+UNDEFINED SYMBOLS
+lv_event_get_code
+lv_obj_event_base
+lv_event_get_target
+lv_draw_rect_dsc_init
+lv_obj_init_draw_rect_dsc
+lv_event_get_draw_ctx
+lv_obj_draw_dsc_init
+lv_event_send
+lv_draw_rect
+lv_theme_get_color_primary
+lv_obj_class_create_obj
+lv_obj_class_init_obj
+lv_obj_invalidate
+lv_obj_class

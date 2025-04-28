@@ -1,0 +1,1138 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_disp.c"
+  16              		.text
+  17              		.section	.text.is_out_anim,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	is_out_anim:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 0A38     		subs	r0, r0, #10
+  28 0002 C0B2     		uxtb	r0, r0
+  29 0004 0428     		cmp	r0, #4
+  30 0006 8CBF     		ite	hi
+  31 0008 0020     		movhi	r0, #0
+  32 000a 0120     		movls	r0, #1
+  33 000c 7047     		bx	lr
+  35              		.section	.text.opa_scale_anim,"ax",%progbits
+  36              		.align	1
+  37              		.syntax unified
+  38              		.thumb
+  39              		.thumb_func
+  41              	opa_scale_anim:
+  42              		@ args = 0, pretend = 0, frame = 0
+  43              		@ frame_needed = 0, uses_anonymous_args = 0
+  44 0000 08B5     		push	{r3, lr}
+  45 0002 0022     		movs	r2, #0
+  46 0004 C9B2     		uxtb	r1, r1
+  47 0006 FFF7FEFF 		bl	lv_obj_set_style_opa
+  48 000a 08BD     		pop	{r3, pc}
+  50              		.section	.text.set_y_anim,"ax",%progbits
+  51              		.align	1
+  52              		.syntax unified
+  53              		.thumb
+  54              		.thumb_func
+  56              	set_y_anim:
+  57              		@ args = 0, pretend = 0, frame = 0
+  58              		@ frame_needed = 0, uses_anonymous_args = 0
+  59 0000 08B5     		push	{r3, lr}
+  60 0002 09B2     		sxth	r1, r1
+  61 0004 FFF7FEFF 		bl	lv_obj_set_y
+  62 0008 08BD     		pop	{r3, pc}
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 2
+
+
+  64              		.section	.text.set_x_anim,"ax",%progbits
+  65              		.align	1
+  66              		.syntax unified
+  67              		.thumb
+  68              		.thumb_func
+  70              	set_x_anim:
+  71              		@ args = 0, pretend = 0, frame = 0
+  72              		@ frame_needed = 0, uses_anonymous_args = 0
+  73 0000 08B5     		push	{r3, lr}
+  74 0002 09B2     		sxth	r1, r1
+  75 0004 FFF7FEFF 		bl	lv_obj_set_x
+  76 0008 08BD     		pop	{r3, pc}
+  78              		.section	.text.scr_anim_ready,"ax",%progbits
+  79              		.align	1
+  80              		.syntax unified
+  81              		.thumb
+  82              		.thumb_func
+  84              	scr_anim_ready:
+  85              		@ args = 0, pretend = 0, frame = 0
+  86              		@ frame_needed = 0, uses_anonymous_args = 0
+  87 0000 38B5     		push	{r3, r4, r5, lr}
+  88 0002 0546     		mov	r5, r0
+  89 0004 0068     		ldr	r0, [r0]
+  90 0006 FFF7FEFF 		bl	lv_obj_get_disp
+  91 000a 0446     		mov	r4, r0
+  92 000c 0022     		movs	r2, #0
+  93 000e 2721     		movs	r1, #39
+  94 0010 0069     		ldr	r0, [r0, #16]
+  95 0012 FFF7FEFF 		bl	lv_event_send
+  96 0016 0022     		movs	r2, #0
+  97 0018 2821     		movs	r1, #40
+  98 001a 6069     		ldr	r0, [r4, #20]
+  99 001c FFF7FEFF 		bl	lv_event_send
+ 100 0020 6069     		ldr	r0, [r4, #20]
+ 101 0022 20B1     		cbz	r0, .L9
+ 102 0024 94F82830 		ldrb	r3, [r4, #40]	@ zero_extendqisi2
+ 103 0028 13F0020F 		tst	r3, #2
+ 104 002c 10D1     		bne	.L11
+ 105              	.L9:
+ 106 002e 0022     		movs	r2, #0
+ 107 0030 6261     		str	r2, [r4, #20]
+ 108 0032 94F82830 		ldrb	r3, [r4, #40]	@ zero_extendqisi2
+ 109 0036 62F30003 		bfi	r3, r2, #0, #1
+ 110 003a 84F82830 		strb	r3, [r4, #40]
+ 111 003e A261     		str	r2, [r4, #24]
+ 112 0040 6021     		movs	r1, #96
+ 113 0042 2868     		ldr	r0, [r5]
+ 114 0044 FFF7FEFF 		bl	lv_obj_remove_local_style_prop
+ 115 0048 2069     		ldr	r0, [r4, #16]
+ 116 004a FFF7FEFF 		bl	lv_obj_invalidate
+ 117 004e 38BD     		pop	{r3, r4, r5, pc}
+ 118              	.L11:
+ 119 0050 FFF7FEFF 		bl	lv_obj_del
+ 120 0054 EBE7     		b	.L9
+ 122              		.section	.text.scr_load_internal,"ax",%progbits
+ 123              		.align	1
+ 124              		.syntax unified
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 3
+
+
+ 125              		.thumb
+ 126              		.thumb_func
+ 128              	scr_load_internal:
+ 129              		@ args = 0, pretend = 0, frame = 0
+ 130              		@ frame_needed = 0, uses_anonymous_args = 0
+ 131 0000 70B5     		push	{r4, r5, r6, lr}
+ 132 0002 0446     		mov	r4, r0
+ 133 0004 FFF7FEFF 		bl	lv_obj_get_disp
+ 134 0008 08B3     		cbz	r0, .L12
+ 135 000a 0546     		mov	r5, r0
+ 136 000c 0669     		ldr	r6, [r0, #16]
+ 137 000e 26B1     		cbz	r6, .L14
+ 138 0010 0022     		movs	r2, #0
+ 139 0012 2521     		movs	r1, #37
+ 140 0014 3046     		mov	r0, r6
+ 141 0016 FFF7FEFF 		bl	lv_event_send
+ 142              	.L14:
+ 143 001a 2B69     		ldr	r3, [r5, #16]
+ 144 001c 23B1     		cbz	r3, .L15
+ 145 001e 0022     		movs	r2, #0
+ 146 0020 2621     		movs	r1, #38
+ 147 0022 2046     		mov	r0, r4
+ 148 0024 FFF7FEFF 		bl	lv_event_send
+ 149              	.L15:
+ 150 0028 2C61     		str	r4, [r5, #16]
+ 151 002a 0023     		movs	r3, #0
+ 152 002c AB61     		str	r3, [r5, #24]
+ 153 002e 24B1     		cbz	r4, .L16
+ 154 0030 1A46     		mov	r2, r3
+ 155 0032 2721     		movs	r1, #39
+ 156 0034 2046     		mov	r0, r4
+ 157 0036 FFF7FEFF 		bl	lv_event_send
+ 158              	.L16:
+ 159 003a 2B69     		ldr	r3, [r5, #16]
+ 160 003c 23B1     		cbz	r3, .L17
+ 161 003e 0022     		movs	r2, #0
+ 162 0040 2821     		movs	r1, #40
+ 163 0042 3046     		mov	r0, r6
+ 164 0044 FFF7FEFF 		bl	lv_event_send
+ 165              	.L17:
+ 166 0048 2046     		mov	r0, r4
+ 167 004a FFF7FEFF 		bl	lv_obj_invalidate
+ 168              	.L12:
+ 169 004e 70BD     		pop	{r4, r5, r6, pc}
+ 171              		.section	.text.lv_disp_get_scr_act,"ax",%progbits
+ 172              		.align	1
+ 173              		.global	lv_disp_get_scr_act
+ 174              		.syntax unified
+ 175              		.thumb
+ 176              		.thumb_func
+ 178              	lv_disp_get_scr_act:
+ 179              		@ args = 0, pretend = 0, frame = 0
+ 180              		@ frame_needed = 0, uses_anonymous_args = 0
+ 181 0000 08B5     		push	{r3, lr}
+ 182 0002 0346     		mov	r3, r0
+ 183 0004 08B1     		cbz	r0, .L24
+ 184              	.L20:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 4
+
+
+ 185 0006 1869     		ldr	r0, [r3, #16]
+ 186              	.L19:
+ 187 0008 08BD     		pop	{r3, pc}
+ 188              	.L24:
+ 189 000a FFF7FEFF 		bl	lv_disp_get_default
+ 190 000e 0346     		mov	r3, r0
+ 191 0010 0028     		cmp	r0, #0
+ 192 0012 F8D1     		bne	.L20
+ 193 0014 F8E7     		b	.L19
+ 195              		.section	.text.lv_scr_act,"ax",%progbits
+ 196              		.align	1
+ 197              		.syntax unified
+ 198              		.thumb
+ 199              		.thumb_func
+ 201              	lv_scr_act:
+ 202              		@ args = 0, pretend = 0, frame = 0
+ 203              		@ frame_needed = 0, uses_anonymous_args = 0
+ 204 0000 08B5     		push	{r3, lr}
+ 205 0002 FFF7FEFF 		bl	lv_disp_get_default
+ 206 0006 FFF7FEFF 		bl	lv_disp_get_scr_act
+ 207 000a 08BD     		pop	{r3, pc}
+ 209              		.section	.text.scr_load_anim_start,"ax",%progbits
+ 210              		.align	1
+ 211              		.syntax unified
+ 212              		.thumb
+ 213              		.thumb_func
+ 215              	scr_load_anim_start:
+ 216              		@ args = 0, pretend = 0, frame = 0
+ 217              		@ frame_needed = 0, uses_anonymous_args = 0
+ 218 0000 38B5     		push	{r3, r4, r5, lr}
+ 219 0002 0546     		mov	r5, r0
+ 220 0004 0068     		ldr	r0, [r0]
+ 221 0006 FFF7FEFF 		bl	lv_obj_get_disp
+ 222 000a 0446     		mov	r4, r0
+ 223 000c FFF7FEFF 		bl	lv_scr_act
+ 224 0010 6061     		str	r0, [r4, #20]
+ 225 0012 2868     		ldr	r0, [r5]
+ 226 0014 2061     		str	r0, [r4, #16]
+ 227 0016 0022     		movs	r2, #0
+ 228 0018 2621     		movs	r1, #38
+ 229 001a FFF7FEFF 		bl	lv_event_send
+ 230 001e 38BD     		pop	{r3, r4, r5, pc}
+ 232              		.section	.text.lv_disp_get_scr_prev,"ax",%progbits
+ 233              		.align	1
+ 234              		.global	lv_disp_get_scr_prev
+ 235              		.syntax unified
+ 236              		.thumb
+ 237              		.thumb_func
+ 239              	lv_disp_get_scr_prev:
+ 240              		@ args = 0, pretend = 0, frame = 0
+ 241              		@ frame_needed = 0, uses_anonymous_args = 0
+ 242 0000 08B5     		push	{r3, lr}
+ 243 0002 0346     		mov	r3, r0
+ 244 0004 08B1     		cbz	r0, .L34
+ 245              	.L30:
+ 246 0006 5869     		ldr	r0, [r3, #20]
+ 247              	.L29:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 5
+
+
+ 248 0008 08BD     		pop	{r3, pc}
+ 249              	.L34:
+ 250 000a FFF7FEFF 		bl	lv_disp_get_default
+ 251 000e 0346     		mov	r3, r0
+ 252 0010 0028     		cmp	r0, #0
+ 253 0012 F8D1     		bne	.L30
+ 254 0014 F8E7     		b	.L29
+ 256              		.section	.text.lv_disp_get_layer_top,"ax",%progbits
+ 257              		.align	1
+ 258              		.global	lv_disp_get_layer_top
+ 259              		.syntax unified
+ 260              		.thumb
+ 261              		.thumb_func
+ 263              	lv_disp_get_layer_top:
+ 264              		@ args = 0, pretend = 0, frame = 0
+ 265              		@ frame_needed = 0, uses_anonymous_args = 0
+ 266 0000 08B5     		push	{r3, lr}
+ 267 0002 0346     		mov	r3, r0
+ 268 0004 08B1     		cbz	r0, .L40
+ 269              	.L36:
+ 270 0006 D869     		ldr	r0, [r3, #28]
+ 271              	.L35:
+ 272 0008 08BD     		pop	{r3, pc}
+ 273              	.L40:
+ 274 000a FFF7FEFF 		bl	lv_disp_get_default
+ 275 000e 0346     		mov	r3, r0
+ 276 0010 0028     		cmp	r0, #0
+ 277 0012 F8D1     		bne	.L36
+ 278 0014 F8E7     		b	.L35
+ 280              		.section	.text.lv_disp_get_layer_sys,"ax",%progbits
+ 281              		.align	1
+ 282              		.global	lv_disp_get_layer_sys
+ 283              		.syntax unified
+ 284              		.thumb
+ 285              		.thumb_func
+ 287              	lv_disp_get_layer_sys:
+ 288              		@ args = 0, pretend = 0, frame = 0
+ 289              		@ frame_needed = 0, uses_anonymous_args = 0
+ 290 0000 08B5     		push	{r3, lr}
+ 291 0002 0346     		mov	r3, r0
+ 292 0004 08B1     		cbz	r0, .L46
+ 293              	.L42:
+ 294 0006 186A     		ldr	r0, [r3, #32]
+ 295              	.L41:
+ 296 0008 08BD     		pop	{r3, pc}
+ 297              	.L46:
+ 298 000a FFF7FEFF 		bl	lv_disp_get_default
+ 299 000e 0346     		mov	r3, r0
+ 300 0010 0028     		cmp	r0, #0
+ 301 0012 F8D1     		bne	.L42
+ 302 0014 F8E7     		b	.L41
+ 304              		.section	.text.lv_disp_set_theme,"ax",%progbits
+ 305              		.align	1
+ 306              		.global	lv_disp_set_theme
+ 307              		.syntax unified
+ 308              		.thumb
+ 309              		.thumb_func
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 6
+
+
+ 311              	lv_disp_set_theme:
+ 312              		@ args = 0, pretend = 0, frame = 0
+ 313              		@ frame_needed = 0, uses_anonymous_args = 0
+ 314 0000 38B5     		push	{r3, r4, r5, lr}
+ 315 0002 0C46     		mov	r4, r1
+ 316 0004 0546     		mov	r5, r0
+ 317 0006 20B1     		cbz	r0, .L51
+ 318              	.L48:
+ 319 0008 AC60     		str	r4, [r5, #8]
+ 320 000a 6B6A     		ldr	r3, [r5, #36]
+ 321 000c 032B     		cmp	r3, #3
+ 322 000e 06D0     		beq	.L52
+ 323              	.L47:
+ 324 0010 38BD     		pop	{r3, r4, r5, pc}
+ 325              	.L51:
+ 326 0012 FFF7FEFF 		bl	lv_disp_get_default
+ 327 0016 0546     		mov	r5, r0
+ 328 0018 0028     		cmp	r0, #0
+ 329 001a F5D1     		bne	.L48
+ 330 001c F8E7     		b	.L47
+ 331              	.L52:
+ 332 001e EB68     		ldr	r3, [r5, #12]
+ 333 0020 1868     		ldr	r0, [r3]
+ 334 0022 FFF7FEFF 		bl	lv_obj_get_child_cnt
+ 335 0026 0028     		cmp	r0, #0
+ 336 0028 F2D1     		bne	.L47
+ 337 002a EB68     		ldr	r3, [r5, #12]
+ 338 002c 5868     		ldr	r0, [r3, #4]
+ 339 002e FFF7FEFF 		bl	lv_obj_get_child_cnt
+ 340 0032 0028     		cmp	r0, #0
+ 341 0034 ECD1     		bne	.L47
+ 342 0036 EB68     		ldr	r3, [r5, #12]
+ 343 0038 9868     		ldr	r0, [r3, #8]
+ 344 003a FFF7FEFF 		bl	lv_obj_get_child_cnt
+ 345 003e 0028     		cmp	r0, #0
+ 346 0040 E6D1     		bne	.L47
+ 347 0042 EB68     		ldr	r3, [r5, #12]
+ 348 0044 1868     		ldr	r0, [r3]
+ 349 0046 FFF7FEFF 		bl	lv_theme_apply
+ 350 004a E1E7     		b	.L47
+ 352              		.section	.text.lv_disp_get_theme,"ax",%progbits
+ 353              		.align	1
+ 354              		.global	lv_disp_get_theme
+ 355              		.syntax unified
+ 356              		.thumb
+ 357              		.thumb_func
+ 359              	lv_disp_get_theme:
+ 360              		@ args = 0, pretend = 0, frame = 0
+ 361              		@ frame_needed = 0, uses_anonymous_args = 0
+ 362 0000 08B5     		push	{r3, lr}
+ 363 0002 0346     		mov	r3, r0
+ 364 0004 08B1     		cbz	r0, .L56
+ 365              	.L54:
+ 366 0006 9868     		ldr	r0, [r3, #8]
+ 367 0008 08BD     		pop	{r3, pc}
+ 368              	.L56:
+ 369 000a FFF7FEFF 		bl	lv_disp_get_default
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 7
+
+
+ 370 000e 0346     		mov	r3, r0
+ 371 0010 F9E7     		b	.L54
+ 373              		.section	.text.lv_disp_set_bg_color,"ax",%progbits
+ 374              		.align	1
+ 375              		.global	lv_disp_set_bg_color
+ 376              		.syntax unified
+ 377              		.thumb
+ 378              		.thumb_func
+ 380              	lv_disp_set_bg_color:
+ 381              		@ args = 0, pretend = 0, frame = 8
+ 382              		@ frame_needed = 0, uses_anonymous_args = 0
+ 383 0000 30B5     		push	{r4, r5, lr}
+ 384 0002 85B0     		sub	sp, sp, #20
+ 385 0004 0C46     		mov	r4, r1	@ movhi
+ 386 0006 0546     		mov	r5, r0
+ 387 0008 C8B1     		cbz	r0, .L61
+ 388              	.L58:
+ 389 000a 6C85     		strh	r4, [r5, #42]	@ movhi
+ 390 000c 2846     		mov	r0, r5
+ 391 000e FFF7FEFF 		bl	lv_disp_get_hor_res
+ 392 0012 84B2     		uxth	r4, r0
+ 393 0014 013C     		subs	r4, r4, #1
+ 394 0016 A4B2     		uxth	r4, r4
+ 395 0018 2846     		mov	r0, r5
+ 396 001a FFF7FEFF 		bl	lv_disp_get_ver_res
+ 397 001e 80B2     		uxth	r0, r0
+ 398 0020 0138     		subs	r0, r0, #1
+ 399 0022 00B2     		sxth	r0, r0
+ 400 0024 0090     		str	r0, [sp]
+ 401 0026 23B2     		sxth	r3, r4
+ 402 0028 0022     		movs	r2, #0
+ 403 002a 1146     		mov	r1, r2
+ 404 002c 02A8     		add	r0, sp, #8
+ 405 002e FFF7FEFF 		bl	lv_area_set
+ 406 0032 02A9     		add	r1, sp, #8
+ 407 0034 2846     		mov	r0, r5
+ 408 0036 FFF7FEFF 		bl	_lv_inv_area
+ 409              	.L57:
+ 410 003a 05B0     		add	sp, sp, #20
+ 411              		@ sp needed
+ 412 003c 30BD     		pop	{r4, r5, pc}
+ 413              	.L61:
+ 414 003e FFF7FEFF 		bl	lv_disp_get_default
+ 415 0042 0546     		mov	r5, r0
+ 416 0044 0028     		cmp	r0, #0
+ 417 0046 E0D1     		bne	.L58
+ 418 0048 F7E7     		b	.L57
+ 420              		.section	.text.lv_disp_set_bg_image,"ax",%progbits
+ 421              		.align	1
+ 422              		.global	lv_disp_set_bg_image
+ 423              		.syntax unified
+ 424              		.thumb
+ 425              		.thumb_func
+ 427              	lv_disp_set_bg_image:
+ 428              		@ args = 0, pretend = 0, frame = 8
+ 429              		@ frame_needed = 0, uses_anonymous_args = 0
+ 430 0000 30B5     		push	{r4, r5, lr}
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 8
+
+
+ 431 0002 85B0     		sub	sp, sp, #20
+ 432 0004 0C46     		mov	r4, r1
+ 433 0006 0546     		mov	r5, r0
+ 434 0008 C8B1     		cbz	r0, .L66
+ 435              	.L63:
+ 436 000a EC62     		str	r4, [r5, #44]
+ 437 000c 2846     		mov	r0, r5
+ 438 000e FFF7FEFF 		bl	lv_disp_get_hor_res
+ 439 0012 84B2     		uxth	r4, r0
+ 440 0014 013C     		subs	r4, r4, #1
+ 441 0016 A4B2     		uxth	r4, r4
+ 442 0018 2846     		mov	r0, r5
+ 443 001a FFF7FEFF 		bl	lv_disp_get_ver_res
+ 444 001e 80B2     		uxth	r0, r0
+ 445 0020 0138     		subs	r0, r0, #1
+ 446 0022 00B2     		sxth	r0, r0
+ 447 0024 0090     		str	r0, [sp]
+ 448 0026 23B2     		sxth	r3, r4
+ 449 0028 0022     		movs	r2, #0
+ 450 002a 1146     		mov	r1, r2
+ 451 002c 02A8     		add	r0, sp, #8
+ 452 002e FFF7FEFF 		bl	lv_area_set
+ 453 0032 02A9     		add	r1, sp, #8
+ 454 0034 2846     		mov	r0, r5
+ 455 0036 FFF7FEFF 		bl	_lv_inv_area
+ 456              	.L62:
+ 457 003a 05B0     		add	sp, sp, #20
+ 458              		@ sp needed
+ 459 003c 30BD     		pop	{r4, r5, pc}
+ 460              	.L66:
+ 461 003e FFF7FEFF 		bl	lv_disp_get_default
+ 462 0042 0546     		mov	r5, r0
+ 463 0044 0028     		cmp	r0, #0
+ 464 0046 E0D1     		bne	.L63
+ 465 0048 F7E7     		b	.L62
+ 467              		.section	.text.lv_disp_set_bg_opa,"ax",%progbits
+ 468              		.align	1
+ 469              		.global	lv_disp_set_bg_opa
+ 470              		.syntax unified
+ 471              		.thumb
+ 472              		.thumb_func
+ 474              	lv_disp_set_bg_opa:
+ 475              		@ args = 0, pretend = 0, frame = 8
+ 476              		@ frame_needed = 0, uses_anonymous_args = 0
+ 477 0000 30B5     		push	{r4, r5, lr}
+ 478 0002 85B0     		sub	sp, sp, #20
+ 479 0004 0C46     		mov	r4, r1
+ 480 0006 0546     		mov	r5, r0
+ 481 0008 D0B1     		cbz	r0, .L71
+ 482              	.L68:
+ 483 000a 85F82940 		strb	r4, [r5, #41]
+ 484 000e 2846     		mov	r0, r5
+ 485 0010 FFF7FEFF 		bl	lv_disp_get_hor_res
+ 486 0014 84B2     		uxth	r4, r0
+ 487 0016 013C     		subs	r4, r4, #1
+ 488 0018 A4B2     		uxth	r4, r4
+ 489 001a 2846     		mov	r0, r5
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 9
+
+
+ 490 001c FFF7FEFF 		bl	lv_disp_get_ver_res
+ 491 0020 80B2     		uxth	r0, r0
+ 492 0022 0138     		subs	r0, r0, #1
+ 493 0024 00B2     		sxth	r0, r0
+ 494 0026 0090     		str	r0, [sp]
+ 495 0028 23B2     		sxth	r3, r4
+ 496 002a 0022     		movs	r2, #0
+ 497 002c 1146     		mov	r1, r2
+ 498 002e 02A8     		add	r0, sp, #8
+ 499 0030 FFF7FEFF 		bl	lv_area_set
+ 500 0034 02A9     		add	r1, sp, #8
+ 501 0036 2846     		mov	r0, r5
+ 502 0038 FFF7FEFF 		bl	_lv_inv_area
+ 503              	.L67:
+ 504 003c 05B0     		add	sp, sp, #20
+ 505              		@ sp needed
+ 506 003e 30BD     		pop	{r4, r5, pc}
+ 507              	.L71:
+ 508 0040 FFF7FEFF 		bl	lv_disp_get_default
+ 509 0044 0546     		mov	r5, r0
+ 510 0046 0028     		cmp	r0, #0
+ 511 0048 DFD1     		bne	.L68
+ 512 004a F7E7     		b	.L67
+ 514              		.section	.text.lv_scr_load_anim,"ax",%progbits
+ 515              		.align	1
+ 516              		.global	lv_scr_load_anim
+ 517              		.syntax unified
+ 518              		.thumb
+ 519              		.thumb_func
+ 521              	lv_scr_load_anim:
+ 522              		@ args = 4, pretend = 0, frame = 136
+ 523              		@ frame_needed = 0, uses_anonymous_args = 0
+ 524 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 525 0004 A2B0     		sub	sp, sp, #136
+ 526 0006 0546     		mov	r5, r0
+ 527 0008 8846     		mov	r8, r1
+ 528 000a 9146     		mov	r9, r2
+ 529 000c 1E46     		mov	r6, r3
+ 530 000e 9DF8A8A0 		ldrb	r10, [sp, #168]	@ zero_extendqisi2
+ 531 0012 FFF7FEFF 		bl	lv_obj_get_disp
+ 532 0016 0446     		mov	r4, r0
+ 533 0018 FFF7FEFF 		bl	lv_scr_act
+ 534 001c 8542     		cmp	r5, r0
+ 535 001e 00F0A180 		beq	.L72
+ 536 0022 0746     		mov	r7, r0
+ 537 0024 A069     		ldr	r0, [r4, #24]
+ 538 0026 A842     		cmp	r0, r5
+ 539 0028 00F09C80 		beq	.L72
+ 540 002c A8B1     		cbz	r0, .L74
+ 541 002e FFF7FEFF 		bl	scr_load_internal
+ 542 0032 0021     		movs	r1, #0
+ 543 0034 A069     		ldr	r0, [r4, #24]
+ 544 0036 FFF7FEFF 		bl	lv_anim_del
+ 545 003a 0022     		movs	r2, #0
+ 546 003c 1146     		mov	r1, r2
+ 547 003e A069     		ldr	r0, [r4, #24]
+ 548 0040 FFF7FEFF 		bl	lv_obj_set_pos
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 10
+
+
+ 549 0044 0022     		movs	r2, #0
+ 550 0046 6021     		movs	r1, #96
+ 551 0048 A069     		ldr	r0, [r4, #24]
+ 552 004a FFF7FEFF 		bl	lv_obj_remove_local_style_prop
+ 553 004e 94F82830 		ldrb	r3, [r4, #40]	@ zero_extendqisi2
+ 554 0052 13F0020F 		tst	r3, #2
+ 555 0056 61D1     		bne	.L99
+ 556              	.L75:
+ 557 0058 A769     		ldr	r7, [r4, #24]
+ 558              	.L74:
+ 559 005a A561     		str	r5, [r4, #24]
+ 560 005c 6069     		ldr	r0, [r4, #20]
+ 561 005e 20B1     		cbz	r0, .L76
+ 562 0060 94F82830 		ldrb	r3, [r4, #40]	@ zero_extendqisi2
+ 563 0064 13F0020F 		tst	r3, #2
+ 564 0068 5CD1     		bne	.L100
+ 565              	.L76:
+ 566 006a 4046     		mov	r0, r8
+ 567 006c FFF7FEFF 		bl	is_out_anim
+ 568 0070 94F82830 		ldrb	r3, [r4, #40]	@ zero_extendqisi2
+ 569 0074 60F30003 		bfi	r3, r0, #0, #1
+ 570 0078 84F82830 		strb	r3, [r4, #40]
+ 571 007c DBB2     		uxtb	r3, r3
+ 572 007e 6AF34103 		bfi	r3, r10, #1, #1
+ 573 0082 84F82830 		strb	r3, [r4, #40]
+ 574 0086 0021     		movs	r1, #0
+ 575 0088 2846     		mov	r0, r5
+ 576 008a FFF7FEFF 		bl	lv_anim_del
+ 577 008e FFF7FEFF 		bl	lv_scr_act
+ 578 0092 0021     		movs	r1, #0
+ 579 0094 FFF7FEFF 		bl	lv_anim_del
+ 580 0098 0022     		movs	r2, #0
+ 581 009a 1146     		mov	r1, r2
+ 582 009c 2846     		mov	r0, r5
+ 583 009e FFF7FEFF 		bl	lv_obj_set_pos
+ 584 00a2 FFF7FEFF 		bl	lv_scr_act
+ 585 00a6 0022     		movs	r2, #0
+ 586 00a8 1146     		mov	r1, r2
+ 587 00aa FFF7FEFF 		bl	lv_obj_set_pos
+ 588 00ae 0022     		movs	r2, #0
+ 589 00b0 6021     		movs	r1, #96
+ 590 00b2 2846     		mov	r0, r5
+ 591 00b4 FFF7FEFF 		bl	lv_obj_remove_local_style_prop
+ 592 00b8 FFF7FEFF 		bl	lv_scr_act
+ 593 00bc 0022     		movs	r2, #0
+ 594 00be 6021     		movs	r1, #96
+ 595 00c0 FFF7FEFF 		bl	lv_obj_remove_local_style_prop
+ 596 00c4 B9F1000F 		cmp	r9, #0
+ 597 00c8 00D1     		bne	.L77
+ 598 00ca 86B3     		cbz	r6, .L101
+ 599              	.L77:
+ 600 00cc 11A8     		add	r0, sp, #68
+ 601 00ce FFF7FEFF 		bl	lv_anim_init
+ 602 00d2 1195     		str	r5, [sp, #68]
+ 603 00d4 7B4B     		ldr	r3, .L102
+ 604 00d6 1393     		str	r3, [sp, #76]
+ 605 00d8 7B4B     		ldr	r3, .L102+4
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 11
+
+
+ 606 00da 1493     		str	r3, [sp, #80]
+ 607 00dc CDF87090 		str	r9, [sp, #112]
+ 608 00e0 7642     		rsbs	r6, r6, #0
+ 609 00e2 1D96     		str	r6, [sp, #116]
+ 610 00e4 6846     		mov	r0, sp
+ 611 00e6 FFF7FEFF 		bl	lv_anim_init
+ 612 00ea 2369     		ldr	r3, [r4, #16]
+ 613 00ec 0093     		str	r3, [sp]
+ 614 00ee CDF82C90 		str	r9, [sp, #44]
+ 615 00f2 0C96     		str	r6, [sp, #48]
+ 616 00f4 B8F10E0F 		cmp	r8, #14
+ 617 00f8 29D8     		bhi	.L79
+ 618 00fa DFE818F0 		tbh	[pc, r8, lsl #1]
+ 619              	.L81:
+ 620 00fe 2200     		.2byte	(.L95-.L81)/2
+ 621 0100 3600     		.2byte	(.L94-.L81)/2
+ 622 0102 4000     		.2byte	(.L93-.L81)/2
+ 623 0104 4B00     		.2byte	(.L92-.L81)/2
+ 624 0106 5500     		.2byte	(.L91-.L81)/2
+ 625 0108 6000     		.2byte	(.L90-.L81)/2
+ 626 010a 7200     		.2byte	(.L89-.L81)/2
+ 627 010c 8400     		.2byte	(.L88-.L81)/2
+ 628 010e 9600     		.2byte	(.L87-.L81)/2
+ 629 0110 A800     		.2byte	(.L86-.L81)/2
+ 630 0112 B000     		.2byte	(.L85-.L81)/2
+ 631 0114 B800     		.2byte	(.L84-.L81)/2
+ 632 0116 C300     		.2byte	(.L83-.L81)/2
+ 633 0118 CD00     		.2byte	(.L82-.L81)/2
+ 634 011a D800     		.2byte	(.L80-.L81)/2
+ 635              		.p2align 1
+ 636              	.L99:
+ 637 011c 3846     		mov	r0, r7
+ 638 011e FFF7FEFF 		bl	lv_obj_del
+ 639 0122 99E7     		b	.L75
+ 640              	.L100:
+ 641 0124 FFF7FEFF 		bl	lv_obj_del
+ 642 0128 0023     		movs	r3, #0
+ 643 012a 6361     		str	r3, [r4, #20]
+ 644 012c 9DE7     		b	.L76
+ 645              	.L101:
+ 646 012e 2846     		mov	r0, r5
+ 647 0130 FFF7FEFF 		bl	scr_load_internal
+ 648 0134 BAF1000F 		cmp	r10, #0
+ 649 0138 14D0     		beq	.L72
+ 650 013a 3846     		mov	r0, r7
+ 651 013c FFF7FEFF 		bl	lv_obj_del
+ 652 0140 10E0     		b	.L72
+ 653              	.L95:
+ 654 0142 624B     		ldr	r3, .L102+8
+ 655 0144 1293     		str	r3, [sp, #72]
+ 656 0146 0023     		movs	r3, #0
+ 657 0148 1993     		str	r3, [sp, #100]
+ 658 014a 1A93     		str	r3, [sp, #104]
+ 659 014c 1B93     		str	r3, [sp, #108]
+ 660              	.L79:
+ 661 014e 0022     		movs	r2, #0
+ 662 0150 2521     		movs	r1, #37
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 12
+
+
+ 663 0152 3846     		mov	r0, r7
+ 664 0154 FFF7FEFF 		bl	lv_event_send
+ 665 0158 11A8     		add	r0, sp, #68
+ 666 015a FFF7FEFF 		bl	lv_anim_start
+ 667 015e 6846     		mov	r0, sp
+ 668 0160 FFF7FEFF 		bl	lv_anim_start
+ 669              	.L72:
+ 670 0164 22B0     		add	sp, sp, #136
+ 671              		@ sp needed
+ 672 0166 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 673              	.L94:
+ 674 016a 584B     		ldr	r3, .L102+8
+ 675 016c 1293     		str	r3, [sp, #72]
+ 676 016e 2046     		mov	r0, r4
+ 677 0170 FFF7FEFF 		bl	lv_disp_get_hor_res
+ 678 0174 1990     		str	r0, [sp, #100]
+ 679 0176 1A90     		str	r0, [sp, #104]
+ 680 0178 0023     		movs	r3, #0
+ 681 017a 1B93     		str	r3, [sp, #108]
+ 682 017c E7E7     		b	.L79
+ 683              	.L93:
+ 684 017e 534B     		ldr	r3, .L102+8
+ 685 0180 1293     		str	r3, [sp, #72]
+ 686 0182 2046     		mov	r0, r4
+ 687 0184 FFF7FEFF 		bl	lv_disp_get_hor_res
+ 688 0188 4042     		rsbs	r0, r0, #0
+ 689 018a 1990     		str	r0, [sp, #100]
+ 690 018c 1A90     		str	r0, [sp, #104]
+ 691 018e 0023     		movs	r3, #0
+ 692 0190 1B93     		str	r3, [sp, #108]
+ 693 0192 DCE7     		b	.L79
+ 694              	.L92:
+ 695 0194 4E4B     		ldr	r3, .L102+12
+ 696 0196 1293     		str	r3, [sp, #72]
+ 697 0198 2046     		mov	r0, r4
+ 698 019a FFF7FEFF 		bl	lv_disp_get_ver_res
+ 699 019e 1990     		str	r0, [sp, #100]
+ 700 01a0 1A90     		str	r0, [sp, #104]
+ 701 01a2 0023     		movs	r3, #0
+ 702 01a4 1B93     		str	r3, [sp, #108]
+ 703 01a6 D2E7     		b	.L79
+ 704              	.L91:
+ 705 01a8 494B     		ldr	r3, .L102+12
+ 706 01aa 1293     		str	r3, [sp, #72]
+ 707 01ac 2046     		mov	r0, r4
+ 708 01ae FFF7FEFF 		bl	lv_disp_get_ver_res
+ 709 01b2 4042     		rsbs	r0, r0, #0
+ 710 01b4 1990     		str	r0, [sp, #100]
+ 711 01b6 1A90     		str	r0, [sp, #104]
+ 712 01b8 0023     		movs	r3, #0
+ 713 01ba 1B93     		str	r3, [sp, #108]
+ 714 01bc C7E7     		b	.L79
+ 715              	.L90:
+ 716 01be 434E     		ldr	r6, .L102+8
+ 717 01c0 1296     		str	r6, [sp, #72]
+ 718 01c2 2046     		mov	r0, r4
+ 719 01c4 FFF7FEFF 		bl	lv_disp_get_hor_res
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 13
+
+
+ 720 01c8 1990     		str	r0, [sp, #100]
+ 721 01ca 1A90     		str	r0, [sp, #104]
+ 722 01cc 0025     		movs	r5, #0
+ 723 01ce 1B95     		str	r5, [sp, #108]
+ 724 01d0 0196     		str	r6, [sp, #4]
+ 725 01d2 2046     		mov	r0, r4
+ 726 01d4 FFF7FEFF 		bl	lv_disp_get_hor_res
+ 727 01d8 4042     		rsbs	r0, r0, #0
+ 728 01da 0895     		str	r5, [sp, #32]
+ 729 01dc 0995     		str	r5, [sp, #36]
+ 730 01de 0A90     		str	r0, [sp, #40]
+ 731 01e0 B5E7     		b	.L79
+ 732              	.L89:
+ 733 01e2 3A4E     		ldr	r6, .L102+8
+ 734 01e4 1296     		str	r6, [sp, #72]
+ 735 01e6 2046     		mov	r0, r4
+ 736 01e8 FFF7FEFF 		bl	lv_disp_get_hor_res
+ 737 01ec 4042     		rsbs	r0, r0, #0
+ 738 01ee 1990     		str	r0, [sp, #100]
+ 739 01f0 1A90     		str	r0, [sp, #104]
+ 740 01f2 0025     		movs	r5, #0
+ 741 01f4 1B95     		str	r5, [sp, #108]
+ 742 01f6 0196     		str	r6, [sp, #4]
+ 743 01f8 2046     		mov	r0, r4
+ 744 01fa FFF7FEFF 		bl	lv_disp_get_hor_res
+ 745 01fe 0895     		str	r5, [sp, #32]
+ 746 0200 0995     		str	r5, [sp, #36]
+ 747 0202 0A90     		str	r0, [sp, #40]
+ 748 0204 A3E7     		b	.L79
+ 749              	.L88:
+ 750 0206 324E     		ldr	r6, .L102+12
+ 751 0208 1296     		str	r6, [sp, #72]
+ 752 020a 2046     		mov	r0, r4
+ 753 020c FFF7FEFF 		bl	lv_disp_get_ver_res
+ 754 0210 1990     		str	r0, [sp, #100]
+ 755 0212 1A90     		str	r0, [sp, #104]
+ 756 0214 0025     		movs	r5, #0
+ 757 0216 1B95     		str	r5, [sp, #108]
+ 758 0218 0196     		str	r6, [sp, #4]
+ 759 021a 2046     		mov	r0, r4
+ 760 021c FFF7FEFF 		bl	lv_disp_get_ver_res
+ 761 0220 4042     		rsbs	r0, r0, #0
+ 762 0222 0895     		str	r5, [sp, #32]
+ 763 0224 0995     		str	r5, [sp, #36]
+ 764 0226 0A90     		str	r0, [sp, #40]
+ 765 0228 91E7     		b	.L79
+ 766              	.L87:
+ 767 022a 294E     		ldr	r6, .L102+12
+ 768 022c 1296     		str	r6, [sp, #72]
+ 769 022e 2046     		mov	r0, r4
+ 770 0230 FFF7FEFF 		bl	lv_disp_get_ver_res
+ 771 0234 4042     		rsbs	r0, r0, #0
+ 772 0236 1990     		str	r0, [sp, #100]
+ 773 0238 1A90     		str	r0, [sp, #104]
+ 774 023a 0025     		movs	r5, #0
+ 775 023c 1B95     		str	r5, [sp, #108]
+ 776 023e 0196     		str	r6, [sp, #4]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 14
+
+
+ 777 0240 2046     		mov	r0, r4
+ 778 0242 FFF7FEFF 		bl	lv_disp_get_ver_res
+ 779 0246 0895     		str	r5, [sp, #32]
+ 780 0248 0995     		str	r5, [sp, #36]
+ 781 024a 0A90     		str	r0, [sp, #40]
+ 782 024c 7FE7     		b	.L79
+ 783              	.L86:
+ 784 024e 214B     		ldr	r3, .L102+16
+ 785 0250 1293     		str	r3, [sp, #72]
+ 786 0252 0023     		movs	r3, #0
+ 787 0254 1993     		str	r3, [sp, #100]
+ 788 0256 1A93     		str	r3, [sp, #104]
+ 789 0258 FF23     		movs	r3, #255
+ 790 025a 1B93     		str	r3, [sp, #108]
+ 791 025c 77E7     		b	.L79
+ 792              	.L85:
+ 793 025e 1D4B     		ldr	r3, .L102+16
+ 794 0260 0193     		str	r3, [sp, #4]
+ 795 0262 FF23     		movs	r3, #255
+ 796 0264 0893     		str	r3, [sp, #32]
+ 797 0266 0993     		str	r3, [sp, #36]
+ 798 0268 0023     		movs	r3, #0
+ 799 026a 0A93     		str	r3, [sp, #40]
+ 800 026c 6FE7     		b	.L79
+ 801              	.L84:
+ 802 026e 174B     		ldr	r3, .L102+8
+ 803 0270 0193     		str	r3, [sp, #4]
+ 804 0272 2046     		mov	r0, r4
+ 805 0274 FFF7FEFF 		bl	lv_disp_get_hor_res
+ 806 0278 4042     		rsbs	r0, r0, #0
+ 807 027a 0023     		movs	r3, #0
+ 808 027c 0893     		str	r3, [sp, #32]
+ 809 027e 0993     		str	r3, [sp, #36]
+ 810 0280 0A90     		str	r0, [sp, #40]
+ 811 0282 64E7     		b	.L79
+ 812              	.L83:
+ 813 0284 114B     		ldr	r3, .L102+8
+ 814 0286 0193     		str	r3, [sp, #4]
+ 815 0288 2046     		mov	r0, r4
+ 816 028a FFF7FEFF 		bl	lv_disp_get_hor_res
+ 817 028e 0023     		movs	r3, #0
+ 818 0290 0893     		str	r3, [sp, #32]
+ 819 0292 0993     		str	r3, [sp, #36]
+ 820 0294 0A90     		str	r0, [sp, #40]
+ 821 0296 5AE7     		b	.L79
+ 822              	.L82:
+ 823 0298 0D4B     		ldr	r3, .L102+12
+ 824 029a 0193     		str	r3, [sp, #4]
+ 825 029c 2046     		mov	r0, r4
+ 826 029e FFF7FEFF 		bl	lv_disp_get_ver_res
+ 827 02a2 4042     		rsbs	r0, r0, #0
+ 828 02a4 0023     		movs	r3, #0
+ 829 02a6 0893     		str	r3, [sp, #32]
+ 830 02a8 0993     		str	r3, [sp, #36]
+ 831 02aa 0A90     		str	r0, [sp, #40]
+ 832 02ac 4FE7     		b	.L79
+ 833              	.L80:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 15
+
+
+ 834 02ae 084B     		ldr	r3, .L102+12
+ 835 02b0 0193     		str	r3, [sp, #4]
+ 836 02b2 2046     		mov	r0, r4
+ 837 02b4 FFF7FEFF 		bl	lv_disp_get_ver_res
+ 838 02b8 0023     		movs	r3, #0
+ 839 02ba 0893     		str	r3, [sp, #32]
+ 840 02bc 0993     		str	r3, [sp, #36]
+ 841 02be 0A90     		str	r0, [sp, #40]
+ 842 02c0 45E7     		b	.L79
+ 843              	.L103:
+ 844 02c2 00BF     		.align	2
+ 845              	.L102:
+ 846 02c4 00000000 		.word	scr_load_anim_start
+ 847 02c8 00000000 		.word	scr_anim_ready
+ 848 02cc 00000000 		.word	set_x_anim
+ 849 02d0 00000000 		.word	set_y_anim
+ 850 02d4 00000000 		.word	opa_scale_anim
+ 852              		.section	.text.lv_disp_load_scr,"ax",%progbits
+ 853              		.align	1
+ 854              		.global	lv_disp_load_scr
+ 855              		.syntax unified
+ 856              		.thumb
+ 857              		.thumb_func
+ 859              	lv_disp_load_scr:
+ 860              		@ args = 0, pretend = 0, frame = 0
+ 861              		@ frame_needed = 0, uses_anonymous_args = 0
+ 862 0000 00B5     		push	{lr}
+ 863 0002 83B0     		sub	sp, sp, #12
+ 864 0004 0021     		movs	r1, #0
+ 865 0006 0091     		str	r1, [sp]
+ 866 0008 0B46     		mov	r3, r1
+ 867 000a 0A46     		mov	r2, r1
+ 868 000c FFF7FEFF 		bl	lv_scr_load_anim
+ 869 0010 03B0     		add	sp, sp, #12
+ 870              		@ sp needed
+ 871 0012 5DF804FB 		ldr	pc, [sp], #4
+ 873              		.section	.text.lv_disp_get_inactive_time,"ax",%progbits
+ 874              		.align	1
+ 875              		.global	lv_disp_get_inactive_time
+ 876              		.syntax unified
+ 877              		.thumb
+ 878              		.thumb_func
+ 880              	lv_disp_get_inactive_time:
+ 881              		@ args = 0, pretend = 0, frame = 0
+ 882              		@ frame_needed = 0, uses_anonymous_args = 0
+ 883 0000 38B5     		push	{r3, r4, r5, lr}
+ 884 0002 30B1     		cbz	r0, .L107
+ 885 0004 D0F86401 		ldr	r0, [r0, #356]
+ 886 0008 FFF7FEFF 		bl	lv_tick_elaps
+ 887 000c 0546     		mov	r5, r0
+ 888              	.L106:
+ 889 000e 2846     		mov	r0, r5
+ 890 0010 38BD     		pop	{r3, r4, r5, pc}
+ 891              	.L107:
+ 892 0012 0020     		movs	r0, #0
+ 893 0014 FFF7FEFF 		bl	lv_disp_get_next
+ 894 0018 0446     		mov	r4, r0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 16
+
+
+ 895 001a 4FF0FF35 		mov	r5, #-1
+ 896 001e 0AE0     		b	.L109
+ 897              	.L110:
+ 898 0020 D4F86401 		ldr	r0, [r4, #356]
+ 899 0024 FFF7FEFF 		bl	lv_tick_elaps
+ 900 0028 8542     		cmp	r5, r0
+ 901 002a 28BF     		it	cs
+ 902 002c 0546     		movcs	r5, r0
+ 903 002e 2046     		mov	r0, r4
+ 904 0030 FFF7FEFF 		bl	lv_disp_get_next
+ 905 0034 0446     		mov	r4, r0
+ 906              	.L109:
+ 907 0036 002C     		cmp	r4, #0
+ 908 0038 F2D1     		bne	.L110
+ 909 003a E8E7     		b	.L106
+ 911              		.section	.text.lv_disp_trig_activity,"ax",%progbits
+ 912              		.align	1
+ 913              		.global	lv_disp_trig_activity
+ 914              		.syntax unified
+ 915              		.thumb
+ 916              		.thumb_func
+ 918              	lv_disp_trig_activity:
+ 919              		@ args = 0, pretend = 0, frame = 0
+ 920              		@ frame_needed = 0, uses_anonymous_args = 0
+ 921 0000 10B5     		push	{r4, lr}
+ 922 0002 0446     		mov	r4, r0
+ 923 0004 20B1     		cbz	r0, .L116
+ 924              	.L113:
+ 925 0006 FFF7FEFF 		bl	lv_tick_get
+ 926 000a C4F86401 		str	r0, [r4, #356]
+ 927              	.L112:
+ 928 000e 10BD     		pop	{r4, pc}
+ 929              	.L116:
+ 930 0010 FFF7FEFF 		bl	lv_disp_get_default
+ 931 0014 0446     		mov	r4, r0
+ 932 0016 0028     		cmp	r0, #0
+ 933 0018 F5D1     		bne	.L113
+ 934 001a F8E7     		b	.L112
+ 936              		.section	.text.lv_disp_clean_dcache,"ax",%progbits
+ 937              		.align	1
+ 938              		.global	lv_disp_clean_dcache
+ 939              		.syntax unified
+ 940              		.thumb
+ 941              		.thumb_func
+ 943              	lv_disp_clean_dcache:
+ 944              		@ args = 0, pretend = 0, frame = 0
+ 945              		@ frame_needed = 0, uses_anonymous_args = 0
+ 946 0000 08B5     		push	{r3, lr}
+ 947 0002 0346     		mov	r3, r0
+ 948 0004 20B1     		cbz	r0, .L121
+ 949              	.L118:
+ 950 0006 1868     		ldr	r0, [r3]
+ 951 0008 C36A     		ldr	r3, [r0, #44]
+ 952 000a 03B1     		cbz	r3, .L117
+ 953 000c 9847     		blx	r3
+ 954              	.L117:
+ 955 000e 08BD     		pop	{r3, pc}
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 17
+
+
+ 956              	.L121:
+ 957 0010 FFF7FEFF 		bl	lv_disp_get_default
+ 958 0014 0346     		mov	r3, r0
+ 959 0016 0028     		cmp	r0, #0
+ 960 0018 F5D1     		bne	.L118
+ 961 001a F8E7     		b	.L117
+ 963              		.section	.text.lv_disp_enable_invalidation,"ax",%progbits
+ 964              		.align	1
+ 965              		.global	lv_disp_enable_invalidation
+ 966              		.syntax unified
+ 967              		.thumb
+ 968              		.thumb_func
+ 970              	lv_disp_enable_invalidation:
+ 971              		@ args = 0, pretend = 0, frame = 0
+ 972              		@ frame_needed = 0, uses_anonymous_args = 0
+ 973 0000 10B5     		push	{r4, lr}
+ 974 0002 0C46     		mov	r4, r1
+ 975 0004 0246     		mov	r2, r0
+ 976 0006 38B1     		cbz	r0, .L128
+ 977              	.L123:
+ 978 0008 D2F85431 		ldr	r3, [r2, #340]
+ 979 000c 54B1     		cbz	r4, .L126
+ 980 000e 0121     		movs	r1, #1
+ 981              	.L125:
+ 982 0010 0B44     		add	r3, r3, r1
+ 983 0012 C2F85431 		str	r3, [r2, #340]
+ 984              	.L122:
+ 985 0016 10BD     		pop	{r4, pc}
+ 986              	.L128:
+ 987 0018 FFF7FEFF 		bl	lv_disp_get_default
+ 988 001c 0246     		mov	r2, r0
+ 989 001e 0028     		cmp	r0, #0
+ 990 0020 F2D1     		bne	.L123
+ 991 0022 F8E7     		b	.L122
+ 992              	.L126:
+ 993 0024 4FF0FF31 		mov	r1, #-1
+ 994 0028 F2E7     		b	.L125
+ 996              		.section	.text.lv_disp_is_invalidation_enabled,"ax",%progbits
+ 997              		.align	1
+ 998              		.global	lv_disp_is_invalidation_enabled
+ 999              		.syntax unified
+ 1000              		.thumb
+ 1001              		.thumb_func
+ 1003              	lv_disp_is_invalidation_enabled:
+ 1004              		@ args = 0, pretend = 0, frame = 0
+ 1005              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1006 0000 08B5     		push	{r3, lr}
+ 1007 0002 0346     		mov	r3, r0
+ 1008 0004 30B1     		cbz	r0, .L134
+ 1009              	.L130:
+ 1010 0006 D3F85401 		ldr	r0, [r3, #340]
+ 1011 000a 0028     		cmp	r0, #0
+ 1012 000c D4BF     		ite	le
+ 1013 000e 0020     		movle	r0, #0
+ 1014 0010 0120     		movgt	r0, #1
+ 1015              	.L131:
+ 1016 0012 08BD     		pop	{r3, pc}
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 18
+
+
+ 1017              	.L134:
+ 1018 0014 FFF7FEFF 		bl	lv_disp_get_default
+ 1019 0018 0346     		mov	r3, r0
+ 1020 001a 0028     		cmp	r0, #0
+ 1021 001c F3D1     		bne	.L130
+ 1022 001e 0020     		movs	r0, #0
+ 1023 0020 F7E7     		b	.L131
+ 1025              		.section	.text._lv_disp_get_refr_timer,"ax",%progbits
+ 1026              		.align	1
+ 1027              		.global	_lv_disp_get_refr_timer
+ 1028              		.syntax unified
+ 1029              		.thumb
+ 1030              		.thumb_func
+ 1032              	_lv_disp_get_refr_timer:
+ 1033              		@ args = 0, pretend = 0, frame = 0
+ 1034              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1035 0000 08B5     		push	{r3, lr}
+ 1036 0002 0346     		mov	r3, r0
+ 1037 0004 08B1     		cbz	r0, .L140
+ 1038              	.L136:
+ 1039 0006 5868     		ldr	r0, [r3, #4]
+ 1040              	.L135:
+ 1041 0008 08BD     		pop	{r3, pc}
+ 1042              	.L140:
+ 1043 000a FFF7FEFF 		bl	lv_disp_get_default
+ 1044 000e 0346     		mov	r3, r0
+ 1045 0010 0028     		cmp	r0, #0
+ 1046 0012 F8D1     		bne	.L136
+ 1047 0014 F8E7     		b	.L135
+ 1049              		.ident	"GCC: (xPack GNU Arm Embedded GCC arm64) 13.3.1 20240614"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 19
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_disp.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:18     .text.is_out_anim:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:23     .text.is_out_anim:00000000 is_out_anim
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:36     .text.opa_scale_anim:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:41     .text.opa_scale_anim:00000000 opa_scale_anim
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:51     .text.set_y_anim:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:56     .text.set_y_anim:00000000 set_y_anim
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:65     .text.set_x_anim:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:70     .text.set_x_anim:00000000 set_x_anim
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:79     .text.scr_anim_ready:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:84     .text.scr_anim_ready:00000000 scr_anim_ready
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:123    .text.scr_load_internal:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:128    .text.scr_load_internal:00000000 scr_load_internal
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:172    .text.lv_disp_get_scr_act:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:178    .text.lv_disp_get_scr_act:00000000 lv_disp_get_scr_act
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:196    .text.lv_scr_act:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:201    .text.lv_scr_act:00000000 lv_scr_act
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:210    .text.scr_load_anim_start:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:215    .text.scr_load_anim_start:00000000 scr_load_anim_start
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:233    .text.lv_disp_get_scr_prev:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:239    .text.lv_disp_get_scr_prev:00000000 lv_disp_get_scr_prev
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:257    .text.lv_disp_get_layer_top:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:263    .text.lv_disp_get_layer_top:00000000 lv_disp_get_layer_top
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:281    .text.lv_disp_get_layer_sys:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:287    .text.lv_disp_get_layer_sys:00000000 lv_disp_get_layer_sys
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:305    .text.lv_disp_set_theme:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:311    .text.lv_disp_set_theme:00000000 lv_disp_set_theme
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:353    .text.lv_disp_get_theme:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:359    .text.lv_disp_get_theme:00000000 lv_disp_get_theme
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:374    .text.lv_disp_set_bg_color:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:380    .text.lv_disp_set_bg_color:00000000 lv_disp_set_bg_color
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:421    .text.lv_disp_set_bg_image:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:427    .text.lv_disp_set_bg_image:00000000 lv_disp_set_bg_image
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:468    .text.lv_disp_set_bg_opa:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:474    .text.lv_disp_set_bg_opa:00000000 lv_disp_set_bg_opa
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:515    .text.lv_scr_load_anim:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:521    .text.lv_scr_load_anim:00000000 lv_scr_load_anim
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:620    .text.lv_scr_load_anim:000000fe $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:635    .text.lv_scr_load_anim:0000011c $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:846    .text.lv_scr_load_anim:000002c4 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:853    .text.lv_disp_load_scr:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:859    .text.lv_disp_load_scr:00000000 lv_disp_load_scr
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:874    .text.lv_disp_get_inactive_time:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:880    .text.lv_disp_get_inactive_time:00000000 lv_disp_get_inactive_time
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:912    .text.lv_disp_trig_activity:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:918    .text.lv_disp_trig_activity:00000000 lv_disp_trig_activity
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:937    .text.lv_disp_clean_dcache:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:943    .text.lv_disp_clean_dcache:00000000 lv_disp_clean_dcache
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:964    .text.lv_disp_enable_invalidation:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:970    .text.lv_disp_enable_invalidation:00000000 lv_disp_enable_invalidation
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:997    .text.lv_disp_is_invalidation_enabled:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:1003   .text.lv_disp_is_invalidation_enabled:00000000 lv_disp_is_invalidation_enabled
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:1026   .text._lv_disp_get_refr_timer:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s:1032   .text._lv_disp_get_refr_timer:00000000 _lv_disp_get_refr_timer
+
+UNDEFINED SYMBOLS
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccDVkxaY.s 			page 20
+
+
+lv_obj_set_style_opa
+lv_obj_set_y
+lv_obj_set_x
+lv_obj_get_disp
+lv_event_send
+lv_obj_remove_local_style_prop
+lv_obj_invalidate
+lv_obj_del
+lv_disp_get_default
+lv_obj_get_child_cnt
+lv_theme_apply
+lv_disp_get_hor_res
+lv_disp_get_ver_res
+lv_area_set
+_lv_inv_area
+lv_anim_del
+lv_obj_set_pos
+lv_anim_init
+lv_anim_start
+lv_tick_elaps
+lv_disp_get_next
+lv_tick_get

@@ -1,0 +1,1050 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_fs.c"
+  16              		.text
+  17              		.section	.text.lv_fs_get_real_path,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	lv_fs_get_real_path:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 0346     		mov	r3, r0
+  28 0002 0130     		adds	r0, r0, #1
+  29 0004 5A78     		ldrb	r2, [r3, #1]	@ zero_extendqisi2
+  30 0006 3A2A     		cmp	r2, #58
+  31 0008 00D0     		beq	.L3
+  32              	.L1:
+  33 000a 7047     		bx	lr
+  34              	.L3:
+  35 000c 981C     		adds	r0, r3, #2
+  36 000e FCE7     		b	.L1
+  38              		.section	.text.lv_fs_read_cached,"ax",%progbits
+  39              		.align	1
+  40              		.syntax unified
+  41              		.thumb
+  42              		.thumb_func
+  44              	lv_fs_read_cached:
+  45              		@ args = 0, pretend = 0, frame = 8
+  46              		@ frame_needed = 0, uses_anonymous_args = 0
+  47 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+  48 0004 85B0     		sub	sp, sp, #20
+  49 0006 0446     		mov	r4, r0
+  50 0008 8846     		mov	r8, r1
+  51 000a 1546     		mov	r5, r2
+  52 000c 1F46     		mov	r7, r3
+  53 000e 8668     		ldr	r6, [r0, #8]
+  54 0010 D6F80890 		ldr	r9, [r6, #8]
+  55 0014 3368     		ldr	r3, [r6]
+  56 0016 7268     		ldr	r2, [r6, #4]
+  57 0018 D6F80CA0 		ldr	r10, [r6, #12]
+  58 001c 4068     		ldr	r0, [r0, #4]
+  59 001e B0F802B0 		ldrh	fp, [r0, #2]
+  60 0022 9945     		cmp	r9, r3
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 2
+
+
+  61 0024 50D3     		bcc	.L5
+  62 0026 9145     		cmp	r9, r2
+  63 0028 4ED2     		bcs	.L5
+  64 002a 1FFA89F1 		uxth	r1, r9
+  65 002e 9BB2     		uxth	r3, r3
+  66 0030 C91A     		subs	r1, r1, r3
+  67 0032 89B2     		uxth	r1, r1
+  68 0034 A2EB0909 		sub	r9, r2, r9
+  69 0038 ABEB0103 		sub	r3, fp, r1
+  70 003c 9945     		cmp	r9, r3
+  71 003e 28BF     		it	cs
+  72 0040 9946     		movcs	r9, r3
+  73 0042 A945     		cmp	r9, r5
+  74 0044 07D3     		bcc	.L6
+  75 0046 2A46     		mov	r2, r5
+  76 0048 5144     		add	r1, r1, r10
+  77 004a 4046     		mov	r0, r8
+  78 004c FFF7FEFF 		bl	lv_memcpy
+  79 0050 3D60     		str	r5, [r7]
+  80 0052 0026     		movs	r6, #0
+  81 0054 42E0     		b	.L7
+  82              	.L6:
+  83 0056 4A46     		mov	r2, r9
+  84 0058 5144     		add	r1, r1, r10
+  85 005a 4046     		mov	r0, r8
+  86 005c FFF7FEFF 		bl	lv_memcpy
+  87 0060 0023     		movs	r3, #0
+  88 0062 0393     		str	r3, [sp, #12]
+  89 0064 AB45     		cmp	fp, r5
+  90 0066 12D2     		bcs	.L8
+  91 0068 6068     		ldr	r0, [r4, #4]
+  92 006a 0669     		ldr	r6, [r0, #16]
+  93 006c 03AB     		add	r3, sp, #12
+  94 006e 0093     		str	r3, [sp]
+  95 0070 A5EB0903 		sub	r3, r5, r9
+  96 0074 08EB0902 		add	r2, r8, r9
+  97 0078 2168     		ldr	r1, [r4]
+  98 007a B047     		blx	r6
+  99 007c 0646     		mov	r6, r0
+ 100              	.L9:
+ 101 007e 039B     		ldr	r3, [sp, #12]
+ 102 0080 09EB0302 		add	r2, r9, r3
+ 103 0084 AA42     		cmp	r2, r5
+ 104 0086 28BF     		it	cs
+ 105 0088 2A46     		movcs	r2, r5
+ 106 008a 3A60     		str	r2, [r7]
+ 107 008c 25E0     		b	.L10
+ 108              	.L8:
+ 109 008e 6068     		ldr	r0, [r4, #4]
+ 110 0090 0669     		ldr	r6, [r0, #16]
+ 111 0092 03AB     		add	r3, sp, #12
+ 112 0094 0093     		str	r3, [sp]
+ 113 0096 5B46     		mov	r3, fp
+ 114 0098 5246     		mov	r2, r10
+ 115 009a 2168     		ldr	r1, [r4]
+ 116 009c B047     		blx	r6
+ 117 009e 0646     		mov	r6, r0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 3
+
+
+ 118 00a0 A368     		ldr	r3, [r4, #8]
+ 119 00a2 5A68     		ldr	r2, [r3, #4]
+ 120 00a4 1A60     		str	r2, [r3]
+ 121 00a6 A268     		ldr	r2, [r4, #8]
+ 122 00a8 1368     		ldr	r3, [r2]
+ 123 00aa 0399     		ldr	r1, [sp, #12]
+ 124 00ac 0B44     		add	r3, r3, r1
+ 125 00ae 5360     		str	r3, [r2, #4]
+ 126 00b0 A5EB0902 		sub	r2, r5, r9
+ 127 00b4 8A42     		cmp	r2, r1
+ 128 00b6 28BF     		it	cs
+ 129 00b8 0A46     		movcs	r2, r1
+ 130 00ba 92B2     		uxth	r2, r2
+ 131 00bc 5146     		mov	r1, r10
+ 132 00be 08EB0900 		add	r0, r8, r9
+ 133 00c2 FFF7FEFF 		bl	lv_memcpy
+ 134 00c6 DAE7     		b	.L9
+ 135              	.L5:
+ 136 00c8 AB45     		cmp	fp, r5
+ 137 00ca 10D2     		bcs	.L11
+ 138 00cc 0669     		ldr	r6, [r0, #16]
+ 139 00ce 0097     		str	r7, [sp]
+ 140 00d0 2B46     		mov	r3, r5
+ 141 00d2 4246     		mov	r2, r8
+ 142 00d4 2168     		ldr	r1, [r4]
+ 143 00d6 B047     		blx	r6
+ 144 00d8 0646     		mov	r6, r0
+ 145              	.L10:
+ 146 00da 26B9     		cbnz	r6, .L14
+ 147              	.L7:
+ 148 00dc A268     		ldr	r2, [r4, #8]
+ 149 00de 9368     		ldr	r3, [r2, #8]
+ 150 00e0 3968     		ldr	r1, [r7]
+ 151 00e2 0B44     		add	r3, r3, r1
+ 152 00e4 9360     		str	r3, [r2, #8]
+ 153              	.L14:
+ 154 00e6 3046     		mov	r0, r6
+ 155 00e8 05B0     		add	sp, sp, #20
+ 156              		@ sp needed
+ 157 00ea BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 158              	.L11:
+ 159 00ee BAF1000F 		cmp	r10, #0
+ 160 00f2 1BD0     		beq	.L16
+ 161              	.L12:
+ 162 00f4 0023     		movs	r3, #0
+ 163 00f6 0393     		str	r3, [sp, #12]
+ 164 00f8 6068     		ldr	r0, [r4, #4]
+ 165 00fa 0669     		ldr	r6, [r0, #16]
+ 166 00fc 03AB     		add	r3, sp, #12
+ 167 00fe 0093     		str	r3, [sp]
+ 168 0100 5B46     		mov	r3, fp
+ 169 0102 5246     		mov	r2, r10
+ 170 0104 2168     		ldr	r1, [r4]
+ 171 0106 B047     		blx	r6
+ 172 0108 0646     		mov	r6, r0
+ 173 010a A368     		ldr	r3, [r4, #8]
+ 174 010c C3F80090 		str	r9, [r3]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 4
+
+
+ 175 0110 A168     		ldr	r1, [r4, #8]
+ 176 0112 0B68     		ldr	r3, [r1]
+ 177 0114 039A     		ldr	r2, [sp, #12]
+ 178 0116 1344     		add	r3, r3, r2
+ 179 0118 4B60     		str	r3, [r1, #4]
+ 180 011a AA42     		cmp	r2, r5
+ 181 011c 28BF     		it	cs
+ 182 011e 2A46     		movcs	r2, r5
+ 183 0120 3A60     		str	r2, [r7]
+ 184 0122 5146     		mov	r1, r10
+ 185 0124 4046     		mov	r0, r8
+ 186 0126 FFF7FEFF 		bl	lv_memcpy
+ 187 012a D6E7     		b	.L10
+ 188              	.L16:
+ 189 012c 5846     		mov	r0, fp
+ 190 012e FFF7FEFF 		bl	lv_mem_alloc
+ 191 0132 F060     		str	r0, [r6, #12]
+ 192 0134 A368     		ldr	r3, [r4, #8]
+ 193 0136 D3F80CA0 		ldr	r10, [r3, #12]
+ 194 013a BAF1000F 		cmp	r10, #0
+ 195 013e D9D1     		bne	.L12
+ 196              	.L13:
+ 197 0140 FEE7     		b	.L13
+ 199              		.section	.text._lv_fs_init,"ax",%progbits
+ 200              		.align	1
+ 201              		.global	_lv_fs_init
+ 202              		.syntax unified
+ 203              		.thumb
+ 204              		.thumb_func
+ 206              	_lv_fs_init:
+ 207              		@ args = 0, pretend = 0, frame = 0
+ 208              		@ frame_needed = 0, uses_anonymous_args = 0
+ 209 0000 08B5     		push	{r3, lr}
+ 210 0002 0421     		movs	r1, #4
+ 211 0004 0148     		ldr	r0, .L19
+ 212 0006 FFF7FEFF 		bl	_lv_ll_init
+ 213 000a 08BD     		pop	{r3, pc}
+ 214              	.L20:
+ 215              		.align	2
+ 216              	.L19:
+ 217 000c 00000000 		.word	_lv_fsdrv_ll
+ 219              		.section	.text.lv_fs_close,"ax",%progbits
+ 220              		.align	1
+ 221              		.global	lv_fs_close
+ 222              		.syntax unified
+ 223              		.thumb
+ 224              		.thumb_func
+ 226              	lv_fs_close:
+ 227              		@ args = 0, pretend = 0, frame = 0
+ 228              		@ frame_needed = 0, uses_anonymous_args = 0
+ 229 0000 38B5     		push	{r3, r4, r5, lr}
+ 230 0002 0446     		mov	r4, r0
+ 231 0004 4068     		ldr	r0, [r0, #4]
+ 232 0006 B0B1     		cbz	r0, .L25
+ 233 0008 C368     		ldr	r3, [r0, #12]
+ 234 000a B3B1     		cbz	r3, .L26
+ 235 000c 2168     		ldr	r1, [r4]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 5
+
+
+ 236 000e 9847     		blx	r3
+ 237 0010 0546     		mov	r5, r0
+ 238 0012 6368     		ldr	r3, [r4, #4]
+ 239 0014 5B88     		ldrh	r3, [r3, #2]
+ 240 0016 43B1     		cbz	r3, .L23
+ 241 0018 A368     		ldr	r3, [r4, #8]
+ 242 001a 33B1     		cbz	r3, .L23
+ 243 001c D868     		ldr	r0, [r3, #12]
+ 244 001e 08B1     		cbz	r0, .L24
+ 245 0020 FFF7FEFF 		bl	lv_mem_free
+ 246              	.L24:
+ 247 0024 A068     		ldr	r0, [r4, #8]
+ 248 0026 FFF7FEFF 		bl	lv_mem_free
+ 249              	.L23:
+ 250 002a 0023     		movs	r3, #0
+ 251 002c 2360     		str	r3, [r4]
+ 252 002e 6360     		str	r3, [r4, #4]
+ 253 0030 A360     		str	r3, [r4, #8]
+ 254              	.L22:
+ 255 0032 2846     		mov	r0, r5
+ 256 0034 38BD     		pop	{r3, r4, r5, pc}
+ 257              	.L25:
+ 258 0036 0B25     		movs	r5, #11
+ 259 0038 FBE7     		b	.L22
+ 260              	.L26:
+ 261 003a 0925     		movs	r5, #9
+ 262 003c F9E7     		b	.L22
+ 264              		.section	.text.lv_fs_read,"ax",%progbits
+ 265              		.align	1
+ 266              		.global	lv_fs_read
+ 267              		.syntax unified
+ 268              		.thumb
+ 269              		.thumb_func
+ 271              	lv_fs_read:
+ 272              		@ args = 0, pretend = 0, frame = 8
+ 273              		@ frame_needed = 0, uses_anonymous_args = 0
+ 274 0000 30B5     		push	{r4, r5, lr}
+ 275 0002 85B0     		sub	sp, sp, #20
+ 276 0004 8446     		mov	ip, r0
+ 277 0006 1C46     		mov	r4, r3
+ 278 0008 0BB1     		cbz	r3, .L29
+ 279 000a 0023     		movs	r3, #0
+ 280 000c 2360     		str	r3, [r4]
+ 281              	.L29:
+ 282 000e DCF80400 		ldr	r0, [ip, #4]
+ 283 0012 B0B1     		cbz	r0, .L33
+ 284 0014 0569     		ldr	r5, [r0, #16]
+ 285 0016 B5B1     		cbz	r5, .L34
+ 286 0018 0023     		movs	r3, #0
+ 287 001a 0393     		str	r3, [sp, #12]
+ 288 001c 4388     		ldrh	r3, [r0, #2]
+ 289 001e 5BB9     		cbnz	r3, .L36
+ 290 0020 03AB     		add	r3, sp, #12
+ 291 0022 0093     		str	r3, [sp]
+ 292 0024 1346     		mov	r3, r2
+ 293 0026 0A46     		mov	r2, r1
+ 294 0028 DCF80010 		ldr	r1, [ip]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 6
+
+
+ 295 002c A847     		blx	r5
+ 296              	.L32:
+ 297 002e 0CB1     		cbz	r4, .L30
+ 298 0030 039B     		ldr	r3, [sp, #12]
+ 299 0032 2360     		str	r3, [r4]
+ 300              	.L30:
+ 301 0034 05B0     		add	sp, sp, #20
+ 302              		@ sp needed
+ 303 0036 30BD     		pop	{r4, r5, pc}
+ 304              	.L36:
+ 305 0038 03AB     		add	r3, sp, #12
+ 306 003a 6046     		mov	r0, ip
+ 307 003c FFF7FEFF 		bl	lv_fs_read_cached
+ 308 0040 F5E7     		b	.L32
+ 309              	.L33:
+ 310 0042 0B20     		movs	r0, #11
+ 311 0044 F6E7     		b	.L30
+ 312              	.L34:
+ 313 0046 0920     		movs	r0, #9
+ 314 0048 F4E7     		b	.L30
+ 316              		.section	.text.lv_fs_write,"ax",%progbits
+ 317              		.align	1
+ 318              		.global	lv_fs_write
+ 319              		.syntax unified
+ 320              		.thumb
+ 321              		.thumb_func
+ 323              	lv_fs_write:
+ 324              		@ args = 0, pretend = 0, frame = 8
+ 325              		@ frame_needed = 0, uses_anonymous_args = 0
+ 326 0000 30B5     		push	{r4, r5, lr}
+ 327 0002 85B0     		sub	sp, sp, #20
+ 328 0004 8446     		mov	ip, r0
+ 329 0006 1C46     		mov	r4, r3
+ 330 0008 0BB1     		cbz	r3, .L38
+ 331 000a 0023     		movs	r3, #0
+ 332 000c 2360     		str	r3, [r4]
+ 333              	.L38:
+ 334 000e DCF80400 		ldr	r0, [ip, #4]
+ 335 0012 78B1     		cbz	r0, .L40
+ 336 0014 4569     		ldr	r5, [r0, #20]
+ 337 0016 7DB1     		cbz	r5, .L41
+ 338 0018 0023     		movs	r3, #0
+ 339 001a 0393     		str	r3, [sp, #12]
+ 340 001c 03AB     		add	r3, sp, #12
+ 341 001e 0093     		str	r3, [sp]
+ 342 0020 1346     		mov	r3, r2
+ 343 0022 0A46     		mov	r2, r1
+ 344 0024 DCF80010 		ldr	r1, [ip]
+ 345 0028 A847     		blx	r5
+ 346 002a 0CB1     		cbz	r4, .L39
+ 347 002c 039B     		ldr	r3, [sp, #12]
+ 348 002e 2360     		str	r3, [r4]
+ 349              	.L39:
+ 350 0030 05B0     		add	sp, sp, #20
+ 351              		@ sp needed
+ 352 0032 30BD     		pop	{r4, r5, pc}
+ 353              	.L40:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 7
+
+
+ 354 0034 0B20     		movs	r0, #11
+ 355 0036 FBE7     		b	.L39
+ 356              	.L41:
+ 357 0038 0920     		movs	r0, #9
+ 358 003a F9E7     		b	.L39
+ 360              		.section	.text.lv_fs_seek,"ax",%progbits
+ 361              		.align	1
+ 362              		.global	lv_fs_seek
+ 363              		.syntax unified
+ 364              		.thumb
+ 365              		.thumb_func
+ 367              	lv_fs_seek:
+ 368              		@ args = 0, pretend = 0, frame = 8
+ 369              		@ frame_needed = 0, uses_anonymous_args = 0
+ 370 0000 30B5     		push	{r4, r5, lr}
+ 371 0002 83B0     		sub	sp, sp, #12
+ 372 0004 0446     		mov	r4, r0
+ 373 0006 4068     		ldr	r0, [r0, #4]
+ 374 0008 0028     		cmp	r0, #0
+ 375 000a 41D0     		beq	.L51
+ 376 000c 1346     		mov	r3, r2
+ 377 000e 8569     		ldr	r5, [r0, #24]
+ 378 0010 002D     		cmp	r5, #0
+ 379 0012 3FD0     		beq	.L52
+ 380 0014 4288     		ldrh	r2, [r0, #2]
+ 381 0016 002A     		cmp	r2, #0
+ 382 0018 35D0     		beq	.L45
+ 383 001a 012B     		cmp	r3, #1
+ 384 001c 13D0     		beq	.L46
+ 385 001e 022B     		cmp	r3, #2
+ 386 0020 23D0     		beq	.L47
+ 387 0022 002B     		cmp	r3, #0
+ 388 0024 38D1     		bne	.L53
+ 389 0026 A268     		ldr	r2, [r4, #8]
+ 390 0028 9160     		str	r1, [r2, #8]
+ 391 002a A168     		ldr	r1, [r4, #8]
+ 392 002c 8A68     		ldr	r2, [r1, #8]
+ 393 002e 0868     		ldr	r0, [r1]
+ 394 0030 8242     		cmp	r2, r0
+ 395 0032 02D3     		bcc	.L48
+ 396 0034 4968     		ldr	r1, [r1, #4]
+ 397 0036 8A42     		cmp	r2, r1
+ 398 0038 30D9     		bls	.L54
+ 399              	.L48:
+ 400 003a 6068     		ldr	r0, [r4, #4]
+ 401 003c 8569     		ldr	r5, [r0, #24]
+ 402 003e 0023     		movs	r3, #0
+ 403 0040 2168     		ldr	r1, [r4]
+ 404 0042 A847     		blx	r5
+ 405 0044 22E0     		b	.L44
+ 406              	.L46:
+ 407 0046 A268     		ldr	r2, [r4, #8]
+ 408 0048 9368     		ldr	r3, [r2, #8]
+ 409 004a 0B44     		add	r3, r3, r1
+ 410 004c 9360     		str	r3, [r2, #8]
+ 411 004e A368     		ldr	r3, [r4, #8]
+ 412 0050 9A68     		ldr	r2, [r3, #8]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 8
+
+
+ 413 0052 1968     		ldr	r1, [r3]
+ 414 0054 8A42     		cmp	r2, r1
+ 415 0056 02D3     		bcc	.L49
+ 416 0058 5B68     		ldr	r3, [r3, #4]
+ 417 005a 9A42     		cmp	r2, r3
+ 418 005c 20D9     		bls	.L55
+ 419              	.L49:
+ 420 005e 6068     		ldr	r0, [r4, #4]
+ 421 0060 8569     		ldr	r5, [r0, #24]
+ 422 0062 0023     		movs	r3, #0
+ 423 0064 2168     		ldr	r1, [r4]
+ 424 0066 A847     		blx	r5
+ 425 0068 10E0     		b	.L44
+ 426              	.L47:
+ 427 006a 0A46     		mov	r2, r1
+ 428 006c 2168     		ldr	r1, [r4]
+ 429 006e A847     		blx	r5
+ 430 0070 60B9     		cbnz	r0, .L44
+ 431 0072 6068     		ldr	r0, [r4, #4]
+ 432 0074 C369     		ldr	r3, [r0, #28]
+ 433 0076 01AA     		add	r2, sp, #4
+ 434 0078 2168     		ldr	r1, [r4]
+ 435 007a 9847     		blx	r3
+ 436 007c 30B9     		cbnz	r0, .L44
+ 437 007e A368     		ldr	r3, [r4, #8]
+ 438 0080 019A     		ldr	r2, [sp, #4]
+ 439 0082 9A60     		str	r2, [r3, #8]
+ 440 0084 02E0     		b	.L44
+ 441              	.L45:
+ 442 0086 0A46     		mov	r2, r1
+ 443 0088 2168     		ldr	r1, [r4]
+ 444 008a A847     		blx	r5
+ 445              	.L44:
+ 446 008c 03B0     		add	sp, sp, #12
+ 447              		@ sp needed
+ 448 008e 30BD     		pop	{r4, r5, pc}
+ 449              	.L51:
+ 450 0090 0B20     		movs	r0, #11
+ 451 0092 FBE7     		b	.L44
+ 452              	.L52:
+ 453 0094 0920     		movs	r0, #9
+ 454 0096 F9E7     		b	.L44
+ 455              	.L53:
+ 456 0098 0020     		movs	r0, #0
+ 457 009a F7E7     		b	.L44
+ 458              	.L54:
+ 459 009c 1846     		mov	r0, r3
+ 460 009e F5E7     		b	.L44
+ 461              	.L55:
+ 462 00a0 0020     		movs	r0, #0
+ 463 00a2 F3E7     		b	.L44
+ 465              		.section	.text.lv_fs_tell,"ax",%progbits
+ 466              		.align	1
+ 467              		.global	lv_fs_tell
+ 468              		.syntax unified
+ 469              		.thumb
+ 470              		.thumb_func
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 9
+
+
+ 472              	lv_fs_tell:
+ 473              		@ args = 0, pretend = 0, frame = 0
+ 474              		@ frame_needed = 0, uses_anonymous_args = 0
+ 475 0000 0346     		mov	r3, r0
+ 476 0002 4068     		ldr	r0, [r0, #4]
+ 477 0004 48B1     		cbz	r0, .L65
+ 478 0006 10B5     		push	{r4, lr}
+ 479 0008 C469     		ldr	r4, [r0, #28]
+ 480 000a 54B1     		cbz	r4, .L66
+ 481 000c 4288     		ldrh	r2, [r0, #2]
+ 482 000e 62B1     		cbz	r2, .L61
+ 483 0010 9B68     		ldr	r3, [r3, #8]
+ 484 0012 9B68     		ldr	r3, [r3, #8]
+ 485 0014 0B60     		str	r3, [r1]
+ 486 0016 0020     		movs	r0, #0
+ 487              	.L59:
+ 488 0018 10BD     		pop	{r4, pc}
+ 489              	.L65:
+ 490 001a 0023     		movs	r3, #0
+ 491 001c 0B60     		str	r3, [r1]
+ 492 001e 0B20     		movs	r0, #11
+ 493 0020 7047     		bx	lr
+ 494              	.L66:
+ 495 0022 0023     		movs	r3, #0
+ 496 0024 0B60     		str	r3, [r1]
+ 497 0026 0920     		movs	r0, #9
+ 498 0028 F6E7     		b	.L59
+ 499              	.L61:
+ 500 002a 0A46     		mov	r2, r1
+ 501 002c 1968     		ldr	r1, [r3]
+ 502 002e A047     		blx	r4
+ 503 0030 F2E7     		b	.L59
+ 505              		.section	.text.lv_fs_dir_read,"ax",%progbits
+ 506              		.align	1
+ 507              		.global	lv_fs_dir_read
+ 508              		.syntax unified
+ 509              		.thumb
+ 510              		.thumb_func
+ 512              	lv_fs_dir_read:
+ 513              		@ args = 0, pretend = 0, frame = 0
+ 514              		@ frame_needed = 0, uses_anonymous_args = 0
+ 515 0000 08B5     		push	{r3, lr}
+ 516 0002 0346     		mov	r3, r0
+ 517 0004 0A46     		mov	r2, r1
+ 518 0006 4068     		ldr	r0, [r0, #4]
+ 519 0008 28B1     		cbz	r0, .L68
+ 520 000a 1968     		ldr	r1, [r3]
+ 521 000c 19B1     		cbz	r1, .L68
+ 522 000e 436A     		ldr	r3, [r0, #36]
+ 523 0010 2BB1     		cbz	r3, .L73
+ 524 0012 9847     		blx	r3
+ 525              	.L70:
+ 526 0014 08BD     		pop	{r3, pc}
+ 527              	.L68:
+ 528 0016 0023     		movs	r3, #0
+ 529 0018 1370     		strb	r3, [r2]
+ 530 001a 0B20     		movs	r0, #11
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 10
+
+
+ 531 001c FAE7     		b	.L70
+ 532              	.L73:
+ 533 001e 1370     		strb	r3, [r2]
+ 534 0020 0920     		movs	r0, #9
+ 535 0022 F7E7     		b	.L70
+ 537              		.section	.text.lv_fs_dir_close,"ax",%progbits
+ 538              		.align	1
+ 539              		.global	lv_fs_dir_close
+ 540              		.syntax unified
+ 541              		.thumb
+ 542              		.thumb_func
+ 544              	lv_fs_dir_close:
+ 545              		@ args = 0, pretend = 0, frame = 0
+ 546              		@ frame_needed = 0, uses_anonymous_args = 0
+ 547 0000 10B5     		push	{r4, lr}
+ 548 0002 0446     		mov	r4, r0
+ 549 0004 4068     		ldr	r0, [r0, #4]
+ 550 0006 40B1     		cbz	r0, .L76
+ 551 0008 2168     		ldr	r1, [r4]
+ 552 000a 41B1     		cbz	r1, .L77
+ 553 000c 836A     		ldr	r3, [r0, #40]
+ 554 000e 43B1     		cbz	r3, .L78
+ 555 0010 9847     		blx	r3
+ 556 0012 0023     		movs	r3, #0
+ 557 0014 2360     		str	r3, [r4]
+ 558 0016 6360     		str	r3, [r4, #4]
+ 559              	.L75:
+ 560 0018 10BD     		pop	{r4, pc}
+ 561              	.L76:
+ 562 001a 0B20     		movs	r0, #11
+ 563 001c FCE7     		b	.L75
+ 564              	.L77:
+ 565 001e 0B20     		movs	r0, #11
+ 566 0020 FAE7     		b	.L75
+ 567              	.L78:
+ 568 0022 0920     		movs	r0, #9
+ 569 0024 F8E7     		b	.L75
+ 571              		.section	.text.lv_fs_drv_init,"ax",%progbits
+ 572              		.align	1
+ 573              		.global	lv_fs_drv_init
+ 574              		.syntax unified
+ 575              		.thumb
+ 576              		.thumb_func
+ 578              	lv_fs_drv_init:
+ 579              		@ args = 0, pretend = 0, frame = 0
+ 580              		@ frame_needed = 0, uses_anonymous_args = 0
+ 581 0000 08B5     		push	{r3, lr}
+ 582 0002 3021     		movs	r1, #48
+ 583 0004 FFF7FEFF 		bl	lv_memset_00
+ 584 0008 08BD     		pop	{r3, pc}
+ 586              		.section	.text.lv_fs_drv_register,"ax",%progbits
+ 587              		.align	1
+ 588              		.global	lv_fs_drv_register
+ 589              		.syntax unified
+ 590              		.thumb
+ 591              		.thumb_func
+ 593              	lv_fs_drv_register:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 11
+
+
+ 594              		@ args = 0, pretend = 0, frame = 0
+ 595              		@ frame_needed = 0, uses_anonymous_args = 0
+ 596 0000 10B5     		push	{r4, lr}
+ 597 0002 0446     		mov	r4, r0
+ 598 0004 0348     		ldr	r0, .L86
+ 599 0006 FFF7FEFF 		bl	_lv_ll_ins_head
+ 600 000a 08B1     		cbz	r0, .L84
+ 601 000c 0460     		str	r4, [r0]
+ 602 000e 10BD     		pop	{r4, pc}
+ 603              	.L84:
+ 604 0010 FEE7     		b	.L84
+ 605              	.L87:
+ 606 0012 00BF     		.align	2
+ 607              	.L86:
+ 608 0014 00000000 		.word	_lv_fsdrv_ll
+ 610              		.section	.text.lv_fs_get_drv,"ax",%progbits
+ 611              		.align	1
+ 612              		.global	lv_fs_get_drv
+ 613              		.syntax unified
+ 614              		.thumb
+ 615              		.thumb_func
+ 617              	lv_fs_get_drv:
+ 618              		@ args = 0, pretend = 0, frame = 0
+ 619              		@ frame_needed = 0, uses_anonymous_args = 0
+ 620 0000 10B5     		push	{r4, lr}
+ 621 0002 0446     		mov	r4, r0
+ 622 0004 0848     		ldr	r0, .L95
+ 623 0006 FFF7FEFF 		bl	_lv_ll_get_head
+ 624 000a 0146     		mov	r1, r0
+ 625 000c 03E0     		b	.L89
+ 626              	.L94:
+ 627 000e 0648     		ldr	r0, .L95
+ 628 0010 FFF7FEFF 		bl	_lv_ll_get_next
+ 629 0014 0146     		mov	r1, r0
+ 630              	.L89:
+ 631 0016 21B1     		cbz	r1, .L88
+ 632 0018 0B68     		ldr	r3, [r1]
+ 633 001a 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 634 001c A242     		cmp	r2, r4
+ 635 001e F6D1     		bne	.L94
+ 636 0020 1946     		mov	r1, r3
+ 637              	.L88:
+ 638 0022 0846     		mov	r0, r1
+ 639 0024 10BD     		pop	{r4, pc}
+ 640              	.L96:
+ 641 0026 00BF     		.align	2
+ 642              	.L95:
+ 643 0028 00000000 		.word	_lv_fsdrv_ll
+ 645              		.section	.text.lv_fs_is_ready,"ax",%progbits
+ 646              		.align	1
+ 647              		.global	lv_fs_is_ready
+ 648              		.syntax unified
+ 649              		.thumb
+ 650              		.thumb_func
+ 652              	lv_fs_is_ready:
+ 653              		@ args = 0, pretend = 0, frame = 0
+ 654              		@ frame_needed = 0, uses_anonymous_args = 0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 12
+
+
+ 655 0000 08B5     		push	{r3, lr}
+ 656 0002 FFF7FEFF 		bl	lv_fs_get_drv
+ 657 0006 18B1     		cbz	r0, .L99
+ 658 0008 4268     		ldr	r2, [r0, #4]
+ 659 000a 1AB1     		cbz	r2, .L100
+ 660 000c 9047     		blx	r2
+ 661              	.L98:
+ 662 000e 08BD     		pop	{r3, pc}
+ 663              	.L99:
+ 664 0010 0020     		movs	r0, #0
+ 665 0012 FCE7     		b	.L98
+ 666              	.L100:
+ 667 0014 0120     		movs	r0, #1
+ 668 0016 FAE7     		b	.L98
+ 670              		.section	.text.lv_fs_open,"ax",%progbits
+ 671              		.align	1
+ 672              		.global	lv_fs_open
+ 673              		.syntax unified
+ 674              		.thumb
+ 675              		.thumb_func
+ 677              	lv_fs_open:
+ 678              		@ args = 0, pretend = 0, frame = 0
+ 679              		@ frame_needed = 0, uses_anonymous_args = 0
+ 680 0000 0029     		cmp	r1, #0
+ 681 0002 37D0     		beq	.L107
+ 682 0004 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 683 0008 0446     		mov	r4, r0
+ 684 000a 1646     		mov	r6, r2
+ 685 000c 0F46     		mov	r7, r1
+ 686 000e 0878     		ldrb	r0, [r1]	@ zero_extendqisi2
+ 687 0010 FFF7FEFF 		bl	lv_fs_get_drv
+ 688 0014 0546     		mov	r5, r0
+ 689 0016 78B3     		cbz	r0, .L108
+ 690 0018 4368     		ldr	r3, [r0, #4]
+ 691 001a 0BB1     		cbz	r3, .L104
+ 692 001c 9847     		blx	r3
+ 693 001e 68B3     		cbz	r0, .L109
+ 694              	.L104:
+ 695 0020 D5F80880 		ldr	r8, [r5, #8]
+ 696 0024 B8F1000F 		cmp	r8, #0
+ 697 0028 2AD0     		beq	.L110
+ 698 002a 3846     		mov	r0, r7
+ 699 002c FFF7FEFF 		bl	lv_fs_get_real_path
+ 700 0030 0146     		mov	r1, r0
+ 701 0032 3246     		mov	r2, r6
+ 702 0034 2846     		mov	r0, r5
+ 703 0036 C047     		blx	r8
+ 704 0038 431E     		subs	r3, r0, #1
+ 705 003a 13F1030F 		cmn	r3, #3
+ 706 003e 21D8     		bhi	.L111
+ 707 0040 6560     		str	r5, [r4, #4]
+ 708 0042 2060     		str	r0, [r4]
+ 709 0044 6B88     		ldrh	r3, [r5, #2]
+ 710 0046 13B9     		cbnz	r3, .L117
+ 711 0048 0020     		movs	r0, #0
+ 712              	.L103:
+ 713 004a BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 13
+
+
+ 714              	.L117:
+ 715 004e 1020     		movs	r0, #16
+ 716 0050 FFF7FEFF 		bl	lv_mem_alloc
+ 717 0054 A060     		str	r0, [r4, #8]
+ 718 0056 60B1     		cbz	r0, .L106
+ 719 0058 1021     		movs	r1, #16
+ 720 005a FFF7FEFF 		bl	lv_memset_00
+ 721 005e A368     		ldr	r3, [r4, #8]
+ 722 0060 4FF0FF32 		mov	r2, #-1
+ 723 0064 1A60     		str	r2, [r3]
+ 724 0066 A368     		ldr	r3, [r4, #8]
+ 725 0068 6FF00102 		mvn	r2, #1
+ 726 006c 5A60     		str	r2, [r3, #4]
+ 727 006e 0020     		movs	r0, #0
+ 728 0070 EBE7     		b	.L103
+ 729              	.L106:
+ 730 0072 FEE7     		b	.L106
+ 731              	.L107:
+ 732 0074 0B20     		movs	r0, #11
+ 733 0076 7047     		bx	lr
+ 734              	.L108:
+ 735 0078 0320     		movs	r0, #3
+ 736 007a E6E7     		b	.L103
+ 737              	.L109:
+ 738 007c 0120     		movs	r0, #1
+ 739 007e E4E7     		b	.L103
+ 740              	.L110:
+ 741 0080 0920     		movs	r0, #9
+ 742 0082 E2E7     		b	.L103
+ 743              	.L111:
+ 744 0084 0C20     		movs	r0, #12
+ 745 0086 E0E7     		b	.L103
+ 747              		.section	.text.lv_fs_dir_open,"ax",%progbits
+ 748              		.align	1
+ 749              		.global	lv_fs_dir_open
+ 750              		.syntax unified
+ 751              		.thumb
+ 752              		.thumb_func
+ 754              	lv_fs_dir_open:
+ 755              		@ args = 0, pretend = 0, frame = 0
+ 756              		@ frame_needed = 0, uses_anonymous_args = 0
+ 757 0000 D9B1     		cbz	r1, .L121
+ 758 0002 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 759 0004 0646     		mov	r6, r0
+ 760 0006 0D46     		mov	r5, r1
+ 761 0008 0878     		ldrb	r0, [r1]	@ zero_extendqisi2
+ 762 000a FFF7FEFF 		bl	lv_fs_get_drv
+ 763 000e 0446     		mov	r4, r0
+ 764 0010 A8B1     		cbz	r0, .L122
+ 765 0012 4368     		ldr	r3, [r0, #4]
+ 766 0014 0BB1     		cbz	r3, .L120
+ 767 0016 9847     		blx	r3
+ 768 0018 98B1     		cbz	r0, .L123
+ 769              	.L120:
+ 770 001a 276A     		ldr	r7, [r4, #32]
+ 771 001c 9FB1     		cbz	r7, .L124
+ 772 001e 2846     		mov	r0, r5
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 14
+
+
+ 773 0020 FFF7FEFF 		bl	lv_fs_get_real_path
+ 774 0024 0146     		mov	r1, r0
+ 775 0026 2046     		mov	r0, r4
+ 776 0028 B847     		blx	r7
+ 777 002a 421E     		subs	r2, r0, #1
+ 778 002c 12F1030F 		cmn	r2, #3
+ 779 0030 0BD8     		bhi	.L125
+ 780 0032 7460     		str	r4, [r6, #4]
+ 781 0034 3060     		str	r0, [r6]
+ 782 0036 0020     		movs	r0, #0
+ 783              	.L119:
+ 784 0038 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 785              	.L121:
+ 786 003a 0B20     		movs	r0, #11
+ 787 003c 7047     		bx	lr
+ 788              	.L122:
+ 789 003e 0320     		movs	r0, #3
+ 790 0040 FAE7     		b	.L119
+ 791              	.L123:
+ 792 0042 0120     		movs	r0, #1
+ 793 0044 F8E7     		b	.L119
+ 794              	.L124:
+ 795 0046 0920     		movs	r0, #9
+ 796 0048 F6E7     		b	.L119
+ 797              	.L125:
+ 798 004a 0C20     		movs	r0, #12
+ 799 004c F4E7     		b	.L119
+ 801              		.section	.text.lv_fs_get_letters,"ax",%progbits
+ 802              		.align	1
+ 803              		.global	lv_fs_get_letters
+ 804              		.syntax unified
+ 805              		.thumb
+ 806              		.thumb_func
+ 808              	lv_fs_get_letters:
+ 809              		@ args = 0, pretend = 0, frame = 0
+ 810              		@ frame_needed = 0, uses_anonymous_args = 0
+ 811 0000 38B5     		push	{r3, r4, r5, lr}
+ 812 0002 0546     		mov	r5, r0
+ 813 0004 0A48     		ldr	r0, .L134
+ 814 0006 FFF7FEFF 		bl	_lv_ll_get_head
+ 815 000a 0146     		mov	r1, r0
+ 816 000c 0024     		movs	r4, #0
+ 817 000e 08E0     		b	.L131
+ 818              	.L132:
+ 819 0010 0B68     		ldr	r3, [r1]
+ 820 0012 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 821 0014 2B55     		strb	r3, [r5, r4]
+ 822 0016 0134     		adds	r4, r4, #1
+ 823 0018 E4B2     		uxtb	r4, r4
+ 824 001a 0548     		ldr	r0, .L134
+ 825 001c FFF7FEFF 		bl	_lv_ll_get_next
+ 826 0020 0146     		mov	r1, r0
+ 827              	.L131:
+ 828 0022 0029     		cmp	r1, #0
+ 829 0024 F4D1     		bne	.L132
+ 830 0026 0023     		movs	r3, #0
+ 831 0028 2B55     		strb	r3, [r5, r4]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 15
+
+
+ 832 002a 2846     		mov	r0, r5
+ 833 002c 38BD     		pop	{r3, r4, r5, pc}
+ 834              	.L135:
+ 835 002e 00BF     		.align	2
+ 836              	.L134:
+ 837 0030 00000000 		.word	_lv_fsdrv_ll
+ 839              		.section	.rodata.lv_fs_get_ext.str1.4,"aMS",%progbits,1
+ 840              		.align	2
+ 841              	.LC0:
+ 842 0000 00       		.ascii	"\000"
+ 843              		.section	.text.lv_fs_get_ext,"ax",%progbits
+ 844              		.align	1
+ 845              		.global	lv_fs_get_ext
+ 846              		.syntax unified
+ 847              		.thumb
+ 848              		.thumb_func
+ 850              	lv_fs_get_ext:
+ 851              		@ args = 0, pretend = 0, frame = 0
+ 852              		@ frame_needed = 0, uses_anonymous_args = 0
+ 853 0000 10B5     		push	{r4, lr}
+ 854 0002 0446     		mov	r4, r0
+ 855 0004 FFF7FEFF 		bl	strlen
+ 856              	.L137:
+ 857 0008 58B1     		cbz	r0, .L144
+ 858 000a 235C     		ldrb	r3, [r4, r0]	@ zero_extendqisi2
+ 859 000c 2E2B     		cmp	r3, #46
+ 860 000e 05D0     		beq	.L145
+ 861 0010 2F2B     		cmp	r3, #47
+ 862 0012 08D0     		beq	.L141
+ 863 0014 5C2B     		cmp	r3, #92
+ 864 0016 08D0     		beq	.L142
+ 865 0018 0138     		subs	r0, r0, #1
+ 866 001a F5E7     		b	.L137
+ 867              	.L145:
+ 868 001c 431C     		adds	r3, r0, #1
+ 869 001e E018     		adds	r0, r4, r3
+ 870 0020 00E0     		b	.L136
+ 871              	.L144:
+ 872 0022 0348     		ldr	r0, .L146
+ 873              	.L136:
+ 874 0024 10BD     		pop	{r4, pc}
+ 875              	.L141:
+ 876 0026 0248     		ldr	r0, .L146
+ 877 0028 FCE7     		b	.L136
+ 878              	.L142:
+ 879 002a 0148     		ldr	r0, .L146
+ 880 002c FAE7     		b	.L136
+ 881              	.L147:
+ 882 002e 00BF     		.align	2
+ 883              	.L146:
+ 884 0030 00000000 		.word	.LC0
+ 886              		.section	.text.lv_fs_up,"ax",%progbits
+ 887              		.align	1
+ 888              		.global	lv_fs_up
+ 889              		.syntax unified
+ 890              		.thumb
+ 891              		.thumb_func
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 16
+
+
+ 893              	lv_fs_up:
+ 894              		@ args = 0, pretend = 0, frame = 0
+ 895              		@ frame_needed = 0, uses_anonymous_args = 0
+ 896 0000 10B5     		push	{r4, lr}
+ 897 0002 0446     		mov	r4, r0
+ 898 0004 FFF7FEFF 		bl	strlen
+ 899 0008 B0B1     		cbz	r0, .L149
+ 900 000a 431E     		subs	r3, r0, #1
+ 901 000c 03E0     		b	.L150
+ 902              	.L151:
+ 903 000e 0022     		movs	r2, #0
+ 904 0010 0A70     		strb	r2, [r1]
+ 905 0012 8BB1     		cbz	r3, .L149
+ 906 0014 013B     		subs	r3, r3, #1
+ 907              	.L150:
+ 908 0016 E118     		adds	r1, r4, r3
+ 909 0018 E25C     		ldrb	r2, [r4, r3]	@ zero_extendqisi2
+ 910 001a 2F2A     		cmp	r2, #47
+ 911 001c F7D0     		beq	.L151
+ 912 001e 5C2A     		cmp	r2, #92
+ 913 0020 F5D0     		beq	.L151
+ 914              	.L152:
+ 915 0022 33B1     		cbz	r3, .L153
+ 916 0024 E25C     		ldrb	r2, [r4, r3]	@ zero_extendqisi2
+ 917 0026 2F2A     		cmp	r2, #47
+ 918 0028 03D0     		beq	.L153
+ 919 002a 5C2A     		cmp	r2, #92
+ 920 002c 01D0     		beq	.L153
+ 921 002e 013B     		subs	r3, r3, #1
+ 922 0030 F7E7     		b	.L152
+ 923              	.L153:
+ 924 0032 0BB1     		cbz	r3, .L149
+ 925 0034 0022     		movs	r2, #0
+ 926 0036 E254     		strb	r2, [r4, r3]
+ 927              	.L149:
+ 928 0038 2046     		mov	r0, r4
+ 929 003a 10BD     		pop	{r4, pc}
+ 931              		.section	.text.lv_fs_get_last,"ax",%progbits
+ 932              		.align	1
+ 933              		.global	lv_fs_get_last
+ 934              		.syntax unified
+ 935              		.thumb
+ 936              		.thumb_func
+ 938              	lv_fs_get_last:
+ 939              		@ args = 0, pretend = 0, frame = 0
+ 940              		@ frame_needed = 0, uses_anonymous_args = 0
+ 941 0000 10B5     		push	{r4, lr}
+ 942 0002 0446     		mov	r4, r0
+ 943 0004 FFF7FEFF 		bl	strlen
+ 944 0008 98B1     		cbz	r0, .L157
+ 945 000a 431E     		subs	r3, r0, #1
+ 946 000c 01E0     		b	.L158
+ 947              	.L159:
+ 948 000e 83B1     		cbz	r3, .L157
+ 949 0010 013B     		subs	r3, r3, #1
+ 950              	.L158:
+ 951 0012 E25C     		ldrb	r2, [r4, r3]	@ zero_extendqisi2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 17
+
+
+ 952 0014 2F2A     		cmp	r2, #47
+ 953 0016 FAD0     		beq	.L159
+ 954 0018 5C2A     		cmp	r2, #92
+ 955 001a F8D0     		beq	.L159
+ 956              	.L160:
+ 957 001c 33B1     		cbz	r3, .L161
+ 958 001e E25C     		ldrb	r2, [r4, r3]	@ zero_extendqisi2
+ 959 0020 2F2A     		cmp	r2, #47
+ 960 0022 03D0     		beq	.L161
+ 961 0024 5C2A     		cmp	r2, #92
+ 962 0026 01D0     		beq	.L161
+ 963 0028 013B     		subs	r3, r3, #1
+ 964 002a F7E7     		b	.L160
+ 965              	.L161:
+ 966 002c 0BB1     		cbz	r3, .L157
+ 967 002e 0133     		adds	r3, r3, #1
+ 968 0030 1C44     		add	r4, r4, r3
+ 969              	.L157:
+ 970 0032 2046     		mov	r0, r4
+ 971 0034 10BD     		pop	{r4, pc}
+ 973              		.ident	"GCC: (xPack GNU Arm Embedded GCC arm64) 13.3.1 20240614"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 18
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_fs.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:18     .text.lv_fs_get_real_path:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:23     .text.lv_fs_get_real_path:00000000 lv_fs_get_real_path
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:39     .text.lv_fs_read_cached:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:44     .text.lv_fs_read_cached:00000000 lv_fs_read_cached
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:200    .text._lv_fs_init:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:206    .text._lv_fs_init:00000000 _lv_fs_init
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:217    .text._lv_fs_init:0000000c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:220    .text.lv_fs_close:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:226    .text.lv_fs_close:00000000 lv_fs_close
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:265    .text.lv_fs_read:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:271    .text.lv_fs_read:00000000 lv_fs_read
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:317    .text.lv_fs_write:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:323    .text.lv_fs_write:00000000 lv_fs_write
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:361    .text.lv_fs_seek:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:367    .text.lv_fs_seek:00000000 lv_fs_seek
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:466    .text.lv_fs_tell:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:472    .text.lv_fs_tell:00000000 lv_fs_tell
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:506    .text.lv_fs_dir_read:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:512    .text.lv_fs_dir_read:00000000 lv_fs_dir_read
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:538    .text.lv_fs_dir_close:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:544    .text.lv_fs_dir_close:00000000 lv_fs_dir_close
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:572    .text.lv_fs_drv_init:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:578    .text.lv_fs_drv_init:00000000 lv_fs_drv_init
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:587    .text.lv_fs_drv_register:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:593    .text.lv_fs_drv_register:00000000 lv_fs_drv_register
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:608    .text.lv_fs_drv_register:00000014 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:611    .text.lv_fs_get_drv:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:617    .text.lv_fs_get_drv:00000000 lv_fs_get_drv
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:643    .text.lv_fs_get_drv:00000028 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:646    .text.lv_fs_is_ready:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:652    .text.lv_fs_is_ready:00000000 lv_fs_is_ready
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:671    .text.lv_fs_open:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:677    .text.lv_fs_open:00000000 lv_fs_open
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:748    .text.lv_fs_dir_open:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:754    .text.lv_fs_dir_open:00000000 lv_fs_dir_open
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:802    .text.lv_fs_get_letters:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:808    .text.lv_fs_get_letters:00000000 lv_fs_get_letters
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:837    .text.lv_fs_get_letters:00000030 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:840    .rodata.lv_fs_get_ext.str1.4:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:844    .text.lv_fs_get_ext:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:850    .text.lv_fs_get_ext:00000000 lv_fs_get_ext
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:884    .text.lv_fs_get_ext:00000030 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:887    .text.lv_fs_up:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:893    .text.lv_fs_up:00000000 lv_fs_up
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:932    .text.lv_fs_get_last:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s:938    .text.lv_fs_get_last:00000000 lv_fs_get_last
+
+UNDEFINED SYMBOLS
+lv_memcpy
+lv_mem_alloc
+_lv_ll_init
+_lv_fsdrv_ll
+lv_mem_free
+lv_memset_00
+_lv_ll_ins_head
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccLCfDiG.s 			page 19
+
+
+_lv_ll_get_head
+_lv_ll_get_next
+strlen

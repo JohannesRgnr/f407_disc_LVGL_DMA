@@ -1,0 +1,3490 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_event.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Drivers/lvgl/src/core/lv_event.c"
+  20              		.section	.text.lv_obj_get_event_dsc,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	lv_obj_get_event_dsc:
+  27              	.LVL0:
+  28              	.LFB188:
+   1:Drivers/lvgl/src/core/lv_event.c **** /**
+   2:Drivers/lvgl/src/core/lv_event.c ****  * @file lv_event.c
+   3:Drivers/lvgl/src/core/lv_event.c ****  *
+   4:Drivers/lvgl/src/core/lv_event.c ****  */
+   5:Drivers/lvgl/src/core/lv_event.c **** 
+   6:Drivers/lvgl/src/core/lv_event.c **** /*********************
+   7:Drivers/lvgl/src/core/lv_event.c ****  *      INCLUDES
+   8:Drivers/lvgl/src/core/lv_event.c ****  *********************/
+   9:Drivers/lvgl/src/core/lv_event.c **** #include "lv_obj.h"
+  10:Drivers/lvgl/src/core/lv_event.c **** #include "lv_indev.h"
+  11:Drivers/lvgl/src/core/lv_event.c **** 
+  12:Drivers/lvgl/src/core/lv_event.c **** /*********************
+  13:Drivers/lvgl/src/core/lv_event.c ****  *      DEFINES
+  14:Drivers/lvgl/src/core/lv_event.c ****  *********************/
+  15:Drivers/lvgl/src/core/lv_event.c **** #define MY_CLASS &lv_obj_class
+  16:Drivers/lvgl/src/core/lv_event.c **** 
+  17:Drivers/lvgl/src/core/lv_event.c **** /**********************
+  18:Drivers/lvgl/src/core/lv_event.c ****  *      TYPEDEFS
+  19:Drivers/lvgl/src/core/lv_event.c ****  **********************/
+  20:Drivers/lvgl/src/core/lv_event.c **** typedef struct _lv_event_dsc_t {
+  21:Drivers/lvgl/src/core/lv_event.c ****     lv_event_cb_t cb;
+  22:Drivers/lvgl/src/core/lv_event.c ****     void * user_data;
+  23:Drivers/lvgl/src/core/lv_event.c ****     lv_event_code_t filter : 8;
+  24:Drivers/lvgl/src/core/lv_event.c **** } lv_event_dsc_t;
+  25:Drivers/lvgl/src/core/lv_event.c **** 
+  26:Drivers/lvgl/src/core/lv_event.c **** /**********************
+  27:Drivers/lvgl/src/core/lv_event.c ****  *  STATIC PROTOTYPES
+  28:Drivers/lvgl/src/core/lv_event.c ****  **********************/
+  29:Drivers/lvgl/src/core/lv_event.c **** static lv_event_dsc_t * lv_obj_get_event_dsc(const lv_obj_t * obj, uint32_t id);
+  30:Drivers/lvgl/src/core/lv_event.c **** static lv_res_t event_send_core(lv_event_t * e);
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 2
+
+
+  31:Drivers/lvgl/src/core/lv_event.c **** static bool event_is_bubbled(lv_event_t * e);
+  32:Drivers/lvgl/src/core/lv_event.c **** 
+  33:Drivers/lvgl/src/core/lv_event.c **** 
+  34:Drivers/lvgl/src/core/lv_event.c **** /**********************
+  35:Drivers/lvgl/src/core/lv_event.c ****  *  STATIC VARIABLES
+  36:Drivers/lvgl/src/core/lv_event.c ****  **********************/
+  37:Drivers/lvgl/src/core/lv_event.c **** static lv_event_t * event_head;
+  38:Drivers/lvgl/src/core/lv_event.c **** 
+  39:Drivers/lvgl/src/core/lv_event.c **** /**********************
+  40:Drivers/lvgl/src/core/lv_event.c ****  *      MACROS
+  41:Drivers/lvgl/src/core/lv_event.c ****  **********************/
+  42:Drivers/lvgl/src/core/lv_event.c **** #if LV_LOG_TRACE_EVENT
+  43:Drivers/lvgl/src/core/lv_event.c ****     #define EVENT_TRACE(...) LV_LOG_TRACE(__VA_ARGS__)
+  44:Drivers/lvgl/src/core/lv_event.c **** #else
+  45:Drivers/lvgl/src/core/lv_event.c ****     #define EVENT_TRACE(...)
+  46:Drivers/lvgl/src/core/lv_event.c **** #endif
+  47:Drivers/lvgl/src/core/lv_event.c **** 
+  48:Drivers/lvgl/src/core/lv_event.c **** /**********************
+  49:Drivers/lvgl/src/core/lv_event.c ****  *   GLOBAL FUNCTIONS
+  50:Drivers/lvgl/src/core/lv_event.c ****  **********************/
+  51:Drivers/lvgl/src/core/lv_event.c **** 
+  52:Drivers/lvgl/src/core/lv_event.c **** lv_res_t lv_event_send(lv_obj_t * obj, lv_event_code_t event_code, void * param)
+  53:Drivers/lvgl/src/core/lv_event.c **** {
+  54:Drivers/lvgl/src/core/lv_event.c ****     if(obj == NULL) return LV_RES_OK;
+  55:Drivers/lvgl/src/core/lv_event.c **** 
+  56:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+  57:Drivers/lvgl/src/core/lv_event.c **** 
+  58:Drivers/lvgl/src/core/lv_event.c ****     lv_event_t e;
+  59:Drivers/lvgl/src/core/lv_event.c ****     e.target = obj;
+  60:Drivers/lvgl/src/core/lv_event.c ****     e.current_target = obj;
+  61:Drivers/lvgl/src/core/lv_event.c ****     e.code = event_code;
+  62:Drivers/lvgl/src/core/lv_event.c ****     e.user_data = NULL;
+  63:Drivers/lvgl/src/core/lv_event.c ****     e.param = param;
+  64:Drivers/lvgl/src/core/lv_event.c ****     e.deleted = 0;
+  65:Drivers/lvgl/src/core/lv_event.c ****     e.stop_bubbling = 0;
+  66:Drivers/lvgl/src/core/lv_event.c ****     e.stop_processing = 0;
+  67:Drivers/lvgl/src/core/lv_event.c **** 
+  68:Drivers/lvgl/src/core/lv_event.c ****     /*Build a simple linked list from the objects used in the events
+  69:Drivers/lvgl/src/core/lv_event.c ****      *It's important to know if this object was deleted by a nested event
+  70:Drivers/lvgl/src/core/lv_event.c ****      *called from this `event_cb`.*/
+  71:Drivers/lvgl/src/core/lv_event.c ****     e.prev = event_head;
+  72:Drivers/lvgl/src/core/lv_event.c ****     event_head = &e;
+  73:Drivers/lvgl/src/core/lv_event.c **** 
+  74:Drivers/lvgl/src/core/lv_event.c ****     /*Send the event*/
+  75:Drivers/lvgl/src/core/lv_event.c ****     lv_res_t res = event_send_core(&e);
+  76:Drivers/lvgl/src/core/lv_event.c **** 
+  77:Drivers/lvgl/src/core/lv_event.c ****     /*Remove this element from the list*/
+  78:Drivers/lvgl/src/core/lv_event.c ****     event_head = e.prev;
+  79:Drivers/lvgl/src/core/lv_event.c **** 
+  80:Drivers/lvgl/src/core/lv_event.c ****     return res;
+  81:Drivers/lvgl/src/core/lv_event.c **** }
+  82:Drivers/lvgl/src/core/lv_event.c **** 
+  83:Drivers/lvgl/src/core/lv_event.c **** 
+  84:Drivers/lvgl/src/core/lv_event.c **** lv_res_t lv_obj_event_base(const lv_obj_class_t * class_p, lv_event_t * e)
+  85:Drivers/lvgl/src/core/lv_event.c **** {
+  86:Drivers/lvgl/src/core/lv_event.c ****     const lv_obj_class_t * base;
+  87:Drivers/lvgl/src/core/lv_event.c ****     if(class_p == NULL) base = e->current_target->class_p;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 3
+
+
+  88:Drivers/lvgl/src/core/lv_event.c ****     else base = class_p->base_class;
+  89:Drivers/lvgl/src/core/lv_event.c **** 
+  90:Drivers/lvgl/src/core/lv_event.c ****     /*Find a base in which call the ancestor's event handler_cb if set*/
+  91:Drivers/lvgl/src/core/lv_event.c ****     while(base && base->event_cb == NULL) base = base->base_class;
+  92:Drivers/lvgl/src/core/lv_event.c **** 
+  93:Drivers/lvgl/src/core/lv_event.c ****     if(base == NULL) return LV_RES_OK;
+  94:Drivers/lvgl/src/core/lv_event.c ****     if(base->event_cb == NULL) return LV_RES_OK;
+  95:Drivers/lvgl/src/core/lv_event.c **** 
+  96:Drivers/lvgl/src/core/lv_event.c ****     /*Call the actual event callback*/
+  97:Drivers/lvgl/src/core/lv_event.c ****     e->user_data = NULL;
+  98:Drivers/lvgl/src/core/lv_event.c ****     base->event_cb(base, e);
+  99:Drivers/lvgl/src/core/lv_event.c **** 
+ 100:Drivers/lvgl/src/core/lv_event.c ****     lv_res_t res = LV_RES_OK;
+ 101:Drivers/lvgl/src/core/lv_event.c ****     /*Stop if the object is deleted*/
+ 102:Drivers/lvgl/src/core/lv_event.c ****     if(e->deleted) res = LV_RES_INV;
+ 103:Drivers/lvgl/src/core/lv_event.c **** 
+ 104:Drivers/lvgl/src/core/lv_event.c ****     return res;
+ 105:Drivers/lvgl/src/core/lv_event.c **** }
+ 106:Drivers/lvgl/src/core/lv_event.c **** 
+ 107:Drivers/lvgl/src/core/lv_event.c **** 
+ 108:Drivers/lvgl/src/core/lv_event.c **** lv_obj_t * lv_event_get_target(lv_event_t * e)
+ 109:Drivers/lvgl/src/core/lv_event.c **** {
+ 110:Drivers/lvgl/src/core/lv_event.c ****     return e->target;
+ 111:Drivers/lvgl/src/core/lv_event.c **** }
+ 112:Drivers/lvgl/src/core/lv_event.c **** 
+ 113:Drivers/lvgl/src/core/lv_event.c **** lv_obj_t * lv_event_get_current_target(lv_event_t * e)
+ 114:Drivers/lvgl/src/core/lv_event.c **** {
+ 115:Drivers/lvgl/src/core/lv_event.c ****     return e->current_target;
+ 116:Drivers/lvgl/src/core/lv_event.c **** }
+ 117:Drivers/lvgl/src/core/lv_event.c **** 
+ 118:Drivers/lvgl/src/core/lv_event.c **** lv_event_code_t lv_event_get_code(lv_event_t * e)
+ 119:Drivers/lvgl/src/core/lv_event.c **** {
+ 120:Drivers/lvgl/src/core/lv_event.c ****     return e->code & ~LV_EVENT_PREPROCESS;
+ 121:Drivers/lvgl/src/core/lv_event.c **** }
+ 122:Drivers/lvgl/src/core/lv_event.c **** 
+ 123:Drivers/lvgl/src/core/lv_event.c **** void * lv_event_get_param(lv_event_t * e)
+ 124:Drivers/lvgl/src/core/lv_event.c **** {
+ 125:Drivers/lvgl/src/core/lv_event.c ****     return e->param;
+ 126:Drivers/lvgl/src/core/lv_event.c **** }
+ 127:Drivers/lvgl/src/core/lv_event.c **** 
+ 128:Drivers/lvgl/src/core/lv_event.c **** void * lv_event_get_user_data(lv_event_t * e)
+ 129:Drivers/lvgl/src/core/lv_event.c **** {
+ 130:Drivers/lvgl/src/core/lv_event.c ****     return e->user_data;
+ 131:Drivers/lvgl/src/core/lv_event.c **** }
+ 132:Drivers/lvgl/src/core/lv_event.c **** 
+ 133:Drivers/lvgl/src/core/lv_event.c **** void lv_event_stop_bubbling(lv_event_t * e)
+ 134:Drivers/lvgl/src/core/lv_event.c **** {
+ 135:Drivers/lvgl/src/core/lv_event.c ****     e->stop_bubbling = 1;
+ 136:Drivers/lvgl/src/core/lv_event.c **** }
+ 137:Drivers/lvgl/src/core/lv_event.c **** 
+ 138:Drivers/lvgl/src/core/lv_event.c **** void lv_event_stop_processing(lv_event_t * e)
+ 139:Drivers/lvgl/src/core/lv_event.c **** {
+ 140:Drivers/lvgl/src/core/lv_event.c ****     e->stop_processing = 1;
+ 141:Drivers/lvgl/src/core/lv_event.c **** }
+ 142:Drivers/lvgl/src/core/lv_event.c **** 
+ 143:Drivers/lvgl/src/core/lv_event.c **** 
+ 144:Drivers/lvgl/src/core/lv_event.c **** uint32_t lv_event_register_id(void)
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 4
+
+
+ 145:Drivers/lvgl/src/core/lv_event.c **** {
+ 146:Drivers/lvgl/src/core/lv_event.c ****     static uint32_t last_id = _LV_EVENT_LAST;
+ 147:Drivers/lvgl/src/core/lv_event.c ****     last_id ++;
+ 148:Drivers/lvgl/src/core/lv_event.c ****     return last_id;
+ 149:Drivers/lvgl/src/core/lv_event.c **** }
+ 150:Drivers/lvgl/src/core/lv_event.c **** 
+ 151:Drivers/lvgl/src/core/lv_event.c **** void _lv_event_mark_deleted(lv_obj_t * obj)
+ 152:Drivers/lvgl/src/core/lv_event.c **** {
+ 153:Drivers/lvgl/src/core/lv_event.c ****     lv_event_t * e = event_head;
+ 154:Drivers/lvgl/src/core/lv_event.c **** 
+ 155:Drivers/lvgl/src/core/lv_event.c ****     while(e) {
+ 156:Drivers/lvgl/src/core/lv_event.c ****         if(e->current_target == obj || e->target == obj) e->deleted = 1;
+ 157:Drivers/lvgl/src/core/lv_event.c ****         e = e->prev;
+ 158:Drivers/lvgl/src/core/lv_event.c ****     }
+ 159:Drivers/lvgl/src/core/lv_event.c **** }
+ 160:Drivers/lvgl/src/core/lv_event.c **** 
+ 161:Drivers/lvgl/src/core/lv_event.c **** 
+ 162:Drivers/lvgl/src/core/lv_event.c **** struct _lv_event_dsc_t * lv_obj_add_event_cb(lv_obj_t * obj, lv_event_cb_t event_cb, lv_event_code_
+ 163:Drivers/lvgl/src/core/lv_event.c ****                                              void * user_data)
+ 164:Drivers/lvgl/src/core/lv_event.c **** {
+ 165:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 166:Drivers/lvgl/src/core/lv_event.c ****     lv_obj_allocate_spec_attr(obj);
+ 167:Drivers/lvgl/src/core/lv_event.c **** 
+ 168:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc_cnt++;
+ 169:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 170:Drivers/lvgl/src/core/lv_event.c ****                                                obj->spec_attr->event_dsc_cnt * sizeof(lv_event_dsc_
+ 171:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_MALLOC(obj->spec_attr->event_dsc);
+ 172:Drivers/lvgl/src/core/lv_event.c **** 
+ 173:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc[obj->spec_attr->event_dsc_cnt - 1].cb = event_cb;
+ 174:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc[obj->spec_attr->event_dsc_cnt - 1].filter = filter;
+ 175:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc[obj->spec_attr->event_dsc_cnt - 1].user_data = user_data;
+ 176:Drivers/lvgl/src/core/lv_event.c **** 
+ 177:Drivers/lvgl/src/core/lv_event.c ****     return &obj->spec_attr->event_dsc[obj->spec_attr->event_dsc_cnt - 1];
+ 178:Drivers/lvgl/src/core/lv_event.c **** }
+ 179:Drivers/lvgl/src/core/lv_event.c **** 
+ 180:Drivers/lvgl/src/core/lv_event.c **** bool lv_obj_remove_event_cb(lv_obj_t * obj, lv_event_cb_t event_cb)
+ 181:Drivers/lvgl/src/core/lv_event.c **** {
+ 182:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 183:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return false;
+ 184:Drivers/lvgl/src/core/lv_event.c **** 
+ 185:Drivers/lvgl/src/core/lv_event.c ****     int32_t i = 0;
+ 186:Drivers/lvgl/src/core/lv_event.c ****     for(i = 0; i < obj->spec_attr->event_dsc_cnt; i++) {
+ 187:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == NULL || obj->spec_attr->event_dsc[i].cb == event_cb) {
+ 188:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 189:Drivers/lvgl/src/core/lv_event.c ****             for(; i < (obj->spec_attr->event_dsc_cnt - 1); i++) {
+ 190:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 191:Drivers/lvgl/src/core/lv_event.c ****             }
+ 192:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc_cnt--;
+ 193:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 194:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 195:Drivers/lvgl/src/core/lv_event.c ****             LV_ASSERT_MALLOC(obj->spec_attr->event_dsc);
+ 196:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 197:Drivers/lvgl/src/core/lv_event.c ****         }
+ 198:Drivers/lvgl/src/core/lv_event.c ****     }
+ 199:Drivers/lvgl/src/core/lv_event.c **** 
+ 200:Drivers/lvgl/src/core/lv_event.c ****     /*No event handler found*/
+ 201:Drivers/lvgl/src/core/lv_event.c ****     return false;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 5
+
+
+ 202:Drivers/lvgl/src/core/lv_event.c **** }
+ 203:Drivers/lvgl/src/core/lv_event.c **** 
+ 204:Drivers/lvgl/src/core/lv_event.c **** bool lv_obj_remove_event_cb_with_user_data(lv_obj_t * obj, lv_event_cb_t event_cb, const void * use
+ 205:Drivers/lvgl/src/core/lv_event.c **** {
+ 206:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 207:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return false;
+ 208:Drivers/lvgl/src/core/lv_event.c **** 
+ 209:Drivers/lvgl/src/core/lv_event.c ****     int32_t i = 0;
+ 210:Drivers/lvgl/src/core/lv_event.c ****     for(i = 0; i < obj->spec_attr->event_dsc_cnt; i++) {
+ 211:Drivers/lvgl/src/core/lv_event.c ****         if((event_cb == NULL || obj->spec_attr->event_dsc[i].cb == event_cb) &&
+ 212:Drivers/lvgl/src/core/lv_event.c ****            obj->spec_attr->event_dsc[i].user_data == user_data) {
+ 213:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 214:Drivers/lvgl/src/core/lv_event.c ****             for(; i < (obj->spec_attr->event_dsc_cnt - 1); i++) {
+ 215:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 216:Drivers/lvgl/src/core/lv_event.c ****             }
+ 217:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc_cnt--;
+ 218:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 219:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 220:Drivers/lvgl/src/core/lv_event.c ****             LV_ASSERT_MALLOC(obj->spec_attr->event_dsc);
+ 221:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 222:Drivers/lvgl/src/core/lv_event.c ****         }
+ 223:Drivers/lvgl/src/core/lv_event.c ****     }
+ 224:Drivers/lvgl/src/core/lv_event.c **** 
+ 225:Drivers/lvgl/src/core/lv_event.c ****     /*No event handler found*/
+ 226:Drivers/lvgl/src/core/lv_event.c ****     return false;
+ 227:Drivers/lvgl/src/core/lv_event.c **** }
+ 228:Drivers/lvgl/src/core/lv_event.c **** 
+ 229:Drivers/lvgl/src/core/lv_event.c **** 
+ 230:Drivers/lvgl/src/core/lv_event.c **** bool lv_obj_remove_event_dsc(lv_obj_t * obj, struct _lv_event_dsc_t * event_dsc)
+ 231:Drivers/lvgl/src/core/lv_event.c **** {
+ 232:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 233:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return false;
+ 234:Drivers/lvgl/src/core/lv_event.c **** 
+ 235:Drivers/lvgl/src/core/lv_event.c ****     int32_t i = 0;
+ 236:Drivers/lvgl/src/core/lv_event.c ****     for(i = 0; i < obj->spec_attr->event_dsc_cnt; i++) {
+ 237:Drivers/lvgl/src/core/lv_event.c ****         if(&obj->spec_attr->event_dsc[i] == event_dsc) {
+ 238:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 239:Drivers/lvgl/src/core/lv_event.c ****             for(; i < (obj->spec_attr->event_dsc_cnt - 1); i++) {
+ 240:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 241:Drivers/lvgl/src/core/lv_event.c ****             }
+ 242:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc_cnt--;
+ 243:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 244:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 245:Drivers/lvgl/src/core/lv_event.c ****             LV_ASSERT_MALLOC(obj->spec_attr->event_dsc);
+ 246:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 247:Drivers/lvgl/src/core/lv_event.c ****         }
+ 248:Drivers/lvgl/src/core/lv_event.c ****     }
+ 249:Drivers/lvgl/src/core/lv_event.c **** 
+ 250:Drivers/lvgl/src/core/lv_event.c ****     /*No event handler found*/
+ 251:Drivers/lvgl/src/core/lv_event.c ****     return false;
+ 252:Drivers/lvgl/src/core/lv_event.c **** }
+ 253:Drivers/lvgl/src/core/lv_event.c **** 
+ 254:Drivers/lvgl/src/core/lv_event.c **** void * lv_obj_get_event_user_data(struct _lv_obj_t * obj, lv_event_cb_t event_cb)
+ 255:Drivers/lvgl/src/core/lv_event.c **** {
+ 256:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 257:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return NULL;
+ 258:Drivers/lvgl/src/core/lv_event.c **** 
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 6
+
+
+ 259:Drivers/lvgl/src/core/lv_event.c ****     int32_t i = 0;
+ 260:Drivers/lvgl/src/core/lv_event.c ****     for(i = 0; i < obj->spec_attr->event_dsc_cnt; i++) {
+ 261:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == obj->spec_attr->event_dsc[i].cb) return obj->spec_attr->event_dsc[i].user_da
+ 262:Drivers/lvgl/src/core/lv_event.c ****     }
+ 263:Drivers/lvgl/src/core/lv_event.c ****     return NULL;
+ 264:Drivers/lvgl/src/core/lv_event.c **** }
+ 265:Drivers/lvgl/src/core/lv_event.c **** 
+ 266:Drivers/lvgl/src/core/lv_event.c **** lv_indev_t * lv_event_get_indev(lv_event_t * e)
+ 267:Drivers/lvgl/src/core/lv_event.c **** {
+ 268:Drivers/lvgl/src/core/lv_event.c **** 
+ 269:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_PRESSED ||
+ 270:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_PRESSING ||
+ 271:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_PRESS_LOST ||
+ 272:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_SHORT_CLICKED ||
+ 273:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_LONG_PRESSED ||
+ 274:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_LONG_PRESSED_REPEAT ||
+ 275:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_CLICKED ||
+ 276:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_RELEASED ||
+ 277:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_SCROLL_BEGIN ||
+ 278:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_SCROLL_END ||
+ 279:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_SCROLL ||
+ 280:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_GESTURE ||
+ 281:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_KEY ||
+ 282:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_FOCUSED ||
+ 283:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DEFOCUSED ||
+ 284:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_LEAVE) {
+ 285:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 286:Drivers/lvgl/src/core/lv_event.c ****     }
+ 287:Drivers/lvgl/src/core/lv_event.c ****     else {
+ 288:Drivers/lvgl/src/core/lv_event.c ****         LV_LOG_WARN("Not interpreted with this event code");
+ 289:Drivers/lvgl/src/core/lv_event.c ****         return NULL;
+ 290:Drivers/lvgl/src/core/lv_event.c ****     }
+ 291:Drivers/lvgl/src/core/lv_event.c **** }
+ 292:Drivers/lvgl/src/core/lv_event.c **** 
+ 293:Drivers/lvgl/src/core/lv_event.c **** lv_obj_draw_part_dsc_t * lv_event_get_draw_part_dsc(lv_event_t * e)
+ 294:Drivers/lvgl/src/core/lv_event.c **** {
+ 295:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_DRAW_PART_BEGIN ||
+ 296:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_PART_END) {
+ 297:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 298:Drivers/lvgl/src/core/lv_event.c ****     }
+ 299:Drivers/lvgl/src/core/lv_event.c ****     else {
+ 300:Drivers/lvgl/src/core/lv_event.c ****         LV_LOG_WARN("Not interpreted with this event code");
+ 301:Drivers/lvgl/src/core/lv_event.c ****         return NULL;
+ 302:Drivers/lvgl/src/core/lv_event.c ****     }
+ 303:Drivers/lvgl/src/core/lv_event.c **** }
+ 304:Drivers/lvgl/src/core/lv_event.c **** 
+ 305:Drivers/lvgl/src/core/lv_event.c **** lv_draw_ctx_t * lv_event_get_draw_ctx(lv_event_t * e)
+ 306:Drivers/lvgl/src/core/lv_event.c **** {
+ 307:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_DRAW_MAIN ||
+ 308:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_MAIN_BEGIN ||
+ 309:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_MAIN_END ||
+ 310:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_POST ||
+ 311:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_POST_BEGIN ||
+ 312:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_POST_END) {
+ 313:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 314:Drivers/lvgl/src/core/lv_event.c ****     }
+ 315:Drivers/lvgl/src/core/lv_event.c ****     else {
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 7
+
+
+ 316:Drivers/lvgl/src/core/lv_event.c ****         LV_LOG_WARN("Not interpreted with this event code");
+ 317:Drivers/lvgl/src/core/lv_event.c ****         return NULL;
+ 318:Drivers/lvgl/src/core/lv_event.c ****     }
+ 319:Drivers/lvgl/src/core/lv_event.c **** }
+ 320:Drivers/lvgl/src/core/lv_event.c **** 
+ 321:Drivers/lvgl/src/core/lv_event.c **** const lv_area_t * lv_event_get_old_size(lv_event_t * e)
+ 322:Drivers/lvgl/src/core/lv_event.c **** {
+ 323:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_SIZE_CHANGED) {
+ 324:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 325:Drivers/lvgl/src/core/lv_event.c ****     }
+ 326:Drivers/lvgl/src/core/lv_event.c ****     else {
+ 327:Drivers/lvgl/src/core/lv_event.c ****         LV_LOG_WARN("Not interpreted with this event code");
+ 328:Drivers/lvgl/src/core/lv_event.c ****         return NULL;
+ 329:Drivers/lvgl/src/core/lv_event.c ****     }
+ 330:Drivers/lvgl/src/core/lv_event.c **** }
+ 331:Drivers/lvgl/src/core/lv_event.c **** 
+ 332:Drivers/lvgl/src/core/lv_event.c **** uint32_t lv_event_get_key(lv_event_t * e)
+ 333:Drivers/lvgl/src/core/lv_event.c **** {
+ 334:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_KEY) {
+ 335:Drivers/lvgl/src/core/lv_event.c ****         uint32_t * k = lv_event_get_param(e);
+ 336:Drivers/lvgl/src/core/lv_event.c ****         if(k) return *k;
+ 337:Drivers/lvgl/src/core/lv_event.c ****         else return 0;
+ 338:Drivers/lvgl/src/core/lv_event.c ****     }
+ 339:Drivers/lvgl/src/core/lv_event.c ****     else {
+ 340:Drivers/lvgl/src/core/lv_event.c ****         LV_LOG_WARN("Not interpreted with this event code");
+ 341:Drivers/lvgl/src/core/lv_event.c ****         return 0;
+ 342:Drivers/lvgl/src/core/lv_event.c ****     }
+ 343:Drivers/lvgl/src/core/lv_event.c **** }
+ 344:Drivers/lvgl/src/core/lv_event.c **** 
+ 345:Drivers/lvgl/src/core/lv_event.c **** lv_anim_t * lv_event_get_scroll_anim(lv_event_t * e)
+ 346:Drivers/lvgl/src/core/lv_event.c **** {
+ 347:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_SCROLL_BEGIN) {
+ 348:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 349:Drivers/lvgl/src/core/lv_event.c ****     }
+ 350:Drivers/lvgl/src/core/lv_event.c ****     else {
+ 351:Drivers/lvgl/src/core/lv_event.c ****         LV_LOG_WARN("Not interpreted with this event code");
+ 352:Drivers/lvgl/src/core/lv_event.c ****         return 0;
+ 353:Drivers/lvgl/src/core/lv_event.c ****     }
+ 354:Drivers/lvgl/src/core/lv_event.c **** }
+ 355:Drivers/lvgl/src/core/lv_event.c **** 
+ 356:Drivers/lvgl/src/core/lv_event.c **** void lv_event_set_ext_draw_size(lv_event_t * e, lv_coord_t size)
+ 357:Drivers/lvgl/src/core/lv_event.c **** {
+ 358:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_REFR_EXT_DRAW_SIZE) {
+ 359:Drivers/lvgl/src/core/lv_event.c ****         lv_coord_t * cur_size = lv_event_get_param(e);
+ 360:Drivers/lvgl/src/core/lv_event.c ****         *cur_size = LV_MAX(*cur_size, size);
+ 361:Drivers/lvgl/src/core/lv_event.c ****     }
+ 362:Drivers/lvgl/src/core/lv_event.c ****     else {
+ 363:Drivers/lvgl/src/core/lv_event.c ****         LV_LOG_WARN("Not interpreted with this event code");
+ 364:Drivers/lvgl/src/core/lv_event.c ****     }
+ 365:Drivers/lvgl/src/core/lv_event.c **** }
+ 366:Drivers/lvgl/src/core/lv_event.c **** 
+ 367:Drivers/lvgl/src/core/lv_event.c **** lv_point_t * lv_event_get_self_size_info(lv_event_t * e)
+ 368:Drivers/lvgl/src/core/lv_event.c **** {
+ 369:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_GET_SELF_SIZE) {
+ 370:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 371:Drivers/lvgl/src/core/lv_event.c ****     }
+ 372:Drivers/lvgl/src/core/lv_event.c ****     else {
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 8
+
+
+ 373:Drivers/lvgl/src/core/lv_event.c ****         LV_LOG_WARN("Not interpreted with this event code");
+ 374:Drivers/lvgl/src/core/lv_event.c ****         return 0;
+ 375:Drivers/lvgl/src/core/lv_event.c ****     }
+ 376:Drivers/lvgl/src/core/lv_event.c **** }
+ 377:Drivers/lvgl/src/core/lv_event.c **** 
+ 378:Drivers/lvgl/src/core/lv_event.c **** lv_hit_test_info_t * lv_event_get_hit_test_info(lv_event_t * e)
+ 379:Drivers/lvgl/src/core/lv_event.c **** {
+ 380:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_HIT_TEST) {
+ 381:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 382:Drivers/lvgl/src/core/lv_event.c ****     }
+ 383:Drivers/lvgl/src/core/lv_event.c ****     else {
+ 384:Drivers/lvgl/src/core/lv_event.c ****         LV_LOG_WARN("Not interpreted with this event code");
+ 385:Drivers/lvgl/src/core/lv_event.c ****         return 0;
+ 386:Drivers/lvgl/src/core/lv_event.c ****     }
+ 387:Drivers/lvgl/src/core/lv_event.c **** }
+ 388:Drivers/lvgl/src/core/lv_event.c **** 
+ 389:Drivers/lvgl/src/core/lv_event.c **** const lv_area_t * lv_event_get_cover_area(lv_event_t * e)
+ 390:Drivers/lvgl/src/core/lv_event.c **** {
+ 391:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_COVER_CHECK) {
+ 392:Drivers/lvgl/src/core/lv_event.c ****         lv_cover_check_info_t * p = lv_event_get_param(e);
+ 393:Drivers/lvgl/src/core/lv_event.c ****         return p->area;
+ 394:Drivers/lvgl/src/core/lv_event.c ****     }
+ 395:Drivers/lvgl/src/core/lv_event.c ****     else {
+ 396:Drivers/lvgl/src/core/lv_event.c ****         LV_LOG_WARN("Not interpreted with this event code");
+ 397:Drivers/lvgl/src/core/lv_event.c ****         return NULL;
+ 398:Drivers/lvgl/src/core/lv_event.c ****     }
+ 399:Drivers/lvgl/src/core/lv_event.c **** }
+ 400:Drivers/lvgl/src/core/lv_event.c **** 
+ 401:Drivers/lvgl/src/core/lv_event.c **** void lv_event_set_cover_res(lv_event_t * e, lv_cover_res_t res)
+ 402:Drivers/lvgl/src/core/lv_event.c **** {
+ 403:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_COVER_CHECK) {
+ 404:Drivers/lvgl/src/core/lv_event.c ****         lv_cover_check_info_t * p = lv_event_get_param(e);
+ 405:Drivers/lvgl/src/core/lv_event.c ****         if(res > p->res) p->res = res;  /*Save only "stronger" results*/
+ 406:Drivers/lvgl/src/core/lv_event.c ****     }
+ 407:Drivers/lvgl/src/core/lv_event.c ****     else {
+ 408:Drivers/lvgl/src/core/lv_event.c ****         LV_LOG_WARN("Not interpreted with this event code");
+ 409:Drivers/lvgl/src/core/lv_event.c ****     }
+ 410:Drivers/lvgl/src/core/lv_event.c **** }
+ 411:Drivers/lvgl/src/core/lv_event.c **** 
+ 412:Drivers/lvgl/src/core/lv_event.c **** /**********************
+ 413:Drivers/lvgl/src/core/lv_event.c ****  *   STATIC FUNCTIONS
+ 414:Drivers/lvgl/src/core/lv_event.c ****  **********************/
+ 415:Drivers/lvgl/src/core/lv_event.c **** 
+ 416:Drivers/lvgl/src/core/lv_event.c **** static lv_event_dsc_t * lv_obj_get_event_dsc(const lv_obj_t * obj, uint32_t id)
+ 417:Drivers/lvgl/src/core/lv_event.c **** {
+  29              		.loc 1 417 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  33              		@ link register save eliminated.
+ 418:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+  34              		.loc 1 418 5 view .LVU1
+  35              		.loc 1 418 5 view .LVU2
+  36              		.loc 1 418 5 view .LVU3
+ 419:Drivers/lvgl/src/core/lv_event.c **** 
+ 420:Drivers/lvgl/src/core/lv_event.c ****     if(!obj->spec_attr) return NULL;
+  37              		.loc 1 420 5 view .LVU4
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 9
+
+
+  38              		.loc 1 420 12 is_stmt 0 view .LVU5
+  39 0000 8068     		ldr	r0, [r0, #8]
+  40              	.LVL1:
+  41              		.loc 1 420 7 view .LVU6
+  42 0002 58B1     		cbz	r0, .L1
+ 421:Drivers/lvgl/src/core/lv_event.c ****     if(id >= obj->spec_attr->event_dsc_cnt) return NULL;
+  43              		.loc 1 421 5 is_stmt 1 view .LVU7
+  44              		.loc 1 421 28 is_stmt 0 view .LVU8
+  45 0004 837E     		ldrb	r3, [r0, #26]	@ zero_extendqisi2
+  46 0006 03F03F03 		and	r3, r3, #63
+  47              		.loc 1 421 7 view .LVU9
+  48 000a 8B42     		cmp	r3, r1
+  49 000c 05D9     		bls	.L3
+ 422:Drivers/lvgl/src/core/lv_event.c **** 
+ 423:Drivers/lvgl/src/core/lv_event.c ****     return &obj->spec_attr->event_dsc[id];
+  50              		.loc 1 423 5 is_stmt 1 view .LVU10
+  51              		.loc 1 423 27 is_stmt 0 view .LVU11
+  52 000e C068     		ldr	r0, [r0, #12]
+  53              		.loc 1 423 38 view .LVU12
+  54 0010 01EB4101 		add	r1, r1, r1, lsl #1
+  55              	.LVL2:
+  56              		.loc 1 423 12 view .LVU13
+  57 0014 00EB8100 		add	r0, r0, r1, lsl #2
+  58 0018 7047     		bx	lr
+  59              	.LVL3:
+  60              	.L3:
+ 421:Drivers/lvgl/src/core/lv_event.c ****     if(id >= obj->spec_attr->event_dsc_cnt) return NULL;
+  61              		.loc 1 421 52 discriminator 1 view .LVU14
+  62 001a 0020     		movs	r0, #0
+  63              	.L1:
+ 424:Drivers/lvgl/src/core/lv_event.c **** }
+  64              		.loc 1 424 1 view .LVU15
+  65 001c 7047     		bx	lr
+  66              		.cfi_endproc
+  67              	.LFE188:
+  69              		.section	.text.event_is_bubbled,"ax",%progbits
+  70              		.align	1
+  71              		.syntax unified
+  72              		.thumb
+  73              		.thumb_func
+  75              	event_is_bubbled:
+  76              	.LVL4:
+  77              	.LFB190:
+ 425:Drivers/lvgl/src/core/lv_event.c **** 
+ 426:Drivers/lvgl/src/core/lv_event.c **** static lv_res_t event_send_core(lv_event_t * e)
+ 427:Drivers/lvgl/src/core/lv_event.c **** {
+ 428:Drivers/lvgl/src/core/lv_event.c ****     EVENT_TRACE("Sending event %d to %p with %p param", e->code, (void *)e->current_target, e->para
+ 429:Drivers/lvgl/src/core/lv_event.c **** 
+ 430:Drivers/lvgl/src/core/lv_event.c ****     /*Call the input device's feedback callback if set*/
+ 431:Drivers/lvgl/src/core/lv_event.c ****     lv_indev_t * indev_act = lv_indev_get_act();
+ 432:Drivers/lvgl/src/core/lv_event.c ****     if(indev_act) {
+ 433:Drivers/lvgl/src/core/lv_event.c ****         if(indev_act->driver->feedback_cb) indev_act->driver->feedback_cb(indev_act->driver, e->cod
+ 434:Drivers/lvgl/src/core/lv_event.c ****         if(e->stop_processing) return LV_RES_OK;
+ 435:Drivers/lvgl/src/core/lv_event.c ****         if(e->deleted) return LV_RES_INV;
+ 436:Drivers/lvgl/src/core/lv_event.c ****     }
+ 437:Drivers/lvgl/src/core/lv_event.c **** 
+ 438:Drivers/lvgl/src/core/lv_event.c ****     lv_res_t res = LV_RES_OK;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 10
+
+
+ 439:Drivers/lvgl/src/core/lv_event.c ****     lv_event_dsc_t * event_dsc = lv_obj_get_event_dsc(e->current_target, 0);
+ 440:Drivers/lvgl/src/core/lv_event.c **** 
+ 441:Drivers/lvgl/src/core/lv_event.c ****     uint32_t i = 0;
+ 442:Drivers/lvgl/src/core/lv_event.c ****     while(event_dsc && res == LV_RES_OK) {
+ 443:Drivers/lvgl/src/core/lv_event.c ****         if(event_dsc->cb  && ((event_dsc->filter & LV_EVENT_PREPROCESS) == LV_EVENT_PREPROCESS)
+ 444:Drivers/lvgl/src/core/lv_event.c ****            && (event_dsc->filter == (LV_EVENT_ALL | LV_EVENT_PREPROCESS) ||
+ 445:Drivers/lvgl/src/core/lv_event.c ****                (event_dsc->filter & ~LV_EVENT_PREPROCESS) == e->code)) {
+ 446:Drivers/lvgl/src/core/lv_event.c ****             e->user_data = event_dsc->user_data;
+ 447:Drivers/lvgl/src/core/lv_event.c ****             event_dsc->cb(e);
+ 448:Drivers/lvgl/src/core/lv_event.c **** 
+ 449:Drivers/lvgl/src/core/lv_event.c ****             if(e->stop_processing) return LV_RES_OK;
+ 450:Drivers/lvgl/src/core/lv_event.c ****             /*Stop if the object is deleted*/
+ 451:Drivers/lvgl/src/core/lv_event.c ****             if(e->deleted) return LV_RES_INV;
+ 452:Drivers/lvgl/src/core/lv_event.c ****         }
+ 453:Drivers/lvgl/src/core/lv_event.c **** 
+ 454:Drivers/lvgl/src/core/lv_event.c ****         i++;
+ 455:Drivers/lvgl/src/core/lv_event.c ****         event_dsc = lv_obj_get_event_dsc(e->current_target, i);
+ 456:Drivers/lvgl/src/core/lv_event.c ****     }
+ 457:Drivers/lvgl/src/core/lv_event.c **** 
+ 458:Drivers/lvgl/src/core/lv_event.c ****     res = lv_obj_event_base(NULL, e);
+ 459:Drivers/lvgl/src/core/lv_event.c **** 
+ 460:Drivers/lvgl/src/core/lv_event.c ****     event_dsc = res == LV_RES_INV ? NULL : lv_obj_get_event_dsc(e->current_target, 0);
+ 461:Drivers/lvgl/src/core/lv_event.c **** 
+ 462:Drivers/lvgl/src/core/lv_event.c ****     i = 0;
+ 463:Drivers/lvgl/src/core/lv_event.c ****     while(event_dsc && res == LV_RES_OK) {
+ 464:Drivers/lvgl/src/core/lv_event.c ****         if(event_dsc->cb && ((event_dsc->filter & LV_EVENT_PREPROCESS) == 0)
+ 465:Drivers/lvgl/src/core/lv_event.c ****            && (event_dsc->filter == LV_EVENT_ALL || event_dsc->filter == e->code)) {
+ 466:Drivers/lvgl/src/core/lv_event.c ****             e->user_data = event_dsc->user_data;
+ 467:Drivers/lvgl/src/core/lv_event.c ****             event_dsc->cb(e);
+ 468:Drivers/lvgl/src/core/lv_event.c **** 
+ 469:Drivers/lvgl/src/core/lv_event.c ****             if(e->stop_processing) return LV_RES_OK;
+ 470:Drivers/lvgl/src/core/lv_event.c ****             /*Stop if the object is deleted*/
+ 471:Drivers/lvgl/src/core/lv_event.c ****             if(e->deleted) return LV_RES_INV;
+ 472:Drivers/lvgl/src/core/lv_event.c ****         }
+ 473:Drivers/lvgl/src/core/lv_event.c **** 
+ 474:Drivers/lvgl/src/core/lv_event.c ****         i++;
+ 475:Drivers/lvgl/src/core/lv_event.c ****         event_dsc = lv_obj_get_event_dsc(e->current_target, i);
+ 476:Drivers/lvgl/src/core/lv_event.c ****     }
+ 477:Drivers/lvgl/src/core/lv_event.c **** 
+ 478:Drivers/lvgl/src/core/lv_event.c ****     if(res == LV_RES_OK && e->current_target->parent && event_is_bubbled(e)) {
+ 479:Drivers/lvgl/src/core/lv_event.c ****         e->current_target = e->current_target->parent;
+ 480:Drivers/lvgl/src/core/lv_event.c ****         res = event_send_core(e);
+ 481:Drivers/lvgl/src/core/lv_event.c ****         if(res != LV_RES_OK) return LV_RES_INV;
+ 482:Drivers/lvgl/src/core/lv_event.c ****     }
+ 483:Drivers/lvgl/src/core/lv_event.c **** 
+ 484:Drivers/lvgl/src/core/lv_event.c ****     return res;
+ 485:Drivers/lvgl/src/core/lv_event.c **** }
+ 486:Drivers/lvgl/src/core/lv_event.c **** 
+ 487:Drivers/lvgl/src/core/lv_event.c **** static bool event_is_bubbled(lv_event_t * e)
+ 488:Drivers/lvgl/src/core/lv_event.c **** {
+  78              		.loc 1 488 1 is_stmt 1 view -0
+  79              		.cfi_startproc
+  80              		@ args = 0, pretend = 0, frame = 0
+  81              		@ frame_needed = 0, uses_anonymous_args = 0
+ 489:Drivers/lvgl/src/core/lv_event.c ****     if(e->stop_bubbling) return false;
+  82              		.loc 1 489 5 view .LVU17
+  83              		.loc 1 489 8 is_stmt 0 view .LVU18
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 11
+
+
+  84 0000 037E     		ldrb	r3, [r0, #24]	@ zero_extendqisi2
+  85              		.loc 1 489 7 view .LVU19
+  86 0002 13F0040F 		tst	r3, #4
+  87 0006 1ED1     		bne	.L6
+ 488:Drivers/lvgl/src/core/lv_event.c ****     if(e->stop_bubbling) return false;
+  88              		.loc 1 488 1 view .LVU20
+  89 0008 10B5     		push	{r4, lr}
+  90              		.cfi_def_cfa_offset 8
+  91              		.cfi_offset 4, -8
+  92              		.cfi_offset 14, -4
+  93 000a 0446     		mov	r4, r0
+ 490:Drivers/lvgl/src/core/lv_event.c **** 
+ 491:Drivers/lvgl/src/core/lv_event.c ****     /*Event codes that always bubble*/
+ 492:Drivers/lvgl/src/core/lv_event.c ****     switch(e->code) {
+  94              		.loc 1 492 5 is_stmt 1 view .LVU21
+  95              		.loc 1 492 13 is_stmt 0 view .LVU22
+  96 000c 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+  97              		.loc 1 492 5 view .LVU23
+  98 000e 233B     		subs	r3, r3, #35
+  99 0010 012B     		cmp	r3, #1
+ 100 0012 01D8     		bhi	.L13
+ 493:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_CHILD_CREATED:
+ 494:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_CHILD_DELETED:
+ 495:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 101              		.loc 1 495 20 view .LVU24
+ 102 0014 0120     		movs	r0, #1
+ 103              	.LVL5:
+ 104              	.L5:
+ 496:Drivers/lvgl/src/core/lv_event.c ****         default:
+ 497:Drivers/lvgl/src/core/lv_event.c ****             break;
+ 498:Drivers/lvgl/src/core/lv_event.c ****     }
+ 499:Drivers/lvgl/src/core/lv_event.c **** 
+ 500:Drivers/lvgl/src/core/lv_event.c ****     /*Check other codes only if bubbling is enabled*/
+ 501:Drivers/lvgl/src/core/lv_event.c ****     if(lv_obj_has_flag(e->current_target, LV_OBJ_FLAG_EVENT_BUBBLE) == false) return false;
+ 502:Drivers/lvgl/src/core/lv_event.c **** 
+ 503:Drivers/lvgl/src/core/lv_event.c ****     switch(e->code) {
+ 504:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_HIT_TEST:
+ 505:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_COVER_CHECK:
+ 506:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_REFR_EXT_DRAW_SIZE:
+ 507:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_DRAW_MAIN_BEGIN:
+ 508:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_DRAW_MAIN:
+ 509:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_DRAW_MAIN_END:
+ 510:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_DRAW_POST_BEGIN:
+ 511:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_DRAW_POST:
+ 512:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_DRAW_POST_END:
+ 513:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_DRAW_PART_BEGIN:
+ 514:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_DRAW_PART_END:
+ 515:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_REFRESH:
+ 516:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_DELETE:
+ 517:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_CHILD_CREATED:
+ 518:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_CHILD_DELETED:
+ 519:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_CHILD_CHANGED:
+ 520:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_SIZE_CHANGED:
+ 521:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_STYLE_CHANGED:
+ 522:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_GET_SELF_SIZE:
+ 523:Drivers/lvgl/src/core/lv_event.c ****             return false;
+ 524:Drivers/lvgl/src/core/lv_event.c ****         default:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 12
+
+
+ 525:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 526:Drivers/lvgl/src/core/lv_event.c ****     }
+ 527:Drivers/lvgl/src/core/lv_event.c **** }
+ 105              		.loc 1 527 1 view .LVU25
+ 106 0016 10BD     		pop	{r4, pc}
+ 107              	.LVL6:
+ 108              	.L13:
+ 497:Drivers/lvgl/src/core/lv_event.c ****     }
+ 109              		.loc 1 497 13 is_stmt 1 view .LVU26
+ 501:Drivers/lvgl/src/core/lv_event.c **** 
+ 110              		.loc 1 501 5 view .LVU27
+ 501:Drivers/lvgl/src/core/lv_event.c **** 
+ 111              		.loc 1 501 8 is_stmt 0 view .LVU28
+ 112 0018 4FF48041 		mov	r1, #16384
+ 113 001c 4068     		ldr	r0, [r0, #4]
+ 114              	.LVL7:
+ 501:Drivers/lvgl/src/core/lv_event.c **** 
+ 115              		.loc 1 501 8 view .LVU29
+ 116 001e FFF7FEFF 		bl	lv_obj_has_flag
+ 117              	.LVL8:
+ 501:Drivers/lvgl/src/core/lv_event.c **** 
+ 118              		.loc 1 501 7 discriminator 1 view .LVU30
+ 119 0022 0028     		cmp	r0, #0
+ 120 0024 F7D0     		beq	.L5
+ 503:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_HIT_TEST:
+ 121              		.loc 1 503 5 is_stmt 1 view .LVU31
+ 503:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_HIT_TEST:
+ 122              		.loc 1 503 13 is_stmt 0 view .LVU32
+ 123 0026 237A     		ldrb	r3, [r4, #8]	@ zero_extendqisi2
+ 503:Drivers/lvgl/src/core/lv_event.c ****         case LV_EVENT_HIT_TEST:
+ 124              		.loc 1 503 5 view .LVU33
+ 125 0028 113B     		subs	r3, r3, #17
+ 126 002a DBB2     		uxtb	r3, r3
+ 127 002c 1B2B     		cmp	r3, #27
+ 128 002e 94BF     		ite	ls
+ 129 0030 0021     		movls	r1, #0
+ 130 0032 0121     		movhi	r1, #1
+ 131 0034 49B9     		cbnz	r1, .L8
+ 132 0036 064A     		ldr	r2, .L14
+ 133 0038 22FA03F3 		lsr	r3, r2, r3
+ 134 003c 13F0010F 		tst	r3, #1
+ 135 0040 E9D0     		beq	.L5
+ 136 0042 0846     		mov	r0, r1
+ 137 0044 E7E7     		b	.L5
+ 138              	.LVL9:
+ 139              	.L6:
+ 140              		.cfi_def_cfa_offset 0
+ 141              		.cfi_restore 4
+ 142              		.cfi_restore 14
+ 489:Drivers/lvgl/src/core/lv_event.c **** 
+ 143              		.loc 1 489 33 discriminator 1 view .LVU34
+ 144 0046 0020     		movs	r0, #0
+ 145              	.LVL10:
+ 146              		.loc 1 527 1 view .LVU35
+ 147 0048 7047     		bx	lr
+ 148              	.LVL11:
+ 149              	.L8:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 13
+
+
+ 150              		.cfi_def_cfa_offset 8
+ 151              		.cfi_offset 4, -8
+ 152              		.cfi_offset 14, -4
+ 525:Drivers/lvgl/src/core/lv_event.c ****     }
+ 153              		.loc 1 525 20 view .LVU36
+ 154 004a 0846     		mov	r0, r1
+ 155 004c E3E7     		b	.L5
+ 156              	.L15:
+ 157 004e 00BF     		.align	2
+ 158              	.L14:
+ 159 0050 FF270F0B 		.word	185542655
+ 160              		.cfi_endproc
+ 161              	.LFE190:
+ 163              		.section	.text.lv_obj_event_base,"ax",%progbits
+ 164              		.align	1
+ 165              		.global	lv_obj_event_base
+ 166              		.syntax unified
+ 167              		.thumb
+ 168              		.thumb_func
+ 170              	lv_obj_event_base:
+ 171              	.LVL12:
+ 172              	.LFB162:
+  85:Drivers/lvgl/src/core/lv_event.c ****     const lv_obj_class_t * base;
+ 173              		.loc 1 85 1 is_stmt 1 view -0
+ 174              		.cfi_startproc
+ 175              		@ args = 0, pretend = 0, frame = 0
+ 176              		@ frame_needed = 0, uses_anonymous_args = 0
+  85:Drivers/lvgl/src/core/lv_event.c ****     const lv_obj_class_t * base;
+ 177              		.loc 1 85 1 is_stmt 0 view .LVU38
+ 178 0000 10B5     		push	{r4, lr}
+ 179              		.cfi_def_cfa_offset 8
+ 180              		.cfi_offset 4, -8
+ 181              		.cfi_offset 14, -4
+ 182 0002 0C46     		mov	r4, r1
+  86:Drivers/lvgl/src/core/lv_event.c ****     if(class_p == NULL) base = e->current_target->class_p;
+ 183              		.loc 1 86 5 is_stmt 1 view .LVU39
+  87:Drivers/lvgl/src/core/lv_event.c ****     else base = class_p->base_class;
+ 184              		.loc 1 87 5 view .LVU40
+  87:Drivers/lvgl/src/core/lv_event.c ****     else base = class_p->base_class;
+ 185              		.loc 1 87 7 is_stmt 0 view .LVU41
+ 186 0004 08B1     		cbz	r0, .L27
+  88:Drivers/lvgl/src/core/lv_event.c **** 
+ 187              		.loc 1 88 10 is_stmt 1 view .LVU42
+  88:Drivers/lvgl/src/core/lv_event.c **** 
+ 188              		.loc 1 88 15 is_stmt 0 view .LVU43
+ 189 0006 0068     		ldr	r0, [r0]
+ 190              	.LVL13:
+  88:Drivers/lvgl/src/core/lv_event.c **** 
+ 191              		.loc 1 88 15 view .LVU44
+ 192 0008 03E0     		b	.L19
+ 193              	.LVL14:
+ 194              	.L27:
+  87:Drivers/lvgl/src/core/lv_event.c ****     else base = class_p->base_class;
+ 195              		.loc 1 87 25 is_stmt 1 discriminator 1 view .LVU45
+  87:Drivers/lvgl/src/core/lv_event.c ****     else base = class_p->base_class;
+ 196              		.loc 1 87 33 is_stmt 0 discriminator 1 view .LVU46
+ 197 000a 4B68     		ldr	r3, [r1, #4]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 14
+
+
+  87:Drivers/lvgl/src/core/lv_event.c ****     else base = class_p->base_class;
+ 198              		.loc 1 87 30 discriminator 1 view .LVU47
+ 199 000c 1868     		ldr	r0, [r3]
+ 200              	.LVL15:
+  87:Drivers/lvgl/src/core/lv_event.c ****     else base = class_p->base_class;
+ 201              		.loc 1 87 30 discriminator 1 view .LVU48
+ 202 000e 00E0     		b	.L19
+ 203              	.L21:
+  91:Drivers/lvgl/src/core/lv_event.c **** 
+ 204              		.loc 1 91 43 is_stmt 1 discriminator 3 view .LVU49
+  91:Drivers/lvgl/src/core/lv_event.c **** 
+ 205              		.loc 1 91 48 is_stmt 0 discriminator 3 view .LVU50
+ 206 0010 0068     		ldr	r0, [r0]
+ 207              	.LVL16:
+ 208              	.L19:
+  91:Drivers/lvgl/src/core/lv_event.c **** 
+ 209              		.loc 1 91 16 is_stmt 1 discriminator 1 view .LVU51
+ 210 0012 10B1     		cbz	r0, .L20
+  91:Drivers/lvgl/src/core/lv_event.c **** 
+ 211              		.loc 1 91 23 is_stmt 0 discriminator 2 view .LVU52
+ 212 0014 0369     		ldr	r3, [r0, #16]
+  91:Drivers/lvgl/src/core/lv_event.c **** 
+ 213              		.loc 1 91 16 discriminator 2 view .LVU53
+ 214 0016 002B     		cmp	r3, #0
+ 215 0018 FAD0     		beq	.L21
+ 216              	.L20:
+  93:Drivers/lvgl/src/core/lv_event.c ****     if(base->event_cb == NULL) return LV_RES_OK;
+ 217              		.loc 1 93 5 is_stmt 1 view .LVU54
+  93:Drivers/lvgl/src/core/lv_event.c ****     if(base->event_cb == NULL) return LV_RES_OK;
+ 218              		.loc 1 93 7 is_stmt 0 view .LVU55
+ 219 001a 60B1     		cbz	r0, .L23
+  94:Drivers/lvgl/src/core/lv_event.c **** 
+ 220              		.loc 1 94 5 is_stmt 1 view .LVU56
+  94:Drivers/lvgl/src/core/lv_event.c **** 
+ 221              		.loc 1 94 12 is_stmt 0 view .LVU57
+ 222 001c 0369     		ldr	r3, [r0, #16]
+  94:Drivers/lvgl/src/core/lv_event.c **** 
+ 223              		.loc 1 94 7 view .LVU58
+ 224 001e 63B1     		cbz	r3, .L24
+  97:Drivers/lvgl/src/core/lv_event.c ****     base->event_cb(base, e);
+ 225              		.loc 1 97 5 is_stmt 1 view .LVU59
+  97:Drivers/lvgl/src/core/lv_event.c ****     base->event_cb(base, e);
+ 226              		.loc 1 97 18 is_stmt 0 view .LVU60
+ 227 0020 0023     		movs	r3, #0
+ 228 0022 E360     		str	r3, [r4, #12]
+  98:Drivers/lvgl/src/core/lv_event.c **** 
+ 229              		.loc 1 98 5 is_stmt 1 view .LVU61
+  98:Drivers/lvgl/src/core/lv_event.c **** 
+ 230              		.loc 1 98 9 is_stmt 0 view .LVU62
+ 231 0024 0369     		ldr	r3, [r0, #16]
+  98:Drivers/lvgl/src/core/lv_event.c **** 
+ 232              		.loc 1 98 5 view .LVU63
+ 233 0026 2146     		mov	r1, r4
+ 234              	.LVL17:
+  98:Drivers/lvgl/src/core/lv_event.c **** 
+ 235              		.loc 1 98 5 view .LVU64
+ 236 0028 9847     		blx	r3
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 15
+
+
+ 237              	.LVL18:
+ 100:Drivers/lvgl/src/core/lv_event.c ****     /*Stop if the object is deleted*/
+ 238              		.loc 1 100 5 is_stmt 1 view .LVU65
+ 102:Drivers/lvgl/src/core/lv_event.c **** 
+ 239              		.loc 1 102 5 view .LVU66
+ 102:Drivers/lvgl/src/core/lv_event.c **** 
+ 240              		.loc 1 102 8 is_stmt 0 view .LVU67
+ 241 002a 237E     		ldrb	r3, [r4, #24]	@ zero_extendqisi2
+ 102:Drivers/lvgl/src/core/lv_event.c **** 
+ 242              		.loc 1 102 7 view .LVU68
+ 243 002c 13F0010F 		tst	r3, #1
+ 244 0030 05D1     		bne	.L25
+ 100:Drivers/lvgl/src/core/lv_event.c ****     /*Stop if the object is deleted*/
+ 245              		.loc 1 100 14 view .LVU69
+ 246 0032 0120     		movs	r0, #1
+ 247              	.LVL19:
+ 248              	.L22:
+ 105:Drivers/lvgl/src/core/lv_event.c **** 
+ 249              		.loc 1 105 1 view .LVU70
+ 250 0034 10BD     		pop	{r4, pc}
+ 251              	.LVL20:
+ 252              	.L23:
+  93:Drivers/lvgl/src/core/lv_event.c ****     if(base->event_cb == NULL) return LV_RES_OK;
+ 253              		.loc 1 93 29 discriminator 1 view .LVU71
+ 254 0036 0120     		movs	r0, #1
+ 255              	.LVL21:
+  93:Drivers/lvgl/src/core/lv_event.c ****     if(base->event_cb == NULL) return LV_RES_OK;
+ 256              		.loc 1 93 29 discriminator 1 view .LVU72
+ 257 0038 FCE7     		b	.L22
+ 258              	.LVL22:
+ 259              	.L24:
+  94:Drivers/lvgl/src/core/lv_event.c **** 
+ 260              		.loc 1 94 39 discriminator 1 view .LVU73
+ 261 003a 0120     		movs	r0, #1
+ 262              	.LVL23:
+  94:Drivers/lvgl/src/core/lv_event.c **** 
+ 263              		.loc 1 94 39 discriminator 1 view .LVU74
+ 264 003c FAE7     		b	.L22
+ 265              	.LVL24:
+ 266              	.L25:
+ 102:Drivers/lvgl/src/core/lv_event.c **** 
+ 267              		.loc 1 102 24 discriminator 1 view .LVU75
+ 268 003e 0020     		movs	r0, #0
+ 269 0040 F8E7     		b	.L22
+ 270              		.cfi_endproc
+ 271              	.LFE162:
+ 273              		.section	.text.event_send_core,"ax",%progbits
+ 274              		.align	1
+ 275              		.syntax unified
+ 276              		.thumb
+ 277              		.thumb_func
+ 279              	event_send_core:
+ 280              	.LVL25:
+ 281              	.LFB189:
+ 427:Drivers/lvgl/src/core/lv_event.c ****     EVENT_TRACE("Sending event %d to %p with %p param", e->code, (void *)e->current_target, e->para
+ 282              		.loc 1 427 1 is_stmt 1 view -0
+ 283              		.cfi_startproc
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 16
+
+
+ 284              		@ args = 0, pretend = 0, frame = 0
+ 285              		@ frame_needed = 0, uses_anonymous_args = 0
+ 427:Drivers/lvgl/src/core/lv_event.c ****     EVENT_TRACE("Sending event %d to %p with %p param", e->code, (void *)e->current_target, e->para
+ 286              		.loc 1 427 1 is_stmt 0 view .LVU77
+ 287 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 288              		.cfi_def_cfa_offset 24
+ 289              		.cfi_offset 3, -24
+ 290              		.cfi_offset 4, -20
+ 291              		.cfi_offset 5, -16
+ 292              		.cfi_offset 6, -12
+ 293              		.cfi_offset 7, -8
+ 294              		.cfi_offset 14, -4
+ 295 0002 0646     		mov	r6, r0
+ 428:Drivers/lvgl/src/core/lv_event.c **** 
+ 296              		.loc 1 428 102 is_stmt 1 view .LVU78
+ 431:Drivers/lvgl/src/core/lv_event.c ****     if(indev_act) {
+ 297              		.loc 1 431 5 view .LVU79
+ 431:Drivers/lvgl/src/core/lv_event.c ****     if(indev_act) {
+ 298              		.loc 1 431 30 is_stmt 0 view .LVU80
+ 299 0004 FFF7FEFF 		bl	lv_indev_get_act
+ 300              	.LVL26:
+ 432:Drivers/lvgl/src/core/lv_event.c ****         if(indev_act->driver->feedback_cb) indev_act->driver->feedback_cb(indev_act->driver, e->cod
+ 301              		.loc 1 432 5 is_stmt 1 view .LVU81
+ 432:Drivers/lvgl/src/core/lv_event.c ****         if(indev_act->driver->feedback_cb) indev_act->driver->feedback_cb(indev_act->driver, e->cod
+ 302              		.loc 1 432 7 is_stmt 0 view .LVU82
+ 303 0008 58B1     		cbz	r0, .L29
+ 433:Drivers/lvgl/src/core/lv_event.c ****         if(e->stop_processing) return LV_RES_OK;
+ 304              		.loc 1 433 9 is_stmt 1 view .LVU83
+ 433:Drivers/lvgl/src/core/lv_event.c ****         if(e->stop_processing) return LV_RES_OK;
+ 305              		.loc 1 433 21 is_stmt 0 view .LVU84
+ 306 000a 0068     		ldr	r0, [r0]
+ 307              	.LVL27:
+ 433:Drivers/lvgl/src/core/lv_event.c ****         if(e->stop_processing) return LV_RES_OK;
+ 308              		.loc 1 433 29 view .LVU85
+ 309 000c 8368     		ldr	r3, [r0, #8]
+ 433:Drivers/lvgl/src/core/lv_event.c ****         if(e->stop_processing) return LV_RES_OK;
+ 310              		.loc 1 433 11 view .LVU86
+ 311 000e 0BB1     		cbz	r3, .L30
+ 433:Drivers/lvgl/src/core/lv_event.c ****         if(e->stop_processing) return LV_RES_OK;
+ 312              		.loc 1 433 44 is_stmt 1 discriminator 1 view .LVU87
+ 313 0010 317A     		ldrb	r1, [r6, #8]	@ zero_extendqisi2
+ 314 0012 9847     		blx	r3
+ 315              	.LVL28:
+ 316              	.L30:
+ 434:Drivers/lvgl/src/core/lv_event.c ****         if(e->deleted) return LV_RES_INV;
+ 317              		.loc 1 434 9 view .LVU88
+ 434:Drivers/lvgl/src/core/lv_event.c ****         if(e->deleted) return LV_RES_INV;
+ 318              		.loc 1 434 12 is_stmt 0 view .LVU89
+ 319 0014 337E     		ldrb	r3, [r6, #24]	@ zero_extendqisi2
+ 434:Drivers/lvgl/src/core/lv_event.c ****         if(e->deleted) return LV_RES_INV;
+ 320              		.loc 1 434 11 view .LVU90
+ 321 0016 13F00207 		ands	r7, r3, #2
+ 322 001a 74D1     		bne	.L42
+ 435:Drivers/lvgl/src/core/lv_event.c ****     }
+ 323              		.loc 1 435 9 is_stmt 1 view .LVU91
+ 435:Drivers/lvgl/src/core/lv_event.c ****     }
+ 324              		.loc 1 435 11 is_stmt 0 view .LVU92
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 17
+
+
+ 325 001c 13F0010F 		tst	r3, #1
+ 326 0020 5BD1     		bne	.L31
+ 327              	.L29:
+ 438:Drivers/lvgl/src/core/lv_event.c ****     lv_event_dsc_t * event_dsc = lv_obj_get_event_dsc(e->current_target, 0);
+ 328              		.loc 1 438 5 is_stmt 1 view .LVU93
+ 329              	.LVL29:
+ 439:Drivers/lvgl/src/core/lv_event.c **** 
+ 330              		.loc 1 439 5 view .LVU94
+ 439:Drivers/lvgl/src/core/lv_event.c **** 
+ 331              		.loc 1 439 34 is_stmt 0 view .LVU95
+ 332 0022 0021     		movs	r1, #0
+ 333 0024 7068     		ldr	r0, [r6, #4]
+ 334 0026 FFF7FEFF 		bl	lv_obj_get_event_dsc
+ 335              	.LVL30:
+ 336 002a 0446     		mov	r4, r0
+ 337              	.LVL31:
+ 441:Drivers/lvgl/src/core/lv_event.c ****     while(event_dsc && res == LV_RES_OK) {
+ 338              		.loc 1 441 5 is_stmt 1 view .LVU96
+ 442:Drivers/lvgl/src/core/lv_event.c ****         if(event_dsc->cb  && ((event_dsc->filter & LV_EVENT_PREPROCESS) == LV_EVENT_PREPROCESS)
+ 339              		.loc 1 442 5 view .LVU97
+ 441:Drivers/lvgl/src/core/lv_event.c ****     while(event_dsc && res == LV_RES_OK) {
+ 340              		.loc 1 441 14 is_stmt 0 view .LVU98
+ 341 002c 0025     		movs	r5, #0
+ 442:Drivers/lvgl/src/core/lv_event.c ****         if(event_dsc->cb  && ((event_dsc->filter & LV_EVENT_PREPROCESS) == LV_EVENT_PREPROCESS)
+ 342              		.loc 1 442 10 view .LVU99
+ 343 002e 11E0     		b	.L32
+ 344              	.LVL32:
+ 345              	.L34:
+ 446:Drivers/lvgl/src/core/lv_event.c ****             event_dsc->cb(e);
+ 346              		.loc 1 446 13 is_stmt 1 view .LVU100
+ 446:Drivers/lvgl/src/core/lv_event.c ****             event_dsc->cb(e);
+ 347              		.loc 1 446 37 is_stmt 0 view .LVU101
+ 348 0030 6368     		ldr	r3, [r4, #4]
+ 446:Drivers/lvgl/src/core/lv_event.c ****             event_dsc->cb(e);
+ 349              		.loc 1 446 26 view .LVU102
+ 350 0032 F360     		str	r3, [r6, #12]
+ 447:Drivers/lvgl/src/core/lv_event.c **** 
+ 351              		.loc 1 447 13 is_stmt 1 view .LVU103
+ 447:Drivers/lvgl/src/core/lv_event.c **** 
+ 352              		.loc 1 447 22 is_stmt 0 view .LVU104
+ 353 0034 2368     		ldr	r3, [r4]
+ 447:Drivers/lvgl/src/core/lv_event.c **** 
+ 354              		.loc 1 447 13 view .LVU105
+ 355 0036 3046     		mov	r0, r6
+ 356              	.LVL33:
+ 447:Drivers/lvgl/src/core/lv_event.c **** 
+ 357              		.loc 1 447 13 view .LVU106
+ 358 0038 9847     		blx	r3
+ 359              	.LVL34:
+ 449:Drivers/lvgl/src/core/lv_event.c ****             /*Stop if the object is deleted*/
+ 360              		.loc 1 449 13 is_stmt 1 view .LVU107
+ 449:Drivers/lvgl/src/core/lv_event.c ****             /*Stop if the object is deleted*/
+ 361              		.loc 1 449 16 is_stmt 0 view .LVU108
+ 362 003a 337E     		ldrb	r3, [r6, #24]	@ zero_extendqisi2
+ 449:Drivers/lvgl/src/core/lv_event.c ****             /*Stop if the object is deleted*/
+ 363              		.loc 1 449 15 view .LVU109
+ 364 003c 13F00207 		ands	r7, r3, #2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 18
+
+
+ 365 0040 63D1     		bne	.L43
+ 451:Drivers/lvgl/src/core/lv_event.c ****         }
+ 366              		.loc 1 451 13 is_stmt 1 view .LVU110
+ 451:Drivers/lvgl/src/core/lv_event.c ****         }
+ 367              		.loc 1 451 15 is_stmt 0 view .LVU111
+ 368 0042 13F0010F 		tst	r3, #1
+ 369 0046 48D1     		bne	.L31
+ 370              	.L33:
+ 454:Drivers/lvgl/src/core/lv_event.c ****         event_dsc = lv_obj_get_event_dsc(e->current_target, i);
+ 371              		.loc 1 454 9 is_stmt 1 view .LVU112
+ 454:Drivers/lvgl/src/core/lv_event.c ****         event_dsc = lv_obj_get_event_dsc(e->current_target, i);
+ 372              		.loc 1 454 10 is_stmt 0 view .LVU113
+ 373 0048 0135     		adds	r5, r5, #1
+ 374              	.LVL35:
+ 455:Drivers/lvgl/src/core/lv_event.c ****     }
+ 375              		.loc 1 455 9 is_stmt 1 view .LVU114
+ 455:Drivers/lvgl/src/core/lv_event.c ****     }
+ 376              		.loc 1 455 21 is_stmt 0 view .LVU115
+ 377 004a 2946     		mov	r1, r5
+ 378 004c 7068     		ldr	r0, [r6, #4]
+ 379 004e FFF7FEFF 		bl	lv_obj_get_event_dsc
+ 380              	.LVL36:
+ 381 0052 0446     		mov	r4, r0
+ 382              	.LVL37:
+ 383              	.L32:
+ 442:Drivers/lvgl/src/core/lv_event.c ****         if(event_dsc->cb  && ((event_dsc->filter & LV_EVENT_PREPROCESS) == LV_EVENT_PREPROCESS)
+ 384              		.loc 1 442 21 is_stmt 1 view .LVU116
+ 385 0054 7CB1     		cbz	r4, .L47
+ 443:Drivers/lvgl/src/core/lv_event.c ****            && (event_dsc->filter == (LV_EVENT_ALL | LV_EVENT_PREPROCESS) ||
+ 386              		.loc 1 443 9 view .LVU117
+ 443:Drivers/lvgl/src/core/lv_event.c ****            && (event_dsc->filter == (LV_EVENT_ALL | LV_EVENT_PREPROCESS) ||
+ 387              		.loc 1 443 21 is_stmt 0 view .LVU118
+ 388 0056 2368     		ldr	r3, [r4]
+ 443:Drivers/lvgl/src/core/lv_event.c ****            && (event_dsc->filter == (LV_EVENT_ALL | LV_EVENT_PREPROCESS) ||
+ 389              		.loc 1 443 11 view .LVU119
+ 390 0058 002B     		cmp	r3, #0
+ 391 005a F5D0     		beq	.L33
+ 443:Drivers/lvgl/src/core/lv_event.c ****            && (event_dsc->filter == (LV_EVENT_ALL | LV_EVENT_PREPROCESS) ||
+ 392              		.loc 1 443 41 discriminator 1 view .LVU120
+ 393 005c 237A     		ldrb	r3, [r4, #8]	@ zero_extendqisi2
+ 443:Drivers/lvgl/src/core/lv_event.c ****            && (event_dsc->filter == (LV_EVENT_ALL | LV_EVENT_PREPROCESS) ||
+ 394              		.loc 1 443 73 discriminator 1 view .LVU121
+ 395 005e 94F90820 		ldrsb	r2, [r4, #8]
+ 443:Drivers/lvgl/src/core/lv_event.c ****            && (event_dsc->filter == (LV_EVENT_ALL | LV_EVENT_PREPROCESS) ||
+ 396              		.loc 1 443 27 discriminator 1 view .LVU122
+ 397 0062 002A     		cmp	r2, #0
+ 398 0064 F0DA     		bge	.L33
+ 444:Drivers/lvgl/src/core/lv_event.c ****                (event_dsc->filter & ~LV_EVENT_PREPROCESS) == e->code)) {
+ 399              		.loc 1 444 12 view .LVU123
+ 400 0066 802B     		cmp	r3, #128
+ 401 0068 E2D0     		beq	.L34
+ 445:Drivers/lvgl/src/core/lv_event.c ****             e->user_data = event_dsc->user_data;
+ 402              		.loc 1 445 35 view .LVU124
+ 403 006a 23F08003 		bic	r3, r3, #128
+ 445:Drivers/lvgl/src/core/lv_event.c ****             e->user_data = event_dsc->user_data;
+ 404              		.loc 1 445 63 view .LVU125
+ 405 006e 327A     		ldrb	r2, [r6, #8]	@ zero_extendqisi2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 19
+
+
+ 444:Drivers/lvgl/src/core/lv_event.c ****                (event_dsc->filter & ~LV_EVENT_PREPROCESS) == e->code)) {
+ 406              		.loc 1 444 74 discriminator 1 view .LVU126
+ 407 0070 9342     		cmp	r3, r2
+ 408 0072 E9D1     		bne	.L33
+ 409 0074 DCE7     		b	.L34
+ 410              	.L47:
+ 458:Drivers/lvgl/src/core/lv_event.c **** 
+ 411              		.loc 1 458 5 is_stmt 1 view .LVU127
+ 458:Drivers/lvgl/src/core/lv_event.c **** 
+ 412              		.loc 1 458 11 is_stmt 0 view .LVU128
+ 413 0076 3146     		mov	r1, r6
+ 414 0078 0020     		movs	r0, #0
+ 415              	.LVL38:
+ 458:Drivers/lvgl/src/core/lv_event.c **** 
+ 416              		.loc 1 458 11 view .LVU129
+ 417 007a FFF7FEFF 		bl	lv_obj_event_base
+ 418              	.LVL39:
+ 460:Drivers/lvgl/src/core/lv_event.c **** 
+ 419              		.loc 1 460 5 is_stmt 1 view .LVU130
+ 460:Drivers/lvgl/src/core/lv_event.c **** 
+ 420              		.loc 1 460 42 is_stmt 0 view .LVU131
+ 421 007e 0746     		mov	r7, r0
+ 422 0080 20B1     		cbz	r0, .L36
+ 460:Drivers/lvgl/src/core/lv_event.c **** 
+ 423              		.loc 1 460 44 discriminator 1 view .LVU132
+ 424 0082 0021     		movs	r1, #0
+ 425 0084 7068     		ldr	r0, [r6, #4]
+ 426              	.LVL40:
+ 460:Drivers/lvgl/src/core/lv_event.c **** 
+ 427              		.loc 1 460 44 discriminator 1 view .LVU133
+ 428 0086 FFF7FEFF 		bl	lv_obj_get_event_dsc
+ 429              	.LVL41:
+ 430 008a 0446     		mov	r4, r0
+ 431              	.LVL42:
+ 432              	.L36:
+ 441:Drivers/lvgl/src/core/lv_event.c ****     while(event_dsc && res == LV_RES_OK) {
+ 433              		.loc 1 441 14 view .LVU134
+ 434 008c 0025     		movs	r5, #0
+ 435              	.LVL43:
+ 441:Drivers/lvgl/src/core/lv_event.c ****     while(event_dsc && res == LV_RES_OK) {
+ 436              		.loc 1 441 14 view .LVU135
+ 437 008e 11E0     		b	.L37
+ 438              	.LVL44:
+ 439              	.L39:
+ 466:Drivers/lvgl/src/core/lv_event.c ****             event_dsc->cb(e);
+ 440              		.loc 1 466 13 is_stmt 1 view .LVU136
+ 466:Drivers/lvgl/src/core/lv_event.c ****             event_dsc->cb(e);
+ 441              		.loc 1 466 37 is_stmt 0 view .LVU137
+ 442 0090 6368     		ldr	r3, [r4, #4]
+ 466:Drivers/lvgl/src/core/lv_event.c ****             event_dsc->cb(e);
+ 443              		.loc 1 466 26 view .LVU138
+ 444 0092 F360     		str	r3, [r6, #12]
+ 467:Drivers/lvgl/src/core/lv_event.c **** 
+ 445              		.loc 1 467 13 is_stmt 1 view .LVU139
+ 467:Drivers/lvgl/src/core/lv_event.c **** 
+ 446              		.loc 1 467 22 is_stmt 0 view .LVU140
+ 447 0094 2368     		ldr	r3, [r4]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 20
+
+
+ 467:Drivers/lvgl/src/core/lv_event.c **** 
+ 448              		.loc 1 467 13 view .LVU141
+ 449 0096 3046     		mov	r0, r6
+ 450 0098 9847     		blx	r3
+ 451              	.LVL45:
+ 469:Drivers/lvgl/src/core/lv_event.c ****             /*Stop if the object is deleted*/
+ 452              		.loc 1 469 13 is_stmt 1 view .LVU142
+ 469:Drivers/lvgl/src/core/lv_event.c ****             /*Stop if the object is deleted*/
+ 453              		.loc 1 469 16 is_stmt 0 view .LVU143
+ 454 009a 337E     		ldrb	r3, [r6, #24]	@ zero_extendqisi2
+ 469:Drivers/lvgl/src/core/lv_event.c ****             /*Stop if the object is deleted*/
+ 455              		.loc 1 469 15 view .LVU144
+ 456 009c 13F00202 		ands	r2, r3, #2
+ 457 00a0 1BD1     		bne	.L31
+ 471:Drivers/lvgl/src/core/lv_event.c ****         }
+ 458              		.loc 1 471 13 is_stmt 1 view .LVU145
+ 471:Drivers/lvgl/src/core/lv_event.c ****         }
+ 459              		.loc 1 471 15 is_stmt 0 view .LVU146
+ 460 00a2 13F0010F 		tst	r3, #1
+ 461 00a6 32D1     		bne	.L44
+ 462              	.L38:
+ 474:Drivers/lvgl/src/core/lv_event.c ****         event_dsc = lv_obj_get_event_dsc(e->current_target, i);
+ 463              		.loc 1 474 9 is_stmt 1 view .LVU147
+ 474:Drivers/lvgl/src/core/lv_event.c ****         event_dsc = lv_obj_get_event_dsc(e->current_target, i);
+ 464              		.loc 1 474 10 is_stmt 0 view .LVU148
+ 465 00a8 0135     		adds	r5, r5, #1
+ 466              	.LVL46:
+ 475:Drivers/lvgl/src/core/lv_event.c ****     }
+ 467              		.loc 1 475 9 is_stmt 1 view .LVU149
+ 475:Drivers/lvgl/src/core/lv_event.c ****     }
+ 468              		.loc 1 475 21 is_stmt 0 view .LVU150
+ 469 00aa 2946     		mov	r1, r5
+ 470 00ac 7068     		ldr	r0, [r6, #4]
+ 471 00ae FFF7FEFF 		bl	lv_obj_get_event_dsc
+ 472              	.LVL47:
+ 473 00b2 0446     		mov	r4, r0
+ 474              	.LVL48:
+ 475              	.L37:
+ 463:Drivers/lvgl/src/core/lv_event.c ****         if(event_dsc->cb && ((event_dsc->filter & LV_EVENT_PREPROCESS) == 0)
+ 476              		.loc 1 463 21 is_stmt 1 view .LVU151
+ 477 00b4 7CB1     		cbz	r4, .L40
+ 463:Drivers/lvgl/src/core/lv_event.c ****         if(event_dsc->cb && ((event_dsc->filter & LV_EVENT_PREPROCESS) == 0)
+ 478              		.loc 1 463 21 is_stmt 0 discriminator 1 view .LVU152
+ 479 00b6 012F     		cmp	r7, #1
+ 480 00b8 0DD1     		bne	.L40
+ 464:Drivers/lvgl/src/core/lv_event.c ****            && (event_dsc->filter == LV_EVENT_ALL || event_dsc->filter == e->code)) {
+ 481              		.loc 1 464 9 is_stmt 1 view .LVU153
+ 464:Drivers/lvgl/src/core/lv_event.c ****            && (event_dsc->filter == LV_EVENT_ALL || event_dsc->filter == e->code)) {
+ 482              		.loc 1 464 21 is_stmt 0 view .LVU154
+ 483 00ba 2368     		ldr	r3, [r4]
+ 464:Drivers/lvgl/src/core/lv_event.c ****            && (event_dsc->filter == LV_EVENT_ALL || event_dsc->filter == e->code)) {
+ 484              		.loc 1 464 11 view .LVU155
+ 485 00bc 002B     		cmp	r3, #0
+ 486 00be F3D0     		beq	.L38
+ 464:Drivers/lvgl/src/core/lv_event.c ****            && (event_dsc->filter == LV_EVENT_ALL || event_dsc->filter == e->code)) {
+ 487              		.loc 1 464 40 discriminator 1 view .LVU156
+ 488 00c0 227A     		ldrb	r2, [r4, #8]	@ zero_extendqisi2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 21
+
+
+ 464:Drivers/lvgl/src/core/lv_event.c ****            && (event_dsc->filter == LV_EVENT_ALL || event_dsc->filter == e->code)) {
+ 489              		.loc 1 464 72 discriminator 1 view .LVU157
+ 490 00c2 94F90830 		ldrsb	r3, [r4, #8]
+ 464:Drivers/lvgl/src/core/lv_event.c ****            && (event_dsc->filter == LV_EVENT_ALL || event_dsc->filter == e->code)) {
+ 491              		.loc 1 464 26 discriminator 1 view .LVU158
+ 492 00c6 002B     		cmp	r3, #0
+ 493 00c8 EEDB     		blt	.L38
+ 465:Drivers/lvgl/src/core/lv_event.c ****             e->user_data = event_dsc->user_data;
+ 494              		.loc 1 465 12 view .LVU159
+ 495 00ca 002A     		cmp	r2, #0
+ 496 00cc E0D0     		beq	.L39
+ 465:Drivers/lvgl/src/core/lv_event.c ****             e->user_data = event_dsc->user_data;
+ 497              		.loc 1 465 75 discriminator 1 view .LVU160
+ 498 00ce 337A     		ldrb	r3, [r6, #8]	@ zero_extendqisi2
+ 465:Drivers/lvgl/src/core/lv_event.c ****             e->user_data = event_dsc->user_data;
+ 499              		.loc 1 465 50 discriminator 1 view .LVU161
+ 500 00d0 9A42     		cmp	r2, r3
+ 501 00d2 E9D1     		bne	.L38
+ 502 00d4 DCE7     		b	.L39
+ 503              	.L40:
+ 478:Drivers/lvgl/src/core/lv_event.c ****         e->current_target = e->current_target->parent;
+ 504              		.loc 1 478 5 is_stmt 1 view .LVU162
+ 478:Drivers/lvgl/src/core/lv_event.c ****         e->current_target = e->current_target->parent;
+ 505              		.loc 1 478 7 is_stmt 0 view .LVU163
+ 506 00d6 012F     		cmp	r7, #1
+ 507 00d8 01D0     		beq	.L48
+ 508              	.LVL49:
+ 509              	.L31:
+ 485:Drivers/lvgl/src/core/lv_event.c **** 
+ 510              		.loc 1 485 1 view .LVU164
+ 511 00da 3846     		mov	r0, r7
+ 512 00dc F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 513              	.LVL50:
+ 514              	.L48:
+ 478:Drivers/lvgl/src/core/lv_event.c ****         e->current_target = e->current_target->parent;
+ 515              		.loc 1 478 29 discriminator 1 view .LVU165
+ 516 00de 7368     		ldr	r3, [r6, #4]
+ 478:Drivers/lvgl/src/core/lv_event.c ****         e->current_target = e->current_target->parent;
+ 517              		.loc 1 478 45 discriminator 1 view .LVU166
+ 518 00e0 5B68     		ldr	r3, [r3, #4]
+ 478:Drivers/lvgl/src/core/lv_event.c ****         e->current_target = e->current_target->parent;
+ 519              		.loc 1 478 25 discriminator 1 view .LVU167
+ 520 00e2 002B     		cmp	r3, #0
+ 521 00e4 F9D0     		beq	.L31
+ 478:Drivers/lvgl/src/core/lv_event.c ****         e->current_target = e->current_target->parent;
+ 522              		.loc 1 478 57 discriminator 2 view .LVU168
+ 523 00e6 3046     		mov	r0, r6
+ 524 00e8 FFF7FEFF 		bl	event_is_bubbled
+ 525              	.LVL51:
+ 478:Drivers/lvgl/src/core/lv_event.c ****         e->current_target = e->current_target->parent;
+ 526              		.loc 1 478 54 discriminator 1 view .LVU169
+ 527 00ec 0028     		cmp	r0, #0
+ 528 00ee F4D0     		beq	.L31
+ 479:Drivers/lvgl/src/core/lv_event.c ****         res = event_send_core(e);
+ 529              		.loc 1 479 9 is_stmt 1 view .LVU170
+ 479:Drivers/lvgl/src/core/lv_event.c ****         res = event_send_core(e);
+ 530              		.loc 1 479 30 is_stmt 0 view .LVU171
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 22
+
+
+ 531 00f0 7368     		ldr	r3, [r6, #4]
+ 479:Drivers/lvgl/src/core/lv_event.c ****         res = event_send_core(e);
+ 532              		.loc 1 479 46 view .LVU172
+ 533 00f2 5B68     		ldr	r3, [r3, #4]
+ 479:Drivers/lvgl/src/core/lv_event.c ****         res = event_send_core(e);
+ 534              		.loc 1 479 27 view .LVU173
+ 535 00f4 7360     		str	r3, [r6, #4]
+ 480:Drivers/lvgl/src/core/lv_event.c ****         if(res != LV_RES_OK) return LV_RES_INV;
+ 536              		.loc 1 480 9 is_stmt 1 view .LVU174
+ 480:Drivers/lvgl/src/core/lv_event.c ****         if(res != LV_RES_OK) return LV_RES_INV;
+ 537              		.loc 1 480 15 is_stmt 0 view .LVU175
+ 538 00f6 3046     		mov	r0, r6
+ 539 00f8 FFF782FF 		bl	event_send_core
+ 540              	.LVL52:
+ 541 00fc 0746     		mov	r7, r0
+ 542              	.LVL53:
+ 481:Drivers/lvgl/src/core/lv_event.c ****     }
+ 543              		.loc 1 481 9 is_stmt 1 view .LVU176
+ 481:Drivers/lvgl/src/core/lv_event.c ****     }
+ 544              		.loc 1 481 11 is_stmt 0 view .LVU177
+ 545 00fe 0128     		cmp	r0, #1
+ 546 0100 EBD0     		beq	.L31
+ 481:Drivers/lvgl/src/core/lv_event.c ****     }
+ 547              		.loc 1 481 37 discriminator 1 view .LVU178
+ 548 0102 0027     		movs	r7, #0
+ 549 0104 E9E7     		b	.L31
+ 550              	.LVL54:
+ 551              	.L42:
+ 434:Drivers/lvgl/src/core/lv_event.c ****         if(e->deleted) return LV_RES_INV;
+ 552              		.loc 1 434 39 discriminator 1 view .LVU179
+ 553 0106 0127     		movs	r7, #1
+ 554 0108 E7E7     		b	.L31
+ 555              	.LVL55:
+ 556              	.L43:
+ 449:Drivers/lvgl/src/core/lv_event.c ****             /*Stop if the object is deleted*/
+ 557              		.loc 1 449 43 discriminator 1 view .LVU180
+ 558 010a 0127     		movs	r7, #1
+ 559 010c E5E7     		b	.L31
+ 560              	.LVL56:
+ 561              	.L44:
+ 471:Drivers/lvgl/src/core/lv_event.c ****         }
+ 562              		.loc 1 471 35 discriminator 1 view .LVU181
+ 563 010e 1746     		mov	r7, r2
+ 564              	.LVL57:
+ 471:Drivers/lvgl/src/core/lv_event.c ****         }
+ 565              		.loc 1 471 35 discriminator 1 view .LVU182
+ 566 0110 E3E7     		b	.L31
+ 567              		.cfi_endproc
+ 568              	.LFE189:
+ 570              		.section	.text.lv_event_send,"ax",%progbits
+ 571              		.align	1
+ 572              		.global	lv_event_send
+ 573              		.syntax unified
+ 574              		.thumb
+ 575              		.thumb_func
+ 577              	lv_event_send:
+ 578              	.LVL58:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 23
+
+
+ 579              	.LFB161:
+  53:Drivers/lvgl/src/core/lv_event.c ****     if(obj == NULL) return LV_RES_OK;
+ 580              		.loc 1 53 1 is_stmt 1 view -0
+ 581              		.cfi_startproc
+ 582              		@ args = 0, pretend = 0, frame = 32
+ 583              		@ frame_needed = 0, uses_anonymous_args = 0
+  54:Drivers/lvgl/src/core/lv_event.c **** 
+ 584              		.loc 1 54 5 view .LVU184
+  54:Drivers/lvgl/src/core/lv_event.c **** 
+ 585              		.loc 1 54 7 is_stmt 0 view .LVU185
+ 586 0000 18B3     		cbz	r0, .L51
+  53:Drivers/lvgl/src/core/lv_event.c ****     if(obj == NULL) return LV_RES_OK;
+ 587              		.loc 1 53 1 view .LVU186
+ 588 0002 10B5     		push	{r4, lr}
+ 589              		.cfi_def_cfa_offset 8
+ 590              		.cfi_offset 4, -8
+ 591              		.cfi_offset 14, -4
+ 592 0004 88B0     		sub	sp, sp, #32
+ 593              		.cfi_def_cfa_offset 40
+  56:Drivers/lvgl/src/core/lv_event.c **** 
+ 594              		.loc 1 56 5 is_stmt 1 view .LVU187
+  56:Drivers/lvgl/src/core/lv_event.c **** 
+ 595              		.loc 1 56 5 view .LVU188
+  56:Drivers/lvgl/src/core/lv_event.c **** 
+ 596              		.loc 1 56 5 view .LVU189
+  58:Drivers/lvgl/src/core/lv_event.c ****     e.target = obj;
+ 597              		.loc 1 58 5 view .LVU190
+  59:Drivers/lvgl/src/core/lv_event.c ****     e.current_target = obj;
+ 598              		.loc 1 59 5 view .LVU191
+  59:Drivers/lvgl/src/core/lv_event.c ****     e.current_target = obj;
+ 599              		.loc 1 59 14 is_stmt 0 view .LVU192
+ 600 0006 0190     		str	r0, [sp, #4]
+  60:Drivers/lvgl/src/core/lv_event.c ****     e.code = event_code;
+ 601              		.loc 1 60 5 is_stmt 1 view .LVU193
+  60:Drivers/lvgl/src/core/lv_event.c ****     e.code = event_code;
+ 602              		.loc 1 60 22 is_stmt 0 view .LVU194
+ 603 0008 0290     		str	r0, [sp, #8]
+  61:Drivers/lvgl/src/core/lv_event.c ****     e.user_data = NULL;
+ 604              		.loc 1 61 5 is_stmt 1 view .LVU195
+  61:Drivers/lvgl/src/core/lv_event.c ****     e.user_data = NULL;
+ 605              		.loc 1 61 12 is_stmt 0 view .LVU196
+ 606 000a 8DF80C10 		strb	r1, [sp, #12]
+  62:Drivers/lvgl/src/core/lv_event.c ****     e.param = param;
+ 607              		.loc 1 62 5 is_stmt 1 view .LVU197
+  62:Drivers/lvgl/src/core/lv_event.c ****     e.param = param;
+ 608              		.loc 1 62 17 is_stmt 0 view .LVU198
+ 609 000e 0023     		movs	r3, #0
+ 610 0010 0493     		str	r3, [sp, #16]
+  63:Drivers/lvgl/src/core/lv_event.c ****     e.deleted = 0;
+ 611              		.loc 1 63 5 is_stmt 1 view .LVU199
+  63:Drivers/lvgl/src/core/lv_event.c ****     e.deleted = 0;
+ 612              		.loc 1 63 13 is_stmt 0 view .LVU200
+ 613 0012 0592     		str	r2, [sp, #20]
+  64:Drivers/lvgl/src/core/lv_event.c ****     e.stop_bubbling = 0;
+ 614              		.loc 1 64 5 is_stmt 1 view .LVU201
+  64:Drivers/lvgl/src/core/lv_event.c ****     e.stop_bubbling = 0;
+ 615              		.loc 1 64 15 is_stmt 0 view .LVU202
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 24
+
+
+ 616 0014 9DF81C20 		ldrb	r2, [sp, #28]	@ zero_extendqisi2
+ 617              	.LVL59:
+  64:Drivers/lvgl/src/core/lv_event.c ****     e.stop_bubbling = 0;
+ 618              		.loc 1 64 15 view .LVU203
+ 619 0018 63F30002 		bfi	r2, r3, #0, #1
+ 620 001c 8DF81C20 		strb	r2, [sp, #28]
+  65:Drivers/lvgl/src/core/lv_event.c ****     e.stop_processing = 0;
+ 621              		.loc 1 65 5 is_stmt 1 view .LVU204
+  65:Drivers/lvgl/src/core/lv_event.c ****     e.stop_processing = 0;
+ 622              		.loc 1 65 21 is_stmt 0 view .LVU205
+ 623 0020 D2B2     		uxtb	r2, r2
+ 624 0022 63F38202 		bfi	r2, r3, #2, #1
+ 625 0026 8DF81C20 		strb	r2, [sp, #28]
+  66:Drivers/lvgl/src/core/lv_event.c **** 
+ 626              		.loc 1 66 5 is_stmt 1 view .LVU206
+  66:Drivers/lvgl/src/core/lv_event.c **** 
+ 627              		.loc 1 66 23 is_stmt 0 view .LVU207
+ 628 002a D2B2     		uxtb	r2, r2
+ 629 002c 63F34102 		bfi	r2, r3, #1, #1
+ 630 0030 8DF81C20 		strb	r2, [sp, #28]
+  71:Drivers/lvgl/src/core/lv_event.c ****     event_head = &e;
+ 631              		.loc 1 71 5 is_stmt 1 view .LVU208
+  71:Drivers/lvgl/src/core/lv_event.c ****     event_head = &e;
+ 632              		.loc 1 71 12 is_stmt 0 view .LVU209
+ 633 0034 064C     		ldr	r4, .L56
+ 634 0036 2368     		ldr	r3, [r4]
+ 635 0038 0693     		str	r3, [sp, #24]
+  72:Drivers/lvgl/src/core/lv_event.c **** 
+ 636              		.loc 1 72 5 is_stmt 1 view .LVU210
+  72:Drivers/lvgl/src/core/lv_event.c **** 
+ 637              		.loc 1 72 16 is_stmt 0 view .LVU211
+ 638 003a 01A8     		add	r0, sp, #4
+ 639              	.LVL60:
+  72:Drivers/lvgl/src/core/lv_event.c **** 
+ 640              		.loc 1 72 16 view .LVU212
+ 641 003c 2060     		str	r0, [r4]
+  75:Drivers/lvgl/src/core/lv_event.c **** 
+ 642              		.loc 1 75 5 is_stmt 1 view .LVU213
+  75:Drivers/lvgl/src/core/lv_event.c **** 
+ 643              		.loc 1 75 20 is_stmt 0 view .LVU214
+ 644 003e FFF7FEFF 		bl	event_send_core
+ 645              	.LVL61:
+  78:Drivers/lvgl/src/core/lv_event.c **** 
+ 646              		.loc 1 78 5 is_stmt 1 view .LVU215
+  78:Drivers/lvgl/src/core/lv_event.c **** 
+ 647              		.loc 1 78 19 is_stmt 0 view .LVU216
+ 648 0042 069B     		ldr	r3, [sp, #24]
+  78:Drivers/lvgl/src/core/lv_event.c **** 
+ 649              		.loc 1 78 16 view .LVU217
+ 650 0044 2360     		str	r3, [r4]
+  80:Drivers/lvgl/src/core/lv_event.c **** }
+ 651              		.loc 1 80 5 is_stmt 1 view .LVU218
+  81:Drivers/lvgl/src/core/lv_event.c **** 
+ 652              		.loc 1 81 1 is_stmt 0 view .LVU219
+ 653 0046 08B0     		add	sp, sp, #32
+ 654              		.cfi_def_cfa_offset 8
+ 655              		@ sp needed
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 25
+
+
+ 656 0048 10BD     		pop	{r4, pc}
+ 657              	.LVL62:
+ 658              	.L51:
+ 659              		.cfi_def_cfa_offset 0
+ 660              		.cfi_restore 4
+ 661              		.cfi_restore 14
+  54:Drivers/lvgl/src/core/lv_event.c **** 
+ 662              		.loc 1 54 28 discriminator 1 view .LVU220
+ 663 004a 0120     		movs	r0, #1
+ 664              	.LVL63:
+  81:Drivers/lvgl/src/core/lv_event.c **** 
+ 665              		.loc 1 81 1 view .LVU221
+ 666 004c 7047     		bx	lr
+ 667              	.L57:
+ 668 004e 00BF     		.align	2
+ 669              	.L56:
+ 670 0050 00000000 		.word	event_head
+ 671              		.cfi_endproc
+ 672              	.LFE161:
+ 674              		.section	.text.lv_event_get_target,"ax",%progbits
+ 675              		.align	1
+ 676              		.global	lv_event_get_target
+ 677              		.syntax unified
+ 678              		.thumb
+ 679              		.thumb_func
+ 681              	lv_event_get_target:
+ 682              	.LVL64:
+ 683              	.LFB163:
+ 109:Drivers/lvgl/src/core/lv_event.c ****     return e->target;
+ 684              		.loc 1 109 1 is_stmt 1 view -0
+ 685              		.cfi_startproc
+ 686              		@ args = 0, pretend = 0, frame = 0
+ 687              		@ frame_needed = 0, uses_anonymous_args = 0
+ 688              		@ link register save eliminated.
+ 110:Drivers/lvgl/src/core/lv_event.c **** }
+ 689              		.loc 1 110 5 view .LVU223
+ 111:Drivers/lvgl/src/core/lv_event.c **** 
+ 690              		.loc 1 111 1 is_stmt 0 view .LVU224
+ 691 0000 0068     		ldr	r0, [r0]
+ 692              	.LVL65:
+ 111:Drivers/lvgl/src/core/lv_event.c **** 
+ 693              		.loc 1 111 1 view .LVU225
+ 694 0002 7047     		bx	lr
+ 695              		.cfi_endproc
+ 696              	.LFE163:
+ 698              		.section	.text.lv_event_get_current_target,"ax",%progbits
+ 699              		.align	1
+ 700              		.global	lv_event_get_current_target
+ 701              		.syntax unified
+ 702              		.thumb
+ 703              		.thumb_func
+ 705              	lv_event_get_current_target:
+ 706              	.LVL66:
+ 707              	.LFB164:
+ 114:Drivers/lvgl/src/core/lv_event.c ****     return e->current_target;
+ 708              		.loc 1 114 1 is_stmt 1 view -0
+ 709              		.cfi_startproc
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 26
+
+
+ 710              		@ args = 0, pretend = 0, frame = 0
+ 711              		@ frame_needed = 0, uses_anonymous_args = 0
+ 712              		@ link register save eliminated.
+ 115:Drivers/lvgl/src/core/lv_event.c **** }
+ 713              		.loc 1 115 5 view .LVU227
+ 116:Drivers/lvgl/src/core/lv_event.c **** 
+ 714              		.loc 1 116 1 is_stmt 0 view .LVU228
+ 715 0000 4068     		ldr	r0, [r0, #4]
+ 716              	.LVL67:
+ 116:Drivers/lvgl/src/core/lv_event.c **** 
+ 717              		.loc 1 116 1 view .LVU229
+ 718 0002 7047     		bx	lr
+ 719              		.cfi_endproc
+ 720              	.LFE164:
+ 722              		.section	.text.lv_event_get_code,"ax",%progbits
+ 723              		.align	1
+ 724              		.global	lv_event_get_code
+ 725              		.syntax unified
+ 726              		.thumb
+ 727              		.thumb_func
+ 729              	lv_event_get_code:
+ 730              	.LVL68:
+ 731              	.LFB165:
+ 119:Drivers/lvgl/src/core/lv_event.c ****     return e->code & ~LV_EVENT_PREPROCESS;
+ 732              		.loc 1 119 1 is_stmt 1 view -0
+ 733              		.cfi_startproc
+ 734              		@ args = 0, pretend = 0, frame = 0
+ 735              		@ frame_needed = 0, uses_anonymous_args = 0
+ 736              		@ link register save eliminated.
+ 120:Drivers/lvgl/src/core/lv_event.c **** }
+ 737              		.loc 1 120 5 view .LVU231
+ 120:Drivers/lvgl/src/core/lv_event.c **** }
+ 738              		.loc 1 120 13 is_stmt 0 view .LVU232
+ 739 0000 007A     		ldrb	r0, [r0, #8]	@ zero_extendqisi2
+ 740              	.LVL69:
+ 121:Drivers/lvgl/src/core/lv_event.c **** 
+ 741              		.loc 1 121 1 view .LVU233
+ 742 0002 00F07F00 		and	r0, r0, #127
+ 743 0006 7047     		bx	lr
+ 744              		.cfi_endproc
+ 745              	.LFE165:
+ 747              		.section	.text.lv_event_get_param,"ax",%progbits
+ 748              		.align	1
+ 749              		.global	lv_event_get_param
+ 750              		.syntax unified
+ 751              		.thumb
+ 752              		.thumb_func
+ 754              	lv_event_get_param:
+ 755              	.LVL70:
+ 756              	.LFB166:
+ 124:Drivers/lvgl/src/core/lv_event.c ****     return e->param;
+ 757              		.loc 1 124 1 is_stmt 1 view -0
+ 758              		.cfi_startproc
+ 759              		@ args = 0, pretend = 0, frame = 0
+ 760              		@ frame_needed = 0, uses_anonymous_args = 0
+ 761              		@ link register save eliminated.
+ 125:Drivers/lvgl/src/core/lv_event.c **** }
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 27
+
+
+ 762              		.loc 1 125 5 view .LVU235
+ 126:Drivers/lvgl/src/core/lv_event.c **** 
+ 763              		.loc 1 126 1 is_stmt 0 view .LVU236
+ 764 0000 0069     		ldr	r0, [r0, #16]
+ 765              	.LVL71:
+ 126:Drivers/lvgl/src/core/lv_event.c **** 
+ 766              		.loc 1 126 1 view .LVU237
+ 767 0002 7047     		bx	lr
+ 768              		.cfi_endproc
+ 769              	.LFE166:
+ 771              		.section	.text.lv_event_get_user_data,"ax",%progbits
+ 772              		.align	1
+ 773              		.global	lv_event_get_user_data
+ 774              		.syntax unified
+ 775              		.thumb
+ 776              		.thumb_func
+ 778              	lv_event_get_user_data:
+ 779              	.LVL72:
+ 780              	.LFB167:
+ 129:Drivers/lvgl/src/core/lv_event.c ****     return e->user_data;
+ 781              		.loc 1 129 1 is_stmt 1 view -0
+ 782              		.cfi_startproc
+ 783              		@ args = 0, pretend = 0, frame = 0
+ 784              		@ frame_needed = 0, uses_anonymous_args = 0
+ 785              		@ link register save eliminated.
+ 130:Drivers/lvgl/src/core/lv_event.c **** }
+ 786              		.loc 1 130 5 view .LVU239
+ 131:Drivers/lvgl/src/core/lv_event.c **** 
+ 787              		.loc 1 131 1 is_stmt 0 view .LVU240
+ 788 0000 C068     		ldr	r0, [r0, #12]
+ 789              	.LVL73:
+ 131:Drivers/lvgl/src/core/lv_event.c **** 
+ 790              		.loc 1 131 1 view .LVU241
+ 791 0002 7047     		bx	lr
+ 792              		.cfi_endproc
+ 793              	.LFE167:
+ 795              		.section	.text.lv_event_stop_bubbling,"ax",%progbits
+ 796              		.align	1
+ 797              		.global	lv_event_stop_bubbling
+ 798              		.syntax unified
+ 799              		.thumb
+ 800              		.thumb_func
+ 802              	lv_event_stop_bubbling:
+ 803              	.LVL74:
+ 804              	.LFB168:
+ 134:Drivers/lvgl/src/core/lv_event.c ****     e->stop_bubbling = 1;
+ 805              		.loc 1 134 1 is_stmt 1 view -0
+ 806              		.cfi_startproc
+ 807              		@ args = 0, pretend = 0, frame = 0
+ 808              		@ frame_needed = 0, uses_anonymous_args = 0
+ 809              		@ link register save eliminated.
+ 135:Drivers/lvgl/src/core/lv_event.c **** }
+ 810              		.loc 1 135 5 view .LVU243
+ 135:Drivers/lvgl/src/core/lv_event.c **** }
+ 811              		.loc 1 135 22 is_stmt 0 view .LVU244
+ 812 0000 037E     		ldrb	r3, [r0, #24]	@ zero_extendqisi2
+ 813 0002 43F00403 		orr	r3, r3, #4
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 28
+
+
+ 814 0006 0376     		strb	r3, [r0, #24]
+ 136:Drivers/lvgl/src/core/lv_event.c **** 
+ 815              		.loc 1 136 1 view .LVU245
+ 816 0008 7047     		bx	lr
+ 817              		.cfi_endproc
+ 818              	.LFE168:
+ 820              		.section	.text.lv_event_stop_processing,"ax",%progbits
+ 821              		.align	1
+ 822              		.global	lv_event_stop_processing
+ 823              		.syntax unified
+ 824              		.thumb
+ 825              		.thumb_func
+ 827              	lv_event_stop_processing:
+ 828              	.LVL75:
+ 829              	.LFB169:
+ 139:Drivers/lvgl/src/core/lv_event.c ****     e->stop_processing = 1;
+ 830              		.loc 1 139 1 is_stmt 1 view -0
+ 831              		.cfi_startproc
+ 832              		@ args = 0, pretend = 0, frame = 0
+ 833              		@ frame_needed = 0, uses_anonymous_args = 0
+ 834              		@ link register save eliminated.
+ 140:Drivers/lvgl/src/core/lv_event.c **** }
+ 835              		.loc 1 140 5 view .LVU247
+ 140:Drivers/lvgl/src/core/lv_event.c **** }
+ 836              		.loc 1 140 24 is_stmt 0 view .LVU248
+ 837 0000 037E     		ldrb	r3, [r0, #24]	@ zero_extendqisi2
+ 838 0002 43F00203 		orr	r3, r3, #2
+ 839 0006 0376     		strb	r3, [r0, #24]
+ 141:Drivers/lvgl/src/core/lv_event.c **** 
+ 840              		.loc 1 141 1 view .LVU249
+ 841 0008 7047     		bx	lr
+ 842              		.cfi_endproc
+ 843              	.LFE169:
+ 845              		.section	.text.lv_event_register_id,"ax",%progbits
+ 846              		.align	1
+ 847              		.global	lv_event_register_id
+ 848              		.syntax unified
+ 849              		.thumb
+ 850              		.thumb_func
+ 852              	lv_event_register_id:
+ 853              	.LFB170:
+ 145:Drivers/lvgl/src/core/lv_event.c ****     static uint32_t last_id = _LV_EVENT_LAST;
+ 854              		.loc 1 145 1 is_stmt 1 view -0
+ 855              		.cfi_startproc
+ 856              		@ args = 0, pretend = 0, frame = 0
+ 857              		@ frame_needed = 0, uses_anonymous_args = 0
+ 858              		@ link register save eliminated.
+ 146:Drivers/lvgl/src/core/lv_event.c ****     last_id ++;
+ 859              		.loc 1 146 5 view .LVU251
+ 147:Drivers/lvgl/src/core/lv_event.c ****     return last_id;
+ 860              		.loc 1 147 5 view .LVU252
+ 147:Drivers/lvgl/src/core/lv_event.c ****     return last_id;
+ 861              		.loc 1 147 13 is_stmt 0 view .LVU253
+ 862 0000 024B     		ldr	r3, .L66
+ 863 0002 1868     		ldr	r0, [r3]
+ 864 0004 0130     		adds	r0, r0, #1
+ 865 0006 1860     		str	r0, [r3]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 29
+
+
+ 148:Drivers/lvgl/src/core/lv_event.c **** }
+ 866              		.loc 1 148 5 is_stmt 1 view .LVU254
+ 149:Drivers/lvgl/src/core/lv_event.c **** 
+ 867              		.loc 1 149 1 is_stmt 0 view .LVU255
+ 868 0008 7047     		bx	lr
+ 869              	.L67:
+ 870 000a 00BF     		.align	2
+ 871              	.L66:
+ 872 000c 00000000 		.word	last_id.0
+ 873              		.cfi_endproc
+ 874              	.LFE170:
+ 876              		.section	.text._lv_event_mark_deleted,"ax",%progbits
+ 877              		.align	1
+ 878              		.global	_lv_event_mark_deleted
+ 879              		.syntax unified
+ 880              		.thumb
+ 881              		.thumb_func
+ 883              	_lv_event_mark_deleted:
+ 884              	.LVL76:
+ 885              	.LFB171:
+ 152:Drivers/lvgl/src/core/lv_event.c ****     lv_event_t * e = event_head;
+ 886              		.loc 1 152 1 is_stmt 1 view -0
+ 887              		.cfi_startproc
+ 888              		@ args = 0, pretend = 0, frame = 0
+ 889              		@ frame_needed = 0, uses_anonymous_args = 0
+ 890              		@ link register save eliminated.
+ 153:Drivers/lvgl/src/core/lv_event.c **** 
+ 891              		.loc 1 153 5 view .LVU257
+ 153:Drivers/lvgl/src/core/lv_event.c **** 
+ 892              		.loc 1 153 18 is_stmt 0 view .LVU258
+ 893 0000 084B     		ldr	r3, .L74
+ 894 0002 1B68     		ldr	r3, [r3]
+ 895              	.LVL77:
+ 155:Drivers/lvgl/src/core/lv_event.c ****         if(e->current_target == obj || e->target == obj) e->deleted = 1;
+ 896              		.loc 1 155 5 is_stmt 1 view .LVU259
+ 155:Drivers/lvgl/src/core/lv_event.c ****         if(e->current_target == obj || e->target == obj) e->deleted = 1;
+ 897              		.loc 1 155 10 is_stmt 0 view .LVU260
+ 898 0004 04E0     		b	.L69
+ 899              	.L70:
+ 156:Drivers/lvgl/src/core/lv_event.c ****         e = e->prev;
+ 900              		.loc 1 156 58 is_stmt 1 discriminator 3 view .LVU261
+ 156:Drivers/lvgl/src/core/lv_event.c ****         e = e->prev;
+ 901              		.loc 1 156 69 is_stmt 0 discriminator 3 view .LVU262
+ 902 0006 1A7E     		ldrb	r2, [r3, #24]	@ zero_extendqisi2
+ 903 0008 42F00102 		orr	r2, r2, #1
+ 904 000c 1A76     		strb	r2, [r3, #24]
+ 905              	.L71:
+ 157:Drivers/lvgl/src/core/lv_event.c ****     }
+ 906              		.loc 1 157 9 is_stmt 1 view .LVU263
+ 157:Drivers/lvgl/src/core/lv_event.c ****     }
+ 907              		.loc 1 157 11 is_stmt 0 view .LVU264
+ 908 000e 5B69     		ldr	r3, [r3, #20]
+ 909              	.LVL78:
+ 910              	.L69:
+ 155:Drivers/lvgl/src/core/lv_event.c ****         if(e->current_target == obj || e->target == obj) e->deleted = 1;
+ 911              		.loc 1 155 11 is_stmt 1 view .LVU265
+ 912 0010 33B1     		cbz	r3, .L73
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 30
+
+
+ 156:Drivers/lvgl/src/core/lv_event.c ****         e = e->prev;
+ 913              		.loc 1 156 9 view .LVU266
+ 156:Drivers/lvgl/src/core/lv_event.c ****         e = e->prev;
+ 914              		.loc 1 156 13 is_stmt 0 view .LVU267
+ 915 0012 5A68     		ldr	r2, [r3, #4]
+ 156:Drivers/lvgl/src/core/lv_event.c ****         e = e->prev;
+ 916              		.loc 1 156 11 view .LVU268
+ 917 0014 8242     		cmp	r2, r0
+ 918 0016 F6D0     		beq	.L70
+ 156:Drivers/lvgl/src/core/lv_event.c ****         e = e->prev;
+ 919              		.loc 1 156 41 discriminator 2 view .LVU269
+ 920 0018 1A68     		ldr	r2, [r3]
+ 156:Drivers/lvgl/src/core/lv_event.c ****         e = e->prev;
+ 921              		.loc 1 156 37 discriminator 2 view .LVU270
+ 922 001a 8242     		cmp	r2, r0
+ 923 001c F7D1     		bne	.L71
+ 924 001e F2E7     		b	.L70
+ 925              	.L73:
+ 159:Drivers/lvgl/src/core/lv_event.c **** 
+ 926              		.loc 1 159 1 view .LVU271
+ 927 0020 7047     		bx	lr
+ 928              	.L75:
+ 929 0022 00BF     		.align	2
+ 930              	.L74:
+ 931 0024 00000000 		.word	event_head
+ 932              		.cfi_endproc
+ 933              	.LFE171:
+ 935              		.section	.text.lv_obj_add_event_cb,"ax",%progbits
+ 936              		.align	1
+ 937              		.global	lv_obj_add_event_cb
+ 938              		.syntax unified
+ 939              		.thumb
+ 940              		.thumb_func
+ 942              	lv_obj_add_event_cb:
+ 943              	.LVL79:
+ 944              	.LFB172:
+ 164:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 945              		.loc 1 164 1 is_stmt 1 view -0
+ 946              		.cfi_startproc
+ 947              		@ args = 0, pretend = 0, frame = 0
+ 948              		@ frame_needed = 0, uses_anonymous_args = 0
+ 164:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 949              		.loc 1 164 1 is_stmt 0 view .LVU273
+ 950 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 951              		.cfi_def_cfa_offset 24
+ 952              		.cfi_offset 4, -24
+ 953              		.cfi_offset 5, -20
+ 954              		.cfi_offset 6, -16
+ 955              		.cfi_offset 7, -12
+ 956              		.cfi_offset 8, -8
+ 957              		.cfi_offset 14, -4
+ 958 0004 0446     		mov	r4, r0
+ 959 0006 0F46     		mov	r7, r1
+ 960 0008 1646     		mov	r6, r2
+ 961 000a 1D46     		mov	r5, r3
+ 165:Drivers/lvgl/src/core/lv_event.c ****     lv_obj_allocate_spec_attr(obj);
+ 962              		.loc 1 165 5 is_stmt 1 view .LVU274
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 31
+
+
+ 165:Drivers/lvgl/src/core/lv_event.c ****     lv_obj_allocate_spec_attr(obj);
+ 963              		.loc 1 165 5 view .LVU275
+ 165:Drivers/lvgl/src/core/lv_event.c ****     lv_obj_allocate_spec_attr(obj);
+ 964              		.loc 1 165 5 view .LVU276
+ 166:Drivers/lvgl/src/core/lv_event.c **** 
+ 965              		.loc 1 166 5 view .LVU277
+ 966 000c FFF7FEFF 		bl	lv_obj_allocate_spec_attr
+ 967              	.LVL80:
+ 168:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 968              		.loc 1 168 5 view .LVU278
+ 168:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 969              		.loc 1 168 8 is_stmt 0 view .LVU279
+ 970 0010 A168     		ldr	r1, [r4, #8]
+ 168:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 971              		.loc 1 168 19 view .LVU280
+ 972 0012 8B7E     		ldrb	r3, [r1, #26]	@ zero_extendqisi2
+ 973 0014 03F03F02 		and	r2, r3, #63
+ 168:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 974              		.loc 1 168 34 view .LVU281
+ 975 0018 0132     		adds	r2, r2, #1
+ 976 001a 62F30503 		bfi	r3, r2, #0, #6
+ 977 001e 8B76     		strb	r3, [r1, #26]
+ 169:Drivers/lvgl/src/core/lv_event.c ****                                                obj->spec_attr->event_dsc_cnt * sizeof(lv_event_dsc_
+ 978              		.loc 1 169 5 is_stmt 1 view .LVU282
+ 169:Drivers/lvgl/src/core/lv_event.c ****                                                obj->spec_attr->event_dsc_cnt * sizeof(lv_event_dsc_
+ 979              		.loc 1 169 51 is_stmt 0 view .LVU283
+ 980 0020 D4F80880 		ldr	r8, [r4, #8]
+ 170:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_MALLOC(obj->spec_attr->event_dsc);
+ 981              		.loc 1 170 62 view .LVU284
+ 982 0024 98F81A10 		ldrb	r1, [r8, #26]	@ zero_extendqisi2
+ 983 0028 01F03F01 		and	r1, r1, #63
+ 169:Drivers/lvgl/src/core/lv_event.c ****                                                obj->spec_attr->event_dsc_cnt * sizeof(lv_event_dsc_
+ 984              		.loc 1 169 33 view .LVU285
+ 985 002c 01EB4101 		add	r1, r1, r1, lsl #1
+ 986 0030 8900     		lsls	r1, r1, #2
+ 987 0032 D8F80C00 		ldr	r0, [r8, #12]
+ 988 0036 FFF7FEFF 		bl	lv_mem_realloc
+ 989              	.LVL81:
+ 169:Drivers/lvgl/src/core/lv_event.c ****                                                obj->spec_attr->event_dsc_cnt * sizeof(lv_event_dsc_
+ 990              		.loc 1 169 31 discriminator 1 view .LVU286
+ 991 003a C8F80C00 		str	r0, [r8, #12]
+ 171:Drivers/lvgl/src/core/lv_event.c **** 
+ 992              		.loc 1 171 5 is_stmt 1 view .LVU287
+ 171:Drivers/lvgl/src/core/lv_event.c **** 
+ 993              		.loc 1 171 5 view .LVU288
+ 994 003e A368     		ldr	r3, [r4, #8]
+ 995 0040 DA68     		ldr	r2, [r3, #12]
+ 996 0042 4AB3     		cbz	r2, .L78
+ 171:Drivers/lvgl/src/core/lv_event.c **** 
+ 997              		.loc 1 171 5 discriminator 2 view .LVU289
+ 171:Drivers/lvgl/src/core/lv_event.c **** 
+ 998              		.loc 1 171 48 discriminator 2 view .LVU290
+ 173:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc[obj->spec_attr->event_dsc_cnt - 1].filter = filter;
+ 999              		.loc 1 173 5 view .LVU291
+ 173:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc[obj->spec_attr->event_dsc_cnt - 1].filter = filter;
+ 1000              		.loc 1 173 45 is_stmt 0 view .LVU292
+ 1001 0044 9B7E     		ldrb	r3, [r3, #26]	@ zero_extendqisi2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 32
+
+
+ 1002 0046 03F03F03 		and	r3, r3, #63
+ 173:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc[obj->spec_attr->event_dsc_cnt - 1].filter = filter;
+ 1003              		.loc 1 173 30 view .LVU293
+ 1004 004a 03EB4303 		add	r3, r3, r3, lsl #1
+ 1005 004e 9B00     		lsls	r3, r3, #2
+ 1006 0050 0C3B     		subs	r3, r3, #12
+ 173:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc[obj->spec_attr->event_dsc_cnt - 1].filter = filter;
+ 1007              		.loc 1 173 69 view .LVU294
+ 1008 0052 D750     		str	r7, [r2, r3]
+ 174:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc[obj->spec_attr->event_dsc_cnt - 1].user_data = user_data;
+ 1009              		.loc 1 174 5 is_stmt 1 view .LVU295
+ 174:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc[obj->spec_attr->event_dsc_cnt - 1].user_data = user_data;
+ 1010              		.loc 1 174 8 is_stmt 0 view .LVU296
+ 1011 0054 A368     		ldr	r3, [r4, #8]
+ 174:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc[obj->spec_attr->event_dsc_cnt - 1].user_data = user_data;
+ 1012              		.loc 1 174 19 view .LVU297
+ 1013 0056 DA68     		ldr	r2, [r3, #12]
+ 174:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc[obj->spec_attr->event_dsc_cnt - 1].user_data = user_data;
+ 1014              		.loc 1 174 45 view .LVU298
+ 1015 0058 997E     		ldrb	r1, [r3, #26]	@ zero_extendqisi2
+ 1016 005a 01F03F01 		and	r1, r1, #63
+ 174:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc[obj->spec_attr->event_dsc_cnt - 1].user_data = user_data;
+ 1017              		.loc 1 174 30 view .LVU299
+ 1018 005e 01EB4103 		add	r3, r1, r1, lsl #1
+ 1019 0062 9B00     		lsls	r3, r3, #2
+ 1020 0064 0C3B     		subs	r3, r3, #12
+ 1021 0066 1344     		add	r3, r3, r2
+ 174:Drivers/lvgl/src/core/lv_event.c ****     obj->spec_attr->event_dsc[obj->spec_attr->event_dsc_cnt - 1].user_data = user_data;
+ 1022              		.loc 1 174 73 view .LVU300
+ 1023 0068 1E72     		strb	r6, [r3, #8]
+ 175:Drivers/lvgl/src/core/lv_event.c **** 
+ 1024              		.loc 1 175 5 is_stmt 1 view .LVU301
+ 175:Drivers/lvgl/src/core/lv_event.c **** 
+ 1025              		.loc 1 175 8 is_stmt 0 view .LVU302
+ 1026 006a A268     		ldr	r2, [r4, #8]
+ 175:Drivers/lvgl/src/core/lv_event.c **** 
+ 1027              		.loc 1 175 19 view .LVU303
+ 1028 006c D368     		ldr	r3, [r2, #12]
+ 175:Drivers/lvgl/src/core/lv_event.c **** 
+ 1029              		.loc 1 175 45 view .LVU304
+ 1030 006e 927E     		ldrb	r2, [r2, #26]	@ zero_extendqisi2
+ 1031 0070 02F03F02 		and	r2, r2, #63
+ 175:Drivers/lvgl/src/core/lv_event.c **** 
+ 1032              		.loc 1 175 30 view .LVU305
+ 1033 0074 02EB4202 		add	r2, r2, r2, lsl #1
+ 1034 0078 9200     		lsls	r2, r2, #2
+ 1035 007a 0C3A     		subs	r2, r2, #12
+ 1036 007c 1344     		add	r3, r3, r2
+ 175:Drivers/lvgl/src/core/lv_event.c **** 
+ 1037              		.loc 1 175 76 view .LVU306
+ 1038 007e 5D60     		str	r5, [r3, #4]
+ 177:Drivers/lvgl/src/core/lv_event.c **** }
+ 1039              		.loc 1 177 5 is_stmt 1 view .LVU307
+ 177:Drivers/lvgl/src/core/lv_event.c **** }
+ 1040              		.loc 1 177 16 is_stmt 0 view .LVU308
+ 1041 0080 A368     		ldr	r3, [r4, #8]
+ 177:Drivers/lvgl/src/core/lv_event.c **** }
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 33
+
+
+ 1042              		.loc 1 177 27 view .LVU309
+ 1043 0082 D868     		ldr	r0, [r3, #12]
+ 177:Drivers/lvgl/src/core/lv_event.c **** }
+ 1044              		.loc 1 177 53 view .LVU310
+ 1045 0084 9B7E     		ldrb	r3, [r3, #26]	@ zero_extendqisi2
+ 1046 0086 03F03F03 		and	r3, r3, #63
+ 177:Drivers/lvgl/src/core/lv_event.c **** }
+ 1047              		.loc 1 177 38 view .LVU311
+ 1048 008a 03EB4303 		add	r3, r3, r3, lsl #1
+ 1049 008e 9B00     		lsls	r3, r3, #2
+ 1050 0090 0C3B     		subs	r3, r3, #12
+ 178:Drivers/lvgl/src/core/lv_event.c **** 
+ 1051              		.loc 1 178 1 view .LVU312
+ 1052 0092 1844     		add	r0, r0, r3
+ 1053 0094 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 1054              	.LVL82:
+ 1055              	.L78:
+ 171:Drivers/lvgl/src/core/lv_event.c **** 
+ 1056              		.loc 1 171 5 is_stmt 1 discriminator 1 view .LVU313
+ 171:Drivers/lvgl/src/core/lv_event.c **** 
+ 1057              		.loc 1 171 5 discriminator 1 view .LVU314
+ 171:Drivers/lvgl/src/core/lv_event.c **** 
+ 1058              		.loc 1 171 5 discriminator 1 view .LVU315
+ 171:Drivers/lvgl/src/core/lv_event.c **** 
+ 1059              		.loc 1 171 5 discriminator 1 view .LVU316
+ 171:Drivers/lvgl/src/core/lv_event.c **** 
+ 1060              		.loc 1 171 5 discriminator 1 view .LVU317
+ 1061 0098 FEE7     		b	.L78
+ 1062              		.cfi_endproc
+ 1063              	.LFE172:
+ 1065              		.section	.text.lv_obj_remove_event_cb,"ax",%progbits
+ 1066              		.align	1
+ 1067              		.global	lv_obj_remove_event_cb
+ 1068              		.syntax unified
+ 1069              		.thumb
+ 1070              		.thumb_func
+ 1072              	lv_obj_remove_event_cb:
+ 1073              	.LVL83:
+ 1074              	.LFB173:
+ 181:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 1075              		.loc 1 181 1 view -0
+ 1076              		.cfi_startproc
+ 1077              		@ args = 0, pretend = 0, frame = 0
+ 1078              		@ frame_needed = 0, uses_anonymous_args = 0
+ 181:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 1079              		.loc 1 181 1 is_stmt 0 view .LVU319
+ 1080 0000 38B5     		push	{r3, r4, r5, lr}
+ 1081              		.cfi_def_cfa_offset 16
+ 1082              		.cfi_offset 3, -16
+ 1083              		.cfi_offset 4, -12
+ 1084              		.cfi_offset 5, -8
+ 1085              		.cfi_offset 14, -4
+ 1086 0002 0446     		mov	r4, r0
+ 182:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return false;
+ 1087              		.loc 1 182 5 is_stmt 1 view .LVU320
+ 182:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return false;
+ 1088              		.loc 1 182 5 view .LVU321
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 34
+
+
+ 182:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return false;
+ 1089              		.loc 1 182 5 view .LVU322
+ 183:Drivers/lvgl/src/core/lv_event.c **** 
+ 1090              		.loc 1 183 5 view .LVU323
+ 183:Drivers/lvgl/src/core/lv_event.c **** 
+ 1091              		.loc 1 183 11 is_stmt 0 view .LVU324
+ 1092 0004 8068     		ldr	r0, [r0, #8]
+ 1093              	.LVL84:
+ 183:Drivers/lvgl/src/core/lv_event.c **** 
+ 1094              		.loc 1 183 7 view .LVU325
+ 1095 0006 0028     		cmp	r0, #0
+ 1096 0008 3DD0     		beq	.L89
+ 186:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == NULL || obj->spec_attr->event_dsc[i].cb == event_cb) {
+ 1097              		.loc 1 186 11 view .LVU326
+ 1098 000a 0023     		movs	r3, #0
+ 1099              	.L82:
+ 1100              	.LVL85:
+ 186:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == NULL || obj->spec_attr->event_dsc[i].cb == event_cb) {
+ 1101              		.loc 1 186 18 is_stmt 1 discriminator 1 view .LVU327
+ 186:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == NULL || obj->spec_attr->event_dsc[i].cb == event_cb) {
+ 1102              		.loc 1 186 34 is_stmt 0 discriminator 1 view .LVU328
+ 1103 000c 827E     		ldrb	r2, [r0, #26]	@ zero_extendqisi2
+ 1104 000e 02F03F02 		and	r2, r2, #63
+ 186:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == NULL || obj->spec_attr->event_dsc[i].cb == event_cb) {
+ 1105              		.loc 1 186 18 discriminator 1 view .LVU329
+ 1106 0012 9A42     		cmp	r2, r3
+ 1107 0014 35DD     		ble	.L93
+ 187:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 1108              		.loc 1 187 9 is_stmt 1 view .LVU330
+ 187:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 1109              		.loc 1 187 11 is_stmt 0 view .LVU331
+ 1110 0016 B9B1     		cbz	r1, .L85
+ 187:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 1111              		.loc 1 187 46 discriminator 1 view .LVU332
+ 1112 0018 C268     		ldr	r2, [r0, #12]
+ 187:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 1113              		.loc 1 187 57 discriminator 1 view .LVU333
+ 1114 001a 03EB430C 		add	ip, r3, r3, lsl #1
+ 187:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 1115              		.loc 1 187 60 discriminator 1 view .LVU334
+ 1116 001e 52F82C20 		ldr	r2, [r2, ip, lsl #2]
+ 187:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 1117              		.loc 1 187 29 discriminator 1 view .LVU335
+ 1118 0022 8A42     		cmp	r2, r1
+ 1119 0024 10D0     		beq	.L85
+ 186:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == NULL || obj->spec_attr->event_dsc[i].cb == event_cb) {
+ 1120              		.loc 1 186 52 is_stmt 1 discriminator 2 view .LVU336
+ 1121 0026 0133     		adds	r3, r3, #1
+ 1122              	.LVL86:
+ 186:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == NULL || obj->spec_attr->event_dsc[i].cb == event_cb) {
+ 1123              		.loc 1 186 52 is_stmt 0 discriminator 2 view .LVU337
+ 1124 0028 F0E7     		b	.L82
+ 1125              	.LVL87:
+ 1126              	.L86:
+ 190:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1127              		.loc 1 190 17 is_stmt 1 view .LVU338
+ 190:Drivers/lvgl/src/core/lv_event.c ****             }
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 35
+
+
+ 1128              		.loc 1 190 62 is_stmt 0 view .LVU339
+ 1129 002a CA68     		ldr	r2, [r1, #12]
+ 190:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1130              		.loc 1 190 73 view .LVU340
+ 1131 002c 03F1010C 		add	ip, r3, #1
+ 1132 0030 0CEB4C01 		add	r1, ip, ip, lsl #1
+ 1133 0034 02EB8101 		add	r1, r2, r1, lsl #2
+ 190:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1134              		.loc 1 190 42 view .LVU341
+ 1135 0038 03EB4303 		add	r3, r3, r3, lsl #1
+ 1136              	.LVL88:
+ 190:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1137              		.loc 1 190 42 view .LVU342
+ 1138 003c 02EB8303 		add	r3, r2, r3, lsl #2
+ 190:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1139              		.loc 1 190 46 view .LVU343
+ 1140 0040 07C9     		ldm	r1, {r0, r1, r2}
+ 1141 0042 83E80700 		stm	r3, {r0, r1, r2}
+ 189:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1142              		.loc 1 189 61 is_stmt 1 discriminator 2 view .LVU344
+ 1143 0046 6346     		mov	r3, ip
+ 1144              	.LVL89:
+ 1145              	.L85:
+ 189:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1146              		.loc 1 189 21 discriminator 1 view .LVU345
+ 189:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1147              		.loc 1 189 27 is_stmt 0 discriminator 1 view .LVU346
+ 1148 0048 A168     		ldr	r1, [r4, #8]
+ 189:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1149              		.loc 1 189 38 discriminator 1 view .LVU347
+ 1150 004a 8A7E     		ldrb	r2, [r1, #26]	@ zero_extendqisi2
+ 1151 004c 02F03F02 		and	r2, r2, #63
+ 189:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1152              		.loc 1 189 54 discriminator 1 view .LVU348
+ 1153 0050 501E     		subs	r0, r2, #1
+ 189:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1154              		.loc 1 189 21 discriminator 1 view .LVU349
+ 1155 0052 9842     		cmp	r0, r3
+ 1156 0054 E9DC     		bgt	.L86
+ 192:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 1157              		.loc 1 192 13 is_stmt 1 view .LVU350
+ 192:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 1158              		.loc 1 192 42 is_stmt 0 view .LVU351
+ 1159 0056 3F32     		adds	r2, r2, #63
+ 1160 0058 8B7E     		ldrb	r3, [r1, #26]	@ zero_extendqisi2
+ 1161              	.LVL90:
+ 192:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 1162              		.loc 1 192 42 view .LVU352
+ 1163 005a 62F30503 		bfi	r3, r2, #0, #6
+ 1164 005e 8B76     		strb	r3, [r1, #26]
+ 193:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 1165              		.loc 1 193 13 is_stmt 1 view .LVU353
+ 193:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 1166              		.loc 1 193 59 is_stmt 0 view .LVU354
+ 1167 0060 A568     		ldr	r5, [r4, #8]
+ 194:Drivers/lvgl/src/core/lv_event.c ****             LV_ASSERT_MALLOC(obj->spec_attr->event_dsc);
+ 1168              		.loc 1 194 70 view .LVU355
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 36
+
+
+ 1169 0062 A97E     		ldrb	r1, [r5, #26]	@ zero_extendqisi2
+ 1170 0064 01F03F01 		and	r1, r1, #63
+ 193:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 1171              		.loc 1 193 41 view .LVU356
+ 1172 0068 01EB4101 		add	r1, r1, r1, lsl #1
+ 1173 006c 8900     		lsls	r1, r1, #2
+ 1174 006e E868     		ldr	r0, [r5, #12]
+ 1175 0070 FFF7FEFF 		bl	lv_mem_realloc
+ 1176              	.LVL91:
+ 193:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 1177              		.loc 1 193 39 discriminator 1 view .LVU357
+ 1178 0074 E860     		str	r0, [r5, #12]
+ 195:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1179              		.loc 1 195 13 is_stmt 1 view .LVU358
+ 195:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1180              		.loc 1 195 13 view .LVU359
+ 1181 0076 A368     		ldr	r3, [r4, #8]
+ 1182 0078 DB68     		ldr	r3, [r3, #12]
+ 1183 007a 0BB1     		cbz	r3, .L87
+ 196:Drivers/lvgl/src/core/lv_event.c ****         }
+ 1184              		.loc 1 196 20 is_stmt 0 view .LVU360
+ 1185 007c 0120     		movs	r0, #1
+ 1186              	.LVL92:
+ 1187              	.L81:
+ 202:Drivers/lvgl/src/core/lv_event.c **** 
+ 1188              		.loc 1 202 1 view .LVU361
+ 1189 007e 38BD     		pop	{r3, r4, r5, pc}
+ 1190              	.LVL93:
+ 1191              	.L87:
+ 195:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1192              		.loc 1 195 13 is_stmt 1 discriminator 1 view .LVU362
+ 195:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1193              		.loc 1 195 13 discriminator 1 view .LVU363
+ 195:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1194              		.loc 1 195 13 discriminator 1 view .LVU364
+ 195:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1195              		.loc 1 195 13 discriminator 1 view .LVU365
+ 195:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1196              		.loc 1 195 13 discriminator 1 view .LVU366
+ 1197 0080 FEE7     		b	.L87
+ 1198              	.LVL94:
+ 1199              	.L93:
+ 201:Drivers/lvgl/src/core/lv_event.c **** }
+ 1200              		.loc 1 201 12 is_stmt 0 view .LVU367
+ 1201 0082 0020     		movs	r0, #0
+ 1202 0084 FBE7     		b	.L81
+ 1203              	.LVL95:
+ 1204              	.L89:
+ 183:Drivers/lvgl/src/core/lv_event.c **** 
+ 1205              		.loc 1 183 39 discriminator 1 view .LVU368
+ 1206 0086 0020     		movs	r0, #0
+ 1207 0088 F9E7     		b	.L81
+ 1208              		.cfi_endproc
+ 1209              	.LFE173:
+ 1211              		.section	.text.lv_obj_remove_event_cb_with_user_data,"ax",%progbits
+ 1212              		.align	1
+ 1213              		.global	lv_obj_remove_event_cb_with_user_data
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 37
+
+
+ 1214              		.syntax unified
+ 1215              		.thumb
+ 1216              		.thumb_func
+ 1218              	lv_obj_remove_event_cb_with_user_data:
+ 1219              	.LVL96:
+ 1220              	.LFB174:
+ 205:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 1221              		.loc 1 205 1 is_stmt 1 view -0
+ 1222              		.cfi_startproc
+ 1223              		@ args = 0, pretend = 0, frame = 0
+ 1224              		@ frame_needed = 0, uses_anonymous_args = 0
+ 205:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 1225              		.loc 1 205 1 is_stmt 0 view .LVU370
+ 1226 0000 70B5     		push	{r4, r5, r6, lr}
+ 1227              		.cfi_def_cfa_offset 16
+ 1228              		.cfi_offset 4, -16
+ 1229              		.cfi_offset 5, -12
+ 1230              		.cfi_offset 6, -8
+ 1231              		.cfi_offset 14, -4
+ 206:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return false;
+ 1232              		.loc 1 206 5 is_stmt 1 view .LVU371
+ 206:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return false;
+ 1233              		.loc 1 206 5 view .LVU372
+ 206:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return false;
+ 1234              		.loc 1 206 5 view .LVU373
+ 207:Drivers/lvgl/src/core/lv_event.c **** 
+ 1235              		.loc 1 207 5 view .LVU374
+ 207:Drivers/lvgl/src/core/lv_event.c **** 
+ 1236              		.loc 1 207 11 is_stmt 0 view .LVU375
+ 1237 0002 8468     		ldr	r4, [r0, #8]
+ 207:Drivers/lvgl/src/core/lv_event.c **** 
+ 1238              		.loc 1 207 7 view .LVU376
+ 1239 0004 002C     		cmp	r4, #0
+ 1240 0006 49D0     		beq	.L103
+ 1241 0008 0546     		mov	r5, r0
+ 210:Drivers/lvgl/src/core/lv_event.c ****         if((event_cb == NULL || obj->spec_attr->event_dsc[i].cb == event_cb) &&
+ 1242              		.loc 1 210 11 view .LVU377
+ 1243 000a 0023     		movs	r3, #0
+ 1244 000c 09E0     		b	.L96
+ 1245              	.LVL97:
+ 1246              	.L97:
+ 212:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 1247              		.loc 1 212 37 view .LVU378
+ 1248 000e 03EB4300 		add	r0, r3, r3, lsl #1
+ 1249 0012 E668     		ldr	r6, [r4, #12]
+ 1250 0014 06EB800C 		add	ip, r6, r0, lsl #2
+ 212:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 1251              		.loc 1 212 40 view .LVU379
+ 1252 0018 DCF80400 		ldr	r0, [ip, #4]
+ 211:Drivers/lvgl/src/core/lv_event.c ****            obj->spec_attr->event_dsc[i].user_data == user_data) {
+ 1253              		.loc 1 211 78 discriminator 3 view .LVU380
+ 1254 001c 9042     		cmp	r0, r2
+ 1255 001e 1ED0     		beq	.L99
+ 1256              	.L98:
+ 210:Drivers/lvgl/src/core/lv_event.c ****         if((event_cb == NULL || obj->spec_attr->event_dsc[i].cb == event_cb) &&
+ 1257              		.loc 1 210 52 is_stmt 1 discriminator 2 view .LVU381
+ 1258 0020 0133     		adds	r3, r3, #1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 38
+
+
+ 1259              	.LVL98:
+ 1260              	.L96:
+ 210:Drivers/lvgl/src/core/lv_event.c ****         if((event_cb == NULL || obj->spec_attr->event_dsc[i].cb == event_cb) &&
+ 1261              		.loc 1 210 18 discriminator 1 view .LVU382
+ 210:Drivers/lvgl/src/core/lv_event.c ****         if((event_cb == NULL || obj->spec_attr->event_dsc[i].cb == event_cb) &&
+ 1262              		.loc 1 210 34 is_stmt 0 discriminator 1 view .LVU383
+ 1263 0022 94F81AC0 		ldrb	ip, [r4, #26]	@ zero_extendqisi2
+ 1264 0026 0CF03F0C 		and	ip, ip, #63
+ 210:Drivers/lvgl/src/core/lv_event.c ****         if((event_cb == NULL || obj->spec_attr->event_dsc[i].cb == event_cb) &&
+ 1265              		.loc 1 210 18 discriminator 1 view .LVU384
+ 1266 002a 9C45     		cmp	ip, r3
+ 1267 002c 34DD     		ble	.L106
+ 211:Drivers/lvgl/src/core/lv_event.c ****            obj->spec_attr->event_dsc[i].user_data == user_data) {
+ 1268              		.loc 1 211 9 is_stmt 1 view .LVU385
+ 211:Drivers/lvgl/src/core/lv_event.c ****            obj->spec_attr->event_dsc[i].user_data == user_data) {
+ 1269              		.loc 1 211 11 is_stmt 0 view .LVU386
+ 1270 002e 0029     		cmp	r1, #0
+ 1271 0030 EDD0     		beq	.L97
+ 211:Drivers/lvgl/src/core/lv_event.c ****            obj->spec_attr->event_dsc[i].user_data == user_data) {
+ 1272              		.loc 1 211 47 discriminator 2 view .LVU387
+ 1273 0032 E068     		ldr	r0, [r4, #12]
+ 211:Drivers/lvgl/src/core/lv_event.c ****            obj->spec_attr->event_dsc[i].user_data == user_data) {
+ 1274              		.loc 1 211 58 discriminator 2 view .LVU388
+ 1275 0034 03EB430C 		add	ip, r3, r3, lsl #1
+ 211:Drivers/lvgl/src/core/lv_event.c ****            obj->spec_attr->event_dsc[i].user_data == user_data) {
+ 1276              		.loc 1 211 61 discriminator 2 view .LVU389
+ 1277 0038 50F82C00 		ldr	r0, [r0, ip, lsl #2]
+ 211:Drivers/lvgl/src/core/lv_event.c ****            obj->spec_attr->event_dsc[i].user_data == user_data) {
+ 1278              		.loc 1 211 30 discriminator 2 view .LVU390
+ 1279 003c 8842     		cmp	r0, r1
+ 1280 003e EFD1     		bne	.L98
+ 1281 0040 E5E7     		b	.L97
+ 1282              	.LVL99:
+ 1283              	.L100:
+ 215:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1284              		.loc 1 215 17 is_stmt 1 view .LVU391
+ 215:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1285              		.loc 1 215 62 is_stmt 0 view .LVU392
+ 1286 0042 CA68     		ldr	r2, [r1, #12]
+ 215:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1287              		.loc 1 215 73 view .LVU393
+ 1288 0044 5C1C     		adds	r4, r3, #1
+ 1289 0046 04EB4401 		add	r1, r4, r4, lsl #1
+ 1290 004a 02EB8101 		add	r1, r2, r1, lsl #2
+ 215:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1291              		.loc 1 215 42 view .LVU394
+ 1292 004e 03EB4303 		add	r3, r3, r3, lsl #1
+ 1293              	.LVL100:
+ 215:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1294              		.loc 1 215 42 view .LVU395
+ 1295 0052 02EB8303 		add	r3, r2, r3, lsl #2
+ 215:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1296              		.loc 1 215 46 view .LVU396
+ 1297 0056 07C9     		ldm	r1, {r0, r1, r2}
+ 1298 0058 83E80700 		stm	r3, {r0, r1, r2}
+ 214:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1299              		.loc 1 214 61 is_stmt 1 discriminator 2 view .LVU397
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 39
+
+
+ 1300 005c 2346     		mov	r3, r4
+ 1301              	.LVL101:
+ 1302              	.L99:
+ 214:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1303              		.loc 1 214 21 discriminator 1 view .LVU398
+ 214:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1304              		.loc 1 214 27 is_stmt 0 discriminator 1 view .LVU399
+ 1305 005e A968     		ldr	r1, [r5, #8]
+ 214:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1306              		.loc 1 214 38 discriminator 1 view .LVU400
+ 1307 0060 8A7E     		ldrb	r2, [r1, #26]	@ zero_extendqisi2
+ 1308 0062 02F03F02 		and	r2, r2, #63
+ 214:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1309              		.loc 1 214 54 discriminator 1 view .LVU401
+ 1310 0066 501E     		subs	r0, r2, #1
+ 214:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1311              		.loc 1 214 21 discriminator 1 view .LVU402
+ 1312 0068 9842     		cmp	r0, r3
+ 1313 006a EADC     		bgt	.L100
+ 217:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 1314              		.loc 1 217 13 is_stmt 1 view .LVU403
+ 217:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 1315              		.loc 1 217 42 is_stmt 0 view .LVU404
+ 1316 006c 3F32     		adds	r2, r2, #63
+ 1317 006e 8B7E     		ldrb	r3, [r1, #26]	@ zero_extendqisi2
+ 1318              	.LVL102:
+ 217:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 1319              		.loc 1 217 42 view .LVU405
+ 1320 0070 62F30503 		bfi	r3, r2, #0, #6
+ 1321 0074 8B76     		strb	r3, [r1, #26]
+ 218:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 1322              		.loc 1 218 13 is_stmt 1 view .LVU406
+ 218:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 1323              		.loc 1 218 59 is_stmt 0 view .LVU407
+ 1324 0076 AC68     		ldr	r4, [r5, #8]
+ 219:Drivers/lvgl/src/core/lv_event.c ****             LV_ASSERT_MALLOC(obj->spec_attr->event_dsc);
+ 1325              		.loc 1 219 70 view .LVU408
+ 1326 0078 A17E     		ldrb	r1, [r4, #26]	@ zero_extendqisi2
+ 1327 007a 01F03F01 		and	r1, r1, #63
+ 218:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 1328              		.loc 1 218 41 view .LVU409
+ 1329 007e 01EB4101 		add	r1, r1, r1, lsl #1
+ 1330 0082 8900     		lsls	r1, r1, #2
+ 1331 0084 E068     		ldr	r0, [r4, #12]
+ 1332 0086 FFF7FEFF 		bl	lv_mem_realloc
+ 1333              	.LVL103:
+ 218:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 1334              		.loc 1 218 39 discriminator 1 view .LVU410
+ 1335 008a E060     		str	r0, [r4, #12]
+ 220:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1336              		.loc 1 220 13 is_stmt 1 view .LVU411
+ 220:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1337              		.loc 1 220 13 view .LVU412
+ 1338 008c AB68     		ldr	r3, [r5, #8]
+ 1339 008e DB68     		ldr	r3, [r3, #12]
+ 1340 0090 0BB1     		cbz	r3, .L101
+ 221:Drivers/lvgl/src/core/lv_event.c ****         }
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 40
+
+
+ 1341              		.loc 1 221 20 is_stmt 0 view .LVU413
+ 1342 0092 0120     		movs	r0, #1
+ 1343 0094 01E0     		b	.L95
+ 1344              	.L101:
+ 220:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1345              		.loc 1 220 13 is_stmt 1 discriminator 1 view .LVU414
+ 220:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1346              		.loc 1 220 13 discriminator 1 view .LVU415
+ 220:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1347              		.loc 1 220 13 discriminator 1 view .LVU416
+ 220:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1348              		.loc 1 220 13 discriminator 1 view .LVU417
+ 220:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1349              		.loc 1 220 13 discriminator 1 view .LVU418
+ 1350 0096 FEE7     		b	.L101
+ 1351              	.LVL104:
+ 1352              	.L106:
+ 226:Drivers/lvgl/src/core/lv_event.c **** }
+ 1353              		.loc 1 226 12 is_stmt 0 view .LVU419
+ 1354 0098 0020     		movs	r0, #0
+ 1355              	.LVL105:
+ 1356              	.L95:
+ 227:Drivers/lvgl/src/core/lv_event.c **** 
+ 1357              		.loc 1 227 1 view .LVU420
+ 1358 009a 70BD     		pop	{r4, r5, r6, pc}
+ 1359              	.LVL106:
+ 1360              	.L103:
+ 207:Drivers/lvgl/src/core/lv_event.c **** 
+ 1361              		.loc 1 207 39 discriminator 1 view .LVU421
+ 1362 009c 0020     		movs	r0, #0
+ 1363              	.LVL107:
+ 207:Drivers/lvgl/src/core/lv_event.c **** 
+ 1364              		.loc 1 207 39 discriminator 1 view .LVU422
+ 1365 009e FCE7     		b	.L95
+ 1366              		.cfi_endproc
+ 1367              	.LFE174:
+ 1369              		.section	.text.lv_obj_remove_event_dsc,"ax",%progbits
+ 1370              		.align	1
+ 1371              		.global	lv_obj_remove_event_dsc
+ 1372              		.syntax unified
+ 1373              		.thumb
+ 1374              		.thumb_func
+ 1376              	lv_obj_remove_event_dsc:
+ 1377              	.LVL108:
+ 1378              	.LFB175:
+ 231:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 1379              		.loc 1 231 1 is_stmt 1 view -0
+ 1380              		.cfi_startproc
+ 1381              		@ args = 0, pretend = 0, frame = 0
+ 1382              		@ frame_needed = 0, uses_anonymous_args = 0
+ 231:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 1383              		.loc 1 231 1 is_stmt 0 view .LVU424
+ 1384 0000 38B5     		push	{r3, r4, r5, lr}
+ 1385              		.cfi_def_cfa_offset 16
+ 1386              		.cfi_offset 3, -16
+ 1387              		.cfi_offset 4, -12
+ 1388              		.cfi_offset 5, -8
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 41
+
+
+ 1389              		.cfi_offset 14, -4
+ 1390 0002 0446     		mov	r4, r0
+ 232:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return false;
+ 1391              		.loc 1 232 5 is_stmt 1 view .LVU425
+ 232:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return false;
+ 1392              		.loc 1 232 5 view .LVU426
+ 232:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return false;
+ 1393              		.loc 1 232 5 view .LVU427
+ 233:Drivers/lvgl/src/core/lv_event.c **** 
+ 1394              		.loc 1 233 5 view .LVU428
+ 233:Drivers/lvgl/src/core/lv_event.c **** 
+ 1395              		.loc 1 233 11 is_stmt 0 view .LVU429
+ 1396 0004 8068     		ldr	r0, [r0, #8]
+ 1397              	.LVL109:
+ 233:Drivers/lvgl/src/core/lv_event.c **** 
+ 1398              		.loc 1 233 7 view .LVU430
+ 1399 0006 0028     		cmp	r0, #0
+ 1400 0008 3DD0     		beq	.L115
+ 236:Drivers/lvgl/src/core/lv_event.c ****         if(&obj->spec_attr->event_dsc[i] == event_dsc) {
+ 1401              		.loc 1 236 11 view .LVU431
+ 1402 000a 0023     		movs	r3, #0
+ 1403 000c 2CE0     		b	.L109
+ 1404              	.LVL110:
+ 1405              	.L112:
+ 240:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1406              		.loc 1 240 17 is_stmt 1 view .LVU432
+ 240:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1407              		.loc 1 240 62 is_stmt 0 view .LVU433
+ 1408 000e CA68     		ldr	r2, [r1, #12]
+ 240:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1409              		.loc 1 240 73 view .LVU434
+ 1410 0010 03F1010C 		add	ip, r3, #1
+ 1411 0014 0CEB4C01 		add	r1, ip, ip, lsl #1
+ 1412 0018 02EB8101 		add	r1, r2, r1, lsl #2
+ 240:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1413              		.loc 1 240 42 view .LVU435
+ 1414 001c 03EB4303 		add	r3, r3, r3, lsl #1
+ 1415              	.LVL111:
+ 240:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1416              		.loc 1 240 42 view .LVU436
+ 1417 0020 02EB8303 		add	r3, r2, r3, lsl #2
+ 240:Drivers/lvgl/src/core/lv_event.c ****             }
+ 1418              		.loc 1 240 46 view .LVU437
+ 1419 0024 07C9     		ldm	r1, {r0, r1, r2}
+ 1420 0026 83E80700 		stm	r3, {r0, r1, r2}
+ 239:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1421              		.loc 1 239 61 is_stmt 1 discriminator 2 view .LVU438
+ 1422 002a 6346     		mov	r3, ip
+ 1423              	.LVL112:
+ 1424              	.L110:
+ 239:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1425              		.loc 1 239 21 discriminator 1 view .LVU439
+ 239:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1426              		.loc 1 239 27 is_stmt 0 discriminator 1 view .LVU440
+ 1427 002c A168     		ldr	r1, [r4, #8]
+ 239:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1428              		.loc 1 239 38 discriminator 1 view .LVU441
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 42
+
+
+ 1429 002e 8A7E     		ldrb	r2, [r1, #26]	@ zero_extendqisi2
+ 1430 0030 02F03F02 		and	r2, r2, #63
+ 239:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1431              		.loc 1 239 54 discriminator 1 view .LVU442
+ 1432 0034 501E     		subs	r0, r2, #1
+ 239:Drivers/lvgl/src/core/lv_event.c ****                 obj->spec_attr->event_dsc[i] = obj->spec_attr->event_dsc[i + 1];
+ 1433              		.loc 1 239 21 discriminator 1 view .LVU443
+ 1434 0036 9842     		cmp	r0, r3
+ 1435 0038 E9DC     		bgt	.L112
+ 242:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 1436              		.loc 1 242 13 is_stmt 1 view .LVU444
+ 242:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 1437              		.loc 1 242 42 is_stmt 0 view .LVU445
+ 1438 003a 3F32     		adds	r2, r2, #63
+ 1439 003c 8B7E     		ldrb	r3, [r1, #26]	@ zero_extendqisi2
+ 1440              	.LVL113:
+ 242:Drivers/lvgl/src/core/lv_event.c ****             obj->spec_attr->event_dsc = lv_mem_realloc(obj->spec_attr->event_dsc,
+ 1441              		.loc 1 242 42 view .LVU446
+ 1442 003e 62F30503 		bfi	r3, r2, #0, #6
+ 1443 0042 8B76     		strb	r3, [r1, #26]
+ 243:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 1444              		.loc 1 243 13 is_stmt 1 view .LVU447
+ 243:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 1445              		.loc 1 243 59 is_stmt 0 view .LVU448
+ 1446 0044 A568     		ldr	r5, [r4, #8]
+ 244:Drivers/lvgl/src/core/lv_event.c ****             LV_ASSERT_MALLOC(obj->spec_attr->event_dsc);
+ 1447              		.loc 1 244 70 view .LVU449
+ 1448 0046 A97E     		ldrb	r1, [r5, #26]	@ zero_extendqisi2
+ 1449 0048 01F03F01 		and	r1, r1, #63
+ 243:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 1450              		.loc 1 243 41 view .LVU450
+ 1451 004c 01EB4101 		add	r1, r1, r1, lsl #1
+ 1452 0050 8900     		lsls	r1, r1, #2
+ 1453 0052 E868     		ldr	r0, [r5, #12]
+ 1454 0054 FFF7FEFF 		bl	lv_mem_realloc
+ 1455              	.LVL114:
+ 243:Drivers/lvgl/src/core/lv_event.c ****                                                        obj->spec_attr->event_dsc_cnt * sizeof(lv_ev
+ 1456              		.loc 1 243 39 discriminator 1 view .LVU451
+ 1457 0058 E860     		str	r0, [r5, #12]
+ 245:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1458              		.loc 1 245 13 is_stmt 1 view .LVU452
+ 245:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1459              		.loc 1 245 13 view .LVU453
+ 1460 005a A368     		ldr	r3, [r4, #8]
+ 1461 005c DB68     		ldr	r3, [r3, #12]
+ 1462 005e 0BB1     		cbz	r3, .L113
+ 246:Drivers/lvgl/src/core/lv_event.c ****         }
+ 1463              		.loc 1 246 20 is_stmt 0 view .LVU454
+ 1464 0060 0120     		movs	r0, #1
+ 1465 0062 0FE0     		b	.L108
+ 1466              	.L113:
+ 245:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1467              		.loc 1 245 13 is_stmt 1 discriminator 1 view .LVU455
+ 245:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1468              		.loc 1 245 13 discriminator 1 view .LVU456
+ 245:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1469              		.loc 1 245 13 discriminator 1 view .LVU457
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 43
+
+
+ 245:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1470              		.loc 1 245 13 discriminator 1 view .LVU458
+ 245:Drivers/lvgl/src/core/lv_event.c ****             return true;
+ 1471              		.loc 1 245 13 discriminator 1 view .LVU459
+ 1472 0064 FEE7     		b	.L113
+ 1473              	.LVL115:
+ 1474              	.L117:
+ 236:Drivers/lvgl/src/core/lv_event.c ****         if(&obj->spec_attr->event_dsc[i] == event_dsc) {
+ 1475              		.loc 1 236 52 discriminator 2 view .LVU460
+ 1476 0066 0133     		adds	r3, r3, #1
+ 1477              	.LVL116:
+ 1478              	.L109:
+ 236:Drivers/lvgl/src/core/lv_event.c ****         if(&obj->spec_attr->event_dsc[i] == event_dsc) {
+ 1479              		.loc 1 236 18 discriminator 1 view .LVU461
+ 236:Drivers/lvgl/src/core/lv_event.c ****         if(&obj->spec_attr->event_dsc[i] == event_dsc) {
+ 1480              		.loc 1 236 34 is_stmt 0 discriminator 1 view .LVU462
+ 1481 0068 827E     		ldrb	r2, [r0, #26]	@ zero_extendqisi2
+ 1482 006a 02F03F02 		and	r2, r2, #63
+ 236:Drivers/lvgl/src/core/lv_event.c ****         if(&obj->spec_attr->event_dsc[i] == event_dsc) {
+ 1483              		.loc 1 236 18 discriminator 1 view .LVU463
+ 1484 006e 9A42     		cmp	r2, r3
+ 1485 0070 07DD     		ble	.L119
+ 237:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 1486              		.loc 1 237 9 is_stmt 1 view .LVU464
+ 237:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 1487              		.loc 1 237 27 is_stmt 0 view .LVU465
+ 1488 0072 C268     		ldr	r2, [r0, #12]
+ 237:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 1489              		.loc 1 237 38 view .LVU466
+ 1490 0074 03EB430C 		add	ip, r3, r3, lsl #1
+ 237:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 1491              		.loc 1 237 12 view .LVU467
+ 1492 0078 02EB8C02 		add	r2, r2, ip, lsl #2
+ 237:Drivers/lvgl/src/core/lv_event.c ****             /*Shift the remaining event handlers forward*/
+ 1493              		.loc 1 237 11 view .LVU468
+ 1494 007c 8A42     		cmp	r2, r1
+ 1495 007e F2D1     		bne	.L117
+ 1496 0080 D4E7     		b	.L110
+ 1497              	.L119:
+ 251:Drivers/lvgl/src/core/lv_event.c **** }
+ 1498              		.loc 1 251 12 view .LVU469
+ 1499 0082 0020     		movs	r0, #0
+ 1500              	.LVL117:
+ 1501              	.L108:
+ 252:Drivers/lvgl/src/core/lv_event.c **** 
+ 1502              		.loc 1 252 1 view .LVU470
+ 1503 0084 38BD     		pop	{r3, r4, r5, pc}
+ 1504              	.LVL118:
+ 1505              	.L115:
+ 233:Drivers/lvgl/src/core/lv_event.c **** 
+ 1506              		.loc 1 233 39 discriminator 1 view .LVU471
+ 1507 0086 0020     		movs	r0, #0
+ 1508 0088 FCE7     		b	.L108
+ 1509              		.cfi_endproc
+ 1510              	.LFE175:
+ 1512              		.section	.text.lv_obj_get_event_user_data,"ax",%progbits
+ 1513              		.align	1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 44
+
+
+ 1514              		.global	lv_obj_get_event_user_data
+ 1515              		.syntax unified
+ 1516              		.thumb
+ 1517              		.thumb_func
+ 1519              	lv_obj_get_event_user_data:
+ 1520              	.LVL119:
+ 1521              	.LFB176:
+ 255:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 1522              		.loc 1 255 1 is_stmt 1 view -0
+ 1523              		.cfi_startproc
+ 1524              		@ args = 0, pretend = 0, frame = 0
+ 1525              		@ frame_needed = 0, uses_anonymous_args = 0
+ 256:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return NULL;
+ 1526              		.loc 1 256 5 view .LVU473
+ 256:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return NULL;
+ 1527              		.loc 1 256 5 view .LVU474
+ 256:Drivers/lvgl/src/core/lv_event.c ****     if(obj->spec_attr == NULL) return NULL;
+ 1528              		.loc 1 256 5 view .LVU475
+ 257:Drivers/lvgl/src/core/lv_event.c **** 
+ 1529              		.loc 1 257 5 view .LVU476
+ 257:Drivers/lvgl/src/core/lv_event.c **** 
+ 1530              		.loc 1 257 11 is_stmt 0 view .LVU477
+ 1531 0000 8068     		ldr	r0, [r0, #8]
+ 1532              	.LVL120:
+ 257:Drivers/lvgl/src/core/lv_event.c **** 
+ 1533              		.loc 1 257 7 view .LVU478
+ 1534 0002 E8B1     		cbz	r0, .L126
+ 260:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == obj->spec_attr->event_dsc[i].cb) return obj->spec_attr->event_dsc[i].user_da
+ 1535              		.loc 1 260 11 view .LVU479
+ 1536 0004 0023     		movs	r3, #0
+ 1537              	.LVL121:
+ 260:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == obj->spec_attr->event_dsc[i].cb) return obj->spec_attr->event_dsc[i].user_da
+ 1538              		.loc 1 260 18 is_stmt 1 discriminator 1 view .LVU480
+ 260:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == obj->spec_attr->event_dsc[i].cb) return obj->spec_attr->event_dsc[i].user_da
+ 1539              		.loc 1 260 34 is_stmt 0 discriminator 1 view .LVU481
+ 1540 0006 827E     		ldrb	r2, [r0, #26]	@ zero_extendqisi2
+ 1541 0008 02F03F02 		and	r2, r2, #63
+ 260:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == obj->spec_attr->event_dsc[i].cb) return obj->spec_attr->event_dsc[i].user_da
+ 1542              		.loc 1 260 18 discriminator 1 view .LVU482
+ 1543 000c 9A42     		cmp	r2, r3
+ 1544 000e 15DD     		ble	.L131
+ 255:Drivers/lvgl/src/core/lv_event.c ****     LV_ASSERT_OBJ(obj, MY_CLASS);
+ 1545              		.loc 1 255 1 view .LVU483
+ 1546 0010 00B5     		push	{lr}
+ 1547              		.cfi_def_cfa_offset 4
+ 1548              		.cfi_offset 14, -4
+ 1549              	.L124:
+ 261:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1550              		.loc 1 261 9 is_stmt 1 view .LVU484
+ 261:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1551              		.loc 1 261 38 is_stmt 0 view .LVU485
+ 1552 0012 C268     		ldr	r2, [r0, #12]
+ 261:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1553              		.loc 1 261 49 view .LVU486
+ 1554 0014 03EB430C 		add	ip, r3, r3, lsl #1
+ 1555 0018 02EB8C0E 		add	lr, r2, ip, lsl #2
+ 261:Drivers/lvgl/src/core/lv_event.c ****     }
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 45
+
+
+ 1556              		.loc 1 261 52 view .LVU487
+ 1557 001c 52F82C20 		ldr	r2, [r2, ip, lsl #2]
+ 261:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1558              		.loc 1 261 11 view .LVU488
+ 1559 0020 8A42     		cmp	r2, r1
+ 1560 0022 07D0     		beq	.L132
+ 260:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == obj->spec_attr->event_dsc[i].cb) return obj->spec_attr->event_dsc[i].user_da
+ 1561              		.loc 1 260 52 is_stmt 1 discriminator 2 view .LVU489
+ 1562 0024 0133     		adds	r3, r3, #1
+ 1563              	.LVL122:
+ 260:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == obj->spec_attr->event_dsc[i].cb) return obj->spec_attr->event_dsc[i].user_da
+ 1564              		.loc 1 260 18 discriminator 1 view .LVU490
+ 260:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == obj->spec_attr->event_dsc[i].cb) return obj->spec_attr->event_dsc[i].user_da
+ 1565              		.loc 1 260 34 is_stmt 0 discriminator 1 view .LVU491
+ 1566 0026 827E     		ldrb	r2, [r0, #26]	@ zero_extendqisi2
+ 1567 0028 02F03F02 		and	r2, r2, #63
+ 260:Drivers/lvgl/src/core/lv_event.c ****         if(event_cb == obj->spec_attr->event_dsc[i].cb) return obj->spec_attr->event_dsc[i].user_da
+ 1568              		.loc 1 260 18 discriminator 1 view .LVU492
+ 1569 002c 9A42     		cmp	r2, r3
+ 1570 002e F0DC     		bgt	.L124
+ 263:Drivers/lvgl/src/core/lv_event.c **** }
+ 1571              		.loc 1 263 12 view .LVU493
+ 1572 0030 0020     		movs	r0, #0
+ 1573 0032 01E0     		b	.L120
+ 1574              	.L132:
+ 261:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1575              		.loc 1 261 57 is_stmt 1 discriminator 1 view .LVU494
+ 261:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1576              		.loc 1 261 92 is_stmt 0 discriminator 1 view .LVU495
+ 1577 0034 DEF80400 		ldr	r0, [lr, #4]
+ 1578              	.L120:
+ 264:Drivers/lvgl/src/core/lv_event.c **** 
+ 1579              		.loc 1 264 1 view .LVU496
+ 1580 0038 5DF804FB 		ldr	pc, [sp], #4
+ 1581              	.L131:
+ 1582              		.cfi_def_cfa_offset 0
+ 1583              		.cfi_restore 14
+ 263:Drivers/lvgl/src/core/lv_event.c **** }
+ 1584              		.loc 1 263 12 view .LVU497
+ 1585 003c 0020     		movs	r0, #0
+ 1586 003e 7047     		bx	lr
+ 1587              	.LVL123:
+ 1588              	.L126:
+ 264:Drivers/lvgl/src/core/lv_event.c **** 
+ 1589              		.loc 1 264 1 view .LVU498
+ 1590 0040 7047     		bx	lr
+ 1591              		.cfi_endproc
+ 1592              	.LFE176:
+ 1594              		.section	.text.lv_event_get_indev,"ax",%progbits
+ 1595              		.align	1
+ 1596              		.global	lv_event_get_indev
+ 1597              		.syntax unified
+ 1598              		.thumb
+ 1599              		.thumb_func
+ 1601              	lv_event_get_indev:
+ 1602              	.LVL124:
+ 1603              	.LFB177:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 46
+
+
+ 267:Drivers/lvgl/src/core/lv_event.c **** 
+ 1604              		.loc 1 267 1 is_stmt 1 view -0
+ 1605              		.cfi_startproc
+ 1606              		@ args = 0, pretend = 0, frame = 0
+ 1607              		@ frame_needed = 0, uses_anonymous_args = 0
+ 267:Drivers/lvgl/src/core/lv_event.c **** 
+ 1608              		.loc 1 267 1 is_stmt 0 view .LVU500
+ 1609 0000 08B5     		push	{r3, lr}
+ 1610              		.cfi_def_cfa_offset 8
+ 1611              		.cfi_offset 3, -8
+ 1612              		.cfi_offset 14, -4
+ 269:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_PRESSING ||
+ 1613              		.loc 1 269 5 is_stmt 1 view .LVU501
+ 269:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_PRESSING ||
+ 1614              		.loc 1 269 9 is_stmt 0 view .LVU502
+ 1615 0002 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 283:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_LEAVE) {
+ 1616              		.loc 1 283 38 view .LVU503
+ 1617 0004 013B     		subs	r3, r3, #1
+ 1618 0006 DBB2     		uxtb	r3, r3
+ 269:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_PRESSING ||
+ 1619              		.loc 1 269 7 view .LVU504
+ 1620 0008 0F2B     		cmp	r3, #15
+ 1621 000a 02D8     		bhi	.L135
+ 285:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1622              		.loc 1 285 9 is_stmt 1 view .LVU505
+ 285:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1623              		.loc 1 285 16 is_stmt 0 view .LVU506
+ 1624 000c FFF7FEFF 		bl	lv_event_get_param
+ 1625              	.LVL125:
+ 1626              	.L133:
+ 291:Drivers/lvgl/src/core/lv_event.c **** 
+ 1627              		.loc 1 291 1 view .LVU507
+ 1628 0010 08BD     		pop	{r3, pc}
+ 1629              	.LVL126:
+ 1630              	.L135:
+ 289:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1631              		.loc 1 289 16 view .LVU508
+ 1632 0012 0020     		movs	r0, #0
+ 1633              	.LVL127:
+ 289:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1634              		.loc 1 289 16 view .LVU509
+ 1635 0014 FCE7     		b	.L133
+ 1636              		.cfi_endproc
+ 1637              	.LFE177:
+ 1639              		.section	.text.lv_event_get_draw_part_dsc,"ax",%progbits
+ 1640              		.align	1
+ 1641              		.global	lv_event_get_draw_part_dsc
+ 1642              		.syntax unified
+ 1643              		.thumb
+ 1644              		.thumb_func
+ 1646              	lv_event_get_draw_part_dsc:
+ 1647              	.LVL128:
+ 1648              	.LFB178:
+ 294:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_DRAW_PART_BEGIN ||
+ 1649              		.loc 1 294 1 is_stmt 1 view -0
+ 1650              		.cfi_startproc
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 47
+
+
+ 1651              		@ args = 0, pretend = 0, frame = 0
+ 1652              		@ frame_needed = 0, uses_anonymous_args = 0
+ 294:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_DRAW_PART_BEGIN ||
+ 1653              		.loc 1 294 1 is_stmt 0 view .LVU511
+ 1654 0000 08B5     		push	{r3, lr}
+ 1655              		.cfi_def_cfa_offset 8
+ 1656              		.cfi_offset 3, -8
+ 1657              		.cfi_offset 14, -4
+ 295:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_PART_END) {
+ 1658              		.loc 1 295 5 is_stmt 1 view .LVU512
+ 295:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_PART_END) {
+ 1659              		.loc 1 295 9 is_stmt 0 view .LVU513
+ 1660 0002 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 295:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_PART_END) {
+ 1661              		.loc 1 295 44 view .LVU514
+ 1662 0004 1A3B     		subs	r3, r3, #26
+ 1663 0006 DBB2     		uxtb	r3, r3
+ 295:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_PART_END) {
+ 1664              		.loc 1 295 7 view .LVU515
+ 1665 0008 012B     		cmp	r3, #1
+ 1666 000a 02D8     		bhi	.L139
+ 297:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1667              		.loc 1 297 9 is_stmt 1 view .LVU516
+ 297:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1668              		.loc 1 297 16 is_stmt 0 view .LVU517
+ 1669 000c FFF7FEFF 		bl	lv_event_get_param
+ 1670              	.LVL129:
+ 1671              	.L137:
+ 303:Drivers/lvgl/src/core/lv_event.c **** 
+ 1672              		.loc 1 303 1 view .LVU518
+ 1673 0010 08BD     		pop	{r3, pc}
+ 1674              	.LVL130:
+ 1675              	.L139:
+ 301:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1676              		.loc 1 301 16 view .LVU519
+ 1677 0012 0020     		movs	r0, #0
+ 1678              	.LVL131:
+ 301:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1679              		.loc 1 301 16 view .LVU520
+ 1680 0014 FCE7     		b	.L137
+ 1681              		.cfi_endproc
+ 1682              	.LFE178:
+ 1684              		.section	.text.lv_event_get_draw_ctx,"ax",%progbits
+ 1685              		.align	1
+ 1686              		.global	lv_event_get_draw_ctx
+ 1687              		.syntax unified
+ 1688              		.thumb
+ 1689              		.thumb_func
+ 1691              	lv_event_get_draw_ctx:
+ 1692              	.LVL132:
+ 1693              	.LFB179:
+ 306:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_DRAW_MAIN ||
+ 1694              		.loc 1 306 1 is_stmt 1 view -0
+ 1695              		.cfi_startproc
+ 1696              		@ args = 0, pretend = 0, frame = 0
+ 1697              		@ frame_needed = 0, uses_anonymous_args = 0
+ 306:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_DRAW_MAIN ||
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 48
+
+
+ 1698              		.loc 1 306 1 is_stmt 0 view .LVU522
+ 1699 0000 08B5     		push	{r3, lr}
+ 1700              		.cfi_def_cfa_offset 8
+ 1701              		.cfi_offset 3, -8
+ 1702              		.cfi_offset 14, -4
+ 307:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_MAIN_BEGIN ||
+ 1703              		.loc 1 307 5 is_stmt 1 view .LVU523
+ 307:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_MAIN_BEGIN ||
+ 1704              		.loc 1 307 9 is_stmt 0 view .LVU524
+ 1705 0002 027A     		ldrb	r2, [r0, #8]	@ zero_extendqisi2
+ 308:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_MAIN_END ||
+ 1706              		.loc 1 308 44 view .LVU525
+ 1707 0004 A2F11403 		sub	r3, r2, #20
+ 1708 0008 DBB2     		uxtb	r3, r3
+ 307:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_MAIN_BEGIN ||
+ 1709              		.loc 1 307 7 view .LVU526
+ 1710 000a 022B     		cmp	r3, #2
+ 1711 000c 05D9     		bls	.L142
+ 309:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_POST ||
+ 1712              		.loc 1 309 42 view .LVU527
+ 1713 000e 182A     		cmp	r2, #24
+ 1714 0010 03D0     		beq	.L142
+ 310:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_POST_BEGIN ||
+ 1715              		.loc 1 310 38 view .LVU528
+ 1716 0012 172A     		cmp	r2, #23
+ 1717 0014 01D0     		beq	.L142
+ 311:Drivers/lvgl/src/core/lv_event.c ****        e->code == LV_EVENT_DRAW_POST_END) {
+ 1718              		.loc 1 311 44 view .LVU529
+ 1719 0016 192A     		cmp	r2, #25
+ 1720 0018 02D1     		bne	.L144
+ 1721              	.L142:
+ 313:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1722              		.loc 1 313 9 is_stmt 1 view .LVU530
+ 313:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1723              		.loc 1 313 16 is_stmt 0 view .LVU531
+ 1724 001a FFF7FEFF 		bl	lv_event_get_param
+ 1725              	.LVL133:
+ 1726              	.L141:
+ 319:Drivers/lvgl/src/core/lv_event.c **** 
+ 1727              		.loc 1 319 1 view .LVU532
+ 1728 001e 08BD     		pop	{r3, pc}
+ 1729              	.LVL134:
+ 1730              	.L144:
+ 317:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1731              		.loc 1 317 16 view .LVU533
+ 1732 0020 0020     		movs	r0, #0
+ 1733              	.LVL135:
+ 317:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1734              		.loc 1 317 16 view .LVU534
+ 1735 0022 FCE7     		b	.L141
+ 1736              		.cfi_endproc
+ 1737              	.LFE179:
+ 1739              		.section	.text.lv_event_get_old_size,"ax",%progbits
+ 1740              		.align	1
+ 1741              		.global	lv_event_get_old_size
+ 1742              		.syntax unified
+ 1743              		.thumb
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 49
+
+
+ 1744              		.thumb_func
+ 1746              	lv_event_get_old_size:
+ 1747              	.LVL136:
+ 1748              	.LFB180:
+ 322:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_SIZE_CHANGED) {
+ 1749              		.loc 1 322 1 is_stmt 1 view -0
+ 1750              		.cfi_startproc
+ 1751              		@ args = 0, pretend = 0, frame = 0
+ 1752              		@ frame_needed = 0, uses_anonymous_args = 0
+ 322:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_SIZE_CHANGED) {
+ 1753              		.loc 1 322 1 is_stmt 0 view .LVU536
+ 1754 0000 08B5     		push	{r3, lr}
+ 1755              		.cfi_def_cfa_offset 8
+ 1756              		.cfi_offset 3, -8
+ 1757              		.cfi_offset 14, -4
+ 323:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 1758              		.loc 1 323 5 is_stmt 1 view .LVU537
+ 323:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 1759              		.loc 1 323 9 is_stmt 0 view .LVU538
+ 1760 0002 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 323:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 1761              		.loc 1 323 7 view .LVU539
+ 1762 0004 292B     		cmp	r3, #41
+ 1763 0006 02D1     		bne	.L148
+ 324:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1764              		.loc 1 324 9 is_stmt 1 view .LVU540
+ 324:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1765              		.loc 1 324 16 is_stmt 0 view .LVU541
+ 1766 0008 FFF7FEFF 		bl	lv_event_get_param
+ 1767              	.LVL137:
+ 1768              	.L146:
+ 330:Drivers/lvgl/src/core/lv_event.c **** 
+ 1769              		.loc 1 330 1 view .LVU542
+ 1770 000c 08BD     		pop	{r3, pc}
+ 1771              	.LVL138:
+ 1772              	.L148:
+ 328:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1773              		.loc 1 328 16 view .LVU543
+ 1774 000e 0020     		movs	r0, #0
+ 1775              	.LVL139:
+ 328:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1776              		.loc 1 328 16 view .LVU544
+ 1777 0010 FCE7     		b	.L146
+ 1778              		.cfi_endproc
+ 1779              	.LFE180:
+ 1781              		.section	.text.lv_event_get_key,"ax",%progbits
+ 1782              		.align	1
+ 1783              		.global	lv_event_get_key
+ 1784              		.syntax unified
+ 1785              		.thumb
+ 1786              		.thumb_func
+ 1788              	lv_event_get_key:
+ 1789              	.LVL140:
+ 1790              	.LFB181:
+ 333:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_KEY) {
+ 1791              		.loc 1 333 1 is_stmt 1 view -0
+ 1792              		.cfi_startproc
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 50
+
+
+ 1793              		@ args = 0, pretend = 0, frame = 0
+ 1794              		@ frame_needed = 0, uses_anonymous_args = 0
+ 333:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_KEY) {
+ 1795              		.loc 1 333 1 is_stmt 0 view .LVU546
+ 1796 0000 08B5     		push	{r3, lr}
+ 1797              		.cfi_def_cfa_offset 8
+ 1798              		.cfi_offset 3, -8
+ 1799              		.cfi_offset 14, -4
+ 334:Drivers/lvgl/src/core/lv_event.c ****         uint32_t * k = lv_event_get_param(e);
+ 1800              		.loc 1 334 5 is_stmt 1 view .LVU547
+ 334:Drivers/lvgl/src/core/lv_event.c ****         uint32_t * k = lv_event_get_param(e);
+ 1801              		.loc 1 334 9 is_stmt 0 view .LVU548
+ 1802 0002 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 334:Drivers/lvgl/src/core/lv_event.c ****         uint32_t * k = lv_event_get_param(e);
+ 1803              		.loc 1 334 7 view .LVU549
+ 1804 0004 0D2B     		cmp	r3, #13
+ 1805 0006 04D1     		bne	.L152
+ 1806              	.LBB2:
+ 335:Drivers/lvgl/src/core/lv_event.c ****         if(k) return *k;
+ 1807              		.loc 1 335 9 is_stmt 1 view .LVU550
+ 335:Drivers/lvgl/src/core/lv_event.c ****         if(k) return *k;
+ 1808              		.loc 1 335 24 is_stmt 0 view .LVU551
+ 1809 0008 FFF7FEFF 		bl	lv_event_get_param
+ 1810              	.LVL141:
+ 336:Drivers/lvgl/src/core/lv_event.c ****         else return 0;
+ 1811              		.loc 1 336 9 is_stmt 1 view .LVU552
+ 336:Drivers/lvgl/src/core/lv_event.c ****         else return 0;
+ 1812              		.loc 1 336 11 is_stmt 0 view .LVU553
+ 1813 000c 18B1     		cbz	r0, .L153
+ 336:Drivers/lvgl/src/core/lv_event.c ****         else return 0;
+ 1814              		.loc 1 336 15 is_stmt 1 discriminator 1 view .LVU554
+ 336:Drivers/lvgl/src/core/lv_event.c ****         else return 0;
+ 1815              		.loc 1 336 22 is_stmt 0 discriminator 1 view .LVU555
+ 1816 000e 0068     		ldr	r0, [r0]
+ 1817              	.LVL142:
+ 336:Drivers/lvgl/src/core/lv_event.c ****         else return 0;
+ 1818              		.loc 1 336 22 view .LVU556
+ 1819 0010 00E0     		b	.L150
+ 1820              	.LVL143:
+ 1821              	.L152:
+ 336:Drivers/lvgl/src/core/lv_event.c ****         else return 0;
+ 1822              		.loc 1 336 22 view .LVU557
+ 1823              	.LBE2:
+ 341:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1824              		.loc 1 341 16 view .LVU558
+ 1825 0012 0020     		movs	r0, #0
+ 1826              	.LVL144:
+ 1827              	.L150:
+ 343:Drivers/lvgl/src/core/lv_event.c **** 
+ 1828              		.loc 1 343 1 view .LVU559
+ 1829 0014 08BD     		pop	{r3, pc}
+ 1830              	.LVL145:
+ 1831              	.L153:
+ 1832              	.LBB3:
+ 337:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1833              		.loc 1 337 21 view .LVU560
+ 1834 0016 0020     		movs	r0, #0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 51
+
+
+ 1835              	.LVL146:
+ 337:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1836              		.loc 1 337 21 view .LVU561
+ 1837 0018 FCE7     		b	.L150
+ 1838              	.LBE3:
+ 1839              		.cfi_endproc
+ 1840              	.LFE181:
+ 1842              		.section	.text.lv_event_get_scroll_anim,"ax",%progbits
+ 1843              		.align	1
+ 1844              		.global	lv_event_get_scroll_anim
+ 1845              		.syntax unified
+ 1846              		.thumb
+ 1847              		.thumb_func
+ 1849              	lv_event_get_scroll_anim:
+ 1850              	.LVL147:
+ 1851              	.LFB182:
+ 346:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_SCROLL_BEGIN) {
+ 1852              		.loc 1 346 1 is_stmt 1 view -0
+ 1853              		.cfi_startproc
+ 1854              		@ args = 0, pretend = 0, frame = 0
+ 1855              		@ frame_needed = 0, uses_anonymous_args = 0
+ 346:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_SCROLL_BEGIN) {
+ 1856              		.loc 1 346 1 is_stmt 0 view .LVU563
+ 1857 0000 08B5     		push	{r3, lr}
+ 1858              		.cfi_def_cfa_offset 8
+ 1859              		.cfi_offset 3, -8
+ 1860              		.cfi_offset 14, -4
+ 347:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 1861              		.loc 1 347 5 is_stmt 1 view .LVU564
+ 347:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 1862              		.loc 1 347 9 is_stmt 0 view .LVU565
+ 1863 0002 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 347:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 1864              		.loc 1 347 7 view .LVU566
+ 1865 0004 092B     		cmp	r3, #9
+ 1866 0006 02D1     		bne	.L157
+ 348:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1867              		.loc 1 348 9 is_stmt 1 view .LVU567
+ 348:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1868              		.loc 1 348 16 is_stmt 0 view .LVU568
+ 1869 0008 FFF7FEFF 		bl	lv_event_get_param
+ 1870              	.LVL148:
+ 1871              	.L155:
+ 354:Drivers/lvgl/src/core/lv_event.c **** 
+ 1872              		.loc 1 354 1 view .LVU569
+ 1873 000c 08BD     		pop	{r3, pc}
+ 1874              	.LVL149:
+ 1875              	.L157:
+ 352:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1876              		.loc 1 352 16 view .LVU570
+ 1877 000e 0020     		movs	r0, #0
+ 1878              	.LVL150:
+ 352:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1879              		.loc 1 352 16 view .LVU571
+ 1880 0010 FCE7     		b	.L155
+ 1881              		.cfi_endproc
+ 1882              	.LFE182:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 52
+
+
+ 1884              		.section	.text.lv_event_set_ext_draw_size,"ax",%progbits
+ 1885              		.align	1
+ 1886              		.global	lv_event_set_ext_draw_size
+ 1887              		.syntax unified
+ 1888              		.thumb
+ 1889              		.thumb_func
+ 1891              	lv_event_set_ext_draw_size:
+ 1892              	.LVL151:
+ 1893              	.LFB183:
+ 357:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_REFR_EXT_DRAW_SIZE) {
+ 1894              		.loc 1 357 1 is_stmt 1 view -0
+ 1895              		.cfi_startproc
+ 1896              		@ args = 0, pretend = 0, frame = 0
+ 1897              		@ frame_needed = 0, uses_anonymous_args = 0
+ 358:Drivers/lvgl/src/core/lv_event.c ****         lv_coord_t * cur_size = lv_event_get_param(e);
+ 1898              		.loc 1 358 5 view .LVU573
+ 358:Drivers/lvgl/src/core/lv_event.c ****         lv_coord_t * cur_size = lv_event_get_param(e);
+ 1899              		.loc 1 358 9 is_stmt 0 view .LVU574
+ 1900 0000 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 358:Drivers/lvgl/src/core/lv_event.c ****         lv_coord_t * cur_size = lv_event_get_param(e);
+ 1901              		.loc 1 358 7 view .LVU575
+ 1902 0002 132B     		cmp	r3, #19
+ 1903 0004 00D0     		beq	.L165
+ 1904 0006 7047     		bx	lr
+ 1905              	.L165:
+ 357:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_REFR_EXT_DRAW_SIZE) {
+ 1906              		.loc 1 357 1 view .LVU576
+ 1907 0008 10B5     		push	{r4, lr}
+ 1908              		.cfi_def_cfa_offset 8
+ 1909              		.cfi_offset 4, -8
+ 1910              		.cfi_offset 14, -4
+ 1911 000a 0C46     		mov	r4, r1
+ 1912              	.LBB4:
+ 359:Drivers/lvgl/src/core/lv_event.c ****         *cur_size = LV_MAX(*cur_size, size);
+ 1913              		.loc 1 359 9 is_stmt 1 view .LVU577
+ 359:Drivers/lvgl/src/core/lv_event.c ****         *cur_size = LV_MAX(*cur_size, size);
+ 1914              		.loc 1 359 33 is_stmt 0 view .LVU578
+ 1915 000c FFF7FEFF 		bl	lv_event_get_param
+ 1916              	.LVL152:
+ 360:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1917              		.loc 1 360 9 is_stmt 1 view .LVU579
+ 360:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1918              		.loc 1 360 21 is_stmt 0 view .LVU580
+ 1919 0010 B0F90030 		ldrsh	r3, [r0]
+ 1920 0014 A342     		cmp	r3, r4
+ 1921 0016 B8BF     		it	lt
+ 1922 0018 2346     		movlt	r3, r4
+ 360:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1923              		.loc 1 360 19 view .LVU581
+ 1924 001a 0380     		strh	r3, [r0]	@ movhi
+ 1925              	.LBE4:
+ 363:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1926              		.loc 1 363 9 is_stmt 1 view .LVU582
+ 363:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1927              		.loc 1 363 9 view .LVU583
+ 363:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1928              		.loc 1 363 9 view .LVU584
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 53
+
+
+ 365:Drivers/lvgl/src/core/lv_event.c **** 
+ 1929              		.loc 1 365 1 is_stmt 0 view .LVU585
+ 1930 001c 10BD     		pop	{r4, pc}
+ 1931              		.cfi_endproc
+ 1932              	.LFE183:
+ 1934              		.section	.text.lv_event_get_self_size_info,"ax",%progbits
+ 1935              		.align	1
+ 1936              		.global	lv_event_get_self_size_info
+ 1937              		.syntax unified
+ 1938              		.thumb
+ 1939              		.thumb_func
+ 1941              	lv_event_get_self_size_info:
+ 1942              	.LVL153:
+ 1943              	.LFB184:
+ 368:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_GET_SELF_SIZE) {
+ 1944              		.loc 1 368 1 is_stmt 1 view -0
+ 1945              		.cfi_startproc
+ 1946              		@ args = 0, pretend = 0, frame = 0
+ 1947              		@ frame_needed = 0, uses_anonymous_args = 0
+ 368:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_GET_SELF_SIZE) {
+ 1948              		.loc 1 368 1 is_stmt 0 view .LVU587
+ 1949 0000 08B5     		push	{r3, lr}
+ 1950              		.cfi_def_cfa_offset 8
+ 1951              		.cfi_offset 3, -8
+ 1952              		.cfi_offset 14, -4
+ 369:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 1953              		.loc 1 369 5 is_stmt 1 view .LVU588
+ 369:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 1954              		.loc 1 369 9 is_stmt 0 view .LVU589
+ 1955 0002 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 369:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 1956              		.loc 1 369 7 view .LVU590
+ 1957 0004 2C2B     		cmp	r3, #44
+ 1958 0006 02D1     		bne	.L168
+ 370:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1959              		.loc 1 370 9 is_stmt 1 view .LVU591
+ 370:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1960              		.loc 1 370 16 is_stmt 0 view .LVU592
+ 1961 0008 FFF7FEFF 		bl	lv_event_get_param
+ 1962              	.LVL154:
+ 1963              	.L166:
+ 376:Drivers/lvgl/src/core/lv_event.c **** 
+ 1964              		.loc 1 376 1 view .LVU593
+ 1965 000c 08BD     		pop	{r3, pc}
+ 1966              	.LVL155:
+ 1967              	.L168:
+ 374:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1968              		.loc 1 374 16 view .LVU594
+ 1969 000e 0020     		movs	r0, #0
+ 1970              	.LVL156:
+ 374:Drivers/lvgl/src/core/lv_event.c ****     }
+ 1971              		.loc 1 374 16 view .LVU595
+ 1972 0010 FCE7     		b	.L166
+ 1973              		.cfi_endproc
+ 1974              	.LFE184:
+ 1976              		.section	.text.lv_event_get_hit_test_info,"ax",%progbits
+ 1977              		.align	1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 54
+
+
+ 1978              		.global	lv_event_get_hit_test_info
+ 1979              		.syntax unified
+ 1980              		.thumb
+ 1981              		.thumb_func
+ 1983              	lv_event_get_hit_test_info:
+ 1984              	.LVL157:
+ 1985              	.LFB185:
+ 379:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_HIT_TEST) {
+ 1986              		.loc 1 379 1 is_stmt 1 view -0
+ 1987              		.cfi_startproc
+ 1988              		@ args = 0, pretend = 0, frame = 0
+ 1989              		@ frame_needed = 0, uses_anonymous_args = 0
+ 379:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_HIT_TEST) {
+ 1990              		.loc 1 379 1 is_stmt 0 view .LVU597
+ 1991 0000 08B5     		push	{r3, lr}
+ 1992              		.cfi_def_cfa_offset 8
+ 1993              		.cfi_offset 3, -8
+ 1994              		.cfi_offset 14, -4
+ 380:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 1995              		.loc 1 380 5 is_stmt 1 view .LVU598
+ 380:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 1996              		.loc 1 380 9 is_stmt 0 view .LVU599
+ 1997 0002 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 380:Drivers/lvgl/src/core/lv_event.c ****         return lv_event_get_param(e);
+ 1998              		.loc 1 380 7 view .LVU600
+ 1999 0004 112B     		cmp	r3, #17
+ 2000 0006 02D1     		bne	.L172
+ 381:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2001              		.loc 1 381 9 is_stmt 1 view .LVU601
+ 381:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2002              		.loc 1 381 16 is_stmt 0 view .LVU602
+ 2003 0008 FFF7FEFF 		bl	lv_event_get_param
+ 2004              	.LVL158:
+ 2005              	.L170:
+ 387:Drivers/lvgl/src/core/lv_event.c **** 
+ 2006              		.loc 1 387 1 view .LVU603
+ 2007 000c 08BD     		pop	{r3, pc}
+ 2008              	.LVL159:
+ 2009              	.L172:
+ 385:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2010              		.loc 1 385 16 view .LVU604
+ 2011 000e 0020     		movs	r0, #0
+ 2012              	.LVL160:
+ 385:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2013              		.loc 1 385 16 view .LVU605
+ 2014 0010 FCE7     		b	.L170
+ 2015              		.cfi_endproc
+ 2016              	.LFE185:
+ 2018              		.section	.text.lv_event_get_cover_area,"ax",%progbits
+ 2019              		.align	1
+ 2020              		.global	lv_event_get_cover_area
+ 2021              		.syntax unified
+ 2022              		.thumb
+ 2023              		.thumb_func
+ 2025              	lv_event_get_cover_area:
+ 2026              	.LVL161:
+ 2027              	.LFB186:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 55
+
+
+ 390:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_COVER_CHECK) {
+ 2028              		.loc 1 390 1 is_stmt 1 view -0
+ 2029              		.cfi_startproc
+ 2030              		@ args = 0, pretend = 0, frame = 0
+ 2031              		@ frame_needed = 0, uses_anonymous_args = 0
+ 390:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_COVER_CHECK) {
+ 2032              		.loc 1 390 1 is_stmt 0 view .LVU607
+ 2033 0000 08B5     		push	{r3, lr}
+ 2034              		.cfi_def_cfa_offset 8
+ 2035              		.cfi_offset 3, -8
+ 2036              		.cfi_offset 14, -4
+ 391:Drivers/lvgl/src/core/lv_event.c ****         lv_cover_check_info_t * p = lv_event_get_param(e);
+ 2037              		.loc 1 391 5 is_stmt 1 view .LVU608
+ 391:Drivers/lvgl/src/core/lv_event.c ****         lv_cover_check_info_t * p = lv_event_get_param(e);
+ 2038              		.loc 1 391 9 is_stmt 0 view .LVU609
+ 2039 0002 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 391:Drivers/lvgl/src/core/lv_event.c ****         lv_cover_check_info_t * p = lv_event_get_param(e);
+ 2040              		.loc 1 391 7 view .LVU610
+ 2041 0004 122B     		cmp	r3, #18
+ 2042 0006 03D1     		bne	.L176
+ 2043              	.LBB5:
+ 392:Drivers/lvgl/src/core/lv_event.c ****         return p->area;
+ 2044              		.loc 1 392 9 is_stmt 1 view .LVU611
+ 392:Drivers/lvgl/src/core/lv_event.c ****         return p->area;
+ 2045              		.loc 1 392 37 is_stmt 0 view .LVU612
+ 2046 0008 FFF7FEFF 		bl	lv_event_get_param
+ 2047              	.LVL162:
+ 393:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2048              		.loc 1 393 9 is_stmt 1 view .LVU613
+ 393:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2049              		.loc 1 393 17 is_stmt 0 view .LVU614
+ 2050 000c 4068     		ldr	r0, [r0, #4]
+ 2051              	.LVL163:
+ 2052              	.L174:
+ 393:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2053              		.loc 1 393 17 view .LVU615
+ 2054              	.LBE5:
+ 399:Drivers/lvgl/src/core/lv_event.c **** 
+ 2055              		.loc 1 399 1 view .LVU616
+ 2056 000e 08BD     		pop	{r3, pc}
+ 2057              	.LVL164:
+ 2058              	.L176:
+ 397:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2059              		.loc 1 397 16 view .LVU617
+ 2060 0010 0020     		movs	r0, #0
+ 2061              	.LVL165:
+ 397:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2062              		.loc 1 397 16 view .LVU618
+ 2063 0012 FCE7     		b	.L174
+ 2064              		.cfi_endproc
+ 2065              	.LFE186:
+ 2067              		.section	.text.lv_event_set_cover_res,"ax",%progbits
+ 2068              		.align	1
+ 2069              		.global	lv_event_set_cover_res
+ 2070              		.syntax unified
+ 2071              		.thumb
+ 2072              		.thumb_func
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 56
+
+
+ 2074              	lv_event_set_cover_res:
+ 2075              	.LVL166:
+ 2076              	.LFB187:
+ 402:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_COVER_CHECK) {
+ 2077              		.loc 1 402 1 is_stmt 1 view -0
+ 2078              		.cfi_startproc
+ 2079              		@ args = 0, pretend = 0, frame = 0
+ 2080              		@ frame_needed = 0, uses_anonymous_args = 0
+ 403:Drivers/lvgl/src/core/lv_event.c ****         lv_cover_check_info_t * p = lv_event_get_param(e);
+ 2081              		.loc 1 403 5 view .LVU620
+ 403:Drivers/lvgl/src/core/lv_event.c ****         lv_cover_check_info_t * p = lv_event_get_param(e);
+ 2082              		.loc 1 403 9 is_stmt 0 view .LVU621
+ 2083 0000 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 403:Drivers/lvgl/src/core/lv_event.c ****         lv_cover_check_info_t * p = lv_event_get_param(e);
+ 2084              		.loc 1 403 7 view .LVU622
+ 2085 0002 122B     		cmp	r3, #18
+ 2086 0004 00D0     		beq	.L184
+ 2087 0006 7047     		bx	lr
+ 2088              	.L184:
+ 402:Drivers/lvgl/src/core/lv_event.c ****     if(e->code == LV_EVENT_COVER_CHECK) {
+ 2089              		.loc 1 402 1 view .LVU623
+ 2090 0008 10B5     		push	{r4, lr}
+ 2091              		.cfi_def_cfa_offset 8
+ 2092              		.cfi_offset 4, -8
+ 2093              		.cfi_offset 14, -4
+ 2094 000a 0C46     		mov	r4, r1
+ 2095              	.LBB6:
+ 404:Drivers/lvgl/src/core/lv_event.c ****         if(res > p->res) p->res = res;  /*Save only "stronger" results*/
+ 2096              		.loc 1 404 9 is_stmt 1 view .LVU624
+ 404:Drivers/lvgl/src/core/lv_event.c ****         if(res > p->res) p->res = res;  /*Save only "stronger" results*/
+ 2097              		.loc 1 404 37 is_stmt 0 view .LVU625
+ 2098 000c FFF7FEFF 		bl	lv_event_get_param
+ 2099              	.LVL167:
+ 405:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2100              		.loc 1 405 9 is_stmt 1 view .LVU626
+ 405:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2101              		.loc 1 405 19 is_stmt 0 view .LVU627
+ 2102 0010 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 405:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2103              		.loc 1 405 11 view .LVU628
+ 2104 0012 A342     		cmp	r3, r4
+ 2105 0014 00D2     		bcs	.L178
+ 405:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2106              		.loc 1 405 26 is_stmt 1 discriminator 1 view .LVU629
+ 405:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2107              		.loc 1 405 33 is_stmt 0 discriminator 1 view .LVU630
+ 2108 0016 0470     		strb	r4, [r0]
+ 2109              	.LBE6:
+ 408:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2110              		.loc 1 408 9 is_stmt 1 view .LVU631
+ 408:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2111              		.loc 1 408 9 view .LVU632
+ 408:Drivers/lvgl/src/core/lv_event.c ****     }
+ 2112              		.loc 1 408 9 view .LVU633
+ 2113              	.L178:
+ 410:Drivers/lvgl/src/core/lv_event.c **** 
+ 2114              		.loc 1 410 1 is_stmt 0 view .LVU634
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 57
+
+
+ 2115 0018 10BD     		pop	{r4, pc}
+ 2116              		.cfi_endproc
+ 2117              	.LFE187:
+ 2119              		.section	.data.last_id.0,"aw"
+ 2120              		.align	2
+ 2123              	last_id.0:
+ 2124 0000 2D000000 		.word	45
+ 2125              		.section	.bss.event_head,"aw",%nobits
+ 2126              		.align	2
+ 2129              	event_head:
+ 2130 0000 00000000 		.space	4
+ 2131              		.text
+ 2132              	.Letext0:
+ 2133              		.file 2 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 2134              		.file 3 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 2135              		.file 4 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 2136              		.file 5 "Drivers/lvgl/src/core/../misc/../font/../misc/lv_area.h"
+ 2137              		.file 6 "Drivers/lvgl/src/core/../misc/../font/lv_font.h"
+ 2138              		.file 7 "Drivers/lvgl/src/core/../misc/lv_types.h"
+ 2139              		.file 8 "Drivers/lvgl/src/core/../misc/lv_color.h"
+ 2140              		.file 9 "Drivers/lvgl/src/core/../misc/lv_anim.h"
+ 2141              		.file 10 "Drivers/lvgl/src/core/../misc/lv_txt.h"
+ 2142              		.file 11 "Drivers/lvgl/src/core/../misc/lv_bidi.h"
+ 2143              		.file 12 "Drivers/lvgl/src/core/../misc/lv_style.h"
+ 2144              		.file 13 "Drivers/lvgl/src/core/../hal/../draw/lv_img_buf.h"
+ 2145              		.file 14 "Drivers/lvgl/src/core/lv_obj.h"
+ 2146              		.file 15 "Drivers/lvgl/src/core/../hal/../draw/lv_draw_rect.h"
+ 2147              		.file 16 "Drivers/lvgl/src/core/../hal/../draw/lv_draw_label.h"
+ 2148              		.file 17 "Drivers/lvgl/src/core/../hal/../draw/lv_draw_img.h"
+ 2149              		.file 18 "Drivers/lvgl/src/core/../hal/../draw/lv_draw_line.h"
+ 2150              		.file 19 "Drivers/lvgl/src/core/../hal/../draw/lv_draw_arc.h"
+ 2151              		.file 20 "Drivers/lvgl/src/core/../hal/../draw/lv_draw_layer.h"
+ 2152              		.file 21 "Drivers/lvgl/src/core/../hal/../draw/lv_draw.h"
+ 2153              		.file 22 "Drivers/lvgl/src/core/../hal/../misc/lv_ll.h"
+ 2154              		.file 23 "Drivers/lvgl/src/core/../hal/../misc/lv_timer.h"
+ 2155              		.file 24 "Drivers/lvgl/src/core/../hal/lv_hal_disp.h"
+ 2156              		.file 25 "Drivers/lvgl/src/core/../hal/lv_hal_indev.h"
+ 2157              		.file 26 "Drivers/lvgl/src/core/lv_group.h"
+ 2158              		.file 27 "Drivers/lvgl/src/core/lv_obj_scroll.h"
+ 2159              		.file 28 "Drivers/lvgl/src/core/lv_obj_style.h"
+ 2160              		.file 29 "Drivers/lvgl/src/core/lv_obj_draw.h"
+ 2161              		.file 30 "Drivers/lvgl/src/core/lv_obj_class.h"
+ 2162              		.file 31 "Drivers/lvgl/src/core/lv_event.h"
+ 2163              		.file 32 "Drivers/lvgl/src/core/../misc/lv_mem.h"
+ 2164              		.file 33 "Drivers/lvgl/src/core/lv_indev.h"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 58
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_event.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:21     .text.lv_obj_get_event_dsc:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:26     .text.lv_obj_get_event_dsc:00000000 lv_obj_get_event_dsc
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:70     .text.event_is_bubbled:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:75     .text.event_is_bubbled:00000000 event_is_bubbled
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:159    .text.event_is_bubbled:00000050 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:164    .text.lv_obj_event_base:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:170    .text.lv_obj_event_base:00000000 lv_obj_event_base
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:274    .text.event_send_core:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:279    .text.event_send_core:00000000 event_send_core
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:571    .text.lv_event_send:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:577    .text.lv_event_send:00000000 lv_event_send
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:670    .text.lv_event_send:00000050 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:2129   .bss.event_head:00000000 event_head
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:675    .text.lv_event_get_target:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:681    .text.lv_event_get_target:00000000 lv_event_get_target
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:699    .text.lv_event_get_current_target:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:705    .text.lv_event_get_current_target:00000000 lv_event_get_current_target
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:723    .text.lv_event_get_code:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:729    .text.lv_event_get_code:00000000 lv_event_get_code
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:748    .text.lv_event_get_param:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:754    .text.lv_event_get_param:00000000 lv_event_get_param
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:772    .text.lv_event_get_user_data:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:778    .text.lv_event_get_user_data:00000000 lv_event_get_user_data
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:796    .text.lv_event_stop_bubbling:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:802    .text.lv_event_stop_bubbling:00000000 lv_event_stop_bubbling
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:821    .text.lv_event_stop_processing:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:827    .text.lv_event_stop_processing:00000000 lv_event_stop_processing
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:846    .text.lv_event_register_id:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:852    .text.lv_event_register_id:00000000 lv_event_register_id
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:872    .text.lv_event_register_id:0000000c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:2123   .data.last_id.0:00000000 last_id.0
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:877    .text._lv_event_mark_deleted:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:883    .text._lv_event_mark_deleted:00000000 _lv_event_mark_deleted
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:931    .text._lv_event_mark_deleted:00000024 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:936    .text.lv_obj_add_event_cb:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:942    .text.lv_obj_add_event_cb:00000000 lv_obj_add_event_cb
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1066   .text.lv_obj_remove_event_cb:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1072   .text.lv_obj_remove_event_cb:00000000 lv_obj_remove_event_cb
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1212   .text.lv_obj_remove_event_cb_with_user_data:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1218   .text.lv_obj_remove_event_cb_with_user_data:00000000 lv_obj_remove_event_cb_with_user_data
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1370   .text.lv_obj_remove_event_dsc:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1376   .text.lv_obj_remove_event_dsc:00000000 lv_obj_remove_event_dsc
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1513   .text.lv_obj_get_event_user_data:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1519   .text.lv_obj_get_event_user_data:00000000 lv_obj_get_event_user_data
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1595   .text.lv_event_get_indev:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1601   .text.lv_event_get_indev:00000000 lv_event_get_indev
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1640   .text.lv_event_get_draw_part_dsc:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1646   .text.lv_event_get_draw_part_dsc:00000000 lv_event_get_draw_part_dsc
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1685   .text.lv_event_get_draw_ctx:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1691   .text.lv_event_get_draw_ctx:00000000 lv_event_get_draw_ctx
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1740   .text.lv_event_get_old_size:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1746   .text.lv_event_get_old_size:00000000 lv_event_get_old_size
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1782   .text.lv_event_get_key:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1788   .text.lv_event_get_key:00000000 lv_event_get_key
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1843   .text.lv_event_get_scroll_anim:00000000 $t
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s 			page 59
+
+
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1849   .text.lv_event_get_scroll_anim:00000000 lv_event_get_scroll_anim
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1885   .text.lv_event_set_ext_draw_size:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1891   .text.lv_event_set_ext_draw_size:00000000 lv_event_set_ext_draw_size
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1935   .text.lv_event_get_self_size_info:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1941   .text.lv_event_get_self_size_info:00000000 lv_event_get_self_size_info
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1977   .text.lv_event_get_hit_test_info:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:1983   .text.lv_event_get_hit_test_info:00000000 lv_event_get_hit_test_info
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:2019   .text.lv_event_get_cover_area:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:2025   .text.lv_event_get_cover_area:00000000 lv_event_get_cover_area
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:2068   .text.lv_event_set_cover_res:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:2074   .text.lv_event_set_cover_res:00000000 lv_event_set_cover_res
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:2120   .data.last_id.0:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cceP7WHc.s:2126   .bss.event_head:00000000 $d
+
+UNDEFINED SYMBOLS
+lv_obj_has_flag
+lv_indev_get_act
+lv_obj_allocate_spec_attr
+lv_mem_realloc

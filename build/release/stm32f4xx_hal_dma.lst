@@ -1,0 +1,1202 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"stm32f4xx_hal_dma.c"
+  16              		.text
+  17              		.section	.text.DMA_SetConfig,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	DMA_SetConfig:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 30B4     		push	{r4, r5}
+  28 0002 0568     		ldr	r5, [r0]
+  29 0004 2C68     		ldr	r4, [r5]
+  30 0006 24F48024 		bic	r4, r4, #262144
+  31 000a 2C60     		str	r4, [r5]
+  32 000c 0468     		ldr	r4, [r0]
+  33 000e 6360     		str	r3, [r4, #4]
+  34 0010 8368     		ldr	r3, [r0, #8]
+  35 0012 402B     		cmp	r3, #64
+  36 0014 05D0     		beq	.L5
+  37 0016 0368     		ldr	r3, [r0]
+  38 0018 9960     		str	r1, [r3, #8]
+  39 001a 0368     		ldr	r3, [r0]
+  40 001c DA60     		str	r2, [r3, #12]
+  41              	.L1:
+  42 001e 30BC     		pop	{r4, r5}
+  43 0020 7047     		bx	lr
+  44              	.L5:
+  45 0022 0368     		ldr	r3, [r0]
+  46 0024 9A60     		str	r2, [r3, #8]
+  47 0026 0368     		ldr	r3, [r0]
+  48 0028 D960     		str	r1, [r3, #12]
+  49 002a F8E7     		b	.L1
+  51              		.section	.text.DMA_CalcBaseAndBitshift,"ax",%progbits
+  52              		.align	1
+  53              		.syntax unified
+  54              		.thumb
+  55              		.thumb_func
+  57              	DMA_CalcBaseAndBitshift:
+  58              		@ args = 0, pretend = 0, frame = 0
+  59              		@ frame_needed = 0, uses_anonymous_args = 0
+  60              		@ link register save eliminated.
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 2
+
+
+  61 0000 10B4     		push	{r4}
+  62 0002 0368     		ldr	r3, [r0]
+  63 0004 D9B2     		uxtb	r1, r3
+  64 0006 1039     		subs	r1, r1, #16
+  65 0008 0A4A     		ldr	r2, .L10
+  66 000a A2FB0142 		umull	r4, r2, r2, r1
+  67 000e 1209     		lsrs	r2, r2, #4
+  68 0010 094C     		ldr	r4, .L10+4
+  69 0012 A25C     		ldrb	r2, [r4, r2]	@ zero_extendqisi2
+  70 0014 C265     		str	r2, [r0, #92]
+  71 0016 5F29     		cmp	r1, #95
+  72 0018 07D9     		bls	.L7
+  73 001a 6FF30903 		bfc	r3, #0, #10
+  74 001e 0433     		adds	r3, r3, #4
+  75 0020 8365     		str	r3, [r0, #88]
+  76              	.L8:
+  77 0022 806D     		ldr	r0, [r0, #88]
+  78 0024 5DF8044B 		ldr	r4, [sp], #4
+  79 0028 7047     		bx	lr
+  80              	.L7:
+  81 002a 6FF30903 		bfc	r3, #0, #10
+  82 002e 8365     		str	r3, [r0, #88]
+  83 0030 F7E7     		b	.L8
+  84              	.L11:
+  85 0032 00BF     		.align	2
+  86              	.L10:
+  87 0034 ABAAAAAA 		.word	-1431655765
+  88 0038 00000000 		.word	flagBitshiftOffset.0
+  90              		.section	.text.DMA_CheckFifoParam,"ax",%progbits
+  91              		.align	1
+  92              		.syntax unified
+  93              		.thumb
+  94              		.thumb_func
+  96              	DMA_CheckFifoParam:
+  97              		@ args = 0, pretend = 0, frame = 0
+  98              		@ frame_needed = 0, uses_anonymous_args = 0
+  99              		@ link register save eliminated.
+ 100 0000 836A     		ldr	r3, [r0, #40]
+ 101 0002 8269     		ldr	r2, [r0, #24]
+ 102 0004 92B9     		cbnz	r2, .L13
+ 103 0006 012B     		cmp	r3, #1
+ 104 0008 0AD0     		beq	.L14
+ 105 000a 022B     		cmp	r3, #2
+ 106 000c 02D0     		beq	.L15
+ 107 000e 0BB1     		cbz	r3, .L15
+ 108 0010 0020     		movs	r0, #0
+ 109 0012 7047     		bx	lr
+ 110              	.L15:
+ 111 0014 C36A     		ldr	r3, [r0, #44]
+ 112 0016 13F0807F 		tst	r3, #16777216
+ 113 001a 28D1     		bne	.L23
+ 114 001c 0020     		movs	r0, #0
+ 115 001e 7047     		bx	lr
+ 116              	.L14:
+ 117 0020 C36A     		ldr	r3, [r0, #44]
+ 118 0022 B3F1C07F 		cmp	r3, #25165824
+ 119 0026 24D0     		beq	.L24
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 3
+
+
+ 120 0028 0020     		movs	r0, #0
+ 121 002a 7047     		bx	lr
+ 122              	.L13:
+ 123 002c B2F5005F 		cmp	r2, #8192
+ 124 0030 09D0     		beq	.L31
+ 125 0032 022B     		cmp	r3, #2
+ 126 0034 25D9     		bls	.L28
+ 127 0036 032B     		cmp	r3, #3
+ 128 0038 25D1     		bne	.L29
+ 129 003a C36A     		ldr	r3, [r0, #44]
+ 130 003c 13F0807F 		tst	r3, #16777216
+ 131 0040 23D1     		bne	.L30
+ 132 0042 0020     		movs	r0, #0
+ 133 0044 7047     		bx	lr
+ 134              	.L31:
+ 135 0046 032B     		cmp	r3, #3
+ 136 0048 03D8     		bhi	.L18
+ 137 004a DFE803F0 		tbb	[pc, r3]
+ 138              	.L20:
+ 139 004e 14       		.byte	(.L25-.L20)/2
+ 140 004f 04       		.byte	(.L21-.L20)/2
+ 141 0050 14       		.byte	(.L25-.L20)/2
+ 142 0051 0A       		.byte	(.L19-.L20)/2
+ 143              		.p2align 1
+ 144              	.L18:
+ 145 0052 0020     		movs	r0, #0
+ 146 0054 7047     		bx	lr
+ 147              	.L21:
+ 148 0056 C36A     		ldr	r3, [r0, #44]
+ 149 0058 13F0807F 		tst	r3, #16777216
+ 150 005c 0DD1     		bne	.L26
+ 151 005e 0020     		movs	r0, #0
+ 152 0060 7047     		bx	lr
+ 153              	.L19:
+ 154 0062 C36A     		ldr	r3, [r0, #44]
+ 155 0064 B3F1C07F 		cmp	r3, #25165824
+ 156 0068 09D0     		beq	.L27
+ 157 006a 0020     		movs	r0, #0
+ 158 006c 7047     		bx	lr
+ 159              	.L23:
+ 160 006e 0120     		movs	r0, #1
+ 161 0070 7047     		bx	lr
+ 162              	.L24:
+ 163 0072 0120     		movs	r0, #1
+ 164 0074 7047     		bx	lr
+ 165              	.L25:
+ 166 0076 0120     		movs	r0, #1
+ 167 0078 7047     		bx	lr
+ 168              	.L26:
+ 169 007a 0120     		movs	r0, #1
+ 170 007c 7047     		bx	lr
+ 171              	.L27:
+ 172 007e 0120     		movs	r0, #1
+ 173 0080 7047     		bx	lr
+ 174              	.L28:
+ 175 0082 0120     		movs	r0, #1
+ 176 0084 7047     		bx	lr
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 4
+
+
+ 177              	.L29:
+ 178 0086 0020     		movs	r0, #0
+ 179 0088 7047     		bx	lr
+ 180              	.L30:
+ 181 008a 0120     		movs	r0, #1
+ 182 008c 7047     		bx	lr
+ 184              		.section	.text.HAL_DMA_Init,"ax",%progbits
+ 185              		.align	1
+ 186              		.global	HAL_DMA_Init
+ 187              		.syntax unified
+ 188              		.thumb
+ 189              		.thumb_func
+ 191              	HAL_DMA_Init:
+ 192              		@ args = 0, pretend = 0, frame = 0
+ 193              		@ frame_needed = 0, uses_anonymous_args = 0
+ 194 0000 70B5     		push	{r4, r5, r6, lr}
+ 195 0002 0446     		mov	r4, r0
+ 196 0004 FFF7FEFF 		bl	HAL_GetTick
+ 197 0008 002C     		cmp	r4, #0
+ 198 000a 5BD0     		beq	.L38
+ 199 000c 0546     		mov	r5, r0
+ 200 000e 0223     		movs	r3, #2
+ 201 0010 84F83530 		strb	r3, [r4, #53]
+ 202 0014 0023     		movs	r3, #0
+ 203 0016 84F83430 		strb	r3, [r4, #52]
+ 204 001a 2268     		ldr	r2, [r4]
+ 205 001c 1368     		ldr	r3, [r2]
+ 206 001e 23F00103 		bic	r3, r3, #1
+ 207 0022 1360     		str	r3, [r2]
+ 208              	.L34:
+ 209 0024 2368     		ldr	r3, [r4]
+ 210 0026 1A68     		ldr	r2, [r3]
+ 211 0028 12F0010F 		tst	r2, #1
+ 212 002c 0AD0     		beq	.L40
+ 213 002e FFF7FEFF 		bl	HAL_GetTick
+ 214 0032 431B     		subs	r3, r0, r5
+ 215 0034 052B     		cmp	r3, #5
+ 216 0036 F5D9     		bls	.L34
+ 217 0038 2023     		movs	r3, #32
+ 218 003a 6365     		str	r3, [r4, #84]
+ 219 003c 0320     		movs	r0, #3
+ 220 003e 84F83500 		strb	r0, [r4, #53]
+ 221              	.L33:
+ 222 0042 70BD     		pop	{r4, r5, r6, pc}
+ 223              	.L40:
+ 224 0044 1A68     		ldr	r2, [r3]
+ 225 0046 2049     		ldr	r1, .L43
+ 226 0048 1140     		ands	r1, r1, r2
+ 227 004a 6268     		ldr	r2, [r4, #4]
+ 228 004c A068     		ldr	r0, [r4, #8]
+ 229 004e 0243     		orrs	r2, r2, r0
+ 230 0050 E068     		ldr	r0, [r4, #12]
+ 231 0052 0243     		orrs	r2, r2, r0
+ 232 0054 2069     		ldr	r0, [r4, #16]
+ 233 0056 0243     		orrs	r2, r2, r0
+ 234 0058 6069     		ldr	r0, [r4, #20]
+ 235 005a 0243     		orrs	r2, r2, r0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 5
+
+
+ 236 005c A069     		ldr	r0, [r4, #24]
+ 237 005e 0243     		orrs	r2, r2, r0
+ 238 0060 E069     		ldr	r0, [r4, #28]
+ 239 0062 0243     		orrs	r2, r2, r0
+ 240 0064 206A     		ldr	r0, [r4, #32]
+ 241 0066 0243     		orrs	r2, r2, r0
+ 242 0068 0A43     		orrs	r2, r2, r1
+ 243 006a 616A     		ldr	r1, [r4, #36]
+ 244 006c 0429     		cmp	r1, #4
+ 245 006e 1ED0     		beq	.L41
+ 246              	.L36:
+ 247 0070 1A60     		str	r2, [r3]
+ 248 0072 2668     		ldr	r6, [r4]
+ 249 0074 7569     		ldr	r5, [r6, #20]
+ 250 0076 25F00705 		bic	r5, r5, #7
+ 251 007a 636A     		ldr	r3, [r4, #36]
+ 252 007c 1D43     		orrs	r5, r5, r3
+ 253 007e 042B     		cmp	r3, #4
+ 254 0080 07D1     		bne	.L37
+ 255 0082 A36A     		ldr	r3, [r4, #40]
+ 256 0084 1D43     		orrs	r5, r5, r3
+ 257 0086 E36A     		ldr	r3, [r4, #44]
+ 258 0088 1BB1     		cbz	r3, .L37
+ 259 008a 2046     		mov	r0, r4
+ 260 008c FFF7FEFF 		bl	DMA_CheckFifoParam
+ 261 0090 90B9     		cbnz	r0, .L42
+ 262              	.L37:
+ 263 0092 7561     		str	r5, [r6, #20]
+ 264 0094 2046     		mov	r0, r4
+ 265 0096 FFF7FEFF 		bl	DMA_CalcBaseAndBitshift
+ 266 009a E26D     		ldr	r2, [r4, #92]
+ 267 009c 3F23     		movs	r3, #63
+ 268 009e 9340     		lsls	r3, r3, r2
+ 269 00a0 8360     		str	r3, [r0, #8]
+ 270 00a2 0020     		movs	r0, #0
+ 271 00a4 6065     		str	r0, [r4, #84]
+ 272 00a6 0123     		movs	r3, #1
+ 273 00a8 84F83530 		strb	r3, [r4, #53]
+ 274 00ac C9E7     		b	.L33
+ 275              	.L41:
+ 276 00ae E16A     		ldr	r1, [r4, #44]
+ 277 00b0 206B     		ldr	r0, [r4, #48]
+ 278 00b2 0143     		orrs	r1, r1, r0
+ 279 00b4 0A43     		orrs	r2, r2, r1
+ 280 00b6 DBE7     		b	.L36
+ 281              	.L42:
+ 282 00b8 4023     		movs	r3, #64
+ 283 00ba 6365     		str	r3, [r4, #84]
+ 284 00bc 0120     		movs	r0, #1
+ 285 00be 84F83500 		strb	r0, [r4, #53]
+ 286 00c2 BEE7     		b	.L33
+ 287              	.L38:
+ 288 00c4 0120     		movs	r0, #1
+ 289 00c6 BCE7     		b	.L33
+ 290              	.L44:
+ 291              		.align	2
+ 292              	.L43:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 6
+
+
+ 293 00c8 3F8010F0 		.word	-267354049
+ 295              		.section	.text.HAL_DMA_DeInit,"ax",%progbits
+ 296              		.align	1
+ 297              		.global	HAL_DMA_DeInit
+ 298              		.syntax unified
+ 299              		.thumb
+ 300              		.thumb_func
+ 302              	HAL_DMA_DeInit:
+ 303              		@ args = 0, pretend = 0, frame = 0
+ 304              		@ frame_needed = 0, uses_anonymous_args = 0
+ 305 0000 0028     		cmp	r0, #0
+ 306 0002 2DD0     		beq	.L47
+ 307 0004 38B5     		push	{r3, r4, r5, lr}
+ 308 0006 0546     		mov	r5, r0
+ 309 0008 90F83500 		ldrb	r0, [r0, #53]	@ zero_extendqisi2
+ 310 000c C0B2     		uxtb	r0, r0
+ 311 000e 0228     		cmp	r0, #2
+ 312 0010 25D0     		beq	.L46
+ 313 0012 2A68     		ldr	r2, [r5]
+ 314 0014 1368     		ldr	r3, [r2]
+ 315 0016 23F00103 		bic	r3, r3, #1
+ 316 001a 1360     		str	r3, [r2]
+ 317 001c 2B68     		ldr	r3, [r5]
+ 318 001e 0024     		movs	r4, #0
+ 319 0020 1C60     		str	r4, [r3]
+ 320 0022 2B68     		ldr	r3, [r5]
+ 321 0024 5C60     		str	r4, [r3, #4]
+ 322 0026 2B68     		ldr	r3, [r5]
+ 323 0028 9C60     		str	r4, [r3, #8]
+ 324 002a 2B68     		ldr	r3, [r5]
+ 325 002c DC60     		str	r4, [r3, #12]
+ 326 002e 2B68     		ldr	r3, [r5]
+ 327 0030 1C61     		str	r4, [r3, #16]
+ 328 0032 2B68     		ldr	r3, [r5]
+ 329 0034 2122     		movs	r2, #33
+ 330 0036 5A61     		str	r2, [r3, #20]
+ 331 0038 2846     		mov	r0, r5
+ 332 003a FFF7FEFF 		bl	DMA_CalcBaseAndBitshift
+ 333 003e EC63     		str	r4, [r5, #60]
+ 334 0040 2C64     		str	r4, [r5, #64]
+ 335 0042 6C64     		str	r4, [r5, #68]
+ 336 0044 AC64     		str	r4, [r5, #72]
+ 337 0046 EC64     		str	r4, [r5, #76]
+ 338 0048 2C65     		str	r4, [r5, #80]
+ 339 004a EA6D     		ldr	r2, [r5, #92]
+ 340 004c 3F23     		movs	r3, #63
+ 341 004e 9340     		lsls	r3, r3, r2
+ 342 0050 8360     		str	r3, [r0, #8]
+ 343 0052 6C65     		str	r4, [r5, #84]
+ 344 0054 85F83540 		strb	r4, [r5, #53]
+ 345 0058 85F83440 		strb	r4, [r5, #52]
+ 346 005c 2046     		mov	r0, r4
+ 347              	.L46:
+ 348 005e 38BD     		pop	{r3, r4, r5, pc}
+ 349              	.L47:
+ 350 0060 0120     		movs	r0, #1
+ 351 0062 7047     		bx	lr
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 7
+
+
+ 353              		.section	.text.HAL_DMA_Start,"ax",%progbits
+ 354              		.align	1
+ 355              		.global	HAL_DMA_Start
+ 356              		.syntax unified
+ 357              		.thumb
+ 358              		.thumb_func
+ 360              	HAL_DMA_Start:
+ 361              		@ args = 0, pretend = 0, frame = 0
+ 362              		@ frame_needed = 0, uses_anonymous_args = 0
+ 363 0000 38B5     		push	{r3, r4, r5, lr}
+ 364 0002 0446     		mov	r4, r0
+ 365 0004 90F83400 		ldrb	r0, [r0, #52]	@ zero_extendqisi2
+ 366 0008 0128     		cmp	r0, #1
+ 367 000a 1BD0     		beq	.L55
+ 368 000c 0120     		movs	r0, #1
+ 369 000e 84F83400 		strb	r0, [r4, #52]
+ 370 0012 94F83500 		ldrb	r0, [r4, #53]	@ zero_extendqisi2
+ 371 0016 C0B2     		uxtb	r0, r0
+ 372 0018 0128     		cmp	r0, #1
+ 373 001a 04D0     		beq	.L57
+ 374 001c 0023     		movs	r3, #0
+ 375 001e 84F83430 		strb	r3, [r4, #52]
+ 376 0022 0220     		movs	r0, #2
+ 377              	.L53:
+ 378 0024 38BD     		pop	{r3, r4, r5, pc}
+ 379              	.L57:
+ 380 0026 0220     		movs	r0, #2
+ 381 0028 84F83500 		strb	r0, [r4, #53]
+ 382 002c 0025     		movs	r5, #0
+ 383 002e 6565     		str	r5, [r4, #84]
+ 384 0030 2046     		mov	r0, r4
+ 385 0032 FFF7FEFF 		bl	DMA_SetConfig
+ 386 0036 2268     		ldr	r2, [r4]
+ 387 0038 1368     		ldr	r3, [r2]
+ 388 003a 43F00103 		orr	r3, r3, #1
+ 389 003e 1360     		str	r3, [r2]
+ 390 0040 2846     		mov	r0, r5
+ 391 0042 EFE7     		b	.L53
+ 392              	.L55:
+ 393 0044 0220     		movs	r0, #2
+ 394 0046 EDE7     		b	.L53
+ 396              		.section	.text.HAL_DMA_Start_IT,"ax",%progbits
+ 397              		.align	1
+ 398              		.global	HAL_DMA_Start_IT
+ 399              		.syntax unified
+ 400              		.thumb
+ 401              		.thumb_func
+ 403              	HAL_DMA_Start_IT:
+ 404              		@ args = 0, pretend = 0, frame = 0
+ 405              		@ frame_needed = 0, uses_anonymous_args = 0
+ 406 0000 38B5     		push	{r3, r4, r5, lr}
+ 407 0002 0446     		mov	r4, r0
+ 408 0004 856D     		ldr	r5, [r0, #88]
+ 409 0006 90F83400 		ldrb	r0, [r0, #52]	@ zero_extendqisi2
+ 410 000a 0128     		cmp	r0, #1
+ 411 000c 2BD0     		beq	.L62
+ 412 000e 0120     		movs	r0, #1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 8
+
+
+ 413 0010 84F83400 		strb	r0, [r4, #52]
+ 414 0014 94F83500 		ldrb	r0, [r4, #53]	@ zero_extendqisi2
+ 415 0018 C0B2     		uxtb	r0, r0
+ 416 001a 0128     		cmp	r0, #1
+ 417 001c 04D0     		beq	.L64
+ 418 001e 0023     		movs	r3, #0
+ 419 0020 84F83430 		strb	r3, [r4, #52]
+ 420 0024 0220     		movs	r0, #2
+ 421              	.L59:
+ 422 0026 38BD     		pop	{r3, r4, r5, pc}
+ 423              	.L64:
+ 424 0028 0220     		movs	r0, #2
+ 425 002a 84F83500 		strb	r0, [r4, #53]
+ 426 002e 0020     		movs	r0, #0
+ 427 0030 6065     		str	r0, [r4, #84]
+ 428 0032 2046     		mov	r0, r4
+ 429 0034 FFF7FEFF 		bl	DMA_SetConfig
+ 430 0038 E26D     		ldr	r2, [r4, #92]
+ 431 003a 3F23     		movs	r3, #63
+ 432 003c 9340     		lsls	r3, r3, r2
+ 433 003e AB60     		str	r3, [r5, #8]
+ 434 0040 2268     		ldr	r2, [r4]
+ 435 0042 1368     		ldr	r3, [r2]
+ 436 0044 43F01603 		orr	r3, r3, #22
+ 437 0048 1360     		str	r3, [r2]
+ 438 004a 236C     		ldr	r3, [r4, #64]
+ 439 004c 23B1     		cbz	r3, .L61
+ 440 004e 2268     		ldr	r2, [r4]
+ 441 0050 1368     		ldr	r3, [r2]
+ 442 0052 43F00803 		orr	r3, r3, #8
+ 443 0056 1360     		str	r3, [r2]
+ 444              	.L61:
+ 445 0058 2268     		ldr	r2, [r4]
+ 446 005a 1368     		ldr	r3, [r2]
+ 447 005c 43F00103 		orr	r3, r3, #1
+ 448 0060 1360     		str	r3, [r2]
+ 449 0062 0020     		movs	r0, #0
+ 450 0064 DFE7     		b	.L59
+ 451              	.L62:
+ 452 0066 0220     		movs	r0, #2
+ 453 0068 DDE7     		b	.L59
+ 455              		.section	.text.HAL_DMA_Abort,"ax",%progbits
+ 456              		.align	1
+ 457              		.global	HAL_DMA_Abort
+ 458              		.syntax unified
+ 459              		.thumb
+ 460              		.thumb_func
+ 462              	HAL_DMA_Abort:
+ 463              		@ args = 0, pretend = 0, frame = 0
+ 464              		@ frame_needed = 0, uses_anonymous_args = 0
+ 465 0000 70B5     		push	{r4, r5, r6, lr}
+ 466 0002 0446     		mov	r4, r0
+ 467 0004 866D     		ldr	r6, [r0, #88]
+ 468 0006 FFF7FEFF 		bl	HAL_GetTick
+ 469 000a 94F83530 		ldrb	r3, [r4, #53]	@ zero_extendqisi2
+ 470 000e DBB2     		uxtb	r3, r3
+ 471 0010 022B     		cmp	r3, #2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 9
+
+
+ 472 0012 06D0     		beq	.L66
+ 473 0014 8023     		movs	r3, #128
+ 474 0016 6365     		str	r3, [r4, #84]
+ 475 0018 0023     		movs	r3, #0
+ 476 001a 84F83430 		strb	r3, [r4, #52]
+ 477 001e 0120     		movs	r0, #1
+ 478              	.L67:
+ 479 0020 70BD     		pop	{r4, r5, r6, pc}
+ 480              	.L66:
+ 481 0022 0546     		mov	r5, r0
+ 482 0024 2268     		ldr	r2, [r4]
+ 483 0026 1368     		ldr	r3, [r2]
+ 484 0028 23F01603 		bic	r3, r3, #22
+ 485 002c 1360     		str	r3, [r2]
+ 486 002e 2268     		ldr	r2, [r4]
+ 487 0030 5369     		ldr	r3, [r2, #20]
+ 488 0032 23F08003 		bic	r3, r3, #128
+ 489 0036 5361     		str	r3, [r2, #20]
+ 490 0038 236C     		ldr	r3, [r4, #64]
+ 491 003a E3B1     		cbz	r3, .L73
+ 492              	.L68:
+ 493 003c 2268     		ldr	r2, [r4]
+ 494 003e 1368     		ldr	r3, [r2]
+ 495 0040 23F00803 		bic	r3, r3, #8
+ 496 0044 1360     		str	r3, [r2]
+ 497              	.L69:
+ 498 0046 2268     		ldr	r2, [r4]
+ 499 0048 1368     		ldr	r3, [r2]
+ 500 004a 23F00103 		bic	r3, r3, #1
+ 501 004e 1360     		str	r3, [r2]
+ 502              	.L70:
+ 503 0050 2368     		ldr	r3, [r4]
+ 504 0052 1B68     		ldr	r3, [r3]
+ 505 0054 13F0010F 		tst	r3, #1
+ 506 0058 11D0     		beq	.L74
+ 507 005a FFF7FEFF 		bl	HAL_GetTick
+ 508 005e 431B     		subs	r3, r0, r5
+ 509 0060 052B     		cmp	r3, #5
+ 510 0062 F5D9     		bls	.L70
+ 511 0064 2023     		movs	r3, #32
+ 512 0066 6365     		str	r3, [r4, #84]
+ 513 0068 0320     		movs	r0, #3
+ 514 006a 84F83500 		strb	r0, [r4, #53]
+ 515 006e 0023     		movs	r3, #0
+ 516 0070 84F83430 		strb	r3, [r4, #52]
+ 517 0074 D4E7     		b	.L67
+ 518              	.L73:
+ 519 0076 A36C     		ldr	r3, [r4, #72]
+ 520 0078 002B     		cmp	r3, #0
+ 521 007a DFD1     		bne	.L68
+ 522 007c E3E7     		b	.L69
+ 523              	.L74:
+ 524 007e E26D     		ldr	r2, [r4, #92]
+ 525 0080 3F23     		movs	r3, #63
+ 526 0082 9340     		lsls	r3, r3, r2
+ 527 0084 B360     		str	r3, [r6, #8]
+ 528 0086 0123     		movs	r3, #1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 10
+
+
+ 529 0088 84F83530 		strb	r3, [r4, #53]
+ 530 008c 0020     		movs	r0, #0
+ 531 008e 84F83400 		strb	r0, [r4, #52]
+ 532 0092 C5E7     		b	.L67
+ 534              		.section	.text.HAL_DMA_Abort_IT,"ax",%progbits
+ 535              		.align	1
+ 536              		.global	HAL_DMA_Abort_IT
+ 537              		.syntax unified
+ 538              		.thumb
+ 539              		.thumb_func
+ 541              	HAL_DMA_Abort_IT:
+ 542              		@ args = 0, pretend = 0, frame = 0
+ 543              		@ frame_needed = 0, uses_anonymous_args = 0
+ 544              		@ link register save eliminated.
+ 545 0000 90F83530 		ldrb	r3, [r0, #53]	@ zero_extendqisi2
+ 546 0004 DBB2     		uxtb	r3, r3
+ 547 0006 022B     		cmp	r3, #2
+ 548 0008 03D0     		beq	.L76
+ 549 000a 8023     		movs	r3, #128
+ 550 000c 4365     		str	r3, [r0, #84]
+ 551 000e 0120     		movs	r0, #1
+ 552 0010 7047     		bx	lr
+ 553              	.L76:
+ 554 0012 0523     		movs	r3, #5
+ 555 0014 80F83530 		strb	r3, [r0, #53]
+ 556 0018 0268     		ldr	r2, [r0]
+ 557 001a 1368     		ldr	r3, [r2]
+ 558 001c 23F00103 		bic	r3, r3, #1
+ 559 0020 1360     		str	r3, [r2]
+ 560 0022 0020     		movs	r0, #0
+ 561 0024 7047     		bx	lr
+ 563              		.section	.text.HAL_DMA_PollForTransfer,"ax",%progbits
+ 564              		.align	1
+ 565              		.global	HAL_DMA_PollForTransfer
+ 566              		.syntax unified
+ 567              		.thumb
+ 568              		.thumb_func
+ 570              	HAL_DMA_PollForTransfer:
+ 571              		@ args = 0, pretend = 0, frame = 0
+ 572              		@ frame_needed = 0, uses_anonymous_args = 0
+ 573 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 574 0004 0446     		mov	r4, r0
+ 575 0006 8846     		mov	r8, r1
+ 576 0008 1646     		mov	r6, r2
+ 577 000a FFF7FEFF 		bl	HAL_GetTick
+ 578 000e 94F83530 		ldrb	r3, [r4, #53]	@ zero_extendqisi2
+ 579 0012 DBB2     		uxtb	r3, r3
+ 580 0014 022B     		cmp	r3, #2
+ 581 0016 07D0     		beq	.L79
+ 582 0018 8023     		movs	r3, #128
+ 583 001a 6365     		str	r3, [r4, #84]
+ 584 001c 0023     		movs	r3, #0
+ 585 001e 84F83430 		strb	r3, [r4, #52]
+ 586 0022 0120     		movs	r0, #1
+ 587              	.L80:
+ 588 0024 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 589              	.L79:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 11
+
+
+ 590 0028 8146     		mov	r9, r0
+ 591 002a 2368     		ldr	r3, [r4]
+ 592 002c 1B68     		ldr	r3, [r3]
+ 593 002e 13F4807F 		tst	r3, #256
+ 594 0032 3BD1     		bne	.L95
+ 595 0034 B8F1000F 		cmp	r8, #0
+ 596 0038 3DD1     		bne	.L82
+ 597 003a E36D     		ldr	r3, [r4, #92]
+ 598 003c 4FF0200A 		mov	r10, #32
+ 599 0040 0AFA03FA 		lsl	r10, r10, r3
+ 600              	.L83:
+ 601 0044 A76D     		ldr	r7, [r4, #88]
+ 602 0046 3B68     		ldr	r3, [r7]
+ 603              	.L84:
+ 604 0048 1AEA030F 		tst	r10, r3
+ 605 004c 43D1     		bne	.L90
+ 606 004e 636D     		ldr	r3, [r4, #84]
+ 607 0050 13F0010F 		tst	r3, #1
+ 608 0054 3FD1     		bne	.L90
+ 609 0056 B6F1FF3F 		cmp	r6, #-1
+ 610 005a 07D0     		beq	.L85
+ 611 005c 002E     		cmp	r6, #0
+ 612 005e 30D0     		beq	.L86
+ 613 0060 FFF7FEFF 		bl	HAL_GetTick
+ 614 0064 A0EB0900 		sub	r0, r0, r9
+ 615 0068 B042     		cmp	r0, r6
+ 616 006a 2AD8     		bhi	.L86
+ 617              	.L85:
+ 618 006c 3B68     		ldr	r3, [r7]
+ 619 006e E16D     		ldr	r1, [r4, #92]
+ 620 0070 0822     		movs	r2, #8
+ 621 0072 8A40     		lsls	r2, r2, r1
+ 622 0074 1A42     		tst	r2, r3
+ 623 0076 04D0     		beq	.L87
+ 624 0078 616D     		ldr	r1, [r4, #84]
+ 625 007a 41F00101 		orr	r1, r1, #1
+ 626 007e 6165     		str	r1, [r4, #84]
+ 627 0080 BA60     		str	r2, [r7, #8]
+ 628              	.L87:
+ 629 0082 E16D     		ldr	r1, [r4, #92]
+ 630 0084 0122     		movs	r2, #1
+ 631 0086 8A40     		lsls	r2, r2, r1
+ 632 0088 1A42     		tst	r2, r3
+ 633 008a 04D0     		beq	.L88
+ 634 008c 616D     		ldr	r1, [r4, #84]
+ 635 008e 41F00201 		orr	r1, r1, #2
+ 636 0092 6165     		str	r1, [r4, #84]
+ 637 0094 BA60     		str	r2, [r7, #8]
+ 638              	.L88:
+ 639 0096 E26D     		ldr	r2, [r4, #92]
+ 640 0098 0425     		movs	r5, #4
+ 641 009a 9540     		lsls	r5, r5, r2
+ 642 009c 1D42     		tst	r5, r3
+ 643 009e D3D0     		beq	.L84
+ 644 00a0 626D     		ldr	r2, [r4, #84]
+ 645 00a2 42F00402 		orr	r2, r2, #4
+ 646 00a6 6265     		str	r2, [r4, #84]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 12
+
+
+ 647 00a8 BD60     		str	r5, [r7, #8]
+ 648 00aa CDE7     		b	.L84
+ 649              	.L95:
+ 650 00ac 4FF48073 		mov	r3, #256
+ 651 00b0 6365     		str	r3, [r4, #84]
+ 652 00b2 0120     		movs	r0, #1
+ 653 00b4 B6E7     		b	.L80
+ 654              	.L82:
+ 655 00b6 E36D     		ldr	r3, [r4, #92]
+ 656 00b8 4FF0100A 		mov	r10, #16
+ 657 00bc 0AFA03FA 		lsl	r10, r10, r3
+ 658 00c0 C0E7     		b	.L83
+ 659              	.L86:
+ 660 00c2 2023     		movs	r3, #32
+ 661 00c4 6365     		str	r3, [r4, #84]
+ 662 00c6 0123     		movs	r3, #1
+ 663 00c8 84F83530 		strb	r3, [r4, #53]
+ 664 00cc 0023     		movs	r3, #0
+ 665 00ce 84F83430 		strb	r3, [r4, #52]
+ 666 00d2 0320     		movs	r0, #3
+ 667 00d4 A6E7     		b	.L80
+ 668              	.L90:
+ 669 00d6 636D     		ldr	r3, [r4, #84]
+ 670 00d8 1BB1     		cbz	r3, .L92
+ 671 00da 636D     		ldr	r3, [r4, #84]
+ 672 00dc 13F0010F 		tst	r3, #1
+ 673 00e0 0ED1     		bne	.L96
+ 674              	.L92:
+ 675 00e2 B8F1000F 		cmp	r8, #0
+ 676 00e6 19D1     		bne	.L93
+ 677 00e8 E26D     		ldr	r2, [r4, #92]
+ 678 00ea 3023     		movs	r3, #48
+ 679 00ec 9340     		lsls	r3, r3, r2
+ 680 00ee BB60     		str	r3, [r7, #8]
+ 681 00f0 0123     		movs	r3, #1
+ 682 00f2 84F83530 		strb	r3, [r4, #53]
+ 683 00f6 0023     		movs	r3, #0
+ 684 00f8 84F83430 		strb	r3, [r4, #52]
+ 685 00fc 4046     		mov	r0, r8
+ 686 00fe 91E7     		b	.L80
+ 687              	.L96:
+ 688 0100 2046     		mov	r0, r4
+ 689 0102 FFF7FEFF 		bl	HAL_DMA_Abort
+ 690 0106 E26D     		ldr	r2, [r4, #92]
+ 691 0108 3023     		movs	r3, #48
+ 692 010a 9340     		lsls	r3, r3, r2
+ 693 010c BB60     		str	r3, [r7, #8]
+ 694 010e 0120     		movs	r0, #1
+ 695 0110 84F83500 		strb	r0, [r4, #53]
+ 696 0114 0023     		movs	r3, #0
+ 697 0116 84F83430 		strb	r3, [r4, #52]
+ 698 011a 83E7     		b	.L80
+ 699              	.L93:
+ 700 011c E26D     		ldr	r2, [r4, #92]
+ 701 011e 1023     		movs	r3, #16
+ 702 0120 9340     		lsls	r3, r3, r2
+ 703 0122 BB60     		str	r3, [r7, #8]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 13
+
+
+ 704 0124 0020     		movs	r0, #0
+ 705 0126 7DE7     		b	.L80
+ 707              		.section	.text.HAL_DMA_IRQHandler,"ax",%progbits
+ 708              		.align	1
+ 709              		.global	HAL_DMA_IRQHandler
+ 710              		.syntax unified
+ 711              		.thumb
+ 712              		.thumb_func
+ 714              	HAL_DMA_IRQHandler:
+ 715              		@ args = 0, pretend = 0, frame = 8
+ 716              		@ frame_needed = 0, uses_anonymous_args = 0
+ 717 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 718 0002 83B0     		sub	sp, sp, #12
+ 719 0004 0446     		mov	r4, r0
+ 720 0006 0023     		movs	r3, #0
+ 721 0008 0193     		str	r3, [sp, #4]
+ 722 000a 724B     		ldr	r3, .L120
+ 723 000c 1D68     		ldr	r5, [r3]
+ 724 000e 724B     		ldr	r3, .L120+4
+ 725 0010 A3FB0535 		umull	r3, r5, r3, r5
+ 726 0014 AD0A     		lsrs	r5, r5, #10
+ 727 0016 876D     		ldr	r7, [r0, #88]
+ 728 0018 3E68     		ldr	r6, [r7]
+ 729 001a C26D     		ldr	r2, [r0, #92]
+ 730 001c 0823     		movs	r3, #8
+ 731 001e 9340     		lsls	r3, r3, r2
+ 732 0020 3342     		tst	r3, r6
+ 733 0022 10D0     		beq	.L98
+ 734 0024 0368     		ldr	r3, [r0]
+ 735 0026 1A68     		ldr	r2, [r3]
+ 736 0028 12F0040F 		tst	r2, #4
+ 737 002c 0BD0     		beq	.L98
+ 738 002e 1A68     		ldr	r2, [r3]
+ 739 0030 22F00402 		bic	r2, r2, #4
+ 740 0034 1A60     		str	r2, [r3]
+ 741 0036 C26D     		ldr	r2, [r0, #92]
+ 742 0038 0823     		movs	r3, #8
+ 743 003a 9340     		lsls	r3, r3, r2
+ 744 003c BB60     		str	r3, [r7, #8]
+ 745 003e 436D     		ldr	r3, [r0, #84]
+ 746 0040 43F00103 		orr	r3, r3, #1
+ 747 0044 4365     		str	r3, [r0, #84]
+ 748              	.L98:
+ 749 0046 E26D     		ldr	r2, [r4, #92]
+ 750 0048 0123     		movs	r3, #1
+ 751 004a 9340     		lsls	r3, r3, r2
+ 752 004c 3342     		tst	r3, r6
+ 753 004e 09D0     		beq	.L99
+ 754 0050 2268     		ldr	r2, [r4]
+ 755 0052 5269     		ldr	r2, [r2, #20]
+ 756 0054 12F0800F 		tst	r2, #128
+ 757 0058 04D0     		beq	.L99
+ 758 005a BB60     		str	r3, [r7, #8]
+ 759 005c 636D     		ldr	r3, [r4, #84]
+ 760 005e 43F00203 		orr	r3, r3, #2
+ 761 0062 6365     		str	r3, [r4, #84]
+ 762              	.L99:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 14
+
+
+ 763 0064 E26D     		ldr	r2, [r4, #92]
+ 764 0066 0423     		movs	r3, #4
+ 765 0068 9340     		lsls	r3, r3, r2
+ 766 006a 3342     		tst	r3, r6
+ 767 006c 09D0     		beq	.L100
+ 768 006e 2268     		ldr	r2, [r4]
+ 769 0070 1268     		ldr	r2, [r2]
+ 770 0072 12F0020F 		tst	r2, #2
+ 771 0076 04D0     		beq	.L100
+ 772 0078 BB60     		str	r3, [r7, #8]
+ 773 007a 636D     		ldr	r3, [r4, #84]
+ 774 007c 43F00403 		orr	r3, r3, #4
+ 775 0080 6365     		str	r3, [r4, #84]
+ 776              	.L100:
+ 777 0082 E26D     		ldr	r2, [r4, #92]
+ 778 0084 1023     		movs	r3, #16
+ 779 0086 9340     		lsls	r3, r3, r2
+ 780 0088 3342     		tst	r3, r6
+ 781 008a 24D0     		beq	.L101
+ 782 008c 2268     		ldr	r2, [r4]
+ 783 008e 1268     		ldr	r2, [r2]
+ 784 0090 12F0080F 		tst	r2, #8
+ 785 0094 1FD0     		beq	.L101
+ 786 0096 BB60     		str	r3, [r7, #8]
+ 787 0098 2368     		ldr	r3, [r4]
+ 788 009a 1A68     		ldr	r2, [r3]
+ 789 009c 12F4802F 		tst	r2, #262144
+ 790 00a0 0DD0     		beq	.L102
+ 791 00a2 1B68     		ldr	r3, [r3]
+ 792 00a4 13F4002F 		tst	r3, #524288
+ 793 00a8 04D1     		bne	.L103
+ 794 00aa 236C     		ldr	r3, [r4, #64]
+ 795 00ac 9BB1     		cbz	r3, .L101
+ 796 00ae 2046     		mov	r0, r4
+ 797 00b0 9847     		blx	r3
+ 798 00b2 10E0     		b	.L101
+ 799              	.L103:
+ 800 00b4 A36C     		ldr	r3, [r4, #72]
+ 801 00b6 73B1     		cbz	r3, .L101
+ 802 00b8 2046     		mov	r0, r4
+ 803 00ba 9847     		blx	r3
+ 804 00bc 0BE0     		b	.L101
+ 805              	.L102:
+ 806 00be 1A68     		ldr	r2, [r3]
+ 807 00c0 12F4807F 		tst	r2, #256
+ 808 00c4 03D1     		bne	.L104
+ 809 00c6 1A68     		ldr	r2, [r3]
+ 810 00c8 22F00802 		bic	r2, r2, #8
+ 811 00cc 1A60     		str	r2, [r3]
+ 812              	.L104:
+ 813 00ce 236C     		ldr	r3, [r4, #64]
+ 814 00d0 0BB1     		cbz	r3, .L101
+ 815 00d2 2046     		mov	r0, r4
+ 816 00d4 9847     		blx	r3
+ 817              	.L101:
+ 818 00d6 E26D     		ldr	r2, [r4, #92]
+ 819 00d8 2023     		movs	r3, #32
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 15
+
+
+ 820 00da 9340     		lsls	r3, r3, r2
+ 821 00dc 3342     		tst	r3, r6
+ 822 00de 55D0     		beq	.L105
+ 823 00e0 2268     		ldr	r2, [r4]
+ 824 00e2 1268     		ldr	r2, [r2]
+ 825 00e4 12F0100F 		tst	r2, #16
+ 826 00e8 50D0     		beq	.L105
+ 827 00ea BB60     		str	r3, [r7, #8]
+ 828 00ec 94F83530 		ldrb	r3, [r4, #53]	@ zero_extendqisi2
+ 829 00f0 DBB2     		uxtb	r3, r3
+ 830 00f2 052B     		cmp	r3, #5
+ 831 00f4 0ED0     		beq	.L118
+ 832 00f6 2368     		ldr	r3, [r4]
+ 833 00f8 1A68     		ldr	r2, [r3]
+ 834 00fa 12F4802F 		tst	r2, #262144
+ 835 00fe 33D0     		beq	.L111
+ 836 0100 1B68     		ldr	r3, [r3]
+ 837 0102 13F4002F 		tst	r3, #524288
+ 838 0106 2AD1     		bne	.L112
+ 839 0108 636C     		ldr	r3, [r4, #68]
+ 840 010a 002B     		cmp	r3, #0
+ 841 010c 3ED0     		beq	.L105
+ 842 010e 2046     		mov	r0, r4
+ 843 0110 9847     		blx	r3
+ 844 0112 3BE0     		b	.L105
+ 845              	.L118:
+ 846 0114 2268     		ldr	r2, [r4]
+ 847 0116 1368     		ldr	r3, [r2]
+ 848 0118 23F01603 		bic	r3, r3, #22
+ 849 011c 1360     		str	r3, [r2]
+ 850 011e 2268     		ldr	r2, [r4]
+ 851 0120 5369     		ldr	r3, [r2, #20]
+ 852 0122 23F08003 		bic	r3, r3, #128
+ 853 0126 5361     		str	r3, [r2, #20]
+ 854 0128 236C     		ldr	r3, [r4, #64]
+ 855 012a A3B1     		cbz	r3, .L119
+ 856              	.L107:
+ 857 012c 2268     		ldr	r2, [r4]
+ 858 012e 1368     		ldr	r3, [r2]
+ 859 0130 23F00803 		bic	r3, r3, #8
+ 860 0134 1360     		str	r3, [r2]
+ 861              	.L108:
+ 862 0136 E26D     		ldr	r2, [r4, #92]
+ 863 0138 3F23     		movs	r3, #63
+ 864 013a 9340     		lsls	r3, r3, r2
+ 865 013c BB60     		str	r3, [r7, #8]
+ 866 013e 0123     		movs	r3, #1
+ 867 0140 84F83530 		strb	r3, [r4, #53]
+ 868 0144 0023     		movs	r3, #0
+ 869 0146 84F83430 		strb	r3, [r4, #52]
+ 870 014a 236D     		ldr	r3, [r4, #80]
+ 871 014c 002B     		cmp	r3, #0
+ 872 014e 3FD0     		beq	.L97
+ 873 0150 2046     		mov	r0, r4
+ 874 0152 9847     		blx	r3
+ 875 0154 3CE0     		b	.L97
+ 876              	.L119:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 16
+
+
+ 877 0156 A36C     		ldr	r3, [r4, #72]
+ 878 0158 002B     		cmp	r3, #0
+ 879 015a E7D1     		bne	.L107
+ 880 015c EBE7     		b	.L108
+ 881              	.L112:
+ 882 015e E36B     		ldr	r3, [r4, #60]
+ 883 0160 A3B1     		cbz	r3, .L105
+ 884 0162 2046     		mov	r0, r4
+ 885 0164 9847     		blx	r3
+ 886 0166 11E0     		b	.L105
+ 887              	.L111:
+ 888 0168 1A68     		ldr	r2, [r3]
+ 889 016a 12F4807F 		tst	r2, #256
+ 890 016e 09D1     		bne	.L113
+ 891 0170 1A68     		ldr	r2, [r3]
+ 892 0172 22F01002 		bic	r2, r2, #16
+ 893 0176 1A60     		str	r2, [r3]
+ 894 0178 0123     		movs	r3, #1
+ 895 017a 84F83530 		strb	r3, [r4, #53]
+ 896 017e 0023     		movs	r3, #0
+ 897 0180 84F83430 		strb	r3, [r4, #52]
+ 898              	.L113:
+ 899 0184 E36B     		ldr	r3, [r4, #60]
+ 900 0186 0BB1     		cbz	r3, .L105
+ 901 0188 2046     		mov	r0, r4
+ 902 018a 9847     		blx	r3
+ 903              	.L105:
+ 904 018c 636D     		ldr	r3, [r4, #84]
+ 905 018e FBB1     		cbz	r3, .L97
+ 906 0190 636D     		ldr	r3, [r4, #84]
+ 907 0192 13F0010F 		tst	r3, #1
+ 908 0196 17D0     		beq	.L114
+ 909 0198 0523     		movs	r3, #5
+ 910 019a 84F83530 		strb	r3, [r4, #53]
+ 911 019e 2268     		ldr	r2, [r4]
+ 912 01a0 1368     		ldr	r3, [r2]
+ 913 01a2 23F00103 		bic	r3, r3, #1
+ 914 01a6 1360     		str	r3, [r2]
+ 915              	.L116:
+ 916 01a8 019B     		ldr	r3, [sp, #4]
+ 917 01aa 0133     		adds	r3, r3, #1
+ 918 01ac 0193     		str	r3, [sp, #4]
+ 919 01ae AB42     		cmp	r3, r5
+ 920 01b0 04D8     		bhi	.L115
+ 921 01b2 2368     		ldr	r3, [r4]
+ 922 01b4 1B68     		ldr	r3, [r3]
+ 923 01b6 13F0010F 		tst	r3, #1
+ 924 01ba F5D1     		bne	.L116
+ 925              	.L115:
+ 926 01bc 0123     		movs	r3, #1
+ 927 01be 84F83530 		strb	r3, [r4, #53]
+ 928 01c2 0023     		movs	r3, #0
+ 929 01c4 84F83430 		strb	r3, [r4, #52]
+ 930              	.L114:
+ 931 01c8 E36C     		ldr	r3, [r4, #76]
+ 932 01ca 0BB1     		cbz	r3, .L97
+ 933 01cc 2046     		mov	r0, r4
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 17
+
+
+ 934 01ce 9847     		blx	r3
+ 935              	.L97:
+ 936 01d0 03B0     		add	sp, sp, #12
+ 937              		@ sp needed
+ 938 01d2 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 939              	.L121:
+ 940              		.align	2
+ 941              	.L120:
+ 942 01d4 00000000 		.word	SystemCoreClock
+ 943 01d8 B5814E1B 		.word	458129845
+ 945              		.section	.text.HAL_DMA_RegisterCallback,"ax",%progbits
+ 946              		.align	1
+ 947              		.global	HAL_DMA_RegisterCallback
+ 948              		.syntax unified
+ 949              		.thumb
+ 950              		.thumb_func
+ 952              	HAL_DMA_RegisterCallback:
+ 953              		@ args = 0, pretend = 0, frame = 0
+ 954              		@ frame_needed = 0, uses_anonymous_args = 0
+ 955              		@ link register save eliminated.
+ 956 0000 0346     		mov	r3, r0
+ 957 0002 90F83400 		ldrb	r0, [r0, #52]	@ zero_extendqisi2
+ 958 0006 0128     		cmp	r0, #1
+ 959 0008 25D0     		beq	.L132
+ 960 000a 0120     		movs	r0, #1
+ 961 000c 83F83400 		strb	r0, [r3, #52]
+ 962 0010 93F83500 		ldrb	r0, [r3, #53]	@ zero_extendqisi2
+ 963 0014 C0B2     		uxtb	r0, r0
+ 964 0016 0128     		cmp	r0, #1
+ 965 0018 04D0     		beq	.L135
+ 966 001a 0120     		movs	r0, #1
+ 967              	.L124:
+ 968 001c 0022     		movs	r2, #0
+ 969 001e 83F83420 		strb	r2, [r3, #52]
+ 970 0022 7047     		bx	lr
+ 971              	.L135:
+ 972 0024 0529     		cmp	r1, #5
+ 973 0026 F9D8     		bhi	.L124
+ 974 0028 DFE801F0 		tbb	[pc, r1]
+ 975              	.L126:
+ 976 002c 03       		.byte	(.L131-.L126)/2
+ 977 002d 06       		.byte	(.L130-.L126)/2
+ 978 002e 09       		.byte	(.L129-.L126)/2
+ 979 002f 0C       		.byte	(.L128-.L126)/2
+ 980 0030 0F       		.byte	(.L127-.L126)/2
+ 981 0031 12       		.byte	(.L125-.L126)/2
+ 982              		.p2align 1
+ 983              	.L131:
+ 984 0032 DA63     		str	r2, [r3, #60]
+ 985 0034 0846     		mov	r0, r1
+ 986 0036 F1E7     		b	.L124
+ 987              	.L130:
+ 988 0038 1A64     		str	r2, [r3, #64]
+ 989 003a 0020     		movs	r0, #0
+ 990 003c EEE7     		b	.L124
+ 991              	.L129:
+ 992 003e 5A64     		str	r2, [r3, #68]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 18
+
+
+ 993 0040 0020     		movs	r0, #0
+ 994 0042 EBE7     		b	.L124
+ 995              	.L128:
+ 996 0044 9A64     		str	r2, [r3, #72]
+ 997 0046 0020     		movs	r0, #0
+ 998 0048 E8E7     		b	.L124
+ 999              	.L127:
+ 1000 004a DA64     		str	r2, [r3, #76]
+ 1001 004c 0020     		movs	r0, #0
+ 1002 004e E5E7     		b	.L124
+ 1003              	.L125:
+ 1004 0050 1A65     		str	r2, [r3, #80]
+ 1005 0052 0020     		movs	r0, #0
+ 1006 0054 E2E7     		b	.L124
+ 1007              	.L132:
+ 1008 0056 0220     		movs	r0, #2
+ 1009 0058 7047     		bx	lr
+ 1011              		.section	.text.HAL_DMA_UnRegisterCallback,"ax",%progbits
+ 1012              		.align	1
+ 1013              		.global	HAL_DMA_UnRegisterCallback
+ 1014              		.syntax unified
+ 1015              		.thumb
+ 1016              		.thumb_func
+ 1018              	HAL_DMA_UnRegisterCallback:
+ 1019              		@ args = 0, pretend = 0, frame = 0
+ 1020              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1021              		@ link register save eliminated.
+ 1022 0000 0346     		mov	r3, r0
+ 1023 0002 90F83420 		ldrb	r2, [r0, #52]	@ zero_extendqisi2
+ 1024 0006 012A     		cmp	r2, #1
+ 1025 0008 2FD0     		beq	.L147
+ 1026 000a 0122     		movs	r2, #1
+ 1027 000c 80F83420 		strb	r2, [r0, #52]
+ 1028 0010 90F83500 		ldrb	r0, [r0, #53]	@ zero_extendqisi2
+ 1029 0014 C0B2     		uxtb	r0, r0
+ 1030 0016 9042     		cmp	r0, r2
+ 1031 0018 04D0     		beq	.L150
+ 1032 001a 0120     		movs	r0, #1
+ 1033              	.L138:
+ 1034 001c 0022     		movs	r2, #0
+ 1035 001e 83F83420 		strb	r2, [r3, #52]
+ 1036 0022 7047     		bx	lr
+ 1037              	.L150:
+ 1038 0024 0629     		cmp	r1, #6
+ 1039 0026 F9D8     		bhi	.L138
+ 1040 0028 DFE801F0 		tbb	[pc, r1]
+ 1041              	.L140:
+ 1042 002c 04       		.byte	(.L146-.L140)/2
+ 1043 002d 08       		.byte	(.L145-.L140)/2
+ 1044 002e 0B       		.byte	(.L144-.L140)/2
+ 1045 002f 0E       		.byte	(.L143-.L140)/2
+ 1046 0030 11       		.byte	(.L142-.L140)/2
+ 1047 0031 14       		.byte	(.L141-.L140)/2
+ 1048 0032 17       		.byte	(.L139-.L140)/2
+ 1049 0033 00       		.p2align 1
+ 1050              	.L146:
+ 1051 0034 0022     		movs	r2, #0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 19
+
+
+ 1052 0036 DA63     		str	r2, [r3, #60]
+ 1053 0038 0846     		mov	r0, r1
+ 1054 003a EFE7     		b	.L138
+ 1055              	.L145:
+ 1056 003c 0020     		movs	r0, #0
+ 1057 003e 1864     		str	r0, [r3, #64]
+ 1058 0040 ECE7     		b	.L138
+ 1059              	.L144:
+ 1060 0042 0020     		movs	r0, #0
+ 1061 0044 5864     		str	r0, [r3, #68]
+ 1062 0046 E9E7     		b	.L138
+ 1063              	.L143:
+ 1064 0048 0020     		movs	r0, #0
+ 1065 004a 9864     		str	r0, [r3, #72]
+ 1066 004c E6E7     		b	.L138
+ 1067              	.L142:
+ 1068 004e 0020     		movs	r0, #0
+ 1069 0050 D864     		str	r0, [r3, #76]
+ 1070 0052 E3E7     		b	.L138
+ 1071              	.L141:
+ 1072 0054 0020     		movs	r0, #0
+ 1073 0056 1865     		str	r0, [r3, #80]
+ 1074 0058 E0E7     		b	.L138
+ 1075              	.L139:
+ 1076 005a 0020     		movs	r0, #0
+ 1077 005c D863     		str	r0, [r3, #60]
+ 1078 005e 1864     		str	r0, [r3, #64]
+ 1079 0060 5864     		str	r0, [r3, #68]
+ 1080 0062 9864     		str	r0, [r3, #72]
+ 1081 0064 D864     		str	r0, [r3, #76]
+ 1082 0066 1865     		str	r0, [r3, #80]
+ 1083 0068 D8E7     		b	.L138
+ 1084              	.L147:
+ 1085 006a 0220     		movs	r0, #2
+ 1086 006c 7047     		bx	lr
+ 1088              		.section	.text.HAL_DMA_GetState,"ax",%progbits
+ 1089              		.align	1
+ 1090              		.global	HAL_DMA_GetState
+ 1091              		.syntax unified
+ 1092              		.thumb
+ 1093              		.thumb_func
+ 1095              	HAL_DMA_GetState:
+ 1096              		@ args = 0, pretend = 0, frame = 0
+ 1097              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1098              		@ link register save eliminated.
+ 1099 0000 90F83500 		ldrb	r0, [r0, #53]	@ zero_extendqisi2
+ 1100 0004 7047     		bx	lr
+ 1102              		.section	.text.HAL_DMA_GetError,"ax",%progbits
+ 1103              		.align	1
+ 1104              		.global	HAL_DMA_GetError
+ 1105              		.syntax unified
+ 1106              		.thumb
+ 1107              		.thumb_func
+ 1109              	HAL_DMA_GetError:
+ 1110              		@ args = 0, pretend = 0, frame = 0
+ 1111              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1112              		@ link register save eliminated.
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 20
+
+
+ 1113 0000 406D     		ldr	r0, [r0, #84]
+ 1114 0002 7047     		bx	lr
+ 1116              		.section	.rodata.flagBitshiftOffset.0,"a"
+ 1117              		.align	2
+ 1120              	flagBitshiftOffset.0:
+ 1121 0000 00061016 		.ascii	"\000\006\020\026\000\006\020\026"
+ 1121      00061016 
+ 1122              		.ident	"GCC: (xPack GNU Arm Embedded GCC arm64) 13.3.1 20240614"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s 			page 21
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32f4xx_hal_dma.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:18     .text.DMA_SetConfig:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:23     .text.DMA_SetConfig:00000000 DMA_SetConfig
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:52     .text.DMA_CalcBaseAndBitshift:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:57     .text.DMA_CalcBaseAndBitshift:00000000 DMA_CalcBaseAndBitshift
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:87     .text.DMA_CalcBaseAndBitshift:00000034 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:1120   .rodata.flagBitshiftOffset.0:00000000 flagBitshiftOffset.0
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:91     .text.DMA_CheckFifoParam:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:96     .text.DMA_CheckFifoParam:00000000 DMA_CheckFifoParam
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:139    .text.DMA_CheckFifoParam:0000004e $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:143    .text.DMA_CheckFifoParam:00000052 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:185    .text.HAL_DMA_Init:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:191    .text.HAL_DMA_Init:00000000 HAL_DMA_Init
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:293    .text.HAL_DMA_Init:000000c8 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:296    .text.HAL_DMA_DeInit:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:302    .text.HAL_DMA_DeInit:00000000 HAL_DMA_DeInit
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:354    .text.HAL_DMA_Start:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:360    .text.HAL_DMA_Start:00000000 HAL_DMA_Start
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:397    .text.HAL_DMA_Start_IT:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:403    .text.HAL_DMA_Start_IT:00000000 HAL_DMA_Start_IT
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:456    .text.HAL_DMA_Abort:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:462    .text.HAL_DMA_Abort:00000000 HAL_DMA_Abort
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:535    .text.HAL_DMA_Abort_IT:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:541    .text.HAL_DMA_Abort_IT:00000000 HAL_DMA_Abort_IT
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:564    .text.HAL_DMA_PollForTransfer:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:570    .text.HAL_DMA_PollForTransfer:00000000 HAL_DMA_PollForTransfer
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:708    .text.HAL_DMA_IRQHandler:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:714    .text.HAL_DMA_IRQHandler:00000000 HAL_DMA_IRQHandler
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:942    .text.HAL_DMA_IRQHandler:000001d4 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:946    .text.HAL_DMA_RegisterCallback:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:952    .text.HAL_DMA_RegisterCallback:00000000 HAL_DMA_RegisterCallback
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:976    .text.HAL_DMA_RegisterCallback:0000002c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:982    .text.HAL_DMA_RegisterCallback:00000032 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:1012   .text.HAL_DMA_UnRegisterCallback:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:1018   .text.HAL_DMA_UnRegisterCallback:00000000 HAL_DMA_UnRegisterCallback
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:1042   .text.HAL_DMA_UnRegisterCallback:0000002c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:1089   .text.HAL_DMA_GetState:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:1095   .text.HAL_DMA_GetState:00000000 HAL_DMA_GetState
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:1103   .text.HAL_DMA_GetError:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:1109   .text.HAL_DMA_GetError:00000000 HAL_DMA_GetError
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:1117   .rodata.flagBitshiftOffset.0:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:1049   .text.HAL_DMA_UnRegisterCallback:00000033 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccUFqW8H.s:1049   .text.HAL_DMA_UnRegisterCallback:00000034 $t
+
+UNDEFINED SYMBOLS
+HAL_GetTick
+SystemCoreClock

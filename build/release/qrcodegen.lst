@@ -1,0 +1,3270 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"qrcodegen.c"
+  16              		.text
+  17              		.section	.text.appendBitsToBuffer,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	appendBitsToBuffer:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26 0000 1029     		cmp	r1, #16
+  27 0002 1ED8     		bhi	.L7
+  28 0004 30B5     		push	{r4, r5, lr}
+  29 0006 30FA01F4 		lsrs	r4, r0, r1
+  30 000a 00D0     		beq	.L3
+  31              	.L2:
+  32 000c FEE7     		b	.L2
+  33              	.L3:
+  34 000e 01F1FF3C 		add	ip, r1, #-1
+  35 0012 12E0     		b	.L4
+  36              	.L5:
+  37 0014 1968     		ldr	r1, [r3]
+  38 0016 CD10     		asrs	r5, r1, #3
+  39 0018 545D     		ldrb	r4, [r2, r5]	@ zero_extendqisi2
+  40 001a 20FA0CFE 		lsr	lr, r0, ip
+  41 001e 0EF0010E 		and	lr, lr, #1
+  42 0022 C943     		mvns	r1, r1
+  43 0024 01F00701 		and	r1, r1, #7
+  44 0028 0EFA01F1 		lsl	r1, lr, r1
+  45 002c 2143     		orrs	r1, r1, r4
+  46 002e 5155     		strb	r1, [r2, r5]
+  47 0030 0CF1FF3C 		add	ip, ip, #-1
+  48 0034 1968     		ldr	r1, [r3]
+  49 0036 0131     		adds	r1, r1, #1
+  50 0038 1960     		str	r1, [r3]
+  51              	.L4:
+  52 003a BCF1000F 		cmp	ip, #0
+  53 003e E9DA     		bge	.L5
+  54 0040 30BD     		pop	{r4, r5, pc}
+  55              	.L7:
+  56 0042 FEE7     		b	.L7
+  58              		.section	.text.getNumRawDataModules,"ax",%progbits
+  59              		.align	1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 2
+
+
+  60              		.syntax unified
+  61              		.thumb
+  62              		.thumb_func
+  64              	getNumRawDataModules:
+  65              		@ args = 0, pretend = 0, frame = 0
+  66              		@ frame_needed = 0, uses_anonymous_args = 0
+  67              		@ link register save eliminated.
+  68 0000 0346     		mov	r3, r0
+  69 0002 421E     		subs	r2, r0, #1
+  70 0004 272A     		cmp	r2, #39
+  71 0006 00D9     		bls	.L11
+  72              	.L12:
+  73 0008 FEE7     		b	.L12
+  74              	.L11:
+  75 000a 0830     		adds	r0, r0, #8
+  76 000c 03FB00F0 		mul	r0, r3, r0
+  77 0010 0430     		adds	r0, r0, #4
+  78 0012 0001     		lsls	r0, r0, #4
+  79 0014 012B     		cmp	r3, #1
+  80 0016 13DD     		ble	.L10
+  81 0018 0A4A     		ldr	r2, .L14
+  82 001a 82FB0312 		smull	r1, r2, r2, r3
+  83 001e 1A44     		add	r2, r2, r3
+  84 0020 D917     		asrs	r1, r3, #31
+  85 0022 C1EBA201 		rsb	r1, r1, r2, asr #2
+  86 0026 0231     		adds	r1, r1, #2
+  87 0028 01EB8102 		add	r2, r1, r1, lsl #2
+  88 002c 02EB8202 		add	r2, r2, r2, lsl #2
+  89 0030 0A3A     		subs	r2, r2, #10
+  90 0032 01FB02F2 		mul	r2, r1, r2
+  91 0036 373A     		subs	r2, r2, #55
+  92 0038 801A     		subs	r0, r0, r2
+  93 003a 062B     		cmp	r3, #6
+  94 003c 00DD     		ble	.L10
+  95 003e 2438     		subs	r0, r0, #36
+  96              	.L10:
+  97 0040 7047     		bx	lr
+  98              	.L15:
+  99 0042 00BF     		.align	2
+ 100              	.L14:
+ 101 0044 93244992 		.word	-1840700269
+ 103              		.section	.text.getNumDataCodewords,"ax",%progbits
+ 104              		.align	1
+ 105              		.syntax unified
+ 106              		.thumb
+ 107              		.thumb_func
+ 109              	getNumDataCodewords:
+ 110              		@ args = 0, pretend = 0, frame = 0
+ 111              		@ frame_needed = 0, uses_anonymous_args = 0
+ 112 0000 0329     		cmp	r1, #3
+ 113 0002 00D9     		bls	.L17
+ 114              	.L18:
+ 115 0004 FEE7     		b	.L18
+ 116              	.L17:
+ 117 0006 38B5     		push	{r3, r4, r5, lr}
+ 118 0008 0546     		mov	r5, r0
+ 119 000a 0C46     		mov	r4, r1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 3
+
+
+ 120 000c FFF7FEFF 		bl	getNumRawDataModules
+ 121 0010 031E     		subs	r3, r0, #0
+ 122 0012 0EDB     		blt	.L22
+ 123              	.L19:
+ 124 0014 04EB8402 		add	r2, r4, r4, lsl #2
+ 125 0018 04EBC204 		add	r4, r4, r2, lsl #3
+ 126 001c 064A     		ldr	r2, .L23
+ 127 001e 2244     		add	r2, r2, r4
+ 128 0020 5057     		ldrsb	r0, [r2, r5]
+ 129 0022 064A     		ldr	r2, .L23+4
+ 130 0024 2244     		add	r2, r2, r4
+ 131 0026 5257     		ldrsb	r2, [r2, r5]
+ 132 0028 02FB00F0 		mul	r0, r2, r0
+ 133 002c C0EBE300 		rsb	r0, r0, r3, asr #3
+ 134 0030 38BD     		pop	{r3, r4, r5, pc}
+ 135              	.L22:
+ 136 0032 0733     		adds	r3, r3, #7
+ 137 0034 EEE7     		b	.L19
+ 138              	.L24:
+ 139 0036 00BF     		.align	2
+ 140              	.L23:
+ 141 0038 00000000 		.word	ECC_CODEWORDS_PER_BLOCK
+ 142 003c 00000000 		.word	NUM_ERROR_CORRECTION_BLOCKS
+ 144              		.section	.text.finiteFieldMultiply,"ax",%progbits
+ 145              		.align	1
+ 146              		.syntax unified
+ 147              		.thumb
+ 148              		.thumb_func
+ 150              	finiteFieldMultiply:
+ 151              		@ args = 0, pretend = 0, frame = 0
+ 152              		@ frame_needed = 0, uses_anonymous_args = 0
+ 153 0000 00B5     		push	{lr}
+ 154 0002 8646     		mov	lr, r0
+ 155 0004 0722     		movs	r2, #7
+ 156 0006 0020     		movs	r0, #0
+ 157 0008 10E0     		b	.L26
+ 158              	.L27:
+ 159 000a C309     		lsrs	r3, r0, #7
+ 160 000c C3EBC30C 		rsb	ip, r3, r3, lsl #3
+ 161 0010 03EB8C03 		add	r3, r3, ip, lsl #2
+ 162 0014 83EA4003 		eor	r3, r3, r0, lsl #1
+ 163 0018 5BB2     		sxtb	r3, r3
+ 164 001a 41FA02F0 		asr	r0, r1, r2
+ 165 001e 00F00100 		and	r0, r0, #1
+ 166 0022 10FB0EF0 		smulbb	r0, r0, lr
+ 167 0026 5840     		eors	r0, r0, r3
+ 168 0028 C0B2     		uxtb	r0, r0
+ 169 002a 013A     		subs	r2, r2, #1
+ 170              	.L26:
+ 171 002c 002A     		cmp	r2, #0
+ 172 002e ECDA     		bge	.L27
+ 173 0030 5DF804FB 		ldr	pc, [sp], #4
+ 175              		.section	.text.getAlignmentPatternPositions,"ax",%progbits
+ 176              		.align	1
+ 177              		.syntax unified
+ 178              		.thumb
+ 179              		.thumb_func
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 4
+
+
+ 181              	getAlignmentPatternPositions:
+ 182              		@ args = 0, pretend = 0, frame = 0
+ 183              		@ frame_needed = 0, uses_anonymous_args = 0
+ 184 0000 0128     		cmp	r0, #1
+ 185 0002 2DD0     		beq	.L34
+ 186 0004 0246     		mov	r2, r0
+ 187 0006 1C48     		ldr	r0, .L44
+ 188 0008 80FB0230 		smull	r3, r0, r0, r2
+ 189 000c 1044     		add	r0, r0, r2
+ 190 000e D317     		asrs	r3, r2, #31
+ 191 0010 C3EBA003 		rsb	r3, r3, r0, asr #2
+ 192 0014 981C     		adds	r0, r3, #2
+ 193 0016 202A     		cmp	r2, #32
+ 194 0018 12D0     		beq	.L35
+ 195 001a 00B5     		push	{lr}
+ 196 001c 00EB420C 		add	ip, r0, r2, lsl #1
+ 197 0020 4FEA4C0C 		lsl	ip, ip, #1
+ 198 0024 0CF1010C 		add	ip, ip, #1
+ 199 0028 03F1010E 		add	lr, r3, #1
+ 200 002c 4FEA4E0E 		lsl	lr, lr, #1
+ 201 0030 9CFBFEFC 		sdiv	ip, ip, lr
+ 202 0034 4FEA4C0C 		lsl	ip, ip, #1
+ 203 0038 0133     		adds	r3, r3, #1
+ 204 003a 9200     		lsls	r2, r2, #2
+ 205 003c 0A32     		adds	r2, r2, #10
+ 206 003e 09E0     		b	.L32
+ 207              	.L35:
+ 208 0040 4FF01A0C 		mov	ip, #26
+ 209 0044 0133     		adds	r3, r3, #1
+ 210 0046 9200     		lsls	r2, r2, #2
+ 211 0048 0A32     		adds	r2, r2, #10
+ 212 004a 0FE0     		b	.L38
+ 213              	.L33:
+ 214 004c CA54     		strb	r2, [r1, r3]
+ 215 004e 013B     		subs	r3, r3, #1
+ 216 0050 A2EB0C02 		sub	r2, r2, ip
+ 217              	.L32:
+ 218 0054 002B     		cmp	r3, #0
+ 219 0056 F9DC     		bgt	.L33
+ 220 0058 0623     		movs	r3, #6
+ 221 005a 0B70     		strb	r3, [r1]
+ 222 005c 5DF804FB 		ldr	pc, [sp], #4
+ 223              	.L34:
+ 224 0060 0020     		movs	r0, #0
+ 225 0062 7047     		bx	lr
+ 226              	.L39:
+ 227 0064 CA54     		strb	r2, [r1, r3]
+ 228 0066 013B     		subs	r3, r3, #1
+ 229 0068 A2EB0C02 		sub	r2, r2, ip
+ 230              	.L38:
+ 231 006c 002B     		cmp	r3, #0
+ 232 006e F9DC     		bgt	.L39
+ 233 0070 0623     		movs	r3, #6
+ 234 0072 0B70     		strb	r3, [r1]
+ 235 0074 7047     		bx	lr
+ 236              	.L45:
+ 237 0076 00BF     		.align	2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 5
+
+
+ 238              	.L44:
+ 239 0078 93244992 		.word	-1840700269
+ 241              		.section	.text.hasFinderLikePattern,"ax",%progbits
+ 242              		.align	1
+ 243              		.syntax unified
+ 244              		.thumb
+ 245              		.thumb_func
+ 247              	hasFinderLikePattern:
+ 248              		@ args = 0, pretend = 0, frame = 0
+ 249              		@ frame_needed = 0, uses_anonymous_args = 0
+ 250              		@ link register save eliminated.
+ 251 0000 4378     		ldrb	r3, [r0, #1]	@ zero_extendqisi2
+ 252 0002 FBB1     		cbz	r3, .L48
+ 253 0004 8278     		ldrb	r2, [r0, #2]	@ zero_extendqisi2
+ 254 0006 9A42     		cmp	r2, r3
+ 255 0008 01D0     		beq	.L55
+ 256 000a 0020     		movs	r0, #0
+ 257 000c 7047     		bx	lr
+ 258              	.L55:
+ 259 000e 0279     		ldrb	r2, [r0, #4]	@ zero_extendqisi2
+ 260 0010 9A42     		cmp	r2, r3
+ 261 0012 01D0     		beq	.L56
+ 262 0014 0020     		movs	r0, #0
+ 263 0016 7047     		bx	lr
+ 264              	.L56:
+ 265 0018 4279     		ldrb	r2, [r0, #5]	@ zero_extendqisi2
+ 266 001a 9A42     		cmp	r2, r3
+ 267 001c 01D0     		beq	.L57
+ 268 001e 0020     		movs	r0, #0
+ 269 0020 7047     		bx	lr
+ 270              	.L57:
+ 271 0022 C178     		ldrb	r1, [r0, #3]	@ zero_extendqisi2
+ 272 0024 03EB4302 		add	r2, r3, r3, lsl #1
+ 273 0028 9142     		cmp	r1, r2
+ 274 002a 01D0     		beq	.L58
+ 275 002c 0020     		movs	r0, #0
+ 276 002e 7047     		bx	lr
+ 277              	.L58:
+ 278 0030 0278     		ldrb	r2, [r0]	@ zero_extendqisi2
+ 279 0032 9900     		lsls	r1, r3, #2
+ 280 0034 B2EB830F 		cmp	r2, r3, lsl #2
+ 281 0038 06DA     		bge	.L53
+ 282 003a 8379     		ldrb	r3, [r0, #6]	@ zero_extendqisi2
+ 283 003c 9942     		cmp	r1, r3
+ 284 003e 05DD     		ble	.L54
+ 285 0040 0020     		movs	r0, #0
+ 286 0042 7047     		bx	lr
+ 287              	.L48:
+ 288 0044 0020     		movs	r0, #0
+ 289 0046 7047     		bx	lr
+ 290              	.L53:
+ 291 0048 0120     		movs	r0, #1
+ 292 004a 7047     		bx	lr
+ 293              	.L54:
+ 294 004c 0120     		movs	r0, #1
+ 295 004e 7047     		bx	lr
+ 297              		.section	.text.setModule,"ax",%progbits
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 6
+
+
+ 298              		.align	1
+ 299              		.syntax unified
+ 300              		.thumb
+ 301              		.thumb_func
+ 303              	setModule:
+ 304              		@ args = 0, pretend = 0, frame = 0
+ 305              		@ frame_needed = 0, uses_anonymous_args = 0
+ 306 0000 00B5     		push	{lr}
+ 307 0002 90F800C0 		ldrb	ip, [r0]	@ zero_extendqisi2
+ 308 0006 ACF1150E 		sub	lr, ip, #21
+ 309 000a BEF19C0F 		cmp	lr, #156
+ 310 000e 07D8     		bhi	.L60
+ 311 0010 0029     		cmp	r1, #0
+ 312 0012 05DB     		blt	.L60
+ 313 0014 8C45     		cmp	ip, r1
+ 314 0016 03DD     		ble	.L60
+ 315 0018 002A     		cmp	r2, #0
+ 316 001a 01DB     		blt	.L60
+ 317 001c 9445     		cmp	ip, r2
+ 318 001e 00DC     		bgt	.L61
+ 319              	.L60:
+ 320 0020 FEE7     		b	.L60
+ 321              	.L61:
+ 322 0022 02FB0C11 		mla	r1, r2, ip, r1
+ 323 0026 01F0070C 		and	ip, r1, #7
+ 324 002a C910     		asrs	r1, r1, #3
+ 325 002c 4A1C     		adds	r2, r1, #1
+ 326 002e 3BB1     		cbz	r3, .L62
+ 327 0030 835C     		ldrb	r3, [r0, r2]	@ zero_extendqisi2
+ 328 0032 0121     		movs	r1, #1
+ 329 0034 01FA0CF1 		lsl	r1, r1, ip
+ 330 0038 0B43     		orrs	r3, r3, r1
+ 331 003a 8354     		strb	r3, [r0, r2]
+ 332              	.L59:
+ 333 003c 5DF804FB 		ldr	pc, [sp], #4
+ 334              	.L62:
+ 335 0040 815C     		ldrb	r1, [r0, r2]	@ zero_extendqisi2
+ 336 0042 0123     		movs	r3, #1
+ 337 0044 03FA0CF3 		lsl	r3, r3, ip
+ 338 0048 DB43     		mvns	r3, r3
+ 339 004a 5BB2     		sxtb	r3, r3
+ 340 004c 0B40     		ands	r3, r3, r1
+ 341 004e 8354     		strb	r3, [r0, r2]
+ 342 0050 F4E7     		b	.L59
+ 344              		.section	.text.fillRectangle,"ax",%progbits
+ 345              		.align	1
+ 346              		.syntax unified
+ 347              		.thumb
+ 348              		.thumb_func
+ 350              	fillRectangle:
+ 351              		@ args = 4, pretend = 0, frame = 0
+ 352              		@ frame_needed = 0, uses_anonymous_args = 0
+ 353 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 354 0004 8046     		mov	r8, r0
+ 355 0006 0F46     		mov	r7, r1
+ 356 0008 1646     		mov	r6, r2
+ 357 000a 9A46     		mov	r10, r3
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 7
+
+
+ 358 000c DDF82090 		ldr	r9, [sp, #32]
+ 359 0010 0025     		movs	r5, #0
+ 360 0012 0AE0     		b	.L66
+ 361              	.L67:
+ 362 0014 0123     		movs	r3, #1
+ 363 0016 EA19     		adds	r2, r5, r7
+ 364 0018 04EB0801 		add	r1, r4, r8
+ 365 001c 4846     		mov	r0, r9
+ 366 001e FFF7FEFF 		bl	setModule
+ 367 0022 0134     		adds	r4, r4, #1
+ 368              	.L68:
+ 369 0024 B442     		cmp	r4, r6
+ 370 0026 F5DB     		blt	.L67
+ 371 0028 0135     		adds	r5, r5, #1
+ 372              	.L66:
+ 373 002a 5545     		cmp	r5, r10
+ 374 002c 01DA     		bge	.L71
+ 375 002e 0024     		movs	r4, #0
+ 376 0030 F8E7     		b	.L68
+ 377              	.L71:
+ 378 0032 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 380              		.section	.text.setModuleBounded,"ax",%progbits
+ 381              		.align	1
+ 382              		.syntax unified
+ 383              		.thumb
+ 384              		.thumb_func
+ 386              	setModuleBounded:
+ 387              		@ args = 0, pretend = 0, frame = 0
+ 388              		@ frame_needed = 0, uses_anonymous_args = 0
+ 389 0000 90F800C0 		ldrb	ip, [r0]	@ zero_extendqisi2
+ 390 0004 0029     		cmp	r1, #0
+ 391 0006 05DB     		blt	.L75
+ 392 0008 8C45     		cmp	ip, r1
+ 393 000a 03DD     		ble	.L75
+ 394 000c 002A     		cmp	r2, #0
+ 395 000e 01DB     		blt	.L75
+ 396 0010 9445     		cmp	ip, r2
+ 397 0012 00DC     		bgt	.L78
+ 398              	.L75:
+ 399 0014 7047     		bx	lr
+ 400              	.L78:
+ 401 0016 08B5     		push	{r3, lr}
+ 402 0018 FFF7FEFF 		bl	setModule
+ 403 001c 08BD     		pop	{r3, pc}
+ 405              		.section	.text.getBit,"ax",%progbits
+ 406              		.align	1
+ 407              		.syntax unified
+ 408              		.thumb
+ 409              		.thumb_func
+ 411              	getBit:
+ 412              		@ args = 0, pretend = 0, frame = 0
+ 413              		@ frame_needed = 0, uses_anonymous_args = 0
+ 414              		@ link register save eliminated.
+ 415 0000 0841     		asrs	r0, r0, r1
+ 416 0002 00F00100 		and	r0, r0, #1
+ 417 0006 7047     		bx	lr
+ 419              		.section	.text.getModule,"ax",%progbits
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 8
+
+
+ 420              		.align	1
+ 421              		.syntax unified
+ 422              		.thumb
+ 423              		.thumb_func
+ 425              	getModule:
+ 426              		@ args = 0, pretend = 0, frame = 0
+ 427              		@ frame_needed = 0, uses_anonymous_args = 0
+ 428 0000 08B5     		push	{r3, lr}
+ 429 0002 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 430 0004 A3F1150C 		sub	ip, r3, #21
+ 431 0008 BCF19C0F 		cmp	ip, #156
+ 432 000c 07D8     		bhi	.L81
+ 433 000e 0029     		cmp	r1, #0
+ 434 0010 05DB     		blt	.L81
+ 435 0012 8B42     		cmp	r3, r1
+ 436 0014 03DD     		ble	.L81
+ 437 0016 002A     		cmp	r2, #0
+ 438 0018 01DB     		blt	.L81
+ 439 001a 9342     		cmp	r3, r2
+ 440 001c 00DC     		bgt	.L82
+ 441              	.L81:
+ 442 001e FEE7     		b	.L81
+ 443              	.L82:
+ 444 0020 02FB0311 		mla	r1, r2, r3, r1
+ 445 0024 00EBE100 		add	r0, r0, r1, asr #3
+ 446 0028 01F00701 		and	r1, r1, #7
+ 447 002c 4078     		ldrb	r0, [r0, #1]	@ zero_extendqisi2
+ 448 002e FFF7FEFF 		bl	getBit
+ 449 0032 08BD     		pop	{r3, pc}
+ 451              		.section	.text.calcSegmentBitLength,"ax",%progbits
+ 452              		.align	1
+ 453              		.syntax unified
+ 454              		.thumb
+ 455              		.thumb_func
+ 457              	calcSegmentBitLength:
+ 458              		@ args = 0, pretend = 0, frame = 0
+ 459              		@ frame_needed = 0, uses_anonymous_args = 0
+ 460              		@ link register save eliminated.
+ 461 0000 B1F5004F 		cmp	r1, #32768
+ 462 0004 2DD2     		bcs	.L96
+ 463 0006 431E     		subs	r3, r0, #1
+ 464 0008 072B     		cmp	r3, #7
+ 465 000a 26D8     		bhi	.L99
+ 466 000c DFE803F0 		tbb	[pc, r3]
+ 467              	.L88:
+ 468 0010 04       		.byte	(.L92-.L88)/2
+ 469 0011 13       		.byte	(.L91-.L88)/2
+ 470 0012 25       		.byte	(.L99-.L88)/2
+ 471 0013 1C       		.byte	(.L90-.L88)/2
+ 472 0014 25       		.byte	(.L99-.L88)/2
+ 473 0015 25       		.byte	(.L99-.L88)/2
+ 474 0016 23       		.byte	(.L89-.L88)/2
+ 475 0017 1E       		.byte	(.L87-.L88)/2
+ 476              		.p2align 1
+ 477              	.L92:
+ 478 0018 01EB8101 		add	r1, r1, r1, lsl #2
+ 479 001c 4900     		lsls	r1, r1, #1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 9
+
+
+ 480 001e 0231     		adds	r1, r1, #2
+ 481 0020 134B     		ldr	r3, .L101
+ 482 0022 83FB0123 		smull	r2, r3, r3, r1
+ 483 0026 A3EBE170 		sub	r0, r3, r1, asr #31
+ 484              	.L93:
+ 485 002a 0028     		cmp	r0, #0
+ 486 002c 16DB     		blt	.L95
+ 487              	.L94:
+ 488 002e B0F5004F 		cmp	r0, #32768
+ 489 0032 19D2     		bcs	.L100
+ 490              	.L84:
+ 491 0034 7047     		bx	lr
+ 492              	.L91:
+ 493 0036 01EB8103 		add	r3, r1, r1, lsl #2
+ 494 003a 01EB4301 		add	r1, r1, r3, lsl #1
+ 495 003e 0131     		adds	r1, r1, #1
+ 496 0040 01EBD171 		add	r1, r1, r1, lsr #31
+ 497 0044 4810     		asrs	r0, r1, #1
+ 498 0046 F0E7     		b	.L93
+ 499              	.L90:
+ 500 0048 C800     		lsls	r0, r1, #3
+ 501 004a EEE7     		b	.L93
+ 502              	.L87:
+ 503 004c 01EB4103 		add	r3, r1, r1, lsl #1
+ 504 0050 01EB8300 		add	r0, r1, r3, lsl #2
+ 505 0054 E9E7     		b	.L93
+ 506              	.L89:
+ 507 0056 11B1     		cbz	r1, .L97
+ 508 0058 FFE7     		b	.L86
+ 509              	.L99:
+ 510              	.L86:
+ 511 005a FEE7     		b	.L86
+ 512              	.L95:
+ 513 005c FEE7     		b	.L95
+ 514              	.L97:
+ 515 005e 1820     		movs	r0, #24
+ 516 0060 E5E7     		b	.L94
+ 517              	.L96:
+ 518 0062 4FF0FF30 		mov	r0, #-1
+ 519 0066 7047     		bx	lr
+ 520              	.L100:
+ 521 0068 4FF0FF30 		mov	r0, #-1
+ 522 006c E2E7     		b	.L84
+ 523              	.L102:
+ 524 006e 00BF     		.align	2
+ 525              	.L101:
+ 526 0070 56555555 		.word	1431655766
+ 528              		.section	.text.numCharCountBits,"ax",%progbits
+ 529              		.align	1
+ 530              		.syntax unified
+ 531              		.thumb
+ 532              		.thumb_func
+ 534              	numCharCountBits:
+ 535              		@ args = 0, pretend = 0, frame = 0
+ 536              		@ frame_needed = 0, uses_anonymous_args = 0
+ 537              		@ link register save eliminated.
+ 538 0000 4B1E     		subs	r3, r1, #1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 10
+
+
+ 539 0002 272B     		cmp	r3, #39
+ 540 0004 00D9     		bls	.L104
+ 541              	.L105:
+ 542 0006 FEE7     		b	.L105
+ 543              	.L104:
+ 544 0008 0731     		adds	r1, r1, #7
+ 545 000a 114B     		ldr	r3, .L115
+ 546 000c 83FB0123 		smull	r2, r3, r3, r1
+ 547 0010 C917     		asrs	r1, r1, #31
+ 548 0012 C1EBE301 		rsb	r1, r1, r3, asr #3
+ 549 0016 0138     		subs	r0, r0, #1
+ 550 0018 0728     		cmp	r0, #7
+ 551 001a 15D8     		bhi	.L114
+ 552 001c DFE800F0 		tbb	[pc, r0]
+ 553              	.L108:
+ 554 0020 04       		.byte	(.L112-.L108)/2
+ 555 0021 08       		.byte	(.L111-.L108)/2
+ 556 0022 14       		.byte	(.L114-.L108)/2
+ 557 0023 0C       		.byte	(.L110-.L108)/2
+ 558 0024 14       		.byte	(.L114-.L108)/2
+ 559 0025 14       		.byte	(.L114-.L108)/2
+ 560 0026 15       		.byte	(.L113-.L108)/2
+ 561 0027 10       		.byte	(.L107-.L108)/2
+ 562              		.p2align 1
+ 563              	.L112:
+ 564 0028 0A4B     		ldr	r3, .L115+4
+ 565 002a 53F82100 		ldr	r0, [r3, r1, lsl #2]
+ 566 002e 7047     		bx	lr
+ 567              	.L111:
+ 568 0030 094B     		ldr	r3, .L115+8
+ 569 0032 53F82100 		ldr	r0, [r3, r1, lsl #2]
+ 570 0036 7047     		bx	lr
+ 571              	.L110:
+ 572 0038 084B     		ldr	r3, .L115+12
+ 573 003a 53F82100 		ldr	r0, [r3, r1, lsl #2]
+ 574 003e 7047     		bx	lr
+ 575              	.L107:
+ 576 0040 074B     		ldr	r3, .L115+16
+ 577 0042 53F82100 		ldr	r0, [r3, r1, lsl #2]
+ 578 0046 7047     		bx	lr
+ 579              	.L114:
+ 580              	.L106:
+ 581 0048 FEE7     		b	.L106
+ 582              	.L113:
+ 583 004a 0020     		movs	r0, #0
+ 584 004c 7047     		bx	lr
+ 585              	.L116:
+ 586 004e 00BF     		.align	2
+ 587              	.L115:
+ 588 0050 79787878 		.word	2021161081
+ 589 0054 00000000 		.word	temp.4
+ 590 0058 00000000 		.word	temp.3
+ 591 005c 00000000 		.word	temp.2
+ 592 0060 00000000 		.word	temp.1
+ 594              		.section	.text.getTotalBits,"ax",%progbits
+ 595              		.align	1
+ 596              		.syntax unified
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 11
+
+
+ 597              		.thumb
+ 598              		.thumb_func
+ 600              	getTotalBits:
+ 601              		@ args = 0, pretend = 0, frame = 0
+ 602              		@ frame_needed = 0, uses_anonymous_args = 0
+ 603 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 604 0004 8946     		mov	r9, r1
+ 605 0006 9246     		mov	r10, r2
+ 606 0008 8046     		mov	r8, r0
+ 607 000a 08B3     		cbz	r0, .L135
+ 608 000c 0024     		movs	r4, #0
+ 609 000e 2546     		mov	r5, r4
+ 610              	.L127:
+ 611 0010 4C45     		cmp	r4, r9
+ 612 0012 25D2     		bcs	.L136
+ 613 0014 2201     		lsls	r2, r4, #4
+ 614 0016 08EB0413 		add	r3, r8, r4, lsl #4
+ 615 001a 5E68     		ldr	r6, [r3, #4]
+ 616 001c DF68     		ldr	r7, [r3, #12]
+ 617 001e B6F5004F 		cmp	r6, #32768
+ 618 0022 17D2     		bcs	.L121
+ 619 0024 B7F5004F 		cmp	r7, #32768
+ 620 0028 15D2     		bcs	.L123
+ 621 002a 5146     		mov	r1, r10
+ 622 002c 18F80200 		ldrb	r0, [r8, r2]	@ zero_extendqisi2
+ 623 0030 FFF7FEFF 		bl	numCharCountBits
+ 624 0034 1028     		cmp	r0, #16
+ 625 0036 0FD8     		bhi	.L125
+ 626 0038 0123     		movs	r3, #1
+ 627 003a 8340     		lsls	r3, r3, r0
+ 628 003c B342     		cmp	r3, r6
+ 629 003e 13DD     		ble	.L132
+ 630 0040 0430     		adds	r0, r0, #4
+ 631 0042 3844     		add	r0, r0, r7
+ 632 0044 0544     		add	r5, r5, r0
+ 633 0046 B5F5004F 		cmp	r5, #32768
+ 634 004a 12DA     		bge	.L133
+ 635 004c 0134     		adds	r4, r4, #1
+ 636 004e DFE7     		b	.L127
+ 637              	.L135:
+ 638 0050 19B1     		cbz	r1, .L131
+ 639              	.L119:
+ 640 0052 FEE7     		b	.L119
+ 641              	.L121:
+ 642 0054 FEE7     		b	.L121
+ 643              	.L123:
+ 644 0056 FEE7     		b	.L123
+ 645              	.L125:
+ 646 0058 FEE7     		b	.L125
+ 647              	.L131:
+ 648 005a 0C46     		mov	r4, r1
+ 649 005c 0025     		movs	r5, #0
+ 650 005e D7E7     		b	.L127
+ 651              	.L136:
+ 652 0060 B5F5004F 		cmp	r5, #32768
+ 653 0064 02D3     		bcc	.L117
+ 654              	.L129:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 12
+
+
+ 655 0066 FEE7     		b	.L129
+ 656              	.L132:
+ 657 0068 4FF0FF35 		mov	r5, #-1
+ 658              	.L117:
+ 659 006c 2846     		mov	r0, r5
+ 660 006e BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 661              	.L133:
+ 662 0072 4FF0FF35 		mov	r5, #-1
+ 663 0076 F9E7     		b	.L117
+ 665              		.section	.text.calcReedSolomonGenerator,"ax",%progbits
+ 666              		.align	1
+ 667              		.syntax unified
+ 668              		.thumb
+ 669              		.thumb_func
+ 671              	calcReedSolomonGenerator:
+ 672              		@ args = 0, pretend = 0, frame = 0
+ 673              		@ frame_needed = 0, uses_anonymous_args = 0
+ 674 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 675 0004 441E     		subs	r4, r0, #1
+ 676 0006 1D2C     		cmp	r4, #29
+ 677 0008 00D9     		bls	.L138
+ 678              	.L139:
+ 679 000a FEE7     		b	.L139
+ 680              	.L138:
+ 681 000c 0746     		mov	r7, r0
+ 682 000e 0D46     		mov	r5, r1
+ 683 0010 0246     		mov	r2, r0
+ 684 0012 0021     		movs	r1, #0
+ 685 0014 2846     		mov	r0, r5
+ 686 0016 FFF7FEFF 		bl	memset
+ 687 001a 4FF00109 		mov	r9, #1
+ 688 001e 05F80490 		strb	r9, [r5, r4]
+ 689 0022 4FF0000A 		mov	r10, #0
+ 690 0026 06E0     		b	.L140
+ 691              	.L147:
+ 692 0028 0221     		movs	r1, #2
+ 693 002a 4846     		mov	r0, r9
+ 694 002c FFF7FEFF 		bl	finiteFieldMultiply
+ 695 0030 8146     		mov	r9, r0
+ 696 0032 0AF1010A 		add	r10, r10, #1
+ 697              	.L140:
+ 698 0036 BA45     		cmp	r10, r7
+ 699 0038 12DA     		bge	.L146
+ 700 003a 0024     		movs	r4, #0
+ 701              	.L143:
+ 702 003c BC42     		cmp	r4, r7
+ 703 003e F3DA     		bge	.L147
+ 704 0040 05EB0408 		add	r8, r5, r4
+ 705 0044 4946     		mov	r1, r9
+ 706 0046 285D     		ldrb	r0, [r5, r4]	@ zero_extendqisi2
+ 707 0048 FFF7FEFF 		bl	finiteFieldMultiply
+ 708 004c 2855     		strb	r0, [r5, r4]
+ 709 004e 0134     		adds	r4, r4, #1
+ 710 0050 BC42     		cmp	r4, r7
+ 711 0052 F3DA     		bge	.L143
+ 712 0054 98F80130 		ldrb	r3, [r8, #1]	@ zero_extendqisi2
+ 713 0058 5840     		eors	r0, r0, r3
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 13
+
+
+ 714 005a 88F80000 		strb	r0, [r8]
+ 715 005e EDE7     		b	.L143
+ 716              	.L146:
+ 717 0060 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 719              		.section	.text.initializeFunctionModules,"ax",%progbits
+ 720              		.align	1
+ 721              		.syntax unified
+ 722              		.thumb
+ 723              		.thumb_func
+ 725              	initializeFunctionModules:
+ 726              		@ args = 0, pretend = 0, frame = 8
+ 727              		@ frame_needed = 0, uses_anonymous_args = 0
+ 728 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 729 0004 85B0     		sub	sp, sp, #20
+ 730 0006 8046     		mov	r8, r0
+ 731 0008 0F46     		mov	r7, r1
+ 732 000a 4FEA8009 		lsl	r9, r0, #2
+ 733 000e 09F11104 		add	r4, r9, #17
+ 734 0012 04FB04F3 		mul	r3, r4, r4
+ 735 0016 0733     		adds	r3, r3, #7
+ 736 0018 32D4     		bmi	.L159
+ 737              	.L149:
+ 738 001a DB10     		asrs	r3, r3, #3
+ 739 001c 5A1C     		adds	r2, r3, #1
+ 740 001e 0021     		movs	r1, #0
+ 741 0020 3846     		mov	r0, r7
+ 742 0022 FFF7FEFF 		bl	memset
+ 743 0026 3C70     		strb	r4, [r7]
+ 744 0028 0097     		str	r7, [sp]
+ 745 002a 2346     		mov	r3, r4
+ 746 002c 0122     		movs	r2, #1
+ 747 002e 0021     		movs	r1, #0
+ 748 0030 0620     		movs	r0, #6
+ 749 0032 FFF7FEFF 		bl	fillRectangle
+ 750 0036 0097     		str	r7, [sp]
+ 751 0038 0123     		movs	r3, #1
+ 752 003a 2246     		mov	r2, r4
+ 753 003c 0621     		movs	r1, #6
+ 754 003e 0020     		movs	r0, #0
+ 755 0040 FFF7FEFF 		bl	fillRectangle
+ 756 0044 0097     		str	r7, [sp]
+ 757 0046 0923     		movs	r3, #9
+ 758 0048 1A46     		mov	r2, r3
+ 759 004a 0021     		movs	r1, #0
+ 760 004c 0846     		mov	r0, r1
+ 761 004e FFF7FEFF 		bl	fillRectangle
+ 762 0052 09F10904 		add	r4, r9, #9
+ 763 0056 0097     		str	r7, [sp]
+ 764 0058 0923     		movs	r3, #9
+ 765 005a 0822     		movs	r2, #8
+ 766 005c 0021     		movs	r1, #0
+ 767 005e 2046     		mov	r0, r4
+ 768 0060 FFF7FEFF 		bl	fillRectangle
+ 769 0064 0097     		str	r7, [sp]
+ 770 0066 0823     		movs	r3, #8
+ 771 0068 0922     		movs	r2, #9
+ 772 006a 2146     		mov	r1, r4
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 14
+
+
+ 773 006c 0020     		movs	r0, #0
+ 774 006e FFF7FEFF 		bl	fillRectangle
+ 775 0072 02A9     		add	r1, sp, #8
+ 776 0074 4046     		mov	r0, r8
+ 777 0076 FFF7FEFF 		bl	getAlignmentPatternPositions
+ 778 007a 0646     		mov	r6, r0
+ 779 007c 0025     		movs	r5, #0
+ 780 007e 23E0     		b	.L150
+ 781              	.L159:
+ 782 0080 0733     		adds	r3, r3, #7
+ 783 0082 CAE7     		b	.L149
+ 784              	.L161:
+ 785 0084 A4B1     		cbz	r4, .L152
+ 786 0086 731E     		subs	r3, r6, #1
+ 787 0088 A342     		cmp	r3, r4
+ 788 008a 16D1     		bne	.L151
+ 789 008c 10E0     		b	.L152
+ 790              	.L153:
+ 791 008e 05F11003 		add	r3, r5, #16
+ 792 0092 6B44     		add	r3, sp, r3
+ 793 0094 13F8080C 		ldrb	r0, [r3, #-8]	@ zero_extendqisi2
+ 794 0098 04F11003 		add	r3, r4, #16
+ 795 009c 6B44     		add	r3, sp, r3
+ 796 009e 13F8081C 		ldrb	r1, [r3, #-8]	@ zero_extendqisi2
+ 797 00a2 0097     		str	r7, [sp]
+ 798 00a4 0523     		movs	r3, #5
+ 799 00a6 1A46     		mov	r2, r3
+ 800 00a8 0239     		subs	r1, r1, #2
+ 801 00aa 0238     		subs	r0, r0, #2
+ 802 00ac FFF7FEFF 		bl	fillRectangle
+ 803              	.L152:
+ 804 00b0 0134     		adds	r4, r4, #1
+ 805              	.L155:
+ 806 00b2 B442     		cmp	r4, r6
+ 807 00b4 07DA     		bge	.L160
+ 808 00b6 002D     		cmp	r5, #0
+ 809 00b8 E4D0     		beq	.L161
+ 810              	.L151:
+ 811 00ba 731E     		subs	r3, r6, #1
+ 812 00bc AB42     		cmp	r3, r5
+ 813 00be E6D1     		bne	.L153
+ 814 00c0 002C     		cmp	r4, #0
+ 815 00c2 E4D1     		bne	.L153
+ 816 00c4 F4E7     		b	.L152
+ 817              	.L160:
+ 818 00c6 0135     		adds	r5, r5, #1
+ 819              	.L150:
+ 820 00c8 B542     		cmp	r5, r6
+ 821 00ca 01DA     		bge	.L162
+ 822 00cc 0024     		movs	r4, #0
+ 823 00ce F0E7     		b	.L155
+ 824              	.L162:
+ 825 00d0 B8F1060F 		cmp	r8, #6
+ 826 00d4 02DC     		bgt	.L163
+ 827              	.L148:
+ 828 00d6 05B0     		add	sp, sp, #20
+ 829              		@ sp needed
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 15
+
+
+ 830 00d8 BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 831              	.L163:
+ 832 00dc 09F10609 		add	r9, r9, #6
+ 833 00e0 0097     		str	r7, [sp]
+ 834 00e2 0623     		movs	r3, #6
+ 835 00e4 0322     		movs	r2, #3
+ 836 00e6 0021     		movs	r1, #0
+ 837 00e8 4846     		mov	r0, r9
+ 838 00ea FFF7FEFF 		bl	fillRectangle
+ 839 00ee 0097     		str	r7, [sp]
+ 840 00f0 0323     		movs	r3, #3
+ 841 00f2 0622     		movs	r2, #6
+ 842 00f4 4946     		mov	r1, r9
+ 843 00f6 0020     		movs	r0, #0
+ 844 00f8 FFF7FEFF 		bl	fillRectangle
+ 845 00fc EBE7     		b	.L148
+ 847              		.section	.text.calcReedSolomonRemainder,"ax",%progbits
+ 848              		.align	1
+ 849              		.syntax unified
+ 850              		.thumb
+ 851              		.thumb_func
+ 853              	calcReedSolomonRemainder:
+ 854              		@ args = 4, pretend = 0, frame = 8
+ 855              		@ frame_needed = 0, uses_anonymous_args = 0
+ 856 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 857 0004 83B0     		sub	sp, sp, #12
+ 858 0006 0190     		str	r0, [sp, #4]
+ 859 0008 0C9D     		ldr	r5, [sp, #48]
+ 860 000a 03F1FF3A 		add	r10, r3, #-1
+ 861 000e BAF11D0F 		cmp	r10, #29
+ 862 0012 00D9     		bls	.L165
+ 863              	.L166:
+ 864 0014 FEE7     		b	.L166
+ 865              	.L165:
+ 866 0016 8B46     		mov	fp, r1
+ 867 0018 9046     		mov	r8, r2
+ 868 001a 1F46     		mov	r7, r3
+ 869 001c 1A46     		mov	r2, r3
+ 870 001e 0021     		movs	r1, #0
+ 871 0020 2846     		mov	r0, r5
+ 872 0022 FFF7FEFF 		bl	memset
+ 873 0026 4FF00009 		mov	r9, #0
+ 874 002a 0CE0     		b	.L167
+ 875              	.L169:
+ 876 002c 3146     		mov	r1, r6
+ 877 002e 18F80400 		ldrb	r0, [r8, r4]	@ zero_extendqisi2
+ 878 0032 FFF7FEFF 		bl	finiteFieldMultiply
+ 879 0036 2B5D     		ldrb	r3, [r5, r4]	@ zero_extendqisi2
+ 880 0038 4340     		eors	r3, r3, r0
+ 881 003a 2B55     		strb	r3, [r5, r4]
+ 882 003c 0134     		adds	r4, r4, #1
+ 883              	.L168:
+ 884 003e BC42     		cmp	r4, r7
+ 885 0040 F4DB     		blt	.L169
+ 886 0042 09F10109 		add	r9, r9, #1
+ 887              	.L167:
+ 888 0046 D945     		cmp	r9, fp
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 16
+
+
+ 889 0048 0EDA     		bge	.L172
+ 890 004a 019B     		ldr	r3, [sp, #4]
+ 891 004c 13F80960 		ldrb	r6, [r3, r9]	@ zero_extendqisi2
+ 892 0050 2946     		mov	r1, r5
+ 893 0052 11F8013B 		ldrb	r3, [r1], #1	@ zero_extendqisi2
+ 894 0056 5E40     		eors	r6, r6, r3
+ 895 0058 5246     		mov	r2, r10
+ 896 005a 2846     		mov	r0, r5
+ 897 005c FFF7FEFF 		bl	memmove
+ 898 0060 0024     		movs	r4, #0
+ 899 0062 05F80A40 		strb	r4, [r5, r10]
+ 900 0066 EAE7     		b	.L168
+ 901              	.L172:
+ 902 0068 03B0     		add	sp, sp, #12
+ 903              		@ sp needed
+ 904 006a BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 906              		.section	.text.addEccAndInterleave,"ax",%progbits
+ 907              		.align	1
+ 908              		.syntax unified
+ 909              		.thumb
+ 910              		.thumb_func
+ 912              	addEccAndInterleave:
+ 913              		@ args = 0, pretend = 0, frame = 48
+ 914              		@ frame_needed = 0, uses_anonymous_args = 0
+ 915 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 916 0004 8FB0     		sub	sp, sp, #60
+ 917 0006 0490     		str	r0, [sp, #16]
+ 918 0008 032A     		cmp	r2, #3
+ 919 000a 06D8     		bhi	.L174
+ 920 000c 0F46     		mov	r7, r1
+ 921 000e 1646     		mov	r6, r2
+ 922 0010 1C46     		mov	r4, r3
+ 923 0012 0029     		cmp	r1, #0
+ 924 0014 01DD     		ble	.L174
+ 925 0016 2829     		cmp	r1, #40
+ 926 0018 00DD     		ble	.L175
+ 927              	.L174:
+ 928 001a FEE7     		b	.L174
+ 929              	.L175:
+ 930 001c 02EB8203 		add	r3, r2, r2, lsl #2
+ 931 0020 02EBC303 		add	r3, r2, r3, lsl #3
+ 932 0024 2C4A     		ldr	r2, .L188
+ 933 0026 1A44     		add	r2, r2, r3
+ 934 0028 5556     		ldrsb	r5, [r2, r1]
+ 935 002a 2C4A     		ldr	r2, .L188+4
+ 936 002c 1344     		add	r3, r3, r2
+ 937 002e 13F90180 		ldrsb	r8, [r3, r1]
+ 938 0032 0846     		mov	r0, r1
+ 939 0034 FFF7FEFF 		bl	getNumRawDataModules
+ 940 0038 031E     		subs	r3, r0, #0
+ 941 003a 16DB     		blt	.L185
+ 942              	.L176:
+ 943 003c 4FEAE309 		asr	r9, r3, #3
+ 944 0040 3146     		mov	r1, r6
+ 945 0042 3846     		mov	r0, r7
+ 946 0044 FFF7FEFF 		bl	getNumDataCodewords
+ 947 0048 0590     		str	r0, [sp, #20]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 17
+
+
+ 948 004a 99FBF5FA 		sdiv	r10, r9, r5
+ 949 004e 05FB1A93 		mls	r3, r5, r10, r9
+ 950 0052 EB1A     		subs	r3, r5, r3
+ 951 0054 0393     		str	r3, [sp, #12]
+ 952 0056 AAEB080A 		sub	r10, r10, r8
+ 953 005a 06A9     		add	r1, sp, #24
+ 954 005c 4046     		mov	r0, r8
+ 955 005e FFF7FEFF 		bl	calcReedSolomonGenerator
+ 956 0062 049F     		ldr	r7, [sp, #16]
+ 957 0064 4FF0000B 		mov	fp, #0
+ 958 0068 1BE0     		b	.L177
+ 959              	.L185:
+ 960 006a 0733     		adds	r3, r3, #7
+ 961 006c E6E7     		b	.L176
+ 962              	.L179:
+ 963 006e F95C     		ldrb	r1, [r7, r3]	@ zero_extendqisi2
+ 964 0070 A154     		strb	r1, [r4, r2]
+ 965 0072 0133     		adds	r3, r3, #1
+ 966 0074 2A44     		add	r2, r2, r5
+ 967              	.L178:
+ 968 0076 B342     		cmp	r3, r6
+ 969 0078 04DA     		bge	.L186
+ 970 007a 5345     		cmp	r3, r10
+ 971 007c F7D1     		bne	.L179
+ 972 007e 0399     		ldr	r1, [sp, #12]
+ 973 0080 521A     		subs	r2, r2, r1
+ 974 0082 F4E7     		b	.L179
+ 975              	.L186:
+ 976 0084 059B     		ldr	r3, [sp, #20]
+ 977 0086 0BEB0302 		add	r2, fp, r3
+ 978 008a 0023     		movs	r3, #0
+ 979 008c 04E0     		b	.L181
+ 980              	.L182:
+ 981 008e 19F80310 		ldrb	r1, [r9, r3]	@ zero_extendqisi2
+ 982 0092 A154     		strb	r1, [r4, r2]
+ 983 0094 0133     		adds	r3, r3, #1
+ 984 0096 2A44     		add	r2, r2, r5
+ 985              	.L181:
+ 986 0098 4345     		cmp	r3, r8
+ 987 009a F8DB     		blt	.L182
+ 988 009c 3744     		add	r7, r7, r6
+ 989 009e 0BF1010B 		add	fp, fp, #1
+ 990              	.L177:
+ 991 00a2 AB45     		cmp	fp, r5
+ 992 00a4 14DA     		bge	.L187
+ 993 00a6 039B     		ldr	r3, [sp, #12]
+ 994 00a8 9B45     		cmp	fp, r3
+ 995 00aa B4BF     		ite	lt
+ 996 00ac 5646     		movlt	r6, r10
+ 997 00ae 0AF10106 		addge	r6, r10, #1
+ 998 00b2 049B     		ldr	r3, [sp, #16]
+ 999 00b4 059A     		ldr	r2, [sp, #20]
+ 1000 00b6 03EB0209 		add	r9, r3, r2
+ 1001 00ba CDF80090 		str	r9, [sp]
+ 1002 00be 4346     		mov	r3, r8
+ 1003 00c0 06AA     		add	r2, sp, #24
+ 1004 00c2 3146     		mov	r1, r6
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 18
+
+
+ 1005 00c4 3846     		mov	r0, r7
+ 1006 00c6 FFF7FEFF 		bl	calcReedSolomonRemainder
+ 1007 00ca 5A46     		mov	r2, fp
+ 1008 00cc 0023     		movs	r3, #0
+ 1009 00ce D2E7     		b	.L178
+ 1010              	.L187:
+ 1011 00d0 0FB0     		add	sp, sp, #60
+ 1012              		@ sp needed
+ 1013 00d2 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 1014              	.L189:
+ 1015 00d6 00BF     		.align	2
+ 1016              	.L188:
+ 1017 00d8 00000000 		.word	NUM_ERROR_CORRECTION_BLOCKS
+ 1018 00dc 00000000 		.word	ECC_CODEWORDS_PER_BLOCK
+ 1020              		.section	.text.addRunToHistory,"ax",%progbits
+ 1021              		.align	1
+ 1022              		.syntax unified
+ 1023              		.thumb
+ 1024              		.thumb_func
+ 1026              	addRunToHistory:
+ 1027              		@ args = 0, pretend = 0, frame = 0
+ 1028              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1029 0000 38B5     		push	{r3, r4, r5, lr}
+ 1030 0002 0546     		mov	r5, r0
+ 1031 0004 0C46     		mov	r4, r1
+ 1032 0006 0622     		movs	r2, #6
+ 1033 0008 481C     		adds	r0, r1, #1
+ 1034 000a FFF7FEFF 		bl	memmove
+ 1035 000e 2570     		strb	r5, [r4]
+ 1036 0010 38BD     		pop	{r3, r4, r5, pc}
+ 1038              		.section	.text.qrcodegen_getSize,"ax",%progbits
+ 1039              		.align	1
+ 1040              		.global	qrcodegen_getSize
+ 1041              		.syntax unified
+ 1042              		.thumb
+ 1043              		.thumb_func
+ 1045              	qrcodegen_getSize:
+ 1046              		@ args = 0, pretend = 0, frame = 0
+ 1047              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1048              		@ link register save eliminated.
+ 1049 0000 28B1     		cbz	r0, .L194
+ 1050 0002 0078     		ldrb	r0, [r0]	@ zero_extendqisi2
+ 1051 0004 A0F11503 		sub	r3, r0, #21
+ 1052 0008 9C2B     		cmp	r3, #156
+ 1053 000a 01D9     		bls	.L192
+ 1054              	.L196:
+ 1055 000c FEE7     		b	.L196
+ 1056              	.L194:
+ 1057 000e FEE7     		b	.L194
+ 1058              	.L192:
+ 1059 0010 7047     		bx	lr
+ 1061              		.section	.text.drawCodewords,"ax",%progbits
+ 1062              		.align	1
+ 1063              		.syntax unified
+ 1064              		.thumb
+ 1065              		.thumb_func
+ 1067              	drawCodewords:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 19
+
+
+ 1068              		@ args = 0, pretend = 0, frame = 16
+ 1069              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1070 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 1071 0004 85B0     		sub	sp, sp, #20
+ 1072 0006 0390     		str	r0, [sp, #12]
+ 1073 0008 0191     		str	r1, [sp, #4]
+ 1074 000a 1746     		mov	r7, r2
+ 1075 000c 1046     		mov	r0, r2
+ 1076 000e FFF7FEFF 		bl	qrcodegen_getSize
+ 1077 0012 0646     		mov	r6, r0
+ 1078 0014 00F1FF3A 		add	r10, r0, #-1
+ 1079 0018 D346     		mov	fp, r10
+ 1080 001a 4FF00008 		mov	r8, #0
+ 1081 001e CDF808A0 		str	r10, [sp, #8]
+ 1082 0022 36E0     		b	.L198
+ 1083              	.L216:
+ 1084 0024 4FF0050B 		mov	fp, #5
+ 1085 0028 39E0     		b	.L199
+ 1086              	.L209:
+ 1087 002a D146     		mov	r9, r10
+ 1088              	.L201:
+ 1089 002c 4A46     		mov	r2, r9
+ 1090 002e 2946     		mov	r1, r5
+ 1091 0030 3846     		mov	r0, r7
+ 1092 0032 FFF7FEFF 		bl	getModule
+ 1093 0036 18B9     		cbnz	r0, .L202
+ 1094 0038 019B     		ldr	r3, [sp, #4]
+ 1095 003a B8EBC30F 		cmp	r8, r3, lsl #3
+ 1096 003e 0DDB     		blt	.L212
+ 1097              	.L202:
+ 1098 0040 0134     		adds	r4, r4, #1
+ 1099              	.L204:
+ 1100 0042 012C     		cmp	r4, #1
+ 1101 0044 1DDC     		bgt	.L213
+ 1102 0046 ABEB0405 		sub	r5, fp, r4
+ 1103 004a 0BF10103 		add	r3, fp, #1
+ 1104 004e 13F0020F 		tst	r3, #2
+ 1105 0052 EAD1     		bne	.L209
+ 1106 0054 029B     		ldr	r3, [sp, #8]
+ 1107 0056 A3EB0A09 		sub	r9, r3, r10
+ 1108 005a E7E7     		b	.L201
+ 1109              	.L212:
+ 1110 005c 4FEAE803 		asr	r3, r8, #3
+ 1111 0060 6FEA0801 		mvn	r1, r8
+ 1112 0064 01F00701 		and	r1, r1, #7
+ 1113 0068 039A     		ldr	r2, [sp, #12]
+ 1114 006a D05C     		ldrb	r0, [r2, r3]	@ zero_extendqisi2
+ 1115 006c FFF7FEFF 		bl	getBit
+ 1116 0070 0346     		mov	r3, r0
+ 1117 0072 4A46     		mov	r2, r9
+ 1118 0074 2946     		mov	r1, r5
+ 1119 0076 3846     		mov	r0, r7
+ 1120 0078 FFF7FEFF 		bl	setModule
+ 1121 007c 08F10108 		add	r8, r8, #1
+ 1122 0080 DEE7     		b	.L202
+ 1123              	.L213:
+ 1124 0082 0AF1010A 		add	r10, r10, #1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 20
+
+
+ 1125              	.L200:
+ 1126 0086 B245     		cmp	r10, r6
+ 1127 0088 01DA     		bge	.L214
+ 1128 008a 0024     		movs	r4, #0
+ 1129 008c D9E7     		b	.L204
+ 1130              	.L214:
+ 1131 008e ABF1020B 		sub	fp, fp, #2
+ 1132              	.L198:
+ 1133 0092 BBF1000F 		cmp	fp, #0
+ 1134 0096 05DD     		ble	.L215
+ 1135 0098 BBF1060F 		cmp	fp, #6
+ 1136 009c C2D0     		beq	.L216
+ 1137              	.L199:
+ 1138 009e 4FF0000A 		mov	r10, #0
+ 1139 00a2 F0E7     		b	.L200
+ 1140              	.L215:
+ 1141 00a4 019B     		ldr	r3, [sp, #4]
+ 1142 00a6 B8EBC30F 		cmp	r8, r3, lsl #3
+ 1143 00aa 00D0     		beq	.L197
+ 1144              	.L207:
+ 1145 00ac FEE7     		b	.L207
+ 1146              	.L197:
+ 1147 00ae 05B0     		add	sp, sp, #20
+ 1148              		@ sp needed
+ 1149 00b0 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 1151              		.section	.text.drawWhiteFunctionModules,"ax",%progbits
+ 1152              		.align	1
+ 1153              		.syntax unified
+ 1154              		.thumb
+ 1155              		.thumb_func
+ 1157              	drawWhiteFunctionModules:
+ 1158              		@ args = 0, pretend = 0, frame = 8
+ 1159              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1160 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 1161 0004 83B0     		sub	sp, sp, #12
+ 1162 0006 0746     		mov	r7, r0
+ 1163 0008 8B46     		mov	fp, r1
+ 1164 000a FFF7FEFF 		bl	qrcodegen_getSize
+ 1165 000e 8246     		mov	r10, r0
+ 1166 0010 0724     		movs	r4, #7
+ 1167 0012 0CE0     		b	.L218
+ 1168              	.L219:
+ 1169 0014 0023     		movs	r3, #0
+ 1170 0016 2246     		mov	r2, r4
+ 1171 0018 0621     		movs	r1, #6
+ 1172 001a 3846     		mov	r0, r7
+ 1173 001c FFF7FEFF 		bl	setModule
+ 1174 0020 0023     		movs	r3, #0
+ 1175 0022 0622     		movs	r2, #6
+ 1176 0024 2146     		mov	r1, r4
+ 1177 0026 3846     		mov	r0, r7
+ 1178 0028 FFF7FEFF 		bl	setModule
+ 1179 002c 0234     		adds	r4, r4, #2
+ 1180              	.L218:
+ 1181 002e AAF10703 		sub	r3, r10, #7
+ 1182 0032 A342     		cmp	r3, r4
+ 1183 0034 EEDC     		bgt	.L219
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 21
+
+
+ 1184 0036 6FF00306 		mvn	r6, #3
+ 1185 003a 2DE0     		b	.L220
+ 1186              	.L221:
+ 1187 003c 022B     		cmp	r3, #2
+ 1188 003e 10D0     		beq	.L222
+ 1189 0040 042B     		cmp	r3, #4
+ 1190 0042 0ED0     		beq	.L222
+ 1191              	.L223:
+ 1192 0044 0134     		adds	r4, r4, #1
+ 1193              	.L225:
+ 1194 0046 042C     		cmp	r4, #4
+ 1195 0048 25DC     		bgt	.L253
+ 1196 004a 84EAE472 		eor	r2, r4, r4, asr #31
+ 1197 004e A2EBE472 		sub	r2, r2, r4, asr #31
+ 1198 0052 86EAE673 		eor	r3, r6, r6, asr #31
+ 1199 0056 A3EBE673 		sub	r3, r3, r6, asr #31
+ 1200 005a 9342     		cmp	r3, r2
+ 1201 005c EEDC     		bgt	.L221
+ 1202 005e 1346     		mov	r3, r2
+ 1203 0060 ECE7     		b	.L221
+ 1204              	.L222:
+ 1205 0062 E51C     		adds	r5, r4, #3
+ 1206 0064 06F10309 		add	r9, r6, #3
+ 1207 0068 0023     		movs	r3, #0
+ 1208 006a 4A46     		mov	r2, r9
+ 1209 006c 2946     		mov	r1, r5
+ 1210 006e 3846     		mov	r0, r7
+ 1211 0070 FFF7FEFF 		bl	setModuleBounded
+ 1212 0074 AAF10408 		sub	r8, r10, #4
+ 1213 0078 0023     		movs	r3, #0
+ 1214 007a 4A46     		mov	r2, r9
+ 1215 007c 08EB0401 		add	r1, r8, r4
+ 1216 0080 3846     		mov	r0, r7
+ 1217 0082 FFF7FEFF 		bl	setModuleBounded
+ 1218 0086 0023     		movs	r3, #0
+ 1219 0088 08EB0602 		add	r2, r8, r6
+ 1220 008c 2946     		mov	r1, r5
+ 1221 008e 3846     		mov	r0, r7
+ 1222 0090 FFF7FEFF 		bl	setModuleBounded
+ 1223 0094 D6E7     		b	.L223
+ 1224              	.L253:
+ 1225 0096 0136     		adds	r6, r6, #1
+ 1226              	.L220:
+ 1227 0098 042E     		cmp	r6, #4
+ 1228 009a 02DC     		bgt	.L254
+ 1229 009c 6FF00304 		mvn	r4, #3
+ 1230 00a0 D1E7     		b	.L225
+ 1231              	.L254:
+ 1232 00a2 6946     		mov	r1, sp
+ 1233 00a4 5846     		mov	r0, fp
+ 1234 00a6 FFF7FEFF 		bl	getAlignmentPatternPositions
+ 1235 00aa 8146     		mov	r9, r0
+ 1236 00ac 4FF00008 		mov	r8, #0
+ 1237 00b0 38E0     		b	.L226
+ 1238              	.L256:
+ 1239 00b2 1EB1     		cbz	r6, .L228
+ 1240 00b4 09F1FF33 		add	r3, r9, #-1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 22
+
+
+ 1241 00b8 B342     		cmp	r3, r6
+ 1242 00ba 05D1     		bne	.L227
+ 1243              	.L228:
+ 1244 00bc 0136     		adds	r6, r6, #1
+ 1245              	.L235:
+ 1246 00be 4E45     		cmp	r6, r9
+ 1247 00c0 2EDA     		bge	.L255
+ 1248 00c2 B8F1000F 		cmp	r8, #0
+ 1249 00c6 F4D0     		beq	.L256
+ 1250              	.L227:
+ 1251 00c8 09F1FF33 		add	r3, r9, #-1
+ 1252 00cc 4345     		cmp	r3, r8
+ 1253 00ce 24D1     		bne	.L244
+ 1254 00d0 002E     		cmp	r6, #0
+ 1255 00d2 F3D0     		beq	.L228
+ 1256 00d4 4FF0FF35 		mov	r5, #-1
+ 1257 00d8 1AE0     		b	.L232
+ 1258              	.L258:
+ 1259 00da B5B1     		cbz	r5, .L246
+ 1260 00dc 0023     		movs	r3, #0
+ 1261              	.L230:
+ 1262 00de 3846     		mov	r0, r7
+ 1263 00e0 FFF7FEFF 		bl	setModule
+ 1264 00e4 0134     		adds	r4, r4, #1
+ 1265              	.L233:
+ 1266 00e6 012C     		cmp	r4, #1
+ 1267 00e8 11DC     		bgt	.L257
+ 1268 00ea 08F10803 		add	r3, r8, #8
+ 1269 00ee 6B44     		add	r3, sp, r3
+ 1270 00f0 13F8081C 		ldrb	r1, [r3, #-8]	@ zero_extendqisi2
+ 1271 00f4 2144     		add	r1, r1, r4
+ 1272 00f6 06F10803 		add	r3, r6, #8
+ 1273 00fa 6B44     		add	r3, sp, r3
+ 1274 00fc 13F8082C 		ldrb	r2, [r3, #-8]	@ zero_extendqisi2
+ 1275 0100 2A44     		add	r2, r2, r5
+ 1276 0102 002C     		cmp	r4, #0
+ 1277 0104 E9D0     		beq	.L258
+ 1278 0106 0023     		movs	r3, #0
+ 1279 0108 E9E7     		b	.L230
+ 1280              	.L246:
+ 1281 010a 0123     		movs	r3, #1
+ 1282 010c E7E7     		b	.L230
+ 1283              	.L257:
+ 1284 010e 0135     		adds	r5, r5, #1
+ 1285              	.L232:
+ 1286 0110 012D     		cmp	r5, #1
+ 1287 0112 D3DC     		bgt	.L228
+ 1288 0114 4FF0FF34 		mov	r4, #-1
+ 1289 0118 E5E7     		b	.L233
+ 1290              	.L244:
+ 1291 011a 4FF0FF35 		mov	r5, #-1
+ 1292 011e F7E7     		b	.L232
+ 1293              	.L255:
+ 1294 0120 08F10108 		add	r8, r8, #1
+ 1295              	.L226:
+ 1296 0124 C845     		cmp	r8, r9
+ 1297 0126 01DA     		bge	.L259
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 23
+
+
+ 1298 0128 0026     		movs	r6, #0
+ 1299 012a C8E7     		b	.L235
+ 1300              	.L259:
+ 1301 012c BBF1060F 		cmp	fp, #6
+ 1302 0130 12DC     		bgt	.L249
+ 1303              	.L217:
+ 1304 0132 03B0     		add	sp, sp, #12
+ 1305              		@ sp needed
+ 1306 0134 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 1307              	.L238:
+ 1308 0138 D312     		asrs	r3, r2, #11
+ 1309 013a 41F62570 		movw	r0, #7973
+ 1310 013e 00FB03F3 		mul	r3, r0, r3
+ 1311 0142 83EA4202 		eor	r2, r3, r2, lsl #1
+ 1312 0146 0131     		adds	r1, r1, #1
+ 1313              	.L236:
+ 1314 0148 0B29     		cmp	r1, #11
+ 1315 014a F5DD     		ble	.L238
+ 1316 014c 42EA0B35 		orr	r5, r2, fp, lsl #12
+ 1317 0150 5FEAA549 		asrs	r9, r5, #18
+ 1318 0154 1FD0     		beq	.L250
+ 1319              	.L240:
+ 1320 0156 FEE7     		b	.L240
+ 1321              	.L249:
+ 1322 0158 5A46     		mov	r2, fp
+ 1323 015a 0021     		movs	r1, #0
+ 1324 015c F4E7     		b	.L236
+ 1325              	.L241:
+ 1326 015e AAF10B04 		sub	r4, r10, #11
+ 1327 0162 3444     		add	r4, r4, r6
+ 1328 0164 05F0010B 		and	fp, r5, #1
+ 1329 0168 5B46     		mov	r3, fp
+ 1330 016a 4246     		mov	r2, r8
+ 1331 016c 2146     		mov	r1, r4
+ 1332 016e 3846     		mov	r0, r7
+ 1333 0170 FFF7FEFF 		bl	setModule
+ 1334 0174 5B46     		mov	r3, fp
+ 1335 0176 2246     		mov	r2, r4
+ 1336 0178 4146     		mov	r1, r8
+ 1337 017a 3846     		mov	r0, r7
+ 1338 017c FFF7FEFF 		bl	setModule
+ 1339 0180 6D10     		asrs	r5, r5, #1
+ 1340 0182 0136     		adds	r6, r6, #1
+ 1341              	.L242:
+ 1342 0184 022E     		cmp	r6, #2
+ 1343 0186 EADD     		ble	.L241
+ 1344 0188 08F10108 		add	r8, r8, #1
+ 1345              	.L239:
+ 1346 018c B8F1050F 		cmp	r8, #5
+ 1347 0190 CFDC     		bgt	.L217
+ 1348 0192 4E46     		mov	r6, r9
+ 1349 0194 F6E7     		b	.L242
+ 1350              	.L250:
+ 1351 0196 C846     		mov	r8, r9
+ 1352 0198 F8E7     		b	.L239
+ 1354              		.section	.text.getPenaltyScore,"ax",%progbits
+ 1355              		.align	1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 24
+
+
+ 1356              		.syntax unified
+ 1357              		.thumb
+ 1358              		.thumb_func
+ 1360              	getPenaltyScore:
+ 1361              		@ args = 0, pretend = 0, frame = 16
+ 1362              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1363 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 1364 0004 85B0     		sub	sp, sp, #20
+ 1365 0006 0446     		mov	r4, r0
+ 1366 0008 FFF7FEFF 		bl	qrcodegen_getSize
+ 1367 000c 0746     		mov	r7, r0
+ 1368 000e 4FF00009 		mov	r9, #0
+ 1369 0012 CA46     		mov	r10, r9
+ 1370 0014 38E0     		b	.L261
+ 1371              	.L293:
+ 1372 0016 0AF1030A 		add	r10, r10, #3
+ 1373 001a 13E0     		b	.L265
+ 1374              	.L263:
+ 1375 001c 02A9     		add	r1, sp, #8
+ 1376 001e 3046     		mov	r0, r6
+ 1377 0020 FFF7FEFF 		bl	addRunToHistory
+ 1378 0024 B8F1000F 		cmp	r8, #0
+ 1379 0028 05D1     		bne	.L266
+ 1380 002a 02A8     		add	r0, sp, #8
+ 1381 002c FFF7FEFF 		bl	hasFinderLikePattern
+ 1382 0030 08B1     		cbz	r0, .L266
+ 1383 0032 0AF1280A 		add	r10, r10, #40
+ 1384              	.L266:
+ 1385 0036 4A46     		mov	r2, r9
+ 1386 0038 2946     		mov	r1, r5
+ 1387 003a 2046     		mov	r0, r4
+ 1388 003c FFF7FEFF 		bl	getModule
+ 1389 0040 8046     		mov	r8, r0
+ 1390 0042 0126     		movs	r6, #1
+ 1391              	.L265:
+ 1392 0044 0135     		adds	r5, r5, #1
+ 1393              	.L262:
+ 1394 0046 BD42     		cmp	r5, r7
+ 1395 0048 0FDA     		bge	.L292
+ 1396 004a 4A46     		mov	r2, r9
+ 1397 004c 2946     		mov	r1, r5
+ 1398 004e 2046     		mov	r0, r4
+ 1399 0050 FFF7FEFF 		bl	getModule
+ 1400 0054 4045     		cmp	r0, r8
+ 1401 0056 E1D1     		bne	.L263
+ 1402 0058 0136     		adds	r6, r6, #1
+ 1403 005a F6B2     		uxtb	r6, r6
+ 1404 005c 052E     		cmp	r6, #5
+ 1405 005e DAD0     		beq	.L293
+ 1406 0060 052E     		cmp	r6, #5
+ 1407 0062 EFD9     		bls	.L265
+ 1408 0064 0AF1010A 		add	r10, r10, #1
+ 1409 0068 ECE7     		b	.L265
+ 1410              	.L292:
+ 1411 006a 02A9     		add	r1, sp, #8
+ 1412 006c 3046     		mov	r0, r6
+ 1413 006e FFF7FEFF 		bl	addRunToHistory
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 25
+
+
+ 1414 0072 B8F1000F 		cmp	r8, #0
+ 1415 0076 11D1     		bne	.L294
+ 1416              	.L268:
+ 1417 0078 02A8     		add	r0, sp, #8
+ 1418 007a FFF7FEFF 		bl	hasFinderLikePattern
+ 1419 007e 08B1     		cbz	r0, .L269
+ 1420 0080 0AF1280A 		add	r10, r10, #40
+ 1421              	.L269:
+ 1422 0084 09F10109 		add	r9, r9, #1
+ 1423              	.L261:
+ 1424 0088 B945     		cmp	r9, r7
+ 1425 008a 0CDA     		bge	.L295
+ 1426 008c 0023     		movs	r3, #0
+ 1427 008e 0293     		str	r3, [sp, #8]
+ 1428 0090 CDF80B30 		str	r3, [sp, #11]	@ unaligned
+ 1429 0094 1D46     		mov	r5, r3
+ 1430 0096 1E46     		mov	r6, r3
+ 1431 0098 9846     		mov	r8, r3
+ 1432 009a D4E7     		b	.L262
+ 1433              	.L294:
+ 1434 009c 02A9     		add	r1, sp, #8
+ 1435 009e 0020     		movs	r0, #0
+ 1436 00a0 FFF7FEFF 		bl	addRunToHistory
+ 1437 00a4 E8E7     		b	.L268
+ 1438              	.L295:
+ 1439 00a6 4FF00009 		mov	r9, #0
+ 1440 00aa 38E0     		b	.L271
+ 1441              	.L297:
+ 1442 00ac 0AF1030A 		add	r10, r10, #3
+ 1443 00b0 13E0     		b	.L275
+ 1444              	.L273:
+ 1445 00b2 02A9     		add	r1, sp, #8
+ 1446 00b4 3046     		mov	r0, r6
+ 1447 00b6 FFF7FEFF 		bl	addRunToHistory
+ 1448 00ba B8F1000F 		cmp	r8, #0
+ 1449 00be 05D1     		bne	.L276
+ 1450 00c0 02A8     		add	r0, sp, #8
+ 1451 00c2 FFF7FEFF 		bl	hasFinderLikePattern
+ 1452 00c6 08B1     		cbz	r0, .L276
+ 1453 00c8 0AF1280A 		add	r10, r10, #40
+ 1454              	.L276:
+ 1455 00cc 2A46     		mov	r2, r5
+ 1456 00ce 4946     		mov	r1, r9
+ 1457 00d0 2046     		mov	r0, r4
+ 1458 00d2 FFF7FEFF 		bl	getModule
+ 1459 00d6 8046     		mov	r8, r0
+ 1460 00d8 0126     		movs	r6, #1
+ 1461              	.L275:
+ 1462 00da 0135     		adds	r5, r5, #1
+ 1463              	.L272:
+ 1464 00dc BD42     		cmp	r5, r7
+ 1465 00de 0FDA     		bge	.L296
+ 1466 00e0 2A46     		mov	r2, r5
+ 1467 00e2 4946     		mov	r1, r9
+ 1468 00e4 2046     		mov	r0, r4
+ 1469 00e6 FFF7FEFF 		bl	getModule
+ 1470 00ea 4045     		cmp	r0, r8
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 26
+
+
+ 1471 00ec E1D1     		bne	.L273
+ 1472 00ee 0136     		adds	r6, r6, #1
+ 1473 00f0 F6B2     		uxtb	r6, r6
+ 1474 00f2 052E     		cmp	r6, #5
+ 1475 00f4 DAD0     		beq	.L297
+ 1476 00f6 052E     		cmp	r6, #5
+ 1477 00f8 EFD9     		bls	.L275
+ 1478 00fa 0AF1010A 		add	r10, r10, #1
+ 1479 00fe ECE7     		b	.L275
+ 1480              	.L296:
+ 1481 0100 02A9     		add	r1, sp, #8
+ 1482 0102 3046     		mov	r0, r6
+ 1483 0104 FFF7FEFF 		bl	addRunToHistory
+ 1484 0108 B8F1000F 		cmp	r8, #0
+ 1485 010c 11D1     		bne	.L298
+ 1486              	.L278:
+ 1487 010e 02A8     		add	r0, sp, #8
+ 1488 0110 FFF7FEFF 		bl	hasFinderLikePattern
+ 1489 0114 08B1     		cbz	r0, .L279
+ 1490 0116 0AF1280A 		add	r10, r10, #40
+ 1491              	.L279:
+ 1492 011a 09F10109 		add	r9, r9, #1
+ 1493              	.L271:
+ 1494 011e B945     		cmp	r9, r7
+ 1495 0120 0CDA     		bge	.L299
+ 1496 0122 0023     		movs	r3, #0
+ 1497 0124 0293     		str	r3, [sp, #8]
+ 1498 0126 CDF80B30 		str	r3, [sp, #11]	@ unaligned
+ 1499 012a 1D46     		mov	r5, r3
+ 1500 012c 1E46     		mov	r6, r3
+ 1501 012e 9846     		mov	r8, r3
+ 1502 0130 D4E7     		b	.L272
+ 1503              	.L298:
+ 1504 0132 02A9     		add	r1, sp, #8
+ 1505 0134 0020     		movs	r0, #0
+ 1506 0136 FFF7FEFF 		bl	addRunToHistory
+ 1507 013a E8E7     		b	.L278
+ 1508              	.L299:
+ 1509 013c 4FF00009 		mov	r9, #0
+ 1510 0140 27E0     		b	.L281
+ 1511              	.L282:
+ 1512 0142 4546     		mov	r5, r8
+ 1513              	.L284:
+ 1514 0144 AB45     		cmp	fp, r5
+ 1515 0146 22DD     		ble	.L300
+ 1516 0148 4A46     		mov	r2, r9
+ 1517 014a 2946     		mov	r1, r5
+ 1518 014c 2046     		mov	r0, r4
+ 1519 014e FFF7FEFF 		bl	getModule
+ 1520 0152 0646     		mov	r6, r0
+ 1521 0154 05F10108 		add	r8, r5, #1
+ 1522 0158 4A46     		mov	r2, r9
+ 1523 015a 4146     		mov	r1, r8
+ 1524 015c 2046     		mov	r0, r4
+ 1525 015e FFF7FEFF 		bl	getModule
+ 1526 0162 B042     		cmp	r0, r6
+ 1527 0164 EDD1     		bne	.L282
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 27
+
+
+ 1528 0166 09F10103 		add	r3, r9, #1
+ 1529 016a 0193     		str	r3, [sp, #4]
+ 1530 016c 1A46     		mov	r2, r3
+ 1531 016e 2946     		mov	r1, r5
+ 1532 0170 2046     		mov	r0, r4
+ 1533 0172 FFF7FEFF 		bl	getModule
+ 1534 0176 B042     		cmp	r0, r6
+ 1535 0178 E3D1     		bne	.L282
+ 1536 017a 019A     		ldr	r2, [sp, #4]
+ 1537 017c 4146     		mov	r1, r8
+ 1538 017e 2046     		mov	r0, r4
+ 1539 0180 FFF7FEFF 		bl	getModule
+ 1540 0184 B042     		cmp	r0, r6
+ 1541 0186 DCD1     		bne	.L282
+ 1542 0188 0AF1030A 		add	r10, r10, #3
+ 1543 018c D9E7     		b	.L282
+ 1544              	.L300:
+ 1545 018e 09F10109 		add	r9, r9, #1
+ 1546              	.L281:
+ 1547 0192 07F1FF3B 		add	fp, r7, #-1
+ 1548 0196 CB45     		cmp	fp, r9
+ 1549 0198 01DD     		ble	.L301
+ 1550 019a 0025     		movs	r5, #0
+ 1551 019c D2E7     		b	.L284
+ 1552              	.L301:
+ 1553 019e 0026     		movs	r6, #0
+ 1554 01a0 B046     		mov	r8, r6
+ 1555 01a2 0DE0     		b	.L285
+ 1556              	.L286:
+ 1557 01a4 0135     		adds	r5, r5, #1
+ 1558              	.L288:
+ 1559 01a6 BD42     		cmp	r5, r7
+ 1560 01a8 09DA     		bge	.L302
+ 1561 01aa 3246     		mov	r2, r6
+ 1562 01ac 2946     		mov	r1, r5
+ 1563 01ae 2046     		mov	r0, r4
+ 1564 01b0 FFF7FEFF 		bl	getModule
+ 1565 01b4 0028     		cmp	r0, #0
+ 1566 01b6 F5D0     		beq	.L286
+ 1567 01b8 08F10108 		add	r8, r8, #1
+ 1568 01bc F2E7     		b	.L286
+ 1569              	.L302:
+ 1570 01be 0136     		adds	r6, r6, #1
+ 1571              	.L285:
+ 1572 01c0 BE42     		cmp	r6, r7
+ 1573 01c2 01DA     		bge	.L303
+ 1574 01c4 0025     		movs	r5, #0
+ 1575 01c6 EEE7     		b	.L288
+ 1576              	.L303:
+ 1577 01c8 07FB07F7 		mul	r7, r7, r7
+ 1578 01cc 08EB8808 		add	r8, r8, r8, lsl #2
+ 1579 01d0 6FF00900 		mvn	r0, #9
+ 1580 01d4 07FB00F0 		mul	r0, r7, r0
+ 1581 01d8 00EB8800 		add	r0, r0, r8, lsl #2
+ 1582 01dc 0028     		cmp	r0, #0
+ 1583 01de B8BF     		it	lt
+ 1584 01e0 4042     		rsblt	r0, r0, #0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 28
+
+
+ 1585 01e2 3844     		add	r0, r0, r7
+ 1586 01e4 0138     		subs	r0, r0, #1
+ 1587 01e6 90FBF7F0 		sdiv	r0, r0, r7
+ 1588 01ea 0138     		subs	r0, r0, #1
+ 1589 01ec 00EB8000 		add	r0, r0, r0, lsl #2
+ 1590 01f0 0AEB4000 		add	r0, r10, r0, lsl #1
+ 1591 01f4 05B0     		add	sp, sp, #20
+ 1592              		@ sp needed
+ 1593 01f6 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 1595              		.section	.text.applyMask,"ax",%progbits
+ 1596              		.align	1
+ 1597              		.syntax unified
+ 1598              		.thumb
+ 1599              		.thumb_func
+ 1601              	applyMask:
+ 1602              		@ args = 0, pretend = 0, frame = 0
+ 1603              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1604 0000 D3B2     		uxtb	r3, r2
+ 1605 0002 072B     		cmp	r3, #7
+ 1606 0004 00D9     		bls	.L305
+ 1607              	.L306:
+ 1608 0006 FEE7     		b	.L306
+ 1609              	.L305:
+ 1610 0008 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 1611 000c 8146     		mov	r9, r0
+ 1612 000e 8846     		mov	r8, r1
+ 1613 0010 1746     		mov	r7, r2
+ 1614 0012 0846     		mov	r0, r1
+ 1615 0014 FFF7FEFF 		bl	qrcodegen_getSize
+ 1616 0018 8246     		mov	r10, r0
+ 1617 001a 0026     		movs	r6, #0
+ 1618              	.L307:
+ 1619 001c 5645     		cmp	r6, r10
+ 1620 001e 80F2A380 		bge	.L326
+ 1621 0022 0024     		movs	r4, #0
+ 1622 0024 12E0     		b	.L321
+ 1623              	.L318:
+ 1624 0026 3519     		adds	r5, r6, r4
+ 1625 0028 85F00105 		eor	r5, r5, #1
+ 1626 002c 05F00105 		and	r5, r5, #1
+ 1627              	.L319:
+ 1628 0030 3246     		mov	r2, r6
+ 1629 0032 2146     		mov	r1, r4
+ 1630 0034 4046     		mov	r0, r8
+ 1631 0036 FFF7FEFF 		bl	getModule
+ 1632 003a 2B1A     		subs	r3, r5, r0
+ 1633 003c 18BF     		it	ne
+ 1634 003e 0123     		movne	r3, #1
+ 1635 0040 3246     		mov	r2, r6
+ 1636 0042 2146     		mov	r1, r4
+ 1637 0044 4046     		mov	r0, r8
+ 1638 0046 FFF7FEFF 		bl	setModule
+ 1639              	.L308:
+ 1640 004a 0134     		adds	r4, r4, #1
+ 1641              	.L321:
+ 1642 004c 5445     		cmp	r4, r10
+ 1643 004e 80F28980 		bge	.L327
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 29
+
+
+ 1644 0052 3246     		mov	r2, r6
+ 1645 0054 2146     		mov	r1, r4
+ 1646 0056 4846     		mov	r0, r9
+ 1647 0058 FFF7FEFF 		bl	getModule
+ 1648 005c 0028     		cmp	r0, #0
+ 1649 005e F4D1     		bne	.L308
+ 1650 0060 072F     		cmp	r7, #7
+ 1651 0062 7ED8     		bhi	.L323
+ 1652 0064 01A3     		adr	r3, .L311
+ 1653 0066 53F827F0 		ldr	pc, [r3, r7, lsl #2]
+ 1654 006a 00BF     		.p2align 2
+ 1655              	.L311:
+ 1656 006c 27000000 		.word	.L318+1
+ 1657 0070 8D000000 		.word	.L317+1
+ 1658 0074 97000000 		.word	.L316+1
+ 1659 0078 AF000000 		.word	.L315+1
+ 1660 007c C9000000 		.word	.L314+1
+ 1661 0080 E5000000 		.word	.L313+1
+ 1662 0084 0F010000 		.word	.L312+1
+ 1663 0088 39010000 		.word	.L310+1
+ 1664              		.p2align 1
+ 1665              	.L317:
+ 1666 008c 86F00105 		eor	r5, r6, #1
+ 1667 0090 05F00105 		and	r5, r5, #1
+ 1668 0094 CCE7     		b	.L319
+ 1669              	.L316:
+ 1670 0096 354D     		ldr	r5, .L328
+ 1671 0098 85FB0435 		smull	r3, r5, r5, r4
+ 1672 009c A5EBE475 		sub	r5, r5, r4, asr #31
+ 1673 00a0 05EB4505 		add	r5, r5, r5, lsl #1
+ 1674 00a4 AC42     		cmp	r4, r5
+ 1675 00a6 14BF     		ite	ne
+ 1676 00a8 0025     		movne	r5, #0
+ 1677 00aa 0125     		moveq	r5, #1
+ 1678 00ac C0E7     		b	.L319
+ 1679              	.L315:
+ 1680 00ae 3519     		adds	r5, r6, r4
+ 1681 00b0 2E4B     		ldr	r3, .L328
+ 1682 00b2 83FB0523 		smull	r2, r3, r3, r5
+ 1683 00b6 A3EBE573 		sub	r3, r3, r5, asr #31
+ 1684 00ba 03EB4303 		add	r3, r3, r3, lsl #1
+ 1685 00be 9D42     		cmp	r5, r3
+ 1686 00c0 14BF     		ite	ne
+ 1687 00c2 0025     		movne	r5, #0
+ 1688 00c4 0125     		moveq	r5, #1
+ 1689 00c6 B3E7     		b	.L319
+ 1690              	.L314:
+ 1691 00c8 284D     		ldr	r5, .L328
+ 1692 00ca 85FB0435 		smull	r3, r5, r5, r4
+ 1693 00ce A5EBE475 		sub	r5, r5, r4, asr #31
+ 1694 00d2 06EBD673 		add	r3, r6, r6, lsr #31
+ 1695 00d6 05EB6305 		add	r5, r5, r3, asr #1
+ 1696 00da 85F00105 		eor	r5, r5, #1
+ 1697 00de 05F00105 		and	r5, r5, #1
+ 1698 00e2 A5E7     		b	.L319
+ 1699              	.L313:
+ 1700 00e4 04FB06F2 		mul	r2, r4, r6
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 30
+
+
+ 1701 00e8 002A     		cmp	r2, #0
+ 1702 00ea 02F00103 		and	r3, r2, #1
+ 1703 00ee B8BF     		it	lt
+ 1704 00f0 5B42     		rsblt	r3, r3, #0
+ 1705 00f2 1946     		mov	r1, r3
+ 1706 00f4 1D4B     		ldr	r3, .L328
+ 1707 00f6 83FB0203 		smull	r0, r3, r3, r2
+ 1708 00fa A3EBE273 		sub	r3, r3, r2, asr #31
+ 1709 00fe 03EB4303 		add	r3, r3, r3, lsl #1
+ 1710 0102 D31A     		subs	r3, r2, r3
+ 1711 0104 D942     		cmn	r1, r3
+ 1712 0106 0CBF     		ite	eq
+ 1713 0108 0125     		moveq	r5, #1
+ 1714 010a 0025     		movne	r5, #0
+ 1715 010c 90E7     		b	.L319
+ 1716              	.L312:
+ 1717 010e 04FB06F1 		mul	r1, r4, r6
+ 1718 0112 0029     		cmp	r1, #0
+ 1719 0114 01F00103 		and	r3, r1, #1
+ 1720 0118 B8BF     		it	lt
+ 1721 011a 5B42     		rsblt	r3, r3, #0
+ 1722 011c 134A     		ldr	r2, .L328
+ 1723 011e 82FB0102 		smull	r0, r2, r2, r1
+ 1724 0122 A2EBE172 		sub	r2, r2, r1, asr #31
+ 1725 0126 02EB4202 		add	r2, r2, r2, lsl #1
+ 1726 012a 8A1A     		subs	r2, r1, r2
+ 1727 012c 9D18     		adds	r5, r3, r2
+ 1728 012e 85F00105 		eor	r5, r5, #1
+ 1729 0132 05F00105 		and	r5, r5, #1
+ 1730 0136 7BE7     		b	.L319
+ 1731              	.L310:
+ 1732 0138 3319     		adds	r3, r6, r4
+ 1733 013a 03F00103 		and	r3, r3, #1
+ 1734 013e 48BF     		it	mi
+ 1735 0140 5B42     		rsbmi	r3, r3, #0
+ 1736 0142 04FB06F1 		mul	r1, r4, r6
+ 1737 0146 094A     		ldr	r2, .L328
+ 1738 0148 82FB0102 		smull	r0, r2, r2, r1
+ 1739 014c A2EBE172 		sub	r2, r2, r1, asr #31
+ 1740 0150 02EB4202 		add	r2, r2, r2, lsl #1
+ 1741 0154 8A1A     		subs	r2, r1, r2
+ 1742 0156 9D18     		adds	r5, r3, r2
+ 1743 0158 85F00105 		eor	r5, r5, #1
+ 1744 015c 05F00105 		and	r5, r5, #1
+ 1745 0160 66E7     		b	.L319
+ 1746              	.L323:
+ 1747              	.L309:
+ 1748 0162 FEE7     		b	.L309
+ 1749              	.L327:
+ 1750 0164 0136     		adds	r6, r6, #1
+ 1751 0166 59E7     		b	.L307
+ 1752              	.L326:
+ 1753 0168 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 1754              	.L329:
+ 1755              		.align	2
+ 1756              	.L328:
+ 1757 016c 56555555 		.word	1431655766
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 31
+
+
+ 1759              		.section	.text.drawFormatBits,"ax",%progbits
+ 1760              		.align	1
+ 1761              		.syntax unified
+ 1762              		.thumb
+ 1763              		.thumb_func
+ 1765              	drawFormatBits:
+ 1766              		@ args = 0, pretend = 0, frame = 0
+ 1767              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1768 0000 CBB2     		uxtb	r3, r1
+ 1769 0002 072B     		cmp	r3, #7
+ 1770 0004 00D9     		bls	.L331
+ 1771              	.L332:
+ 1772 0006 FEE7     		b	.L332
+ 1773              	.L331:
+ 1774 0008 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 1775 000c 1546     		mov	r5, r2
+ 1776 000e 444B     		ldr	r3, .L347
+ 1777 0010 53F82000 		ldr	r0, [r3, r0, lsl #2]
+ 1778 0014 41EAC000 		orr	r0, r1, r0, lsl #3
+ 1779 0018 0146     		mov	r1, r0
+ 1780 001a 0024     		movs	r4, #0
+ 1781 001c 07E0     		b	.L333
+ 1782              	.L334:
+ 1783 001e 4B12     		asrs	r3, r1, #9
+ 1784 0020 40F23752 		movw	r2, #1335
+ 1785 0024 02FB03F3 		mul	r3, r2, r3
+ 1786 0028 83EA4101 		eor	r1, r3, r1, lsl #1
+ 1787 002c 0134     		adds	r4, r4, #1
+ 1788              	.L333:
+ 1789 002e 092C     		cmp	r4, #9
+ 1790 0030 F5DD     		ble	.L334
+ 1791 0032 41EA8021 		orr	r1, r1, r0, lsl #10
+ 1792 0036 81F4A846 		eor	r6, r1, #21504
+ 1793 003a 86F01206 		eor	r6, r6, #18
+ 1794 003e CC13     		asrs	r4, r1, #15
+ 1795 0040 2DD0     		beq	.L344
+ 1796              	.L336:
+ 1797 0042 FEE7     		b	.L336
+ 1798              	.L337:
+ 1799 0044 3946     		mov	r1, r7
+ 1800 0046 3046     		mov	r0, r6
+ 1801 0048 FFF7FEFF 		bl	getBit
+ 1802 004c 0346     		mov	r3, r0
+ 1803 004e 3A46     		mov	r2, r7
+ 1804 0050 0821     		movs	r1, #8
+ 1805 0052 2846     		mov	r0, r5
+ 1806 0054 FFF7FEFF 		bl	setModule
+ 1807 0058 0137     		adds	r7, r7, #1
+ 1808              	.L335:
+ 1809 005a 052F     		cmp	r7, #5
+ 1810 005c F2DD     		ble	.L337
+ 1811 005e 0621     		movs	r1, #6
+ 1812 0060 3046     		mov	r0, r6
+ 1813 0062 FFF7FEFF 		bl	getBit
+ 1814 0066 0346     		mov	r3, r0
+ 1815 0068 0722     		movs	r2, #7
+ 1816 006a 0821     		movs	r1, #8
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 32
+
+
+ 1817 006c 2846     		mov	r0, r5
+ 1818 006e FFF7FEFF 		bl	setModule
+ 1819 0072 0721     		movs	r1, #7
+ 1820 0074 3046     		mov	r0, r6
+ 1821 0076 FFF7FEFF 		bl	getBit
+ 1822 007a 0346     		mov	r3, r0
+ 1823 007c 0822     		movs	r2, #8
+ 1824 007e 1146     		mov	r1, r2
+ 1825 0080 2846     		mov	r0, r5
+ 1826 0082 FFF7FEFF 		bl	setModule
+ 1827 0086 0821     		movs	r1, #8
+ 1828 0088 3046     		mov	r0, r6
+ 1829 008a FFF7FEFF 		bl	getBit
+ 1830 008e 0346     		mov	r3, r0
+ 1831 0090 0822     		movs	r2, #8
+ 1832 0092 0721     		movs	r1, #7
+ 1833 0094 2846     		mov	r0, r5
+ 1834 0096 FFF7FEFF 		bl	setModule
+ 1835 009a 0927     		movs	r7, #9
+ 1836 009c 0DE0     		b	.L338
+ 1837              	.L344:
+ 1838 009e 2746     		mov	r7, r4
+ 1839 00a0 DBE7     		b	.L335
+ 1840              	.L339:
+ 1841 00a2 3946     		mov	r1, r7
+ 1842 00a4 3046     		mov	r0, r6
+ 1843 00a6 FFF7FEFF 		bl	getBit
+ 1844 00aa 0346     		mov	r3, r0
+ 1845 00ac 0822     		movs	r2, #8
+ 1846 00ae C7F10E01 		rsb	r1, r7, #14
+ 1847 00b2 2846     		mov	r0, r5
+ 1848 00b4 FFF7FEFF 		bl	setModule
+ 1849 00b8 0137     		adds	r7, r7, #1
+ 1850              	.L338:
+ 1851 00ba 0E2F     		cmp	r7, #14
+ 1852 00bc F1DD     		ble	.L339
+ 1853 00be 2846     		mov	r0, r5
+ 1854 00c0 FFF7FEFF 		bl	qrcodegen_getSize
+ 1855 00c4 8046     		mov	r8, r0
+ 1856 00c6 0DE0     		b	.L340
+ 1857              	.L341:
+ 1858 00c8 08F1FF37 		add	r7, r8, #-1
+ 1859 00cc 3F1B     		subs	r7, r7, r4
+ 1860 00ce 2146     		mov	r1, r4
+ 1861 00d0 3046     		mov	r0, r6
+ 1862 00d2 FFF7FEFF 		bl	getBit
+ 1863 00d6 0346     		mov	r3, r0
+ 1864 00d8 0822     		movs	r2, #8
+ 1865 00da 3946     		mov	r1, r7
+ 1866 00dc 2846     		mov	r0, r5
+ 1867 00de FFF7FEFF 		bl	setModule
+ 1868 00e2 0134     		adds	r4, r4, #1
+ 1869              	.L340:
+ 1870 00e4 072C     		cmp	r4, #7
+ 1871 00e6 EFDD     		ble	.L341
+ 1872 00e8 0824     		movs	r4, #8
+ 1873 00ea 0DE0     		b	.L342
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 33
+
+
+ 1874              	.L343:
+ 1875 00ec A8F10F07 		sub	r7, r8, #15
+ 1876 00f0 2744     		add	r7, r7, r4
+ 1877 00f2 2146     		mov	r1, r4
+ 1878 00f4 3046     		mov	r0, r6
+ 1879 00f6 FFF7FEFF 		bl	getBit
+ 1880 00fa 0346     		mov	r3, r0
+ 1881 00fc 3A46     		mov	r2, r7
+ 1882 00fe 0821     		movs	r1, #8
+ 1883 0100 2846     		mov	r0, r5
+ 1884 0102 FFF7FEFF 		bl	setModule
+ 1885 0106 0134     		adds	r4, r4, #1
+ 1886              	.L342:
+ 1887 0108 0E2C     		cmp	r4, #14
+ 1888 010a EFDD     		ble	.L343
+ 1889 010c 0123     		movs	r3, #1
+ 1890 010e A8F10802 		sub	r2, r8, #8
+ 1891 0112 0821     		movs	r1, #8
+ 1892 0114 2846     		mov	r0, r5
+ 1893 0116 FFF7FEFF 		bl	setModule
+ 1894 011a BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 1895              	.L348:
+ 1896 011e 00BF     		.align	2
+ 1897              	.L347:
+ 1898 0120 00000000 		.word	table.0
+ 1900              		.section	.text.qrcodegen_encodeSegmentsAdvanced,"ax",%progbits
+ 1901              		.align	1
+ 1902              		.global	qrcodegen_encodeSegmentsAdvanced
+ 1903              		.syntax unified
+ 1904              		.thumb
+ 1905              		.thumb_func
+ 1907              	qrcodegen_encodeSegmentsAdvanced:
+ 1908              		@ args = 20, pretend = 0, frame = 16
+ 1909              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1910 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 1911 0004 85B0     		sub	sp, sp, #20
+ 1912 0006 0E46     		mov	r6, r1
+ 1913 0008 1546     		mov	r5, r2
+ 1914 000a 1C46     		mov	r4, r3
+ 1915 000c 9DF84090 		ldrb	r9, [sp, #64]	@ zero_extendqisi2
+ 1916 0010 129F     		ldr	r7, [sp, #72]
+ 1917 0012 8046     		mov	r8, r0
+ 1918 0014 38B1     		cbz	r0, .L389
+ 1919              	.L350:
+ 1920 0016 002C     		cmp	r4, #0
+ 1921 0018 04DD     		ble	.L352
+ 1922 001a 0E9B     		ldr	r3, [sp, #56]
+ 1923 001c 9C42     		cmp	r4, r3
+ 1924 001e 01DC     		bgt	.L352
+ 1925 0020 282B     		cmp	r3, #40
+ 1926 0022 03DD     		ble	.L353
+ 1927              	.L352:
+ 1928 0024 FEE7     		b	.L352
+ 1929              	.L389:
+ 1930 0026 0029     		cmp	r1, #0
+ 1931 0028 F5D0     		beq	.L350
+ 1932              	.L351:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 34
+
+
+ 1933 002a FEE7     		b	.L351
+ 1934              	.L353:
+ 1935 002c 032D     		cmp	r5, #3
+ 1936 002e 05D8     		bhi	.L354
+ 1937 0030 0F9B     		ldr	r3, [sp, #60]
+ 1938 0032 B3F1FF3F 		cmp	r3, #-1
+ 1939 0036 01DB     		blt	.L354
+ 1940 0038 072B     		cmp	r3, #7
+ 1941 003a 04DD     		ble	.L355
+ 1942              	.L354:
+ 1943 003c FEE7     		b	.L354
+ 1944              	.L356:
+ 1945 003e 0E9B     		ldr	r3, [sp, #56]
+ 1946 0040 9C42     		cmp	r4, r3
+ 1947 0042 14DA     		bge	.L390
+ 1948 0044 0134     		adds	r4, r4, #1
+ 1949              	.L355:
+ 1950 0046 2946     		mov	r1, r5
+ 1951 0048 2046     		mov	r0, r4
+ 1952 004a FFF7FEFF 		bl	getNumDataCodewords
+ 1953 004e 4FEAC00A 		lsl	r10, r0, #3
+ 1954 0052 2246     		mov	r2, r4
+ 1955 0054 3146     		mov	r1, r6
+ 1956 0056 4046     		mov	r0, r8
+ 1957 0058 FFF7FEFF 		bl	getTotalBits
+ 1958 005c 8346     		mov	fp, r0
+ 1959 005e B0F1FF3F 		cmp	r0, #-1
+ 1960 0062 ECD0     		beq	.L356
+ 1961 0064 8245     		cmp	r10, r0
+ 1962 0066 EADB     		blt	.L356
+ 1963 0068 4FF0010A 		mov	r10, #1
+ 1964 006c 06E0     		b	.L357
+ 1965              	.L390:
+ 1966 006e 0020     		movs	r0, #0
+ 1967 0070 3870     		strb	r0, [r7]
+ 1968              	.L359:
+ 1969 0072 05B0     		add	sp, sp, #20
+ 1970              		@ sp needed
+ 1971 0074 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 1972              	.L360:
+ 1973 0078 0AF1010A 		add	r10, r10, #1
+ 1974              	.L357:
+ 1975 007c BAF1030F 		cmp	r10, #3
+ 1976 0080 0EDC     		bgt	.L391
+ 1977 0082 B9F1000F 		cmp	r9, #0
+ 1978 0086 F7D0     		beq	.L360
+ 1979 0088 5FFA8AF3 		uxtb	r3, r10
+ 1980 008c 0093     		str	r3, [sp]
+ 1981 008e 1946     		mov	r1, r3
+ 1982 0090 2046     		mov	r0, r4
+ 1983 0092 FFF7FEFF 		bl	getNumDataCodewords
+ 1984 0096 BBEBC00F 		cmp	fp, r0, lsl #3
+ 1985 009a EDDC     		bgt	.L360
+ 1986 009c 009D     		ldr	r5, [sp]
+ 1987 009e EBE7     		b	.L360
+ 1988              	.L391:
+ 1989 00a0 A300     		lsls	r3, r4, #2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 35
+
+
+ 1990 00a2 1133     		adds	r3, r3, #17
+ 1991 00a4 03FB03F3 		mul	r3, r3, r3
+ 1992 00a8 0733     		adds	r3, r3, #7
+ 1993 00aa 0BD4     		bmi	.L392
+ 1994              	.L362:
+ 1995 00ac DB10     		asrs	r3, r3, #3
+ 1996 00ae 5A1C     		adds	r2, r3, #1
+ 1997 00b0 0021     		movs	r1, #0
+ 1998 00b2 3846     		mov	r0, r7
+ 1999 00b4 FFF7FEFF 		bl	memset
+ 2000 00b8 0023     		movs	r3, #0
+ 2001 00ba 0393     		str	r3, [sp, #12]
+ 2002 00bc CDF804B0 		str	fp, [sp, #4]
+ 2003 00c0 9B46     		mov	fp, r3
+ 2004 00c2 19E0     		b	.L363
+ 2005              	.L392:
+ 2006 00c4 0733     		adds	r3, r3, #7
+ 2007 00c6 F1E7     		b	.L362
+ 2008              	.L365:
+ 2009 00c8 D9F80820 		ldr	r2, [r9, #8]
+ 2010 00cc 4FEAEA03 		asr	r3, r10, #3
+ 2011 00d0 D05C     		ldrb	r0, [r2, r3]	@ zero_extendqisi2
+ 2012 00d2 6FEA0A03 		mvn	r3, r10
+ 2013 00d6 03F00703 		and	r3, r3, #7
+ 2014 00da 1841     		asrs	r0, r0, r3
+ 2015 00dc 03AB     		add	r3, sp, #12
+ 2016 00de 3A46     		mov	r2, r7
+ 2017 00e0 0121     		movs	r1, #1
+ 2018 00e2 0840     		ands	r0, r0, r1
+ 2019 00e4 FFF7FEFF 		bl	appendBitsToBuffer
+ 2020 00e8 0AF1010A 		add	r10, r10, #1
+ 2021              	.L364:
+ 2022 00ec D9F80C30 		ldr	r3, [r9, #12]
+ 2023 00f0 5345     		cmp	r3, r10
+ 2024 00f2 E9DC     		bgt	.L365
+ 2025 00f4 0BF1010B 		add	fp, fp, #1
+ 2026              	.L363:
+ 2027 00f8 B345     		cmp	fp, r6
+ 2028 00fa 1BD2     		bcs	.L393
+ 2029 00fc 4FEA0B1A 		lsl	r10, fp, #4
+ 2030 0100 08EB0B19 		add	r9, r8, fp, lsl #4
+ 2031 0104 03AB     		add	r3, sp, #12
+ 2032 0106 3A46     		mov	r2, r7
+ 2033 0108 0421     		movs	r1, #4
+ 2034 010a 18F80A00 		ldrb	r0, [r8, r10]	@ zero_extendqisi2
+ 2035 010e FFF7FEFF 		bl	appendBitsToBuffer
+ 2036 0112 D9F80430 		ldr	r3, [r9, #4]
+ 2037 0116 0093     		str	r3, [sp]
+ 2038 0118 2146     		mov	r1, r4
+ 2039 011a 18F80A00 		ldrb	r0, [r8, r10]	@ zero_extendqisi2
+ 2040 011e FFF7FEFF 		bl	numCharCountBits
+ 2041 0122 0146     		mov	r1, r0
+ 2042 0124 03AB     		add	r3, sp, #12
+ 2043 0126 3A46     		mov	r2, r7
+ 2044 0128 0098     		ldr	r0, [sp]
+ 2045 012a FFF7FEFF 		bl	appendBitsToBuffer
+ 2046 012e 4FF0000A 		mov	r10, #0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 36
+
+
+ 2047 0132 DBE7     		b	.L364
+ 2048              	.L393:
+ 2049 0134 DDF804B0 		ldr	fp, [sp, #4]
+ 2050 0138 DDF80C80 		ldr	r8, [sp, #12]
+ 2051 013c D845     		cmp	r8, fp
+ 2052 013e 00D0     		beq	.L367
+ 2053              	.L368:
+ 2054 0140 FEE7     		b	.L368
+ 2055              	.L367:
+ 2056 0142 2946     		mov	r1, r5
+ 2057 0144 2046     		mov	r0, r4
+ 2058 0146 FFF7FEFF 		bl	getNumDataCodewords
+ 2059 014a C600     		lsls	r6, r0, #3
+ 2060 014c B8EBC00F 		cmp	r8, r0, lsl #3
+ 2061 0150 00DD     		ble	.L369
+ 2062              	.L370:
+ 2063 0152 FEE7     		b	.L370
+ 2064              	.L369:
+ 2065 0154 A6EB0801 		sub	r1, r6, r8
+ 2066 0158 0429     		cmp	r1, #4
+ 2067 015a 00DD     		ble	.L371
+ 2068 015c 0421     		movs	r1, #4
+ 2069              	.L371:
+ 2070 015e 03AB     		add	r3, sp, #12
+ 2071 0160 3A46     		mov	r2, r7
+ 2072 0162 0020     		movs	r0, #0
+ 2073 0164 FFF7FEFF 		bl	appendBitsToBuffer
+ 2074 0168 039B     		ldr	r3, [sp, #12]
+ 2075 016a 5A42     		rsbs	r2, r3, #0
+ 2076 016c 03F00703 		and	r3, r3, #7
+ 2077 0170 02F00702 		and	r2, r2, #7
+ 2078 0174 58BF     		it	pl
+ 2079 0176 5342     		rsbpl	r3, r2, #0
+ 2080 0178 C3F10803 		rsb	r3, r3, #8
+ 2081 017c 5842     		rsbs	r0, r3, #0
+ 2082 017e 03F00701 		and	r1, r3, #7
+ 2083 0182 00F00700 		and	r0, r0, #7
+ 2084 0186 03AB     		add	r3, sp, #12
+ 2085 0188 3A46     		mov	r2, r7
+ 2086 018a 58BF     		it	pl
+ 2087 018c 4142     		rsbpl	r1, r0, #0
+ 2088 018e 0020     		movs	r0, #0
+ 2089 0190 FFF7FEFF 		bl	appendBitsToBuffer
+ 2090 0194 039B     		ldr	r3, [sp, #12]
+ 2091 0196 13F00708 		ands	r8, r3, #7
+ 2092 019a 2FD0     		beq	.L385
+ 2093              	.L373:
+ 2094 019c FEE7     		b	.L373
+ 2095              	.L374:
+ 2096 019e 03AB     		add	r3, sp, #12
+ 2097 01a0 3A46     		mov	r2, r7
+ 2098 01a2 0821     		movs	r1, #8
+ 2099 01a4 4846     		mov	r0, r9
+ 2100 01a6 FFF7FEFF 		bl	appendBitsToBuffer
+ 2101 01aa 89F0FD09 		eor	r9, r9, #253
+ 2102              	.L372:
+ 2103 01ae 039B     		ldr	r3, [sp, #12]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 37
+
+
+ 2104 01b0 B342     		cmp	r3, r6
+ 2105 01b2 F4DB     		blt	.L374
+ 2106 01b4 119B     		ldr	r3, [sp, #68]
+ 2107 01b6 2A46     		mov	r2, r5
+ 2108 01b8 2146     		mov	r1, r4
+ 2109 01ba 3846     		mov	r0, r7
+ 2110 01bc FFF7FEFF 		bl	addEccAndInterleave
+ 2111 01c0 3946     		mov	r1, r7
+ 2112 01c2 2046     		mov	r0, r4
+ 2113 01c4 FFF7FEFF 		bl	initializeFunctionModules
+ 2114 01c8 2046     		mov	r0, r4
+ 2115 01ca FFF7FEFF 		bl	getNumRawDataModules
+ 2116 01ce 011E     		subs	r1, r0, #0
+ 2117 01d0 17DB     		blt	.L394
+ 2118              	.L375:
+ 2119 01d2 3A46     		mov	r2, r7
+ 2120 01d4 C910     		asrs	r1, r1, #3
+ 2121 01d6 1198     		ldr	r0, [sp, #68]
+ 2122 01d8 FFF7FEFF 		bl	drawCodewords
+ 2123 01dc 2146     		mov	r1, r4
+ 2124 01de 3846     		mov	r0, r7
+ 2125 01e0 FFF7FEFF 		bl	drawWhiteFunctionModules
+ 2126 01e4 1199     		ldr	r1, [sp, #68]
+ 2127 01e6 2046     		mov	r0, r4
+ 2128 01e8 FFF7FEFF 		bl	initializeFunctionModules
+ 2129 01ec 0F9B     		ldr	r3, [sp, #60]
+ 2130 01ee B3F1FF3F 		cmp	r3, #-1
+ 2131 01f2 26D0     		beq	.L395
+ 2132              	.L377:
+ 2133 01f4 0F9B     		ldr	r3, [sp, #60]
+ 2134 01f6 072B     		cmp	r3, #7
+ 2135 01f8 26D9     		bls	.L380
+ 2136              	.L381:
+ 2137 01fa FEE7     		b	.L381
+ 2138              	.L385:
+ 2139 01fc 4FF0EC09 		mov	r9, #236
+ 2140 0200 D5E7     		b	.L372
+ 2141              	.L394:
+ 2142 0202 0731     		adds	r1, r1, #7
+ 2143 0204 E5E7     		b	.L375
+ 2144              	.L378:
+ 2145 0206 2246     		mov	r2, r4
+ 2146 0208 3946     		mov	r1, r7
+ 2147 020a 1198     		ldr	r0, [sp, #68]
+ 2148 020c FFF7FEFF 		bl	applyMask
+ 2149 0210 08F10108 		add	r8, r8, #1
+ 2150              	.L376:
+ 2151 0214 B8F1070F 		cmp	r8, #7
+ 2152 0218 ECDC     		bgt	.L377
+ 2153 021a 4FFA88F4 		sxtb	r4, r8
+ 2154 021e 2246     		mov	r2, r4
+ 2155 0220 3946     		mov	r1, r7
+ 2156 0222 1198     		ldr	r0, [sp, #68]
+ 2157 0224 FFF7FEFF 		bl	applyMask
+ 2158 0228 3A46     		mov	r2, r7
+ 2159 022a 2146     		mov	r1, r4
+ 2160 022c 2846     		mov	r0, r5
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 38
+
+
+ 2161 022e FFF7FEFF 		bl	drawFormatBits
+ 2162 0232 3846     		mov	r0, r7
+ 2163 0234 FFF7FEFF 		bl	getPenaltyScore
+ 2164 0238 8642     		cmp	r6, r0
+ 2165 023a E4DD     		ble	.L378
+ 2166 023c 0F94     		str	r4, [sp, #60]
+ 2167 023e 0646     		mov	r6, r0
+ 2168 0240 E1E7     		b	.L378
+ 2169              	.L395:
+ 2170 0242 6FF00046 		mvn	r6, #-2147483648
+ 2171 0246 E5E7     		b	.L376
+ 2172              	.L380:
+ 2173 0248 0F9B     		ldr	r3, [sp, #60]
+ 2174 024a 5CB2     		sxtb	r4, r3
+ 2175 024c 2246     		mov	r2, r4
+ 2176 024e 3946     		mov	r1, r7
+ 2177 0250 1198     		ldr	r0, [sp, #68]
+ 2178 0252 FFF7FEFF 		bl	applyMask
+ 2179 0256 3A46     		mov	r2, r7
+ 2180 0258 2146     		mov	r1, r4
+ 2181 025a 2846     		mov	r0, r5
+ 2182 025c FFF7FEFF 		bl	drawFormatBits
+ 2183 0260 0120     		movs	r0, #1
+ 2184 0262 06E7     		b	.L359
+ 2186              		.section	.text.qrcodegen_encodeBinary,"ax",%progbits
+ 2187              		.align	1
+ 2188              		.global	qrcodegen_encodeBinary
+ 2189              		.syntax unified
+ 2190              		.thumb
+ 2191              		.thumb_func
+ 2193              	qrcodegen_encodeBinary:
+ 2194              		@ args = 16, pretend = 0, frame = 16
+ 2195              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2196 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 2197 0002 8BB0     		sub	sp, sp, #44
+ 2198 0004 0446     		mov	r4, r0
+ 2199 0006 0F46     		mov	r7, r1
+ 2200 0008 1546     		mov	r5, r2
+ 2201 000a 1E46     		mov	r6, r3
+ 2202 000c 0420     		movs	r0, #4
+ 2203 000e 8DF81800 		strb	r0, [sp, #24]
+ 2204 0012 FFF7FEFF 		bl	calcSegmentBitLength
+ 2205 0016 0990     		str	r0, [sp, #36]
+ 2206 0018 B0F1FF3F 		cmp	r0, #-1
+ 2207 001c 13D0     		beq	.L400
+ 2208 001e 0797     		str	r7, [sp, #28]
+ 2209 0020 0894     		str	r4, [sp, #32]
+ 2210 0022 0495     		str	r5, [sp, #16]
+ 2211 0024 0394     		str	r4, [sp, #12]
+ 2212 0026 9DF84C30 		ldrb	r3, [sp, #76]	@ zero_extendqisi2
+ 2213 002a 0293     		str	r3, [sp, #8]
+ 2214 002c 9DF94830 		ldrsb	r3, [sp, #72]
+ 2215 0030 0193     		str	r3, [sp, #4]
+ 2216 0032 119B     		ldr	r3, [sp, #68]
+ 2217 0034 0093     		str	r3, [sp]
+ 2218 0036 109B     		ldr	r3, [sp, #64]
+ 2219 0038 3246     		mov	r2, r6
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 39
+
+
+ 2220 003a 0121     		movs	r1, #1
+ 2221 003c 06A8     		add	r0, sp, #24
+ 2222 003e FFF7FEFF 		bl	qrcodegen_encodeSegmentsAdvanced
+ 2223              	.L398:
+ 2224 0042 0BB0     		add	sp, sp, #44
+ 2225              		@ sp needed
+ 2226 0044 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 2227              	.L400:
+ 2228 0046 0020     		movs	r0, #0
+ 2229 0048 2870     		strb	r0, [r5]
+ 2230 004a FAE7     		b	.L398
+ 2232              		.section	.text.qrcodegen_encodeSegments,"ax",%progbits
+ 2233              		.align	1
+ 2234              		.global	qrcodegen_encodeSegments
+ 2235              		.syntax unified
+ 2236              		.thumb
+ 2237              		.thumb_func
+ 2239              	qrcodegen_encodeSegments:
+ 2240              		@ args = 4, pretend = 0, frame = 0
+ 2241              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2242 0000 10B5     		push	{r4, lr}
+ 2243 0002 86B0     		sub	sp, sp, #24
+ 2244 0004 089C     		ldr	r4, [sp, #32]
+ 2245 0006 0494     		str	r4, [sp, #16]
+ 2246 0008 0393     		str	r3, [sp, #12]
+ 2247 000a 0123     		movs	r3, #1
+ 2248 000c 0293     		str	r3, [sp, #8]
+ 2249 000e 4FF0FF34 		mov	r4, #-1
+ 2250 0012 0194     		str	r4, [sp, #4]
+ 2251 0014 2824     		movs	r4, #40
+ 2252 0016 0094     		str	r4, [sp]
+ 2253 0018 FFF7FEFF 		bl	qrcodegen_encodeSegmentsAdvanced
+ 2254 001c 06B0     		add	sp, sp, #24
+ 2255              		@ sp needed
+ 2256 001e 10BD     		pop	{r4, pc}
+ 2258              		.section	.text.qrcodegen_getModule,"ax",%progbits
+ 2259              		.align	1
+ 2260              		.global	qrcodegen_getModule
+ 2261              		.syntax unified
+ 2262              		.thumb
+ 2263              		.thumb_func
+ 2265              	qrcodegen_getModule:
+ 2266              		@ args = 0, pretend = 0, frame = 0
+ 2267              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2268 0000 60B1     		cbz	r0, .L405
+ 2269 0002 08B5     		push	{r3, lr}
+ 2270 0004 0346     		mov	r3, r0
+ 2271 0006 0078     		ldrb	r0, [r0]	@ zero_extendqisi2
+ 2272 0008 0029     		cmp	r1, #0
+ 2273 000a 0EDB     		blt	.L407
+ 2274 000c 8842     		cmp	r0, r1
+ 2275 000e 0EDD     		ble	.L408
+ 2276 0010 002A     		cmp	r2, #0
+ 2277 0012 0EDB     		blt	.L409
+ 2278 0014 9042     		cmp	r0, r2
+ 2279 0016 02DC     		bgt	.L414
+ 2280 0018 0020     		movs	r0, #0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 40
+
+
+ 2281 001a 07E0     		b	.L406
+ 2282              	.L405:
+ 2283 001c FEE7     		b	.L405
+ 2284              	.L414:
+ 2285 001e 1846     		mov	r0, r3
+ 2286 0020 FFF7FEFF 		bl	getModule
+ 2287 0024 38B1     		cbz	r0, .L411
+ 2288 0026 0120     		movs	r0, #1
+ 2289 0028 00E0     		b	.L406
+ 2290              	.L407:
+ 2291 002a 0020     		movs	r0, #0
+ 2292              	.L406:
+ 2293 002c 08BD     		pop	{r3, pc}
+ 2294              	.L408:
+ 2295 002e 0020     		movs	r0, #0
+ 2296 0030 FCE7     		b	.L406
+ 2297              	.L409:
+ 2298 0032 0020     		movs	r0, #0
+ 2299 0034 FAE7     		b	.L406
+ 2300              	.L411:
+ 2301 0036 0020     		movs	r0, #0
+ 2302 0038 F8E7     		b	.L406
+ 2304              		.section	.rodata.qrcodegen_isAlphanumeric.str1.4,"aMS",%progbits,1
+ 2305              		.align	2
+ 2306              	.LC0:
+ 2307 0000 30313233 		.ascii	"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:\000"
+ 2307      34353637 
+ 2307      38394142 
+ 2307      43444546 
+ 2307      4748494A 
+ 2308              		.section	.text.qrcodegen_isAlphanumeric,"ax",%progbits
+ 2309              		.align	1
+ 2310              		.global	qrcodegen_isAlphanumeric
+ 2311              		.syntax unified
+ 2312              		.thumb
+ 2313              		.thumb_func
+ 2315              	qrcodegen_isAlphanumeric:
+ 2316              		@ args = 0, pretend = 0, frame = 0
+ 2317              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2318 0000 10B5     		push	{r4, lr}
+ 2319 0002 0446     		mov	r4, r0
+ 2320 0004 38B1     		cbz	r0, .L417
+ 2321              	.L416:
+ 2322 0006 2178     		ldrb	r1, [r4]	@ zero_extendqisi2
+ 2323 0008 31B1     		cbz	r1, .L422
+ 2324 000a 0548     		ldr	r0, .L423
+ 2325 000c FFF7FEFF 		bl	strchr
+ 2326 0010 20B1     		cbz	r0, .L420
+ 2327 0012 0134     		adds	r4, r4, #1
+ 2328 0014 F7E7     		b	.L416
+ 2329              	.L417:
+ 2330 0016 FEE7     		b	.L417
+ 2331              	.L422:
+ 2332 0018 0120     		movs	r0, #1
+ 2333              	.L418:
+ 2334 001a 10BD     		pop	{r4, pc}
+ 2335              	.L420:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 41
+
+
+ 2336 001c 0020     		movs	r0, #0
+ 2337 001e FCE7     		b	.L418
+ 2338              	.L424:
+ 2339              		.align	2
+ 2340              	.L423:
+ 2341 0020 00000000 		.word	.LC0
+ 2343              		.section	.text.qrcodegen_isNumeric,"ax",%progbits
+ 2344              		.align	1
+ 2345              		.global	qrcodegen_isNumeric
+ 2346              		.syntax unified
+ 2347              		.thumb
+ 2348              		.thumb_func
+ 2350              	qrcodegen_isNumeric:
+ 2351              		@ args = 0, pretend = 0, frame = 0
+ 2352              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2353              		@ link register save eliminated.
+ 2354 0000 0246     		mov	r2, r0
+ 2355 0002 38B1     		cbz	r0, .L427
+ 2356              	.L426:
+ 2357 0004 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 2358 0006 33B1     		cbz	r3, .L431
+ 2359 0008 303B     		subs	r3, r3, #48
+ 2360 000a DBB2     		uxtb	r3, r3
+ 2361 000c 092B     		cmp	r3, #9
+ 2362 000e 04D8     		bhi	.L430
+ 2363 0010 0132     		adds	r2, r2, #1
+ 2364 0012 F7E7     		b	.L426
+ 2365              	.L427:
+ 2366 0014 FEE7     		b	.L427
+ 2367              	.L431:
+ 2368 0016 0120     		movs	r0, #1
+ 2369 0018 7047     		bx	lr
+ 2370              	.L430:
+ 2371 001a 0020     		movs	r0, #0
+ 2372 001c 7047     		bx	lr
+ 2374              		.section	.text.qrcodegen_calcSegmentBufferSize,"ax",%progbits
+ 2375              		.align	1
+ 2376              		.global	qrcodegen_calcSegmentBufferSize
+ 2377              		.syntax unified
+ 2378              		.thumb
+ 2379              		.thumb_func
+ 2381              	qrcodegen_calcSegmentBufferSize:
+ 2382              		@ args = 0, pretend = 0, frame = 0
+ 2383              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2384 0000 08B5     		push	{r3, lr}
+ 2385 0002 FFF7FEFF 		bl	calcSegmentBitLength
+ 2386 0006 B0F1FF3F 		cmp	r0, #-1
+ 2387 000a 06D0     		beq	.L436
+ 2388 000c B0F5004F 		cmp	r0, #32768
+ 2389 0010 00D3     		bcc	.L434
+ 2390              	.L435:
+ 2391 0012 FEE7     		b	.L435
+ 2392              	.L434:
+ 2393 0014 0730     		adds	r0, r0, #7
+ 2394 0016 C008     		lsrs	r0, r0, #3
+ 2395              	.L432:
+ 2396 0018 08BD     		pop	{r3, pc}
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 42
+
+
+ 2397              	.L436:
+ 2398 001a 4FF0FF30 		mov	r0, #-1
+ 2399 001e FBE7     		b	.L432
+ 2401              		.section	.text.qrcodegen_makeBytes,"ax",%progbits
+ 2402              		.align	1
+ 2403              		.global	qrcodegen_makeBytes
+ 2404              		.syntax unified
+ 2405              		.thumb
+ 2406              		.thumb_func
+ 2408              	qrcodegen_makeBytes:
+ 2409              		@ args = 0, pretend = 0, frame = 0
+ 2410              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2411 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 2412 0002 0446     		mov	r4, r0
+ 2413 0004 1546     		mov	r5, r2
+ 2414 0006 1E46     		mov	r6, r3
+ 2415 0008 0F46     		mov	r7, r1
+ 2416 000a 69B1     		cbz	r1, .L445
+ 2417              	.L439:
+ 2418 000c 0420     		movs	r0, #4
+ 2419 000e 2070     		strb	r0, [r4]
+ 2420 0010 2946     		mov	r1, r5
+ 2421 0012 FFF7FEFF 		bl	calcSegmentBitLength
+ 2422 0016 E060     		str	r0, [r4, #12]
+ 2423 0018 B0F1FF3F 		cmp	r0, #-1
+ 2424 001c 07D0     		beq	.L442
+ 2425 001e 6560     		str	r5, [r4, #4]
+ 2426 0020 35B9     		cbnz	r5, .L446
+ 2427              	.L443:
+ 2428 0022 A660     		str	r6, [r4, #8]
+ 2429 0024 2046     		mov	r0, r4
+ 2430 0026 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 2431              	.L445:
+ 2432 0028 002A     		cmp	r2, #0
+ 2433 002a EFD0     		beq	.L439
+ 2434              	.L440:
+ 2435 002c FEE7     		b	.L440
+ 2436              	.L442:
+ 2437 002e FEE7     		b	.L442
+ 2438              	.L446:
+ 2439 0030 2A46     		mov	r2, r5
+ 2440 0032 3946     		mov	r1, r7
+ 2441 0034 3046     		mov	r0, r6
+ 2442 0036 FFF7FEFF 		bl	memcpy
+ 2443 003a F2E7     		b	.L443
+ 2445              		.section	.text.qrcodegen_makeNumeric,"ax",%progbits
+ 2446              		.align	1
+ 2447              		.global	qrcodegen_makeNumeric
+ 2448              		.syntax unified
+ 2449              		.thumb
+ 2450              		.thumb_func
+ 2452              	qrcodegen_makeNumeric:
+ 2453              		@ args = 0, pretend = 0, frame = 16
+ 2454              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2455 0000 D9B1     		cbz	r1, .L449
+ 2456 0002 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 2457 0006 84B0     		sub	sp, sp, #16
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 43
+
+
+ 2458 0008 0646     		mov	r6, r0
+ 2459 000a 1546     		mov	r5, r2
+ 2460 000c 0C46     		mov	r4, r1
+ 2461 000e 0846     		mov	r0, r1
+ 2462 0010 FFF7FEFF 		bl	strlen
+ 2463 0014 8046     		mov	r8, r0
+ 2464 0016 0120     		movs	r0, #1
+ 2465 0018 8DF80000 		strb	r0, [sp]
+ 2466 001c 4146     		mov	r1, r8
+ 2467 001e FFF7FEFF 		bl	calcSegmentBitLength
+ 2468 0022 0746     		mov	r7, r0
+ 2469 0024 B0F1FF3F 		cmp	r0, #-1
+ 2470 0028 08D0     		beq	.L451
+ 2471 002a CDF80480 		str	r8, [sp, #4]
+ 2472 002e 0028     		cmp	r0, #0
+ 2473 0030 05DC     		bgt	.L463
+ 2474              	.L452:
+ 2475 0032 0020     		movs	r0, #0
+ 2476 0034 0390     		str	r0, [sp, #12]
+ 2477 0036 0146     		mov	r1, r0
+ 2478 0038 0AE0     		b	.L453
+ 2479              	.L449:
+ 2480 003a FEE7     		b	.L449
+ 2481              	.L451:
+ 2482 003c FEE7     		b	.L451
+ 2483              	.L463:
+ 2484 003e C21D     		adds	r2, r0, #7
+ 2485 0040 D208     		lsrs	r2, r2, #3
+ 2486 0042 0021     		movs	r1, #0
+ 2487 0044 2846     		mov	r0, r5
+ 2488 0046 FFF7FEFF 		bl	memset
+ 2489 004a F2E7     		b	.L452
+ 2490              	.L455:
+ 2491 004c FEE7     		b	.L455
+ 2492              	.L456:
+ 2493 004e 0134     		adds	r4, r4, #1
+ 2494              	.L453:
+ 2495 0050 2378     		ldrb	r3, [r4]	@ zero_extendqisi2
+ 2496 0052 ABB1     		cbz	r3, .L464
+ 2497 0054 A3F13002 		sub	r2, r3, #48
+ 2498 0058 D2B2     		uxtb	r2, r2
+ 2499 005a 092A     		cmp	r2, #9
+ 2500 005c F6D8     		bhi	.L455
+ 2501 005e 00EB8000 		add	r0, r0, r0, lsl #2
+ 2502 0062 03EB4003 		add	r3, r3, r0, lsl #1
+ 2503 0066 A3F13000 		sub	r0, r3, #48
+ 2504 006a 0131     		adds	r1, r1, #1
+ 2505 006c 0329     		cmp	r1, #3
+ 2506 006e EED1     		bne	.L456
+ 2507 0070 03AB     		add	r3, sp, #12
+ 2508 0072 2A46     		mov	r2, r5
+ 2509 0074 0A21     		movs	r1, #10
+ 2510 0076 FFF7FEFF 		bl	appendBitsToBuffer
+ 2511 007a 0020     		movs	r0, #0
+ 2512 007c 0146     		mov	r1, r0
+ 2513 007e E6E7     		b	.L456
+ 2514              	.L464:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 44
+
+
+ 2515 0080 0029     		cmp	r1, #0
+ 2516 0082 03DC     		bgt	.L465
+ 2517              	.L458:
+ 2518 0084 039B     		ldr	r3, [sp, #12]
+ 2519 0086 BB42     		cmp	r3, r7
+ 2520 0088 08D0     		beq	.L459
+ 2521              	.L460:
+ 2522 008a FEE7     		b	.L460
+ 2523              	.L465:
+ 2524 008c 01EB4101 		add	r1, r1, r1, lsl #1
+ 2525 0090 03AB     		add	r3, sp, #12
+ 2526 0092 2A46     		mov	r2, r5
+ 2527 0094 0131     		adds	r1, r1, #1
+ 2528 0096 FFF7FEFF 		bl	appendBitsToBuffer
+ 2529 009a F3E7     		b	.L458
+ 2530              	.L459:
+ 2531 009c 0295     		str	r5, [sp, #8]
+ 2532 009e 04AB     		add	r3, sp, #16
+ 2533 00a0 13E90F00 		ldmdb	r3, {r0, r1, r2, r3}
+ 2534 00a4 86E80F00 		stm	r6, {r0, r1, r2, r3}
+ 2535 00a8 3046     		mov	r0, r6
+ 2536 00aa 04B0     		add	sp, sp, #16
+ 2537              		@ sp needed
+ 2538 00ac BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 2540              		.section	.text.qrcodegen_makeAlphanumeric,"ax",%progbits
+ 2541              		.align	1
+ 2542              		.global	qrcodegen_makeAlphanumeric
+ 2543              		.syntax unified
+ 2544              		.thumb
+ 2545              		.thumb_func
+ 2547              	qrcodegen_makeAlphanumeric:
+ 2548              		@ args = 0, pretend = 0, frame = 16
+ 2549              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2550 0000 D1B1     		cbz	r1, .L468
+ 2551 0002 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 2552 0006 85B0     		sub	sp, sp, #20
+ 2553 0008 8046     		mov	r8, r0
+ 2554 000a 1746     		mov	r7, r2
+ 2555 000c 0D46     		mov	r5, r1
+ 2556 000e 0846     		mov	r0, r1
+ 2557 0010 FFF7FEFF 		bl	strlen
+ 2558 0014 0446     		mov	r4, r0
+ 2559 0016 0220     		movs	r0, #2
+ 2560 0018 8DF80000 		strb	r0, [sp]
+ 2561 001c 2146     		mov	r1, r4
+ 2562 001e FFF7FEFF 		bl	calcSegmentBitLength
+ 2563 0022 8146     		mov	r9, r0
+ 2564 0024 B0F1FF3F 		cmp	r0, #-1
+ 2565 0028 07D0     		beq	.L470
+ 2566 002a 0194     		str	r4, [sp, #4]
+ 2567 002c 0028     		cmp	r0, #0
+ 2568 002e 05DC     		bgt	.L482
+ 2569              	.L471:
+ 2570 0030 0024     		movs	r4, #0
+ 2571 0032 0394     		str	r4, [sp, #12]
+ 2572 0034 2646     		mov	r6, r4
+ 2573 0036 0AE0     		b	.L472
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 45
+
+
+ 2574              	.L468:
+ 2575 0038 FEE7     		b	.L468
+ 2576              	.L470:
+ 2577 003a FEE7     		b	.L470
+ 2578              	.L482:
+ 2579 003c C21D     		adds	r2, r0, #7
+ 2580 003e D208     		lsrs	r2, r2, #3
+ 2581 0040 0021     		movs	r1, #0
+ 2582 0042 3846     		mov	r0, r7
+ 2583 0044 FFF7FEFF 		bl	memset
+ 2584 0048 F2E7     		b	.L471
+ 2585              	.L474:
+ 2586 004a FEE7     		b	.L474
+ 2587              	.L475:
+ 2588 004c 0135     		adds	r5, r5, #1
+ 2589              	.L472:
+ 2590 004e 2978     		ldrb	r1, [r5]	@ zero_extendqisi2
+ 2591 0050 B9B1     		cbz	r1, .L483
+ 2592 0052 1748     		ldr	r0, .L485
+ 2593 0054 FFF7FEFF 		bl	strchr
+ 2594 0058 0028     		cmp	r0, #0
+ 2595 005a F6D0     		beq	.L474
+ 2596 005c 04EB4404 		add	r4, r4, r4, lsl #1
+ 2597 0060 C4EB0414 		rsb	r4, r4, r4, lsl #4
+ 2598 0064 124A     		ldr	r2, .L485
+ 2599 0066 831A     		subs	r3, r0, r2
+ 2600 0068 1C44     		add	r4, r4, r3
+ 2601 006a 0136     		adds	r6, r6, #1
+ 2602 006c 022E     		cmp	r6, #2
+ 2603 006e EDD1     		bne	.L475
+ 2604 0070 03AB     		add	r3, sp, #12
+ 2605 0072 3A46     		mov	r2, r7
+ 2606 0074 0B21     		movs	r1, #11
+ 2607 0076 2046     		mov	r0, r4
+ 2608 0078 FFF7FEFF 		bl	appendBitsToBuffer
+ 2609 007c 0024     		movs	r4, #0
+ 2610 007e 2646     		mov	r6, r4
+ 2611 0080 E4E7     		b	.L475
+ 2612              	.L483:
+ 2613 0082 002E     		cmp	r6, #0
+ 2614 0084 03DC     		bgt	.L484
+ 2615              	.L477:
+ 2616 0086 039B     		ldr	r3, [sp, #12]
+ 2617 0088 4B45     		cmp	r3, r9
+ 2618 008a 07D0     		beq	.L478
+ 2619              	.L479:
+ 2620 008c FEE7     		b	.L479
+ 2621              	.L484:
+ 2622 008e 03AB     		add	r3, sp, #12
+ 2623 0090 3A46     		mov	r2, r7
+ 2624 0092 0621     		movs	r1, #6
+ 2625 0094 2046     		mov	r0, r4
+ 2626 0096 FFF7FEFF 		bl	appendBitsToBuffer
+ 2627 009a F4E7     		b	.L477
+ 2628              	.L478:
+ 2629 009c 0297     		str	r7, [sp, #8]
+ 2630 009e 04AB     		add	r3, sp, #16
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 46
+
+
+ 2631 00a0 13E90F00 		ldmdb	r3, {r0, r1, r2, r3}
+ 2632 00a4 88E80F00 		stm	r8, {r0, r1, r2, r3}
+ 2633 00a8 4046     		mov	r0, r8
+ 2634 00aa 05B0     		add	sp, sp, #20
+ 2635              		@ sp needed
+ 2636 00ac BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 2637              	.L486:
+ 2638              		.align	2
+ 2639              	.L485:
+ 2640 00b0 00000000 		.word	.LC0
+ 2642              		.section	.text.qrcodegen_encodeText,"ax",%progbits
+ 2643              		.align	1
+ 2644              		.global	qrcodegen_encodeText
+ 2645              		.syntax unified
+ 2646              		.thumb
+ 2647              		.thumb_func
+ 2649              	qrcodegen_encodeText:
+ 2650              		@ args = 16, pretend = 0, frame = 32
+ 2651              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2652 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 2653 0004 8FB0     		sub	sp, sp, #60
+ 2654 0006 0546     		mov	r5, r0
+ 2655 0008 0E46     		mov	r6, r1
+ 2656 000a 1746     		mov	r7, r2
+ 2657 000c 9846     		mov	r8, r3
+ 2658 000e 9DF968A0 		ldrsb	r10, [sp, #104]
+ 2659 0012 9DF86CB0 		ldrb	fp, [sp, #108]	@ zero_extendqisi2
+ 2660 0016 FFF7FEFF 		bl	strlen
+ 2661 001a B8B1     		cbz	r0, .L498
+ 2662 001c 8146     		mov	r9, r0
+ 2663 001e 199B     		ldr	r3, [sp, #100]
+ 2664 0020 9C00     		lsls	r4, r3, #2
+ 2665 0022 1134     		adds	r4, r4, #17
+ 2666 0024 04FB04F4 		mul	r4, r4, r4
+ 2667 0028 0734     		adds	r4, r4, #7
+ 2668 002a 20D4     		bmi	.L499
+ 2669              	.L490:
+ 2670 002c E410     		asrs	r4, r4, #3
+ 2671 002e 0134     		adds	r4, r4, #1
+ 2672 0030 2846     		mov	r0, r5
+ 2673 0032 FFF7FEFF 		bl	qrcodegen_isNumeric
+ 2674 0036 0028     		cmp	r0, #0
+ 2675 0038 35D0     		beq	.L491
+ 2676 003a 4946     		mov	r1, r9
+ 2677 003c 0120     		movs	r0, #1
+ 2678 003e FFF7FEFF 		bl	qrcodegen_calcSegmentBufferSize
+ 2679 0042 A042     		cmp	r0, r4
+ 2680 0044 15D9     		bls	.L500
+ 2681              	.L492:
+ 2682 0046 0020     		movs	r0, #0
+ 2683 0048 3870     		strb	r0, [r7]
+ 2684 004a 0DE0     		b	.L489
+ 2685              	.L498:
+ 2686 004c 0497     		str	r7, [sp, #16]
+ 2687 004e 0396     		str	r6, [sp, #12]
+ 2688 0050 CDF808B0 		str	fp, [sp, #8]
+ 2689 0054 CDF804A0 		str	r10, [sp, #4]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 47
+
+
+ 2690 0058 199B     		ldr	r3, [sp, #100]
+ 2691 005a 0093     		str	r3, [sp]
+ 2692 005c 189B     		ldr	r3, [sp, #96]
+ 2693 005e 4246     		mov	r2, r8
+ 2694 0060 0021     		movs	r1, #0
+ 2695 0062 0846     		mov	r0, r1
+ 2696 0064 FFF7FEFF 		bl	qrcodegen_encodeSegmentsAdvanced
+ 2697              	.L489:
+ 2698 0068 0FB0     		add	sp, sp, #60
+ 2699              		@ sp needed
+ 2700 006a BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 2701              	.L499:
+ 2702 006e 0734     		adds	r4, r4, #7
+ 2703 0070 DCE7     		b	.L490
+ 2704              	.L500:
+ 2705 0072 06AC     		add	r4, sp, #24
+ 2706 0074 3246     		mov	r2, r6
+ 2707 0076 2946     		mov	r1, r5
+ 2708 0078 2046     		mov	r0, r4
+ 2709 007a FFF7FEFF 		bl	qrcodegen_makeNumeric
+ 2710 007e 94E80F00 		ldm	r4, {r0, r1, r2, r3}
+ 2711 0082 0EAC     		add	r4, sp, #56
+ 2712 0084 04E90F00 		stmdb	r4, {r0, r1, r2, r3}
+ 2713              	.L493:
+ 2714 0088 0497     		str	r7, [sp, #16]
+ 2715 008a 0396     		str	r6, [sp, #12]
+ 2716 008c CDF808B0 		str	fp, [sp, #8]
+ 2717 0090 CDF804A0 		str	r10, [sp, #4]
+ 2718 0094 199B     		ldr	r3, [sp, #100]
+ 2719 0096 0093     		str	r3, [sp]
+ 2720 0098 189B     		ldr	r3, [sp, #96]
+ 2721 009a 4246     		mov	r2, r8
+ 2722 009c 0121     		movs	r1, #1
+ 2723 009e 0AA8     		add	r0, sp, #40
+ 2724 00a0 FFF7FEFF 		bl	qrcodegen_encodeSegmentsAdvanced
+ 2725 00a4 E0E7     		b	.L489
+ 2726              	.L491:
+ 2727 00a6 2846     		mov	r0, r5
+ 2728 00a8 FFF7FEFF 		bl	qrcodegen_isAlphanumeric
+ 2729 00ac 18B9     		cbnz	r0, .L501
+ 2730 00ae A145     		cmp	r9, r4
+ 2731 00b0 C9D8     		bhi	.L492
+ 2732 00b2 0023     		movs	r3, #0
+ 2733 00b4 14E0     		b	.L495
+ 2734              	.L501:
+ 2735 00b6 4946     		mov	r1, r9
+ 2736 00b8 0220     		movs	r0, #2
+ 2737 00ba FFF7FEFF 		bl	qrcodegen_calcSegmentBufferSize
+ 2738 00be A042     		cmp	r0, r4
+ 2739 00c0 C1D8     		bhi	.L492
+ 2740 00c2 06AC     		add	r4, sp, #24
+ 2741 00c4 3246     		mov	r2, r6
+ 2742 00c6 2946     		mov	r1, r5
+ 2743 00c8 2046     		mov	r0, r4
+ 2744 00ca FFF7FEFF 		bl	qrcodegen_makeAlphanumeric
+ 2745 00ce 94E80F00 		ldm	r4, {r0, r1, r2, r3}
+ 2746 00d2 0EAC     		add	r4, sp, #56
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 48
+
+
+ 2747 00d4 04E90F00 		stmdb	r4, {r0, r1, r2, r3}
+ 2748 00d8 D6E7     		b	.L493
+ 2749              	.L496:
+ 2750 00da EA5C     		ldrb	r2, [r5, r3]	@ zero_extendqisi2
+ 2751 00dc F254     		strb	r2, [r6, r3]
+ 2752 00de 0133     		adds	r3, r3, #1
+ 2753              	.L495:
+ 2754 00e0 4B45     		cmp	r3, r9
+ 2755 00e2 FAD3     		bcc	.L496
+ 2756 00e4 0420     		movs	r0, #4
+ 2757 00e6 8DF82800 		strb	r0, [sp, #40]
+ 2758 00ea 4946     		mov	r1, r9
+ 2759 00ec FFF7FEFF 		bl	calcSegmentBitLength
+ 2760 00f0 0D90     		str	r0, [sp, #52]
+ 2761 00f2 B0F1FF3F 		cmp	r0, #-1
+ 2762 00f6 A6D0     		beq	.L492
+ 2763 00f8 CDF82C90 		str	r9, [sp, #44]
+ 2764 00fc 0C96     		str	r6, [sp, #48]
+ 2765 00fe C3E7     		b	.L493
+ 2767              		.section	.text.qrcodegen_makeEci,"ax",%progbits
+ 2768              		.align	1
+ 2769              		.global	qrcodegen_makeEci
+ 2770              		.syntax unified
+ 2771              		.thumb
+ 2772              		.thumb_func
+ 2774              	qrcodegen_makeEci:
+ 2775              		@ args = 0, pretend = 0, frame = 16
+ 2776              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2777 0000 70B5     		push	{r4, r5, r6, lr}
+ 2778 0002 84B0     		sub	sp, sp, #16
+ 2779 0004 0723     		movs	r3, #7
+ 2780 0006 8DF80030 		strb	r3, [sp]
+ 2781 000a 0023     		movs	r3, #0
+ 2782 000c 0193     		str	r3, [sp, #4]
+ 2783 000e 0393     		str	r3, [sp, #12]
+ 2784 0010 0C1E     		subs	r4, r1, #0
+ 2785 0012 0ADB     		blt	.L504
+ 2786 0014 0546     		mov	r5, r0
+ 2787 0016 1646     		mov	r6, r2
+ 2788 0018 7F2C     		cmp	r4, #127
+ 2789 001a 07DD     		ble	.L510
+ 2790 001c B4F5804F 		cmp	r4, #16384
+ 2791 0020 14DB     		blt	.L511
+ 2792 0022 1C4B     		ldr	r3, .L513
+ 2793 0024 9C42     		cmp	r4, r3
+ 2794 0026 1FDD     		ble	.L512
+ 2795              	.L508:
+ 2796 0028 FEE7     		b	.L508
+ 2797              	.L504:
+ 2798 002a FEE7     		b	.L504
+ 2799              	.L510:
+ 2800 002c 0023     		movs	r3, #0
+ 2801 002e 1370     		strb	r3, [r2]
+ 2802 0030 03AB     		add	r3, sp, #12
+ 2803 0032 0821     		movs	r1, #8
+ 2804 0034 2046     		mov	r0, r4
+ 2805 0036 FFF7FEFF 		bl	appendBitsToBuffer
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 49
+
+
+ 2806              	.L506:
+ 2807 003a 0296     		str	r6, [sp, #8]
+ 2808 003c 04AB     		add	r3, sp, #16
+ 2809 003e 13E90F00 		ldmdb	r3, {r0, r1, r2, r3}
+ 2810 0042 85E80F00 		stm	r5, {r0, r1, r2, r3}
+ 2811 0046 2846     		mov	r0, r5
+ 2812 0048 04B0     		add	sp, sp, #16
+ 2813              		@ sp needed
+ 2814 004a 70BD     		pop	{r4, r5, r6, pc}
+ 2815              	.L511:
+ 2816 004c 0023     		movs	r3, #0
+ 2817 004e 1380     		strh	r3, [r2]	@ unaligned
+ 2818 0050 03AB     		add	r3, sp, #12
+ 2819 0052 0221     		movs	r1, #2
+ 2820 0054 0846     		mov	r0, r1
+ 2821 0056 FFF7FEFF 		bl	appendBitsToBuffer
+ 2822 005a 03AB     		add	r3, sp, #12
+ 2823 005c 3246     		mov	r2, r6
+ 2824 005e 0E21     		movs	r1, #14
+ 2825 0060 2046     		mov	r0, r4
+ 2826 0062 FFF7FEFF 		bl	appendBitsToBuffer
+ 2827 0066 E8E7     		b	.L506
+ 2828              	.L512:
+ 2829 0068 0023     		movs	r3, #0
+ 2830 006a 1380     		strh	r3, [r2]	@ unaligned
+ 2831 006c 9370     		strb	r3, [r2, #2]
+ 2832 006e 03AB     		add	r3, sp, #12
+ 2833 0070 0321     		movs	r1, #3
+ 2834 0072 0620     		movs	r0, #6
+ 2835 0074 FFF7FEFF 		bl	appendBitsToBuffer
+ 2836 0078 03AB     		add	r3, sp, #12
+ 2837 007a 3246     		mov	r2, r6
+ 2838 007c 0B21     		movs	r1, #11
+ 2839 007e A012     		asrs	r0, r4, #10
+ 2840 0080 FFF7FEFF 		bl	appendBitsToBuffer
+ 2841 0084 03AB     		add	r3, sp, #12
+ 2842 0086 3246     		mov	r2, r6
+ 2843 0088 0A21     		movs	r1, #10
+ 2844 008a C4F30900 		ubfx	r0, r4, #0, #10
+ 2845 008e FFF7FEFF 		bl	appendBitsToBuffer
+ 2846 0092 D2E7     		b	.L506
+ 2847              	.L514:
+ 2848              		.align	2
+ 2849              	.L513:
+ 2850 0094 3F420F00 		.word	999999
+ 2852              		.section	.text.qrcodegen_getMinFitVersion,"ax",%progbits
+ 2853              		.align	1
+ 2854              		.global	qrcodegen_getMinFitVersion
+ 2855              		.syntax unified
+ 2856              		.thumb
+ 2857              		.thumb_func
+ 2859              	qrcodegen_getMinFitVersion:
+ 2860              		@ args = 0, pretend = 0, frame = 16
+ 2861              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2862 0000 70B5     		push	{r4, r5, r6, lr}
+ 2863 0002 84B0     		sub	sp, sp, #16
+ 2864 0004 0646     		mov	r6, r0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 50
+
+
+ 2865 0006 0C46     		mov	r4, r1
+ 2866 0008 0420     		movs	r0, #4
+ 2867 000a 8DF80000 		strb	r0, [sp]
+ 2868 000e FFF7FEFF 		bl	calcSegmentBitLength
+ 2869 0012 0390     		str	r0, [sp, #12]
+ 2870 0014 0194     		str	r4, [sp, #4]
+ 2871 0016 0124     		movs	r4, #1
+ 2872 0018 00E0     		b	.L516
+ 2873              	.L517:
+ 2874 001a 0134     		adds	r4, r4, #1
+ 2875              	.L516:
+ 2876 001c 282C     		cmp	r4, #40
+ 2877 001e 11DC     		bgt	.L521
+ 2878 0020 3146     		mov	r1, r6
+ 2879 0022 2046     		mov	r0, r4
+ 2880 0024 FFF7FEFF 		bl	getNumDataCodewords
+ 2881 0028 C500     		lsls	r5, r0, #3
+ 2882 002a 2246     		mov	r2, r4
+ 2883 002c 0121     		movs	r1, #1
+ 2884 002e 6846     		mov	r0, sp
+ 2885 0030 FFF7FEFF 		bl	getTotalBits
+ 2886 0034 B0F1FF3F 		cmp	r0, #-1
+ 2887 0038 EFD0     		beq	.L517
+ 2888 003a 8542     		cmp	r5, r0
+ 2889 003c EDDB     		blt	.L517
+ 2890              	.L515:
+ 2891 003e 2046     		mov	r0, r4
+ 2892 0040 04B0     		add	sp, sp, #16
+ 2893              		@ sp needed
+ 2894 0042 70BD     		pop	{r4, r5, r6, pc}
+ 2895              	.L521:
+ 2896 0044 4FF0FF34 		mov	r4, #-1
+ 2897 0048 F9E7     		b	.L515
+ 2899              		.section	.text.qrcodegen_version2size,"ax",%progbits
+ 2900              		.align	1
+ 2901              		.global	qrcodegen_version2size
+ 2902              		.syntax unified
+ 2903              		.thumb
+ 2904              		.thumb_func
+ 2906              	qrcodegen_version2size:
+ 2907              		@ args = 0, pretend = 0, frame = 0
+ 2908              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2909              		@ link register save eliminated.
+ 2910 0000 431E     		subs	r3, r0, #1
+ 2911 0002 272B     		cmp	r3, #39
+ 2912 0004 02D8     		bhi	.L524
+ 2913 0006 9800     		lsls	r0, r3, #2
+ 2914 0008 1530     		adds	r0, r0, #21
+ 2915 000a 7047     		bx	lr
+ 2916              	.L524:
+ 2917 000c 4FF0FF30 		mov	r0, #-1
+ 2918 0010 7047     		bx	lr
+ 2920              		.section	.rodata.table.0,"a"
+ 2921              		.align	2
+ 2924              	table.0:
+ 2925 0000 01000000 		.word	1
+ 2926 0004 00000000 		.word	0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 51
+
+
+ 2927 0008 03000000 		.word	3
+ 2928 000c 02000000 		.word	2
+ 2929              		.section	.rodata.temp.1,"a"
+ 2930              		.align	2
+ 2933              	temp.1:
+ 2934 0000 08000000 		.word	8
+ 2935 0004 0A000000 		.word	10
+ 2936 0008 0C000000 		.word	12
+ 2937              		.section	.rodata.temp.2,"a"
+ 2938              		.align	2
+ 2941              	temp.2:
+ 2942 0000 08000000 		.word	8
+ 2943 0004 10000000 		.word	16
+ 2944 0008 10000000 		.word	16
+ 2945              		.section	.rodata.temp.3,"a"
+ 2946              		.align	2
+ 2949              	temp.3:
+ 2950 0000 09000000 		.word	9
+ 2951 0004 0B000000 		.word	11
+ 2952 0008 0D000000 		.word	13
+ 2953              		.section	.rodata.temp.4,"a"
+ 2954              		.align	2
+ 2957              	temp.4:
+ 2958 0000 0A000000 		.word	10
+ 2959 0004 0C000000 		.word	12
+ 2960 0008 0E000000 		.word	14
+ 2961              		.section	.rodata.NUM_ERROR_CORRECTION_BLOCKS,"a"
+ 2962              		.align	2
+ 2965              	NUM_ERROR_CORRECTION_BLOCKS:
+ 2966 0000 FF010101 		.ascii	"\377\001\001\001\001\001\002\002\002\002\004\004\004"
+ 2966      01010202 
+ 2966      02020404 
+ 2966      04
+ 2967 000d 04040606 		.ascii	"\004\004\006\006\006\006\007\010\010\011\011\012\014"
+ 2967      06060708 
+ 2967      0809090A 
+ 2967      0C
+ 2968 001a 0C0C0D0E 		.ascii	"\014\014\015\016\017\020\021\022\023\023\024\025\026"
+ 2968      0F101112 
+ 2968      13131415 
+ 2968      16
+ 2969 0027 1819     		.ascii	"\030\031"
+ 2970 0029 FF010101 		.ascii	"\377\001\001\001\002\002\004\004\004\005\005\005\010"
+ 2970      02020404 
+ 2970      04050505 
+ 2970      08
+ 2971 0036 09090A0A 		.ascii	"\011\011\012\012\013\015\016\020\021\021\022\024\025"
+ 2971      0B0D0E10 
+ 2971      11111214 
+ 2971      15
+ 2972 0043 17191A1C 		.ascii	"\027\031\032\034\035\037!#%&(+-/1"
+ 2972      1D1F2123 
+ 2972      2526282B 
+ 2972      2D2F31
+ 2973 0052 FF010102 		.ascii	"\377\001\001\002\002\004\004\006\006\010\010\010\012"
+ 2973      02040406 
+ 2973      06080808 
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 52
+
+
+ 2973      0A
+ 2974 005f 0C100C11 		.ascii	"\014\020\014\021\020\022\025\024\027\027\031\033\035"
+ 2974      10121514 
+ 2974      1717191B 
+ 2974      1D
+ 2975 006c 22222326 		.ascii	"\"\"#&(+-0358;>AD"
+ 2975      282B2D30 
+ 2975      3335383B 
+ 2975      3E4144
+ 2976 007b FF010102 		.ascii	"\377\001\001\002\004\004\004\005\006\010\010\013\013"
+ 2976      04040405 
+ 2976      0608080B 
+ 2976      0B
+ 2977 0088 10101210 		.ascii	"\020\020\022\020\023\025\031\031\031\"\036 #%(*-036"
+ 2977      13151919 
+ 2977      19221E20 
+ 2977      2325282A 
+ 2977      2D303336 
+ 2978 009c 393C3F42 		.ascii	"9<?BFJMQ"
+ 2978      464A4D51 
+ 2979              		.section	.rodata.ECC_CODEWORDS_PER_BLOCK,"a"
+ 2980              		.align	2
+ 2983              	ECC_CODEWORDS_PER_BLOCK:
+ 2984 0000 FF070A0F 		.ascii	"\377\007\012\017\024\032\022\024\030\036\022\024\030"
+ 2984      141A1214 
+ 2984      181E1214 
+ 2984      18
+ 2985 000d 1A1E1618 		.ascii	"\032\036\026\030\034\036\034\034\034\034\036\036\032"
+ 2985      1C1E1C1C 
+ 2985      1C1C1E1E 
+ 2985      1A
+ 2986 001a 1C1E1E1E 		.ascii	"\034\036\036\036\036\036\036\036\036\036\036\036\036"
+ 2986      1E1E1E1E 
+ 2986      1E1E1E1E 
+ 2986      1E
+ 2987 0027 1E1E     		.ascii	"\036\036"
+ 2988 0029 FF0A101A 		.ascii	"\377\012\020\032\022\030\020\022\026\026\032\036\026"
+ 2988      12181012 
+ 2988      16161A1E 
+ 2988      16
+ 2989 0036 1618181C 		.ascii	"\026\030\030\034\034\032\032\032\032\034\034\034\034"
+ 2989      1C1A1A1A 
+ 2989      1A1C1C1C 
+ 2989      1C
+ 2990 0043 1C1C1C1C 		.ascii	"\034\034\034\034\034\034\034\034\034\034\034\034\034"
+ 2990      1C1C1C1C 
+ 2990      1C1C1C1C 
+ 2990      1C
+ 2991 0050 1C1C     		.ascii	"\034\034"
+ 2992 0052 FF0D1612 		.ascii	"\377\015\026\022\032\022\030\022\026\024\030\034\032"
+ 2992      1A121812 
+ 2992      1614181C 
+ 2992      1A
+ 2993 005f 18141E18 		.ascii	"\030\024\036\030\034\034\032\036\034\036\036\036\036"
+ 2993      1C1C1A1E 
+ 2993      1C1E1E1E 
+ 2993      1E
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 53
+
+
+ 2994 006c 1C1E1E1E 		.ascii	"\034\036\036\036\036\036\036\036\036\036\036\036\036"
+ 2994      1E1E1E1E 
+ 2994      1E1E1E1E 
+ 2994      1E
+ 2995 0079 1E1E     		.ascii	"\036\036"
+ 2996 007b FF111C16 		.ascii	"\377\021\034\026\020\026\034\032\032\030\034\030\034"
+ 2996      10161C1A 
+ 2996      1A181C18 
+ 2996      1C
+ 2997 0088 1618181E 		.ascii	"\026\030\030\036\034\034\032\034\036\030\036\036\036"
+ 2997      1C1C1A1C 
+ 2997      1E181E1E 
+ 2997      1E
+ 2998 0095 1E1E1E1E 		.ascii	"\036\036\036\036\036\036\036\036\036\036\036\036\036"
+ 2998      1E1E1E1E 
+ 2998      1E1E1E1E 
+ 2998      1E
+ 2999 00a2 1E1E     		.ascii	"\036\036"
+ 3000              		.ident	"GCC: (xPack GNU Arm Embedded GCC arm64) 13.3.1 20240614"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 54
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 qrcodegen.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:18     .text.appendBitsToBuffer:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:23     .text.appendBitsToBuffer:00000000 appendBitsToBuffer
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:59     .text.getNumRawDataModules:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:64     .text.getNumRawDataModules:00000000 getNumRawDataModules
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:101    .text.getNumRawDataModules:00000044 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:104    .text.getNumDataCodewords:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:109    .text.getNumDataCodewords:00000000 getNumDataCodewords
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:141    .text.getNumDataCodewords:00000038 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2983   .rodata.ECC_CODEWORDS_PER_BLOCK:00000000 ECC_CODEWORDS_PER_BLOCK
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2965   .rodata.NUM_ERROR_CORRECTION_BLOCKS:00000000 NUM_ERROR_CORRECTION_BLOCKS
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:145    .text.finiteFieldMultiply:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:150    .text.finiteFieldMultiply:00000000 finiteFieldMultiply
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:176    .text.getAlignmentPatternPositions:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:181    .text.getAlignmentPatternPositions:00000000 getAlignmentPatternPositions
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:239    .text.getAlignmentPatternPositions:00000078 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:242    .text.hasFinderLikePattern:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:247    .text.hasFinderLikePattern:00000000 hasFinderLikePattern
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:298    .text.setModule:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:303    .text.setModule:00000000 setModule
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:345    .text.fillRectangle:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:350    .text.fillRectangle:00000000 fillRectangle
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:381    .text.setModuleBounded:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:386    .text.setModuleBounded:00000000 setModuleBounded
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:406    .text.getBit:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:411    .text.getBit:00000000 getBit
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:420    .text.getModule:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:425    .text.getModule:00000000 getModule
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:452    .text.calcSegmentBitLength:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:457    .text.calcSegmentBitLength:00000000 calcSegmentBitLength
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:468    .text.calcSegmentBitLength:00000010 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:476    .text.calcSegmentBitLength:00000018 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:526    .text.calcSegmentBitLength:00000070 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:529    .text.numCharCountBits:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:534    .text.numCharCountBits:00000000 numCharCountBits
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:554    .text.numCharCountBits:00000020 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:562    .text.numCharCountBits:00000028 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:588    .text.numCharCountBits:00000050 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2957   .rodata.temp.4:00000000 temp.4
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2949   .rodata.temp.3:00000000 temp.3
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2941   .rodata.temp.2:00000000 temp.2
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2933   .rodata.temp.1:00000000 temp.1
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:595    .text.getTotalBits:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:600    .text.getTotalBits:00000000 getTotalBits
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:666    .text.calcReedSolomonGenerator:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:671    .text.calcReedSolomonGenerator:00000000 calcReedSolomonGenerator
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:720    .text.initializeFunctionModules:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:725    .text.initializeFunctionModules:00000000 initializeFunctionModules
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:848    .text.calcReedSolomonRemainder:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:853    .text.calcReedSolomonRemainder:00000000 calcReedSolomonRemainder
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:907    .text.addEccAndInterleave:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:912    .text.addEccAndInterleave:00000000 addEccAndInterleave
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1017   .text.addEccAndInterleave:000000d8 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1021   .text.addRunToHistory:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1026   .text.addRunToHistory:00000000 addRunToHistory
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1039   .text.qrcodegen_getSize:00000000 $t
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 55
+
+
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1045   .text.qrcodegen_getSize:00000000 qrcodegen_getSize
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1062   .text.drawCodewords:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1067   .text.drawCodewords:00000000 drawCodewords
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1152   .text.drawWhiteFunctionModules:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1157   .text.drawWhiteFunctionModules:00000000 drawWhiteFunctionModules
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1355   .text.getPenaltyScore:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1360   .text.getPenaltyScore:00000000 getPenaltyScore
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1596   .text.applyMask:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1601   .text.applyMask:00000000 applyMask
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1656   .text.applyMask:0000006c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1664   .text.applyMask:0000008c $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1757   .text.applyMask:0000016c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1760   .text.drawFormatBits:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1765   .text.drawFormatBits:00000000 drawFormatBits
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1898   .text.drawFormatBits:00000120 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2924   .rodata.table.0:00000000 table.0
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1901   .text.qrcodegen_encodeSegmentsAdvanced:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:1907   .text.qrcodegen_encodeSegmentsAdvanced:00000000 qrcodegen_encodeSegmentsAdvanced
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2187   .text.qrcodegen_encodeBinary:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2193   .text.qrcodegen_encodeBinary:00000000 qrcodegen_encodeBinary
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2233   .text.qrcodegen_encodeSegments:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2239   .text.qrcodegen_encodeSegments:00000000 qrcodegen_encodeSegments
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2259   .text.qrcodegen_getModule:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2265   .text.qrcodegen_getModule:00000000 qrcodegen_getModule
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2305   .rodata.qrcodegen_isAlphanumeric.str1.4:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2309   .text.qrcodegen_isAlphanumeric:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2315   .text.qrcodegen_isAlphanumeric:00000000 qrcodegen_isAlphanumeric
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2341   .text.qrcodegen_isAlphanumeric:00000020 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2344   .text.qrcodegen_isNumeric:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2350   .text.qrcodegen_isNumeric:00000000 qrcodegen_isNumeric
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2375   .text.qrcodegen_calcSegmentBufferSize:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2381   .text.qrcodegen_calcSegmentBufferSize:00000000 qrcodegen_calcSegmentBufferSize
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2402   .text.qrcodegen_makeBytes:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2408   .text.qrcodegen_makeBytes:00000000 qrcodegen_makeBytes
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2446   .text.qrcodegen_makeNumeric:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2452   .text.qrcodegen_makeNumeric:00000000 qrcodegen_makeNumeric
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2541   .text.qrcodegen_makeAlphanumeric:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2547   .text.qrcodegen_makeAlphanumeric:00000000 qrcodegen_makeAlphanumeric
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2640   .text.qrcodegen_makeAlphanumeric:000000b0 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2643   .text.qrcodegen_encodeText:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2649   .text.qrcodegen_encodeText:00000000 qrcodegen_encodeText
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2768   .text.qrcodegen_makeEci:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2774   .text.qrcodegen_makeEci:00000000 qrcodegen_makeEci
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2850   .text.qrcodegen_makeEci:00000094 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2853   .text.qrcodegen_getMinFitVersion:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2859   .text.qrcodegen_getMinFitVersion:00000000 qrcodegen_getMinFitVersion
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2900   .text.qrcodegen_version2size:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2906   .text.qrcodegen_version2size:00000000 qrcodegen_version2size
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2921   .rodata.table.0:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2930   .rodata.temp.1:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2938   .rodata.temp.2:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2946   .rodata.temp.3:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2954   .rodata.temp.4:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2962   .rodata.NUM_ERROR_CORRECTION_BLOCKS:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s:2980   .rodata.ECC_CODEWORDS_PER_BLOCK:00000000 $d
+
+UNDEFINED SYMBOLS
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccaiKlRN.s 			page 56
+
+
+memset
+memmove
+strchr
+memcpy
+strlen

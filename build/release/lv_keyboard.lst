@@ -1,0 +1,1326 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_keyboard.c"
+  16              		.text
+  17              		.section	.text.lv_keyboard_update_ctrl_map,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	lv_keyboard_update_ctrl_map:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26 0000 38B5     		push	{r3, r4, r5, lr}
+  27 0002 0446     		mov	r4, r0
+  28 0004 90F83D30 		ldrb	r3, [r0, #61]	@ zero_extendqisi2
+  29 0008 13F0010F 		tst	r3, #1
+  30 000c 07D0     		beq	.L2
+  31 000e 90F83C20 		ldrb	r2, [r0, #60]	@ zero_extendqisi2
+  32 0012 144B     		ldr	r3, .L7
+  33 0014 53F82210 		ldr	r1, [r3, r2, lsl #2]
+  34 0018 FFF7FEFF 		bl	lv_btnmatrix_set_ctrl_map
+  35              	.L1:
+  36 001c 38BD     		pop	{r3, r4, r5, pc}
+  37              	.L2:
+  38 001e 008E     		ldrh	r0, [r0, #48]
+  39 0020 4000     		lsls	r0, r0, #1
+  40 0022 FFF7FEFF 		bl	lv_mem_alloc
+  41 0026 0546     		mov	r5, r0
+  42 0028 94F83C10 		ldrb	r1, [r4, #60]	@ zero_extendqisi2
+  43 002c 228E     		ldrh	r2, [r4, #48]
+  44 002e 5200     		lsls	r2, r2, #1
+  45 0030 0C4B     		ldr	r3, .L7
+  46 0032 53F82110 		ldr	r1, [r3, r1, lsl #2]
+  47 0036 FFF7FEFF 		bl	lv_memcpy
+  48 003a 0023     		movs	r3, #0
+  49 003c 07E0     		b	.L4
+  50              	.L5:
+  51 003e 35F81320 		ldrh	r2, [r5, r3, lsl #1]
+  52 0042 22F48062 		bic	r2, r2, #1024
+  53 0046 25F81320 		strh	r2, [r5, r3, lsl #1]	@ movhi
+  54 004a 0133     		adds	r3, r3, #1
+  55 004c 9BB2     		uxth	r3, r3
+  56              	.L4:
+  57 004e 228E     		ldrh	r2, [r4, #48]
+  58 0050 9A42     		cmp	r2, r3
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 2
+
+
+  59 0052 F4D8     		bhi	.L5
+  60 0054 2946     		mov	r1, r5
+  61 0056 2046     		mov	r0, r4
+  62 0058 FFF7FEFF 		bl	lv_btnmatrix_set_ctrl_map
+  63 005c 2846     		mov	r0, r5
+  64 005e FFF7FEFF 		bl	lv_mem_free
+  65 0062 DBE7     		b	.L1
+  66              	.L8:
+  67              		.align	2
+  68              	.L7:
+  69 0064 00000000 		.word	kb_ctrl
+  71              		.section	.text.lv_keyboard_update_map,"ax",%progbits
+  72              		.align	1
+  73              		.syntax unified
+  74              		.thumb
+  75              		.thumb_func
+  77              	lv_keyboard_update_map:
+  78              		@ args = 0, pretend = 0, frame = 0
+  79              		@ frame_needed = 0, uses_anonymous_args = 0
+  80 0000 10B5     		push	{r4, lr}
+  81 0002 0446     		mov	r4, r0
+  82 0004 90F83C20 		ldrb	r2, [r0, #60]	@ zero_extendqisi2
+  83 0008 044B     		ldr	r3, .L11
+  84 000a 53F82210 		ldr	r1, [r3, r2, lsl #2]
+  85 000e FFF7FEFF 		bl	lv_btnmatrix_set_map
+  86 0012 2046     		mov	r0, r4
+  87 0014 FFF7FEFF 		bl	lv_keyboard_update_ctrl_map
+  88 0018 10BD     		pop	{r4, pc}
+  89              	.L12:
+  90 001a 00BF     		.align	2
+  91              	.L11:
+  92 001c 00000000 		.word	kb_map
+  94              		.section	.text.lv_keyboard_constructor,"ax",%progbits
+  95              		.align	1
+  96              		.syntax unified
+  97              		.thumb
+  98              		.thumb_func
+ 100              	lv_keyboard_constructor:
+ 101              		@ args = 0, pretend = 0, frame = 0
+ 102              		@ frame_needed = 0, uses_anonymous_args = 0
+ 103 0000 38B5     		push	{r3, r4, r5, lr}
+ 104 0002 0C46     		mov	r4, r1
+ 105 0004 0421     		movs	r1, #4
+ 106 0006 2046     		mov	r0, r4
+ 107 0008 FFF7FEFF 		bl	lv_obj_clear_flag
+ 108 000c 0025     		movs	r5, #0
+ 109 000e A563     		str	r5, [r4, #56]
+ 110 0010 84F83C50 		strb	r5, [r4, #60]
+ 111 0014 94F83D30 		ldrb	r3, [r4, #61]	@ zero_extendqisi2
+ 112 0018 65F30003 		bfi	r3, r5, #0, #1
+ 113 001c 84F83D30 		strb	r3, [r4, #61]
+ 114 0020 2B46     		mov	r3, r5
+ 115 0022 2A46     		mov	r2, r5
+ 116 0024 0521     		movs	r1, #5
+ 117 0026 2046     		mov	r0, r4
+ 118 0028 FFF7FEFF 		bl	lv_obj_align
+ 119 002c 2B46     		mov	r3, r5
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 3
+
+
+ 120 002e 1C22     		movs	r2, #28
+ 121 0030 0649     		ldr	r1, .L15
+ 122 0032 2046     		mov	r0, r4
+ 123 0034 FFF7FEFF 		bl	lv_obj_add_event_cb
+ 124 0038 2A46     		mov	r2, r5
+ 125 003a 2946     		mov	r1, r5
+ 126 003c 2046     		mov	r0, r4
+ 127 003e FFF7FEFF 		bl	lv_obj_set_style_base_dir
+ 128 0042 2046     		mov	r0, r4
+ 129 0044 FFF7FEFF 		bl	lv_keyboard_update_map
+ 130 0048 38BD     		pop	{r3, r4, r5, pc}
+ 131              	.L16:
+ 132 004a 00BF     		.align	2
+ 133              	.L15:
+ 134 004c 00000000 		.word	lv_keyboard_def_event_cb
+ 136              		.section	.rodata.lv_keyboard_def_event_cb.str1.4,"aMS",%progbits,1
+ 137              		.align	2
+ 138              	.LC0:
+ 139 0000 61626300 		.ascii	"abc\000"
+ 140              		.align	2
+ 141              	.LC1:
+ 142 0004 41424300 		.ascii	"ABC\000"
+ 143              		.align	2
+ 144              	.LC2:
+ 145 0008 312300   		.ascii	"1#\000"
+ 146 000b 00       		.align	2
+ 147              	.LC3:
+ 148 000c EF808D00 		.ascii	"\357\200\215\000"
+ 149              		.align	2
+ 150              	.LC4:
+ 151 0010 EF849C00 		.ascii	"\357\204\234\000"
+ 152              		.align	2
+ 153              	.LC5:
+ 154 0014 EF808C00 		.ascii	"\357\200\214\000"
+ 155              		.align	2
+ 156              	.LC6:
+ 157 0018 456E7465 		.ascii	"Enter\000"
+ 157      7200
+ 158 001e 0000     		.align	2
+ 159              	.LC7:
+ 160 0020 EFA2A200 		.ascii	"\357\242\242\000"
+ 161              		.align	2
+ 162              	.LC8:
+ 163 0024 EF819300 		.ascii	"\357\201\223\000"
+ 164              		.align	2
+ 165              	.LC9:
+ 166 0028 EF819400 		.ascii	"\357\201\224\000"
+ 167              		.align	2
+ 168              	.LC10:
+ 169 002c EF959A00 		.ascii	"\357\225\232\000"
+ 170              		.align	2
+ 171              	.LC11:
+ 172 0030 2B2F2D00 		.ascii	"+/-\000"
+ 173              		.section	.text.lv_keyboard_def_event_cb,"ax",%progbits
+ 174              		.align	1
+ 175              		.global	lv_keyboard_def_event_cb
+ 176              		.syntax unified
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 4
+
+
+ 177              		.thumb
+ 178              		.thumb_func
+ 180              	lv_keyboard_def_event_cb:
+ 181              		@ args = 0, pretend = 0, frame = 0
+ 182              		@ frame_needed = 0, uses_anonymous_args = 0
+ 183 0000 70B5     		push	{r4, r5, r6, lr}
+ 184 0002 FFF7FEFF 		bl	lv_event_get_target
+ 185 0006 0446     		mov	r4, r0
+ 186 0008 FFF7FEFF 		bl	lv_btnmatrix_get_selected_btn
+ 187 000c 4FF6FF73 		movw	r3, #65535
+ 188 0010 9842     		cmp	r0, r3
+ 189 0012 39D0     		beq	.L17
+ 190 0014 2046     		mov	r0, r4
+ 191 0016 FFF7FEFF 		bl	lv_btnmatrix_get_selected_btn
+ 192 001a 0146     		mov	r1, r0
+ 193 001c 2046     		mov	r0, r4
+ 194 001e FFF7FEFF 		bl	lv_btnmatrix_get_btn_text
+ 195 0022 0546     		mov	r5, r0
+ 196 0024 80B3     		cbz	r0, .L17
+ 197 0026 6D49     		ldr	r1, .L45
+ 198 0028 FFF7FEFF 		bl	strcmp
+ 199 002c 08B3     		cbz	r0, .L36
+ 200 002e 6C49     		ldr	r1, .L45+4
+ 201 0030 2846     		mov	r0, r5
+ 202 0032 FFF7FEFF 		bl	strcmp
+ 203 0036 40B3     		cbz	r0, .L37
+ 204 0038 6A49     		ldr	r1, .L45+8
+ 205 003a 2846     		mov	r0, r5
+ 206 003c FFF7FEFF 		bl	strcmp
+ 207 0040 78B3     		cbz	r0, .L38
+ 208 0042 6949     		ldr	r1, .L45+12
+ 209 0044 2846     		mov	r0, r5
+ 210 0046 FFF7FEFF 		bl	strcmp
+ 211 004a 20B1     		cbz	r0, .L22
+ 212 004c 6749     		ldr	r1, .L45+16
+ 213 004e 2846     		mov	r0, r5
+ 214 0050 FFF7FEFF 		bl	strcmp
+ 215 0054 88BB     		cbnz	r0, .L23
+ 216              	.L22:
+ 217 0056 0022     		movs	r2, #0
+ 218 0058 2021     		movs	r1, #32
+ 219 005a 2046     		mov	r0, r4
+ 220 005c FFF7FEFF 		bl	lv_event_send
+ 221 0060 0128     		cmp	r0, #1
+ 222 0062 11D1     		bne	.L17
+ 223 0064 A06B     		ldr	r0, [r4, #56]
+ 224 0066 78B1     		cbz	r0, .L17
+ 225 0068 0022     		movs	r2, #0
+ 226 006a 2021     		movs	r1, #32
+ 227 006c FFF7FEFF 		bl	lv_event_send
+ 228 0070 0AE0     		b	.L17
+ 229              	.L36:
+ 230 0072 0023     		movs	r3, #0
+ 231 0074 84F83C30 		strb	r3, [r4, #60]
+ 232 0078 5D4B     		ldr	r3, .L45+20
+ 233 007a 1968     		ldr	r1, [r3]
+ 234 007c 2046     		mov	r0, r4
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 5
+
+
+ 235 007e FFF7FEFF 		bl	lv_btnmatrix_set_map
+ 236 0082 2046     		mov	r0, r4
+ 237 0084 FFF7FEFF 		bl	lv_keyboard_update_ctrl_map
+ 238              	.L17:
+ 239 0088 70BD     		pop	{r4, r5, r6, pc}
+ 240              	.L37:
+ 241 008a 0123     		movs	r3, #1
+ 242 008c 84F83C30 		strb	r3, [r4, #60]
+ 243 0090 574B     		ldr	r3, .L45+20
+ 244 0092 5968     		ldr	r1, [r3, #4]
+ 245 0094 2046     		mov	r0, r4
+ 246 0096 FFF7FEFF 		bl	lv_btnmatrix_set_map
+ 247 009a 2046     		mov	r0, r4
+ 248 009c FFF7FEFF 		bl	lv_keyboard_update_ctrl_map
+ 249 00a0 F2E7     		b	.L17
+ 250              	.L38:
+ 251 00a2 0223     		movs	r3, #2
+ 252 00a4 84F83C30 		strb	r3, [r4, #60]
+ 253 00a8 514B     		ldr	r3, .L45+20
+ 254 00aa 9968     		ldr	r1, [r3, #8]
+ 255 00ac 2046     		mov	r0, r4
+ 256 00ae FFF7FEFF 		bl	lv_btnmatrix_set_map
+ 257 00b2 2046     		mov	r0, r4
+ 258 00b4 FFF7FEFF 		bl	lv_keyboard_update_ctrl_map
+ 259 00b8 E6E7     		b	.L17
+ 260              	.L23:
+ 261 00ba 4E49     		ldr	r1, .L45+24
+ 262 00bc 2846     		mov	r0, r5
+ 263 00be FFF7FEFF 		bl	strcmp
+ 264 00c2 D8B1     		cbz	r0, .L39
+ 265 00c4 A66B     		ldr	r6, [r4, #56]
+ 266 00c6 002E     		cmp	r6, #0
+ 267 00c8 DED0     		beq	.L17
+ 268 00ca 4B49     		ldr	r1, .L45+28
+ 269 00cc 2846     		mov	r0, r5
+ 270 00ce FFF7FEFF 		bl	strcmp
+ 271 00d2 20B1     		cbz	r0, .L27
+ 272 00d4 4949     		ldr	r1, .L45+32
+ 273 00d6 2846     		mov	r0, r5
+ 274 00d8 FFF7FEFF 		bl	strcmp
+ 275 00dc E8B9     		cbnz	r0, .L28
+ 276              	.L27:
+ 277 00de 0A21     		movs	r1, #10
+ 278 00e0 3046     		mov	r0, r6
+ 279 00e2 FFF7FEFF 		bl	lv_textarea_add_char
+ 280 00e6 A06B     		ldr	r0, [r4, #56]
+ 281 00e8 FFF7FEFF 		bl	lv_textarea_get_one_line
+ 282 00ec 0028     		cmp	r0, #0
+ 283 00ee CBD0     		beq	.L17
+ 284 00f0 0022     		movs	r2, #0
+ 285 00f2 1F21     		movs	r1, #31
+ 286 00f4 A06B     		ldr	r0, [r4, #56]
+ 287 00f6 FFF7FEFF 		bl	lv_event_send
+ 288 00fa C5E7     		b	.L17
+ 289              	.L39:
+ 290 00fc 0022     		movs	r2, #0
+ 291 00fe 1F21     		movs	r1, #31
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 6
+
+
+ 292 0100 2046     		mov	r0, r4
+ 293 0102 FFF7FEFF 		bl	lv_event_send
+ 294 0106 0128     		cmp	r0, #1
+ 295 0108 BED1     		bne	.L17
+ 296 010a A06B     		ldr	r0, [r4, #56]
+ 297 010c 0028     		cmp	r0, #0
+ 298 010e BBD0     		beq	.L17
+ 299 0110 0022     		movs	r2, #0
+ 300 0112 1F21     		movs	r1, #31
+ 301 0114 FFF7FEFF 		bl	lv_event_send
+ 302 0118 B6E7     		b	.L17
+ 303              	.L28:
+ 304 011a 3949     		ldr	r1, .L45+36
+ 305 011c 2846     		mov	r0, r5
+ 306 011e FFF7FEFF 		bl	strcmp
+ 307 0122 48B3     		cbz	r0, .L40
+ 308 0124 3749     		ldr	r1, .L45+40
+ 309 0126 2846     		mov	r0, r5
+ 310 0128 FFF7FEFF 		bl	strcmp
+ 311 012c 40B3     		cbz	r0, .L41
+ 312 012e 3649     		ldr	r1, .L45+44
+ 313 0130 2846     		mov	r0, r5
+ 314 0132 FFF7FEFF 		bl	strcmp
+ 315 0136 38B3     		cbz	r0, .L42
+ 316 0138 3449     		ldr	r1, .L45+48
+ 317 013a 2846     		mov	r0, r5
+ 318 013c FFF7FEFF 		bl	strcmp
+ 319 0140 0028     		cmp	r0, #0
+ 320 0142 45D1     		bne	.L32
+ 321 0144 3046     		mov	r0, r6
+ 322 0146 FFF7FEFF 		bl	lv_textarea_get_cursor_pos
+ 323 014a 0546     		mov	r5, r0
+ 324 014c A06B     		ldr	r0, [r4, #56]
+ 325 014e FFF7FEFF 		bl	lv_textarea_get_text
+ 326 0152 0378     		ldrb	r3, [r0]	@ zero_extendqisi2
+ 327 0154 2D2B     		cmp	r3, #45
+ 328 0156 1BD0     		beq	.L43
+ 329 0158 2B2B     		cmp	r3, #43
+ 330 015a 29D0     		beq	.L44
+ 331 015c 0021     		movs	r1, #0
+ 332 015e A06B     		ldr	r0, [r4, #56]
+ 333 0160 FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 334 0164 2D21     		movs	r1, #45
+ 335 0166 A06B     		ldr	r0, [r4, #56]
+ 336 0168 FFF7FEFF 		bl	lv_textarea_add_char
+ 337 016c A9B2     		uxth	r1, r5
+ 338 016e 0131     		adds	r1, r1, #1
+ 339 0170 A06B     		ldr	r0, [r4, #56]
+ 340 0172 FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 341 0176 87E7     		b	.L17
+ 342              	.L40:
+ 343 0178 3046     		mov	r0, r6
+ 344 017a FFF7FEFF 		bl	lv_textarea_cursor_left
+ 345 017e 83E7     		b	.L17
+ 346              	.L41:
+ 347 0180 3046     		mov	r0, r6
+ 348 0182 FFF7FEFF 		bl	lv_textarea_cursor_right
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 7
+
+
+ 349 0186 7FE7     		b	.L17
+ 350              	.L42:
+ 351 0188 3046     		mov	r0, r6
+ 352 018a FFF7FEFF 		bl	lv_textarea_del_char
+ 353 018e 7BE7     		b	.L17
+ 354              	.L43:
+ 355 0190 0121     		movs	r1, #1
+ 356 0192 A06B     		ldr	r0, [r4, #56]
+ 357 0194 FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 358 0198 A06B     		ldr	r0, [r4, #56]
+ 359 019a FFF7FEFF 		bl	lv_textarea_del_char
+ 360 019e 2B21     		movs	r1, #43
+ 361 01a0 A06B     		ldr	r0, [r4, #56]
+ 362 01a2 FFF7FEFF 		bl	lv_textarea_add_char
+ 363 01a6 A9B2     		uxth	r1, r5
+ 364 01a8 A06B     		ldr	r0, [r4, #56]
+ 365 01aa FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 366 01ae 6BE7     		b	.L17
+ 367              	.L44:
+ 368 01b0 0121     		movs	r1, #1
+ 369 01b2 A06B     		ldr	r0, [r4, #56]
+ 370 01b4 FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 371 01b8 A06B     		ldr	r0, [r4, #56]
+ 372 01ba FFF7FEFF 		bl	lv_textarea_del_char
+ 373 01be 2D21     		movs	r1, #45
+ 374 01c0 A06B     		ldr	r0, [r4, #56]
+ 375 01c2 FFF7FEFF 		bl	lv_textarea_add_char
+ 376 01c6 A9B2     		uxth	r1, r5
+ 377 01c8 A06B     		ldr	r0, [r4, #56]
+ 378 01ca FFF7FEFF 		bl	lv_textarea_set_cursor_pos
+ 379 01ce 5BE7     		b	.L17
+ 380              	.L32:
+ 381 01d0 2946     		mov	r1, r5
+ 382 01d2 3046     		mov	r0, r6
+ 383 01d4 FFF7FEFF 		bl	lv_textarea_add_text
+ 384 01d8 56E7     		b	.L17
+ 385              	.L46:
+ 386 01da 00BF     		.align	2
+ 387              	.L45:
+ 388 01dc 00000000 		.word	.LC0
+ 389 01e0 04000000 		.word	.LC1
+ 390 01e4 08000000 		.word	.LC2
+ 391 01e8 0C000000 		.word	.LC3
+ 392 01ec 10000000 		.word	.LC4
+ 393 01f0 00000000 		.word	kb_map
+ 394 01f4 14000000 		.word	.LC5
+ 395 01f8 18000000 		.word	.LC6
+ 396 01fc 20000000 		.word	.LC7
+ 397 0200 24000000 		.word	.LC8
+ 398 0204 28000000 		.word	.LC9
+ 399 0208 2C000000 		.word	.LC10
+ 400 020c 30000000 		.word	.LC11
+ 402              		.section	.text.lv_keyboard_create,"ax",%progbits
+ 403              		.align	1
+ 404              		.global	lv_keyboard_create
+ 405              		.syntax unified
+ 406              		.thumb
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 8
+
+
+ 407              		.thumb_func
+ 409              	lv_keyboard_create:
+ 410              		@ args = 0, pretend = 0, frame = 0
+ 411              		@ frame_needed = 0, uses_anonymous_args = 0
+ 412 0000 10B5     		push	{r4, lr}
+ 413 0002 0146     		mov	r1, r0
+ 414 0004 0348     		ldr	r0, .L49
+ 415 0006 FFF7FEFF 		bl	lv_obj_class_create_obj
+ 416 000a 0446     		mov	r4, r0
+ 417 000c FFF7FEFF 		bl	lv_obj_class_init_obj
+ 418 0010 2046     		mov	r0, r4
+ 419 0012 10BD     		pop	{r4, pc}
+ 420              	.L50:
+ 421              		.align	2
+ 422              	.L49:
+ 423 0014 00000000 		.word	lv_keyboard_class
+ 425              		.section	.text.lv_keyboard_set_textarea,"ax",%progbits
+ 426              		.align	1
+ 427              		.global	lv_keyboard_set_textarea
+ 428              		.syntax unified
+ 429              		.thumb
+ 430              		.thumb_func
+ 432              	lv_keyboard_set_textarea:
+ 433              		@ args = 0, pretend = 0, frame = 0
+ 434              		@ frame_needed = 0, uses_anonymous_args = 0
+ 435 0000 38B5     		push	{r3, r4, r5, lr}
+ 436 0002 0446     		mov	r4, r0
+ 437 0004 0D46     		mov	r5, r1
+ 438 0006 836B     		ldr	r3, [r0, #56]
+ 439 0008 13B1     		cbz	r3, .L52
+ 440 000a 0221     		movs	r1, #2
+ 441 000c FFF7FEFF 		bl	lv_obj_clear_state
+ 442              	.L52:
+ 443 0010 A563     		str	r5, [r4, #56]
+ 444 0012 1DB1     		cbz	r5, .L51
+ 445 0014 0221     		movs	r1, #2
+ 446 0016 2046     		mov	r0, r4
+ 447 0018 FFF7FEFF 		bl	lv_obj_add_flag
+ 448              	.L51:
+ 449 001c 38BD     		pop	{r3, r4, r5, pc}
+ 451              		.section	.text.lv_keyboard_set_mode,"ax",%progbits
+ 452              		.align	1
+ 453              		.global	lv_keyboard_set_mode
+ 454              		.syntax unified
+ 455              		.thumb
+ 456              		.thumb_func
+ 458              	lv_keyboard_set_mode:
+ 459              		@ args = 0, pretend = 0, frame = 0
+ 460              		@ frame_needed = 0, uses_anonymous_args = 0
+ 461 0000 08B5     		push	{r3, lr}
+ 462 0002 90F83C30 		ldrb	r3, [r0, #60]	@ zero_extendqisi2
+ 463 0006 8B42     		cmp	r3, r1
+ 464 0008 03D0     		beq	.L55
+ 465 000a 80F83C10 		strb	r1, [r0, #60]
+ 466 000e FFF7FEFF 		bl	lv_keyboard_update_map
+ 467              	.L55:
+ 468 0012 08BD     		pop	{r3, pc}
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 9
+
+
+ 470              		.section	.text.lv_keyboard_set_popovers,"ax",%progbits
+ 471              		.align	1
+ 472              		.global	lv_keyboard_set_popovers
+ 473              		.syntax unified
+ 474              		.thumb
+ 475              		.thumb_func
+ 477              	lv_keyboard_set_popovers:
+ 478              		@ args = 0, pretend = 0, frame = 0
+ 479              		@ frame_needed = 0, uses_anonymous_args = 0
+ 480 0000 08B5     		push	{r3, lr}
+ 481 0002 90F83D30 		ldrb	r3, [r0, #61]	@ zero_extendqisi2
+ 482 0006 03F00103 		and	r3, r3, #1
+ 483 000a 8B42     		cmp	r3, r1
+ 484 000c 07D0     		beq	.L58
+ 485 000e 90F83D30 		ldrb	r3, [r0, #61]	@ zero_extendqisi2
+ 486 0012 61F30003 		bfi	r3, r1, #0, #1
+ 487 0016 80F83D30 		strb	r3, [r0, #61]
+ 488 001a FFF7FEFF 		bl	lv_keyboard_update_ctrl_map
+ 489              	.L58:
+ 490 001e 08BD     		pop	{r3, pc}
+ 492              		.section	.text.lv_keyboard_set_map,"ax",%progbits
+ 493              		.align	1
+ 494              		.global	lv_keyboard_set_map
+ 495              		.syntax unified
+ 496              		.thumb
+ 497              		.thumb_func
+ 499              	lv_keyboard_set_map:
+ 500              		@ args = 0, pretend = 0, frame = 0
+ 501              		@ frame_needed = 0, uses_anonymous_args = 0
+ 502 0000 10B5     		push	{r4, lr}
+ 503 0002 044C     		ldr	r4, .L63
+ 504 0004 44F82120 		str	r2, [r4, r1, lsl #2]
+ 505 0008 034A     		ldr	r2, .L63+4
+ 506 000a 42F82130 		str	r3, [r2, r1, lsl #2]
+ 507 000e FFF7FEFF 		bl	lv_keyboard_update_map
+ 508 0012 10BD     		pop	{r4, pc}
+ 509              	.L64:
+ 510              		.align	2
+ 511              	.L63:
+ 512 0014 00000000 		.word	kb_map
+ 513 0018 00000000 		.word	kb_ctrl
+ 515              		.section	.text.lv_keyboard_get_textarea,"ax",%progbits
+ 516              		.align	1
+ 517              		.global	lv_keyboard_get_textarea
+ 518              		.syntax unified
+ 519              		.thumb
+ 520              		.thumb_func
+ 522              	lv_keyboard_get_textarea:
+ 523              		@ args = 0, pretend = 0, frame = 0
+ 524              		@ frame_needed = 0, uses_anonymous_args = 0
+ 525              		@ link register save eliminated.
+ 526 0000 806B     		ldr	r0, [r0, #56]
+ 527 0002 7047     		bx	lr
+ 529              		.section	.text.lv_keyboard_get_mode,"ax",%progbits
+ 530              		.align	1
+ 531              		.global	lv_keyboard_get_mode
+ 532              		.syntax unified
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 10
+
+
+ 533              		.thumb
+ 534              		.thumb_func
+ 536              	lv_keyboard_get_mode:
+ 537              		@ args = 0, pretend = 0, frame = 0
+ 538              		@ frame_needed = 0, uses_anonymous_args = 0
+ 539              		@ link register save eliminated.
+ 540 0000 90F83C00 		ldrb	r0, [r0, #60]	@ zero_extendqisi2
+ 541 0004 7047     		bx	lr
+ 543              		.section	.text.lv_btnmatrix_get_popovers,"ax",%progbits
+ 544              		.align	1
+ 545              		.global	lv_btnmatrix_get_popovers
+ 546              		.syntax unified
+ 547              		.thumb
+ 548              		.thumb_func
+ 550              	lv_btnmatrix_get_popovers:
+ 551              		@ args = 0, pretend = 0, frame = 0
+ 552              		@ frame_needed = 0, uses_anonymous_args = 0
+ 553              		@ link register save eliminated.
+ 554 0000 90F83D00 		ldrb	r0, [r0, #61]	@ zero_extendqisi2
+ 555 0004 00F00100 		and	r0, r0, #1
+ 556 0008 7047     		bx	lr
+ 558              		.section	.data.kb_ctrl,"aw"
+ 559              		.align	2
+ 562              	kb_ctrl:
+ 563 0000 00000000 		.word	default_kb_ctrl_lc_map
+ 564 0004 00000000 		.word	default_kb_ctrl_uc_map
+ 565 0008 00000000 		.word	default_kb_ctrl_spec_map
+ 566 000c 00000000 		.word	default_kb_ctrl_num_map
+ 567 0010 00000000 		.word	default_kb_ctrl_lc_map
+ 568 0014 00000000 		.word	default_kb_ctrl_lc_map
+ 569 0018 00000000 		.word	default_kb_ctrl_lc_map
+ 570 001c 00000000 		.word	default_kb_ctrl_lc_map
+ 571 0020 00000000 		.word	0
+ 572              		.section	.data.kb_map,"aw"
+ 573              		.align	2
+ 576              	kb_map:
+ 577 0000 00000000 		.word	default_kb_map_lc
+ 578 0004 00000000 		.word	default_kb_map_uc
+ 579 0008 00000000 		.word	default_kb_map_spec
+ 580 000c 00000000 		.word	default_kb_map_num
+ 581 0010 00000000 		.word	default_kb_map_lc
+ 582 0014 00000000 		.word	default_kb_map_lc
+ 583 0018 00000000 		.word	default_kb_map_lc
+ 584 001c 00000000 		.word	default_kb_map_lc
+ 585 0020 00000000 		.word	0
+ 586              		.section	.rodata.default_kb_ctrl_num_map,"a"
+ 587              		.align	2
+ 590              	default_kb_ctrl_num_map:
+ 591 0000 0100     		.short	1
+ 592 0002 0100     		.short	1
+ 593 0004 0100     		.short	1
+ 594 0006 2203     		.short	802
+ 595 0008 0100     		.short	1
+ 596 000a 0100     		.short	1
+ 597 000c 0100     		.short	1
+ 598 000e 2203     		.short	802
+ 599 0010 0100     		.short	1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 11
+
+
+ 600 0012 0100     		.short	1
+ 601 0014 0100     		.short	1
+ 602 0016 0200     		.short	2
+ 603 0018 0100     		.short	1
+ 604 001a 0100     		.short	1
+ 605 001c 0100     		.short	1
+ 606 001e 0100     		.short	1
+ 607 0020 0100     		.short	1
+ 608              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 609              		.align	2
+ 610              	.LC12:
+ 611 0000 3100     		.ascii	"1\000"
+ 612 0002 0000     		.align	2
+ 613              	.LC13:
+ 614 0004 3200     		.ascii	"2\000"
+ 615 0006 0000     		.align	2
+ 616              	.LC14:
+ 617 0008 3300     		.ascii	"3\000"
+ 618 000a 0000     		.align	2
+ 619              	.LC15:
+ 620 000c 0A00     		.ascii	"\012\000"
+ 621 000e 0000     		.align	2
+ 622              	.LC16:
+ 623 0010 3400     		.ascii	"4\000"
+ 624 0012 0000     		.align	2
+ 625              	.LC17:
+ 626 0014 3500     		.ascii	"5\000"
+ 627 0016 0000     		.align	2
+ 628              	.LC18:
+ 629 0018 3600     		.ascii	"6\000"
+ 630 001a 0000     		.align	2
+ 631              	.LC19:
+ 632 001c 3700     		.ascii	"7\000"
+ 633 001e 0000     		.align	2
+ 634              	.LC20:
+ 635 0020 3800     		.ascii	"8\000"
+ 636 0022 0000     		.align	2
+ 637              	.LC21:
+ 638 0024 3900     		.ascii	"9\000"
+ 639 0026 0000     		.align	2
+ 640              	.LC22:
+ 641 0028 3000     		.ascii	"0\000"
+ 642 002a 0000     		.align	2
+ 643              	.LC23:
+ 644 002c 2E00     		.ascii	".\000"
+ 645 002e 0000     		.align	2
+ 646              	.LC24:
+ 647 0030 00       		.ascii	"\000"
+ 648              		.section	.rodata.default_kb_map_num,"a"
+ 649              		.align	2
+ 652              	default_kb_map_num:
+ 653 0000 00000000 		.word	.LC12
+ 654 0004 04000000 		.word	.LC13
+ 655 0008 08000000 		.word	.LC14
+ 656 000c 10000000 		.word	.LC4
+ 657 0010 0C000000 		.word	.LC15
+ 658 0014 10000000 		.word	.LC16
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 12
+
+
+ 659 0018 14000000 		.word	.LC17
+ 660 001c 18000000 		.word	.LC18
+ 661 0020 14000000 		.word	.LC5
+ 662 0024 0C000000 		.word	.LC15
+ 663 0028 1C000000 		.word	.LC19
+ 664 002c 20000000 		.word	.LC20
+ 665 0030 24000000 		.word	.LC21
+ 666 0034 2C000000 		.word	.LC10
+ 667 0038 0C000000 		.word	.LC15
+ 668 003c 30000000 		.word	.LC11
+ 669 0040 28000000 		.word	.LC22
+ 670 0044 2C000000 		.word	.LC23
+ 671 0048 24000000 		.word	.LC8
+ 672 004c 28000000 		.word	.LC9
+ 673 0050 30000000 		.word	.LC24
+ 674              		.section	.rodata.default_kb_ctrl_spec_map,"a"
+ 675              		.align	2
+ 678              	default_kb_ctrl_spec_map:
+ 679 0000 0104     		.short	1025
+ 680 0002 0104     		.short	1025
+ 681 0004 0104     		.short	1025
+ 682 0006 0104     		.short	1025
+ 683 0008 0104     		.short	1025
+ 684 000a 0104     		.short	1025
+ 685 000c 0104     		.short	1025
+ 686 000e 0104     		.short	1025
+ 687 0010 0104     		.short	1025
+ 688 0012 0104     		.short	1025
+ 689 0014 0201     		.short	258
+ 690 0016 2203     		.short	802
+ 691 0018 0104     		.short	1025
+ 692 001a 0104     		.short	1025
+ 693 001c 0104     		.short	1025
+ 694 001e 0104     		.short	1025
+ 695 0020 0104     		.short	1025
+ 696 0022 0104     		.short	1025
+ 697 0024 0104     		.short	1025
+ 698 0026 0104     		.short	1025
+ 699 0028 0104     		.short	1025
+ 700 002a 0104     		.short	1025
+ 701 002c 0104     		.short	1025
+ 702 002e 0104     		.short	1025
+ 703 0030 0104     		.short	1025
+ 704 0032 0104     		.short	1025
+ 705 0034 0104     		.short	1025
+ 706 0036 0104     		.short	1025
+ 707 0038 0104     		.short	1025
+ 708 003a 0104     		.short	1025
+ 709 003c 0104     		.short	1025
+ 710 003e 0104     		.short	1025
+ 711 0040 0104     		.short	1025
+ 712 0042 0104     		.short	1025
+ 713 0044 0104     		.short	1025
+ 714 0046 2203     		.short	802
+ 715 0048 0201     		.short	258
+ 716 004a 0600     		.short	6
+ 717 004c 0201     		.short	258
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 13
+
+
+ 718 004e 2203     		.short	802
+ 719              		.section	.rodata.str1.4
+ 720 0031 000000   		.align	2
+ 721              	.LC25:
+ 722 0034 2B00     		.ascii	"+\000"
+ 723 0036 0000     		.align	2
+ 724              	.LC26:
+ 725 0038 2600     		.ascii	"&\000"
+ 726 003a 0000     		.align	2
+ 727              	.LC27:
+ 728 003c 2F00     		.ascii	"/\000"
+ 729 003e 0000     		.align	2
+ 730              	.LC28:
+ 731 0040 2A00     		.ascii	"*\000"
+ 732 0042 0000     		.align	2
+ 733              	.LC29:
+ 734 0044 3D00     		.ascii	"=\000"
+ 735 0046 0000     		.align	2
+ 736              	.LC30:
+ 737 0048 2500     		.ascii	"%\000"
+ 738 004a 0000     		.align	2
+ 739              	.LC31:
+ 740 004c 2100     		.ascii	"!\000"
+ 741 004e 0000     		.align	2
+ 742              	.LC32:
+ 743 0050 3F00     		.ascii	"?\000"
+ 744 0052 0000     		.align	2
+ 745              	.LC33:
+ 746 0054 2300     		.ascii	"#\000"
+ 747 0056 0000     		.align	2
+ 748              	.LC34:
+ 749 0058 3C00     		.ascii	"<\000"
+ 750 005a 0000     		.align	2
+ 751              	.LC35:
+ 752 005c 3E00     		.ascii	">\000"
+ 753 005e 0000     		.align	2
+ 754              	.LC36:
+ 755 0060 5C00     		.ascii	"\\\000"
+ 756 0062 0000     		.align	2
+ 757              	.LC37:
+ 758 0064 4000     		.ascii	"@\000"
+ 759 0066 0000     		.align	2
+ 760              	.LC38:
+ 761 0068 2400     		.ascii	"$\000"
+ 762 006a 0000     		.align	2
+ 763              	.LC39:
+ 764 006c 2800     		.ascii	"(\000"
+ 765 006e 0000     		.align	2
+ 766              	.LC40:
+ 767 0070 2900     		.ascii	")\000"
+ 768 0072 0000     		.align	2
+ 769              	.LC41:
+ 770 0074 7B00     		.ascii	"{\000"
+ 771 0076 0000     		.align	2
+ 772              	.LC42:
+ 773 0078 7D00     		.ascii	"}\000"
+ 774 007a 0000     		.align	2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 14
+
+
+ 775              	.LC43:
+ 776 007c 5B00     		.ascii	"[\000"
+ 777 007e 0000     		.align	2
+ 778              	.LC44:
+ 779 0080 5D00     		.ascii	"]\000"
+ 780 0082 0000     		.align	2
+ 781              	.LC45:
+ 782 0084 3B00     		.ascii	";\000"
+ 783 0086 0000     		.align	2
+ 784              	.LC46:
+ 785 0088 2200     		.ascii	"\"\000"
+ 786 008a 0000     		.align	2
+ 787              	.LC47:
+ 788 008c 2700     		.ascii	"'\000"
+ 789 008e 0000     		.align	2
+ 790              	.LC48:
+ 791 0090 2000     		.ascii	" \000"
+ 792              		.section	.rodata.default_kb_map_spec,"a"
+ 793              		.align	2
+ 796              	default_kb_map_spec:
+ 797 0000 00000000 		.word	.LC12
+ 798 0004 04000000 		.word	.LC13
+ 799 0008 08000000 		.word	.LC14
+ 800 000c 10000000 		.word	.LC16
+ 801 0010 14000000 		.word	.LC17
+ 802 0014 18000000 		.word	.LC18
+ 803 0018 1C000000 		.word	.LC19
+ 804 001c 20000000 		.word	.LC20
+ 805 0020 24000000 		.word	.LC21
+ 806 0024 28000000 		.word	.LC22
+ 807 0028 2C000000 		.word	.LC10
+ 808 002c 0C000000 		.word	.LC15
+ 809 0030 00000000 		.word	.LC0
+ 810 0034 34000000 		.word	.LC25
+ 811 0038 38000000 		.word	.LC26
+ 812 003c 3C000000 		.word	.LC27
+ 813 0040 40000000 		.word	.LC28
+ 814 0044 44000000 		.word	.LC29
+ 815 0048 48000000 		.word	.LC30
+ 816 004c 4C000000 		.word	.LC31
+ 817 0050 50000000 		.word	.LC32
+ 818 0054 54000000 		.word	.LC33
+ 819 0058 58000000 		.word	.LC34
+ 820 005c 5C000000 		.word	.LC35
+ 821 0060 0C000000 		.word	.LC15
+ 822 0064 60000000 		.word	.LC36
+ 823 0068 64000000 		.word	.LC37
+ 824 006c 68000000 		.word	.LC38
+ 825 0070 6C000000 		.word	.LC39
+ 826 0074 70000000 		.word	.LC40
+ 827 0078 74000000 		.word	.LC41
+ 828 007c 78000000 		.word	.LC42
+ 829 0080 7C000000 		.word	.LC43
+ 830 0084 80000000 		.word	.LC44
+ 831 0088 84000000 		.word	.LC45
+ 832 008c 88000000 		.word	.LC46
+ 833 0090 8C000000 		.word	.LC47
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 15
+
+
+ 834 0094 0C000000 		.word	.LC15
+ 835 0098 10000000 		.word	.LC4
+ 836 009c 24000000 		.word	.LC8
+ 837 00a0 90000000 		.word	.LC48
+ 838 00a4 28000000 		.word	.LC9
+ 839 00a8 14000000 		.word	.LC5
+ 840 00ac 30000000 		.word	.LC24
+ 841              		.section	.rodata.default_kb_ctrl_uc_map,"a"
+ 842              		.align	2
+ 845              	default_kb_ctrl_uc_map:
+ 846 0000 2503     		.short	805
+ 847 0002 0404     		.short	1028
+ 848 0004 0404     		.short	1028
+ 849 0006 0404     		.short	1028
+ 850 0008 0404     		.short	1028
+ 851 000a 0404     		.short	1028
+ 852 000c 0404     		.short	1028
+ 853 000e 0404     		.short	1028
+ 854 0010 0404     		.short	1028
+ 855 0012 0404     		.short	1028
+ 856 0014 0404     		.short	1028
+ 857 0016 0701     		.short	263
+ 858 0018 2603     		.short	806
+ 859 001a 0304     		.short	1027
+ 860 001c 0304     		.short	1027
+ 861 001e 0304     		.short	1027
+ 862 0020 0304     		.short	1027
+ 863 0022 0304     		.short	1027
+ 864 0024 0304     		.short	1027
+ 865 0026 0304     		.short	1027
+ 866 0028 0304     		.short	1027
+ 867 002a 0304     		.short	1027
+ 868 002c 0701     		.short	263
+ 869 002e 0105     		.short	1281
+ 870 0030 0105     		.short	1281
+ 871 0032 0104     		.short	1025
+ 872 0034 0104     		.short	1025
+ 873 0036 0104     		.short	1025
+ 874 0038 0104     		.short	1025
+ 875 003a 0104     		.short	1025
+ 876 003c 0104     		.short	1025
+ 877 003e 0104     		.short	1025
+ 878 0040 0105     		.short	1281
+ 879 0042 0105     		.short	1281
+ 880 0044 0105     		.short	1281
+ 881 0046 2203     		.short	802
+ 882 0048 0201     		.short	258
+ 883 004a 0600     		.short	6
+ 884 004c 0201     		.short	258
+ 885 004e 2203     		.short	802
+ 886              		.section	.rodata.str1.4
+ 887 0092 0000     		.align	2
+ 888              	.LC49:
+ 889 0094 5100     		.ascii	"Q\000"
+ 890 0096 0000     		.align	2
+ 891              	.LC50:
+ 892 0098 5700     		.ascii	"W\000"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 16
+
+
+ 893 009a 0000     		.align	2
+ 894              	.LC51:
+ 895 009c 4500     		.ascii	"E\000"
+ 896 009e 0000     		.align	2
+ 897              	.LC52:
+ 898 00a0 5200     		.ascii	"R\000"
+ 899 00a2 0000     		.align	2
+ 900              	.LC53:
+ 901 00a4 5400     		.ascii	"T\000"
+ 902 00a6 0000     		.align	2
+ 903              	.LC54:
+ 904 00a8 5900     		.ascii	"Y\000"
+ 905 00aa 0000     		.align	2
+ 906              	.LC55:
+ 907 00ac 5500     		.ascii	"U\000"
+ 908 00ae 0000     		.align	2
+ 909              	.LC56:
+ 910 00b0 4900     		.ascii	"I\000"
+ 911 00b2 0000     		.align	2
+ 912              	.LC57:
+ 913 00b4 4F00     		.ascii	"O\000"
+ 914 00b6 0000     		.align	2
+ 915              	.LC58:
+ 916 00b8 5000     		.ascii	"P\000"
+ 917 00ba 0000     		.align	2
+ 918              	.LC59:
+ 919 00bc 4100     		.ascii	"A\000"
+ 920 00be 0000     		.align	2
+ 921              	.LC60:
+ 922 00c0 5300     		.ascii	"S\000"
+ 923 00c2 0000     		.align	2
+ 924              	.LC61:
+ 925 00c4 4400     		.ascii	"D\000"
+ 926 00c6 0000     		.align	2
+ 927              	.LC62:
+ 928 00c8 4600     		.ascii	"F\000"
+ 929 00ca 0000     		.align	2
+ 930              	.LC63:
+ 931 00cc 4700     		.ascii	"G\000"
+ 932 00ce 0000     		.align	2
+ 933              	.LC64:
+ 934 00d0 4800     		.ascii	"H\000"
+ 935 00d2 0000     		.align	2
+ 936              	.LC65:
+ 937 00d4 4A00     		.ascii	"J\000"
+ 938 00d6 0000     		.align	2
+ 939              	.LC66:
+ 940 00d8 4B00     		.ascii	"K\000"
+ 941 00da 0000     		.align	2
+ 942              	.LC67:
+ 943 00dc 4C00     		.ascii	"L\000"
+ 944 00de 0000     		.align	2
+ 945              	.LC68:
+ 946 00e0 5F00     		.ascii	"_\000"
+ 947 00e2 0000     		.align	2
+ 948              	.LC69:
+ 949 00e4 2D00     		.ascii	"-\000"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 17
+
+
+ 950 00e6 0000     		.align	2
+ 951              	.LC70:
+ 952 00e8 5A00     		.ascii	"Z\000"
+ 953 00ea 0000     		.align	2
+ 954              	.LC71:
+ 955 00ec 5800     		.ascii	"X\000"
+ 956 00ee 0000     		.align	2
+ 957              	.LC72:
+ 958 00f0 4300     		.ascii	"C\000"
+ 959 00f2 0000     		.align	2
+ 960              	.LC73:
+ 961 00f4 5600     		.ascii	"V\000"
+ 962 00f6 0000     		.align	2
+ 963              	.LC74:
+ 964 00f8 4200     		.ascii	"B\000"
+ 965 00fa 0000     		.align	2
+ 966              	.LC75:
+ 967 00fc 4E00     		.ascii	"N\000"
+ 968 00fe 0000     		.align	2
+ 969              	.LC76:
+ 970 0100 4D00     		.ascii	"M\000"
+ 971 0102 0000     		.align	2
+ 972              	.LC77:
+ 973 0104 2C00     		.ascii	",\000"
+ 974 0106 0000     		.align	2
+ 975              	.LC78:
+ 976 0108 3A00     		.ascii	":\000"
+ 977              		.section	.rodata.default_kb_map_uc,"a"
+ 978              		.align	2
+ 981              	default_kb_map_uc:
+ 982 0000 08000000 		.word	.LC2
+ 983 0004 94000000 		.word	.LC49
+ 984 0008 98000000 		.word	.LC50
+ 985 000c 9C000000 		.word	.LC51
+ 986 0010 A0000000 		.word	.LC52
+ 987 0014 A4000000 		.word	.LC53
+ 988 0018 A8000000 		.word	.LC54
+ 989 001c AC000000 		.word	.LC55
+ 990 0020 B0000000 		.word	.LC56
+ 991 0024 B4000000 		.word	.LC57
+ 992 0028 B8000000 		.word	.LC58
+ 993 002c 2C000000 		.word	.LC10
+ 994 0030 0C000000 		.word	.LC15
+ 995 0034 00000000 		.word	.LC0
+ 996 0038 BC000000 		.word	.LC59
+ 997 003c C0000000 		.word	.LC60
+ 998 0040 C4000000 		.word	.LC61
+ 999 0044 C8000000 		.word	.LC62
+ 1000 0048 CC000000 		.word	.LC63
+ 1001 004c D0000000 		.word	.LC64
+ 1002 0050 D4000000 		.word	.LC65
+ 1003 0054 D8000000 		.word	.LC66
+ 1004 0058 DC000000 		.word	.LC67
+ 1005 005c 20000000 		.word	.LC7
+ 1006 0060 0C000000 		.word	.LC15
+ 1007 0064 E0000000 		.word	.LC68
+ 1008 0068 E4000000 		.word	.LC69
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 18
+
+
+ 1009 006c E8000000 		.word	.LC70
+ 1010 0070 EC000000 		.word	.LC71
+ 1011 0074 F0000000 		.word	.LC72
+ 1012 0078 F4000000 		.word	.LC73
+ 1013 007c F8000000 		.word	.LC74
+ 1014 0080 FC000000 		.word	.LC75
+ 1015 0084 00010000 		.word	.LC76
+ 1016 0088 2C000000 		.word	.LC23
+ 1017 008c 04010000 		.word	.LC77
+ 1018 0090 08010000 		.word	.LC78
+ 1019 0094 0C000000 		.word	.LC15
+ 1020 0098 10000000 		.word	.LC4
+ 1021 009c 24000000 		.word	.LC8
+ 1022 00a0 90000000 		.word	.LC48
+ 1023 00a4 28000000 		.word	.LC9
+ 1024 00a8 14000000 		.word	.LC5
+ 1025 00ac 30000000 		.word	.LC24
+ 1026              		.section	.rodata.default_kb_ctrl_lc_map,"a"
+ 1027              		.align	2
+ 1030              	default_kb_ctrl_lc_map:
+ 1031 0000 2503     		.short	805
+ 1032 0002 0404     		.short	1028
+ 1033 0004 0404     		.short	1028
+ 1034 0006 0404     		.short	1028
+ 1035 0008 0404     		.short	1028
+ 1036 000a 0404     		.short	1028
+ 1037 000c 0404     		.short	1028
+ 1038 000e 0404     		.short	1028
+ 1039 0010 0404     		.short	1028
+ 1040 0012 0404     		.short	1028
+ 1041 0014 0404     		.short	1028
+ 1042 0016 0701     		.short	263
+ 1043 0018 2603     		.short	806
+ 1044 001a 0304     		.short	1027
+ 1045 001c 0304     		.short	1027
+ 1046 001e 0304     		.short	1027
+ 1047 0020 0304     		.short	1027
+ 1048 0022 0304     		.short	1027
+ 1049 0024 0304     		.short	1027
+ 1050 0026 0304     		.short	1027
+ 1051 0028 0304     		.short	1027
+ 1052 002a 0304     		.short	1027
+ 1053 002c 0701     		.short	263
+ 1054 002e 0105     		.short	1281
+ 1055 0030 0105     		.short	1281
+ 1056 0032 0104     		.short	1025
+ 1057 0034 0104     		.short	1025
+ 1058 0036 0104     		.short	1025
+ 1059 0038 0104     		.short	1025
+ 1060 003a 0104     		.short	1025
+ 1061 003c 0104     		.short	1025
+ 1062 003e 0104     		.short	1025
+ 1063 0040 0105     		.short	1281
+ 1064 0042 0105     		.short	1281
+ 1065 0044 0105     		.short	1281
+ 1066 0046 2203     		.short	802
+ 1067 0048 0201     		.short	258
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 19
+
+
+ 1068 004a 0600     		.short	6
+ 1069 004c 0201     		.short	258
+ 1070 004e 2203     		.short	802
+ 1071              		.section	.rodata.str1.4
+ 1072 010a 0000     		.align	2
+ 1073              	.LC79:
+ 1074 010c 7100     		.ascii	"q\000"
+ 1075 010e 0000     		.align	2
+ 1076              	.LC80:
+ 1077 0110 7700     		.ascii	"w\000"
+ 1078 0112 0000     		.align	2
+ 1079              	.LC81:
+ 1080 0114 6500     		.ascii	"e\000"
+ 1081 0116 0000     		.align	2
+ 1082              	.LC82:
+ 1083 0118 7200     		.ascii	"r\000"
+ 1084 011a 0000     		.align	2
+ 1085              	.LC83:
+ 1086 011c 7400     		.ascii	"t\000"
+ 1087 011e 0000     		.align	2
+ 1088              	.LC84:
+ 1089 0120 7900     		.ascii	"y\000"
+ 1090 0122 0000     		.align	2
+ 1091              	.LC85:
+ 1092 0124 7500     		.ascii	"u\000"
+ 1093 0126 0000     		.align	2
+ 1094              	.LC86:
+ 1095 0128 6900     		.ascii	"i\000"
+ 1096 012a 0000     		.align	2
+ 1097              	.LC87:
+ 1098 012c 6F00     		.ascii	"o\000"
+ 1099 012e 0000     		.align	2
+ 1100              	.LC88:
+ 1101 0130 7000     		.ascii	"p\000"
+ 1102 0132 0000     		.align	2
+ 1103              	.LC89:
+ 1104 0134 6100     		.ascii	"a\000"
+ 1105 0136 0000     		.align	2
+ 1106              	.LC90:
+ 1107 0138 7300     		.ascii	"s\000"
+ 1108 013a 0000     		.align	2
+ 1109              	.LC91:
+ 1110 013c 6400     		.ascii	"d\000"
+ 1111 013e 0000     		.align	2
+ 1112              	.LC92:
+ 1113 0140 6600     		.ascii	"f\000"
+ 1114 0142 0000     		.align	2
+ 1115              	.LC93:
+ 1116 0144 6700     		.ascii	"g\000"
+ 1117 0146 0000     		.align	2
+ 1118              	.LC94:
+ 1119 0148 6800     		.ascii	"h\000"
+ 1120 014a 0000     		.align	2
+ 1121              	.LC95:
+ 1122 014c 6A00     		.ascii	"j\000"
+ 1123 014e 0000     		.align	2
+ 1124              	.LC96:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 20
+
+
+ 1125 0150 6B00     		.ascii	"k\000"
+ 1126 0152 0000     		.align	2
+ 1127              	.LC97:
+ 1128 0154 6C00     		.ascii	"l\000"
+ 1129 0156 0000     		.align	2
+ 1130              	.LC98:
+ 1131 0158 7A00     		.ascii	"z\000"
+ 1132 015a 0000     		.align	2
+ 1133              	.LC99:
+ 1134 015c 7800     		.ascii	"x\000"
+ 1135 015e 0000     		.align	2
+ 1136              	.LC100:
+ 1137 0160 6300     		.ascii	"c\000"
+ 1138 0162 0000     		.align	2
+ 1139              	.LC101:
+ 1140 0164 7600     		.ascii	"v\000"
+ 1141 0166 0000     		.align	2
+ 1142              	.LC102:
+ 1143 0168 6200     		.ascii	"b\000"
+ 1144 016a 0000     		.align	2
+ 1145              	.LC103:
+ 1146 016c 6E00     		.ascii	"n\000"
+ 1147 016e 0000     		.align	2
+ 1148              	.LC104:
+ 1149 0170 6D00     		.ascii	"m\000"
+ 1150              		.section	.rodata.default_kb_map_lc,"a"
+ 1151              		.align	2
+ 1154              	default_kb_map_lc:
+ 1155 0000 08000000 		.word	.LC2
+ 1156 0004 0C010000 		.word	.LC79
+ 1157 0008 10010000 		.word	.LC80
+ 1158 000c 14010000 		.word	.LC81
+ 1159 0010 18010000 		.word	.LC82
+ 1160 0014 1C010000 		.word	.LC83
+ 1161 0018 20010000 		.word	.LC84
+ 1162 001c 24010000 		.word	.LC85
+ 1163 0020 28010000 		.word	.LC86
+ 1164 0024 2C010000 		.word	.LC87
+ 1165 0028 30010000 		.word	.LC88
+ 1166 002c 2C000000 		.word	.LC10
+ 1167 0030 0C000000 		.word	.LC15
+ 1168 0034 04000000 		.word	.LC1
+ 1169 0038 34010000 		.word	.LC89
+ 1170 003c 38010000 		.word	.LC90
+ 1171 0040 3C010000 		.word	.LC91
+ 1172 0044 40010000 		.word	.LC92
+ 1173 0048 44010000 		.word	.LC93
+ 1174 004c 48010000 		.word	.LC94
+ 1175 0050 4C010000 		.word	.LC95
+ 1176 0054 50010000 		.word	.LC96
+ 1177 0058 54010000 		.word	.LC97
+ 1178 005c 20000000 		.word	.LC7
+ 1179 0060 0C000000 		.word	.LC15
+ 1180 0064 E0000000 		.word	.LC68
+ 1181 0068 E4000000 		.word	.LC69
+ 1182 006c 58010000 		.word	.LC98
+ 1183 0070 5C010000 		.word	.LC99
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 21
+
+
+ 1184 0074 60010000 		.word	.LC100
+ 1185 0078 64010000 		.word	.LC101
+ 1186 007c 68010000 		.word	.LC102
+ 1187 0080 6C010000 		.word	.LC103
+ 1188 0084 70010000 		.word	.LC104
+ 1189 0088 2C000000 		.word	.LC23
+ 1190 008c 04010000 		.word	.LC77
+ 1191 0090 08010000 		.word	.LC78
+ 1192 0094 0C000000 		.word	.LC15
+ 1193 0098 10000000 		.word	.LC4
+ 1194 009c 24000000 		.word	.LC8
+ 1195 00a0 90000000 		.word	.LC48
+ 1196 00a4 28000000 		.word	.LC9
+ 1197 00a8 14000000 		.word	.LC5
+ 1198 00ac 30000000 		.word	.LC24
+ 1199              		.global	lv_keyboard_class
+ 1200              		.section	.rodata.lv_keyboard_class,"a"
+ 1201              		.align	2
+ 1204              	lv_keyboard_class:
+ 1205 0000 00000000 		.word	lv_btnmatrix_class
+ 1206 0004 00000000 		.word	lv_keyboard_constructor
+ 1207 0008 00000000 		.space	12
+ 1207      00000000 
+ 1207      00000000 
+ 1208 0014 6420     		.short	8292
+ 1209 0016 3220     		.short	8242
+ 1210 0018 01       		.byte	1
+ 1211 0019 04       		.byte	4
+ 1212 001a 00       		.byte	0
+ 1213 001b 00       		.space	1
+ 1214              		.ident	"GCC: (xPack GNU Arm Embedded GCC arm64) 13.3.1 20240614"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 22
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_keyboard.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:18     .text.lv_keyboard_update_ctrl_map:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:23     .text.lv_keyboard_update_ctrl_map:00000000 lv_keyboard_update_ctrl_map
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:69     .text.lv_keyboard_update_ctrl_map:00000064 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:562    .data.kb_ctrl:00000000 kb_ctrl
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:72     .text.lv_keyboard_update_map:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:77     .text.lv_keyboard_update_map:00000000 lv_keyboard_update_map
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:92     .text.lv_keyboard_update_map:0000001c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:576    .data.kb_map:00000000 kb_map
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:95     .text.lv_keyboard_constructor:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:100    .text.lv_keyboard_constructor:00000000 lv_keyboard_constructor
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:134    .text.lv_keyboard_constructor:0000004c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:180    .text.lv_keyboard_def_event_cb:00000000 lv_keyboard_def_event_cb
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:137    .rodata.lv_keyboard_def_event_cb.str1.4:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:174    .text.lv_keyboard_def_event_cb:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:388    .text.lv_keyboard_def_event_cb:000001dc $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:403    .text.lv_keyboard_create:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:409    .text.lv_keyboard_create:00000000 lv_keyboard_create
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:423    .text.lv_keyboard_create:00000014 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:1204   .rodata.lv_keyboard_class:00000000 lv_keyboard_class
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:426    .text.lv_keyboard_set_textarea:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:432    .text.lv_keyboard_set_textarea:00000000 lv_keyboard_set_textarea
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:452    .text.lv_keyboard_set_mode:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:458    .text.lv_keyboard_set_mode:00000000 lv_keyboard_set_mode
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:471    .text.lv_keyboard_set_popovers:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:477    .text.lv_keyboard_set_popovers:00000000 lv_keyboard_set_popovers
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:493    .text.lv_keyboard_set_map:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:499    .text.lv_keyboard_set_map:00000000 lv_keyboard_set_map
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:512    .text.lv_keyboard_set_map:00000014 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:516    .text.lv_keyboard_get_textarea:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:522    .text.lv_keyboard_get_textarea:00000000 lv_keyboard_get_textarea
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:530    .text.lv_keyboard_get_mode:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:536    .text.lv_keyboard_get_mode:00000000 lv_keyboard_get_mode
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:544    .text.lv_btnmatrix_get_popovers:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:550    .text.lv_btnmatrix_get_popovers:00000000 lv_btnmatrix_get_popovers
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:559    .data.kb_ctrl:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:1030   .rodata.default_kb_ctrl_lc_map:00000000 default_kb_ctrl_lc_map
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:845    .rodata.default_kb_ctrl_uc_map:00000000 default_kb_ctrl_uc_map
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:678    .rodata.default_kb_ctrl_spec_map:00000000 default_kb_ctrl_spec_map
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:590    .rodata.default_kb_ctrl_num_map:00000000 default_kb_ctrl_num_map
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:573    .data.kb_map:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:1154   .rodata.default_kb_map_lc:00000000 default_kb_map_lc
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:981    .rodata.default_kb_map_uc:00000000 default_kb_map_uc
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:796    .rodata.default_kb_map_spec:00000000 default_kb_map_spec
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:652    .rodata.default_kb_map_num:00000000 default_kb_map_num
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:587    .rodata.default_kb_ctrl_num_map:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:609    .rodata.str1.4:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:649    .rodata.default_kb_map_num:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:675    .rodata.default_kb_ctrl_spec_map:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:793    .rodata.default_kb_map_spec:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:842    .rodata.default_kb_ctrl_uc_map:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:978    .rodata.default_kb_map_uc:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:1027   .rodata.default_kb_ctrl_lc_map:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:1151   .rodata.default_kb_map_lc:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s:1201   .rodata.lv_keyboard_class:00000000 $d
+
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc4zuJD6.s 			page 23
+
+
+UNDEFINED SYMBOLS
+lv_btnmatrix_set_ctrl_map
+lv_mem_alloc
+lv_memcpy
+lv_mem_free
+lv_btnmatrix_set_map
+lv_obj_clear_flag
+lv_obj_align
+lv_obj_add_event_cb
+lv_obj_set_style_base_dir
+lv_event_get_target
+lv_btnmatrix_get_selected_btn
+lv_btnmatrix_get_btn_text
+strcmp
+lv_event_send
+lv_textarea_add_char
+lv_textarea_get_one_line
+lv_textarea_get_cursor_pos
+lv_textarea_get_text
+lv_textarea_set_cursor_pos
+lv_textarea_cursor_left
+lv_textarea_cursor_right
+lv_textarea_del_char
+lv_textarea_add_text
+lv_obj_class_create_obj
+lv_obj_class_init_obj
+lv_obj_clear_state
+lv_obj_add_flag
+lv_btnmatrix_class

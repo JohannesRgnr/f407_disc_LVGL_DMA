@@ -1,0 +1,192 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cclWgK4D.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_draw_sw.c"
+  16              		.text
+  17              		.section	.text.lv_draw_sw_wait_for_finish,"ax",%progbits
+  18              		.align	1
+  19              		.global	lv_draw_sw_wait_for_finish
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	lv_draw_sw_wait_for_finish:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27              		@ link register save eliminated.
+  28 0000 7047     		bx	lr
+  30              		.section	.text.lv_draw_sw_buffer_copy,"ax",%progbits
+  31              		.align	1
+  32              		.global	lv_draw_sw_buffer_copy
+  33              		.syntax unified
+  34              		.thumb
+  35              		.thumb_func
+  37              	lv_draw_sw_buffer_copy:
+  38              		@ args = 12, pretend = 0, frame = 0
+  39              		@ frame_needed = 0, uses_anonymous_args = 0
+  40 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+  41 0004 9146     		mov	r9, r2
+  42 0006 9846     		mov	r8, r3
+  43 0008 BDF924A0 		ldrsh	r10, [sp, #36]
+  44 000c 0A9A     		ldr	r2, [sp, #40]
+  45 000e B3F90240 		ldrsh	r4, [r3, #2]
+  46 0012 B3F90030 		ldrsh	r3, [r3]
+  47 0016 04FB0930 		mla	r0, r4, r9, r3
+  48 001a 01EB4006 		add	r6, r1, r0, lsl #1
+  49 001e B2F90210 		ldrsh	r1, [r2, #2]
+  50 0022 B2F90020 		ldrsh	r2, [r2]
+  51 0026 01FB0A22 		mla	r2, r1, r10, r2
+  52 002a 089D     		ldr	r5, [sp, #32]
+  53 002c 05EB4205 		add	r5, r5, r2, lsl #1
+  54 0030 B8F80470 		ldrh	r7, [r8, #4]
+  55 0034 9BB2     		uxth	r3, r3
+  56 0036 FF1A     		subs	r7, r7, r3
+  57 0038 BFB2     		uxth	r7, r7
+  58 003a 0137     		adds	r7, r7, #1
+  59 003c 3FB2     		sxth	r7, r7
+  60 003e 7F00     		lsls	r7, r7, #1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cclWgK4D.s 			page 2
+
+
+  61 0040 0AE0     		b	.L3
+  62              	.L4:
+  63 0042 3A46     		mov	r2, r7
+  64 0044 2946     		mov	r1, r5
+  65 0046 3046     		mov	r0, r6
+  66 0048 FFF7FEFF 		bl	lv_memcpy
+  67 004c 06EB4906 		add	r6, r6, r9, lsl #1
+  68 0050 05EB4A05 		add	r5, r5, r10, lsl #1
+  69 0054 0134     		adds	r4, r4, #1
+  70 0056 24B2     		sxth	r4, r4
+  71              	.L3:
+  72 0058 B8F90610 		ldrsh	r1, [r8, #6]
+  73 005c A142     		cmp	r1, r4
+  74 005e F0DA     		bge	.L4
+  75 0060 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+  77              		.section	.text.lv_draw_sw_init_ctx,"ax",%progbits
+  78              		.align	1
+  79              		.global	lv_draw_sw_init_ctx
+  80              		.syntax unified
+  81              		.thumb
+  82              		.thumb_func
+  84              	lv_draw_sw_init_ctx:
+  85              		@ args = 0, pretend = 0, frame = 0
+  86              		@ frame_needed = 0, uses_anonymous_args = 0
+  87 0000 10B5     		push	{r4, lr}
+  88 0002 0C46     		mov	r4, r1
+  89 0004 5821     		movs	r1, #88
+  90 0006 2046     		mov	r0, r4
+  91 0008 FFF7FEFF 		bl	lv_memset_00
+  92 000c 104B     		ldr	r3, .L8
+  93 000e 6361     		str	r3, [r4, #20]
+  94 0010 104B     		ldr	r3, .L8+4
+  95 0012 2361     		str	r3, [r4, #16]
+  96 0014 104B     		ldr	r3, .L8+8
+  97 0016 2363     		str	r3, [r4, #48]
+  98 0018 104B     		ldr	r3, .L8+12
+  99 001a 2362     		str	r3, [r4, #32]
+ 100 001c 104B     		ldr	r3, .L8+16
+ 101 001e A361     		str	r3, [r4, #24]
+ 102 0020 104B     		ldr	r3, .L8+20
+ 103 0022 6362     		str	r3, [r4, #36]
+ 104 0024 104B     		ldr	r3, .L8+24
+ 105 0026 A362     		str	r3, [r4, #40]
+ 106 0028 104B     		ldr	r3, .L8+28
+ 107 002a E362     		str	r3, [r4, #44]
+ 108 002c 104B     		ldr	r3, .L8+32
+ 109 002e 6363     		str	r3, [r4, #52]
+ 110 0030 104B     		ldr	r3, .L8+36
+ 111 0032 A363     		str	r3, [r4, #56]
+ 112 0034 104B     		ldr	r3, .L8+40
+ 113 0036 E363     		str	r3, [r4, #60]
+ 114 0038 104B     		ldr	r3, .L8+44
+ 115 003a 2364     		str	r3, [r4, #64]
+ 116 003c 104B     		ldr	r3, .L8+48
+ 117 003e 6364     		str	r3, [r4, #68]
+ 118 0040 104B     		ldr	r3, .L8+52
+ 119 0042 A364     		str	r3, [r4, #72]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cclWgK4D.s 			page 3
+
+
+ 120 0044 104B     		ldr	r3, .L8+56
+ 121 0046 6365     		str	r3, [r4, #84]
+ 122 0048 2C23     		movs	r3, #44
+ 123 004a E364     		str	r3, [r4, #76]
+ 124 004c 10BD     		pop	{r4, pc}
+ 125              	.L9:
+ 126 004e 00BF     		.align	2
+ 127              	.L8:
+ 128 0050 00000000 		.word	lv_draw_sw_arc
+ 129 0054 00000000 		.word	lv_draw_sw_rect
+ 130 0058 00000000 		.word	lv_draw_sw_bg
+ 131 005c 00000000 		.word	lv_draw_sw_letter
+ 132 0060 00000000 		.word	lv_draw_sw_img_decoded
+ 133 0064 00000000 		.word	lv_draw_sw_line
+ 134 0068 00000000 		.word	lv_draw_sw_polygon
+ 135 006c 00000000 		.word	lv_draw_sw_transform
+ 136 0070 00000000 		.word	lv_draw_sw_wait_for_finish
+ 137 0074 00000000 		.word	lv_draw_sw_buffer_copy
+ 138 0078 00000000 		.word	lv_draw_sw_layer_create
+ 139 007c 00000000 		.word	lv_draw_sw_layer_adjust
+ 140 0080 00000000 		.word	lv_draw_sw_layer_blend
+ 141 0084 00000000 		.word	lv_draw_sw_layer_destroy
+ 142 0088 00000000 		.word	lv_draw_sw_blend_basic
+ 144              		.section	.text.lv_draw_sw_deinit_ctx,"ax",%progbits
+ 145              		.align	1
+ 146              		.global	lv_draw_sw_deinit_ctx
+ 147              		.syntax unified
+ 148              		.thumb
+ 149              		.thumb_func
+ 151              	lv_draw_sw_deinit_ctx:
+ 152              		@ args = 0, pretend = 0, frame = 0
+ 153              		@ frame_needed = 0, uses_anonymous_args = 0
+ 154 0000 08B5     		push	{r3, lr}
+ 155 0002 0846     		mov	r0, r1
+ 156 0004 5821     		movs	r1, #88
+ 157 0006 FFF7FEFF 		bl	lv_memset_00
+ 158 000a 08BD     		pop	{r3, pc}
+ 160              		.ident	"GCC: (xPack GNU Arm Embedded GCC arm64) 13.3.1 20240614"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cclWgK4D.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_draw_sw.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cclWgK4D.s:18     .text.lv_draw_sw_wait_for_finish:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cclWgK4D.s:24     .text.lv_draw_sw_wait_for_finish:00000000 lv_draw_sw_wait_for_finish
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cclWgK4D.s:31     .text.lv_draw_sw_buffer_copy:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cclWgK4D.s:37     .text.lv_draw_sw_buffer_copy:00000000 lv_draw_sw_buffer_copy
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cclWgK4D.s:78     .text.lv_draw_sw_init_ctx:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cclWgK4D.s:84     .text.lv_draw_sw_init_ctx:00000000 lv_draw_sw_init_ctx
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cclWgK4D.s:128    .text.lv_draw_sw_init_ctx:00000050 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cclWgK4D.s:145    .text.lv_draw_sw_deinit_ctx:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cclWgK4D.s:151    .text.lv_draw_sw_deinit_ctx:00000000 lv_draw_sw_deinit_ctx
+
+UNDEFINED SYMBOLS
+lv_memcpy
+lv_memset_00
+lv_draw_sw_arc
+lv_draw_sw_rect
+lv_draw_sw_bg
+lv_draw_sw_letter
+lv_draw_sw_img_decoded
+lv_draw_sw_line
+lv_draw_sw_polygon
+lv_draw_sw_transform
+lv_draw_sw_layer_create
+lv_draw_sw_layer_adjust
+lv_draw_sw_layer_blend
+lv_draw_sw_layer_destroy
+lv_draw_sw_blend_basic

@@ -1,0 +1,753 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_draw_sw_gradient.c"
+  16              		.text
+  17              		.section	.text.lv_color_to32,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	lv_color_to32:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 C0F3C403 		ubfx	r3, r0, #3, #5
+  28 0004 03EB4312 		add	r2, r3, r3, lsl #5
+  29 0008 C3EBC203 		rsb	r3, r3, r2, lsl #3
+  30 000c 0733     		adds	r3, r3, #7
+  31 000e C3F34713 		ubfx	r3, r3, #5, #8
+  32 0012 0022     		movs	r2, #0
+  33 0014 63F31742 		bfi	r2, r3, #16, #8
+  34 0018 00F00701 		and	r1, r0, #7
+  35 001c C0F34233 		ubfx	r3, r0, #13, #3
+  36 0020 03EBC103 		add	r3, r3, r1, lsl #3
+  37 0024 03EBC311 		add	r1, r3, r3, lsl #7
+  38 0028 03EB4103 		add	r3, r3, r1, lsl #1
+  39 002c 0333     		adds	r3, r3, #3
+  40 002e C3F38713 		ubfx	r3, r3, #6, #8
+  41 0032 63F30F22 		bfi	r2, r3, #8, #8
+  42 0036 C0F30420 		ubfx	r0, r0, #8, #5
+  43 003a 00EB4013 		add	r3, r0, r0, lsl #5
+  44 003e C0EBC303 		rsb	r3, r0, r3, lsl #3
+  45 0042 0733     		adds	r3, r3, #7
+  46 0044 C3F34713 		ubfx	r3, r3, #5, #8
+  47 0048 63F30702 		bfi	r2, r3, #0, #8
+  48 004c 42F07F40 		orr	r0, r2, #-16777216
+  49 0050 7047     		bx	lr
+  51              		.section	.text.compute_key,"ax",%progbits
+  52              		.align	1
+  53              		.syntax unified
+  54              		.thumb
+  55              		.thumb_func
+  57              	compute_key:
+  58              		@ args = 0, pretend = 0, frame = 0
+  59              		@ frame_needed = 0, uses_anonymous_args = 0
+  60              		@ link register save eliminated.
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s 			page 2
+
+
+  61 0000 4840     		eors	r0, r0, r1
+  62 0002 80EA6200 		eor	r0, r0, r2, asr #1
+  63 0006 7047     		bx	lr
+  65              		.section	.text.get_cache_item_size,"ax",%progbits
+  66              		.align	1
+  67              		.syntax unified
+  68              		.thumb
+  69              		.thumb_func
+  71              	get_cache_item_size:
+  72              		@ args = 0, pretend = 0, frame = 0
+  73              		@ frame_needed = 0, uses_anonymous_args = 0
+  74              		@ link register save eliminated.
+  75 0000 B0F90C00 		ldrsh	r0, [r0, #12]
+  76 0004 4000     		lsls	r0, r0, #1
+  77 0006 0330     		adds	r0, r0, #3
+  78 0008 20F00300 		bic	r0, r0, #3
+  79 000c 1030     		adds	r0, r0, #16
+  80 000e 7047     		bx	lr
+  82              		.section	.text.next_in_cache,"ax",%progbits
+  83              		.align	1
+  84              		.syntax unified
+  85              		.thumb
+  86              		.thumb_func
+  88              	next_in_cache:
+  89              		@ args = 0, pretend = 0, frame = 0
+  90              		@ frame_needed = 0, uses_anonymous_args = 0
+  91 0000 0A4B     		ldr	r3, .L14
+  92 0002 1B68     		ldr	r3, [r3]
+  93 0004 7BB1     		cbz	r3, .L7
+  94 0006 10B5     		push	{r4, lr}
+  95 0008 0446     		mov	r4, r0
+  96 000a 38B1     		cbz	r0, .L12
+  97 000c FFF7FEFF 		bl	get_cache_item_size
+  98 0010 2044     		add	r0, r0, r4
+  99 0012 074B     		ldr	r3, .L14+4
+ 100 0014 1B68     		ldr	r3, [r3]
+ 101 0016 9842     		cmp	r0, r3
+ 102 0018 03D2     		bcs	.L13
+ 103              	.L4:
+ 104 001a 10BD     		pop	{r4, pc}
+ 105              	.L12:
+ 106 001c 054B     		ldr	r3, .L14+8
+ 107 001e 1868     		ldr	r0, [r3]
+ 108 0020 FBE7     		b	.L4
+ 109              	.L13:
+ 110 0022 0020     		movs	r0, #0
+ 111 0024 F9E7     		b	.L4
+ 112              	.L7:
+ 113 0026 0020     		movs	r0, #0
+ 114 0028 7047     		bx	lr
+ 115              	.L15:
+ 116 002a 00BF     		.align	2
+ 117              	.L14:
+ 118 002c 00000000 		.word	grad_cache_size
+ 119 0030 00000000 		.word	grad_cache_end
+ 120 0034 00000000 		.word	_lv_grad_cache_mem
+ 122              		.section	.text.iterate_cache,"ax",%progbits
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s 			page 3
+
+
+ 123              		.align	1
+ 124              		.syntax unified
+ 125              		.thumb
+ 126              		.thumb_func
+ 128              	iterate_cache:
+ 129              		@ args = 0, pretend = 0, frame = 0
+ 130              		@ frame_needed = 0, uses_anonymous_args = 0
+ 131 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 132 0002 0646     		mov	r6, r0
+ 133 0004 0D46     		mov	r5, r1
+ 134 0006 1746     		mov	r7, r2
+ 135 0008 0020     		movs	r0, #0
+ 136 000a FFF7FEFF 		bl	next_in_cache
+ 137 000e 0446     		mov	r4, r0
+ 138 0010 03E0     		b	.L17
+ 139              	.L18:
+ 140 0012 2046     		mov	r0, r4
+ 141 0014 FFF7FEFF 		bl	next_in_cache
+ 142 0018 0446     		mov	r4, r0
+ 143              	.L17:
+ 144 001a 6CB1     		cbz	r4, .L22
+ 145 001c 6368     		ldr	r3, [r4, #4]
+ 146 001e 33F04043 		bics	r3, r3, #-1073741824
+ 147 0022 07D0     		beq	.L24
+ 148 0024 2946     		mov	r1, r5
+ 149 0026 2046     		mov	r0, r4
+ 150 0028 B047     		blx	r6
+ 151 002a 0128     		cmp	r0, #1
+ 152 002c F1D1     		bne	.L18
+ 153 002e 27B1     		cbz	r7, .L20
+ 154 0030 3C60     		str	r4, [r7]
+ 155 0032 02E0     		b	.L20
+ 156              	.L24:
+ 157 0034 0020     		movs	r0, #0
+ 158 0036 00E0     		b	.L20
+ 159              	.L22:
+ 160 0038 0020     		movs	r0, #0
+ 161              	.L20:
+ 162 003a F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 164              		.section	.text.find_oldest_item_life,"ax",%progbits
+ 165              		.align	1
+ 166              		.syntax unified
+ 167              		.thumb
+ 168              		.thumb_func
+ 170              	find_oldest_item_life:
+ 171              		@ args = 0, pretend = 0, frame = 0
+ 172              		@ frame_needed = 0, uses_anonymous_args = 0
+ 173              		@ link register save eliminated.
+ 174 0000 4368     		ldr	r3, [r0, #4]
+ 175 0002 C3F31D03 		ubfx	r3, r3, #0, #30
+ 176 0006 0A68     		ldr	r2, [r1]
+ 177 0008 9342     		cmp	r3, r2
+ 178 000a 00D2     		bcs	.L26
+ 179 000c 0B60     		str	r3, [r1]
+ 180              	.L26:
+ 181 000e 0020     		movs	r0, #0
+ 182 0010 7047     		bx	lr
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s 			page 4
+
+
+ 184              		.section	.text.find_item,"ax",%progbits
+ 185              		.align	1
+ 186              		.syntax unified
+ 187              		.thumb
+ 188              		.thumb_func
+ 190              	find_item:
+ 191              		@ args = 0, pretend = 0, frame = 0
+ 192              		@ frame_needed = 0, uses_anonymous_args = 0
+ 193              		@ link register save eliminated.
+ 194 0000 0268     		ldr	r2, [r0]
+ 195 0002 0B68     		ldr	r3, [r1]
+ 196 0004 9A42     		cmp	r2, r3
+ 197 0006 01D0     		beq	.L29
+ 198 0008 0020     		movs	r0, #0
+ 199 000a 7047     		bx	lr
+ 200              	.L29:
+ 201 000c 0120     		movs	r0, #1
+ 202 000e 7047     		bx	lr
+ 204              		.section	.text.allocate_item,"ax",%progbits
+ 205              		.align	1
+ 206              		.syntax unified
+ 207              		.thumb
+ 208              		.thumb_func
+ 210              	allocate_item:
+ 211              		@ args = 0, pretend = 0, frame = 8
+ 212              		@ frame_needed = 0, uses_anonymous_args = 0
+ 213 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 214 0004 83B0     		sub	sp, sp, #12
+ 215 0006 0746     		mov	r7, r0
+ 216 0008 0E46     		mov	r6, r1
+ 217 000a 1546     		mov	r5, r2
+ 218 000c 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 219 000e 03F00703 		and	r3, r3, #7
+ 220 0012 022B     		cmp	r3, #2
+ 221 0014 41D0     		beq	.L44
+ 222 0016 9046     		mov	r8, r2
+ 223              	.L31:
+ 224 0018 B542     		cmp	r5, r6
+ 225 001a B8BF     		it	lt
+ 226 001c 3546     		movlt	r5, r6
+ 227 001e 6C00     		lsls	r4, r5, #1
+ 228 0020 0334     		adds	r4, r4, #3
+ 229 0022 24F00304 		bic	r4, r4, #3
+ 230 0026 1034     		adds	r4, r4, #16
+ 231 0028 364B     		ldr	r3, .L46
+ 232 002a D3F80090 		ldr	r9, [r3]
+ 233 002e 364B     		ldr	r3, .L46+4
+ 234 0030 1B68     		ldr	r3, [r3]
+ 235 0032 A9EB0303 		sub	r3, r9, r3
+ 236 0036 E118     		adds	r1, r4, r3
+ 237 0038 344A     		ldr	r2, .L46+8
+ 238 003a 1268     		ldr	r2, [r2]
+ 239 003c 9142     		cmp	r1, r2
+ 240 003e 2ED2     		bcs	.L32
+ 241 0040 99F80730 		ldrb	r3, [r9, #7]	@ zero_extendqisi2
+ 242 0044 23F08003 		bic	r3, r3, #128
+ 243 0048 89F80730 		strb	r3, [r9, #7]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s 			page 5
+
+
+ 244              	.L33:
+ 245 004c 3246     		mov	r2, r6
+ 246 004e 4146     		mov	r1, r8
+ 247 0050 3846     		mov	r0, r7
+ 248 0052 FFF7FEFF 		bl	compute_key
+ 249 0056 C9F80000 		str	r0, [r9]
+ 250 005a D9F80430 		ldr	r3, [r9, #4]
+ 251 005e 0122     		movs	r2, #1
+ 252 0060 62F31D03 		bfi	r3, r2, #0, #30
+ 253 0064 C9F80430 		str	r3, [r9, #4]
+ 254 0068 99F80730 		ldrb	r3, [r9, #7]	@ zero_extendqisi2
+ 255 006c 23F04003 		bic	r3, r3, #64
+ 256 0070 89F80730 		strb	r3, [r9, #7]
+ 257 0074 A9F80C50 		strh	r5, [r9, #12]	@ movhi
+ 258 0078 A9F80E80 		strh	r8, [r9, #14]	@ movhi
+ 259 007c 5BB2     		sxtb	r3, r3
+ 260 007e 002B     		cmp	r3, #0
+ 261 0080 3BDB     		blt	.L45
+ 262 0082 204A     		ldr	r2, .L46
+ 263 0084 1368     		ldr	r3, [r2]
+ 264 0086 03F11001 		add	r1, r3, #16
+ 265 008a C9F80810 		str	r1, [r9, #8]
+ 266 008e 2344     		add	r3, r3, r4
+ 267 0090 1360     		str	r3, [r2]
+ 268              	.L30:
+ 269 0092 4846     		mov	r0, r9
+ 270 0094 03B0     		add	sp, sp, #12
+ 271              		@ sp needed
+ 272 0096 BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 273              	.L44:
+ 274 009a 8846     		mov	r8, r1
+ 275 009c BCE7     		b	.L31
+ 276              	.L32:
+ 277 009e A242     		cmp	r2, r4
+ 278 00a0 1BD2     		bcs	.L34
+ 279 00a2 2046     		mov	r0, r4
+ 280 00a4 FFF7FEFF 		bl	lv_mem_alloc
+ 281 00a8 8146     		mov	r9, r0
+ 282 00aa 28B3     		cbz	r0, .L38
+ 283 00ac C379     		ldrb	r3, [r0, #7]	@ zero_extendqisi2
+ 284 00ae 43F08003 		orr	r3, r3, #128
+ 285 00b2 C371     		strb	r3, [r0, #7]
+ 286 00b4 CAE7     		b	.L33
+ 287              	.L36:
+ 288 00b6 4FF0FF33 		mov	r3, #-1
+ 289 00ba 0193     		str	r3, [sp, #4]
+ 290 00bc 0022     		movs	r2, #0
+ 291 00be 01A9     		add	r1, sp, #4
+ 292 00c0 1348     		ldr	r0, .L46+12
+ 293 00c2 FFF7FEFF 		bl	iterate_cache
+ 294 00c6 0022     		movs	r2, #0
+ 295 00c8 01A9     		add	r1, sp, #4
+ 296 00ca 1248     		ldr	r0, .L46+16
+ 297 00cc FFF7FEFF 		bl	iterate_cache
+ 298 00d0 0C4B     		ldr	r3, .L46
+ 299 00d2 1B68     		ldr	r3, [r3]
+ 300 00d4 0C4A     		ldr	r2, .L46+4
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s 			page 6
+
+
+ 301 00d6 1268     		ldr	r2, [r2]
+ 302 00d8 9B1A     		subs	r3, r3, r2
+ 303              	.L34:
+ 304 00da 2344     		add	r3, r3, r4
+ 305 00dc 0B4A     		ldr	r2, .L46+8
+ 306 00de 1268     		ldr	r2, [r2]
+ 307 00e0 9342     		cmp	r3, r2
+ 308 00e2 E8D8     		bhi	.L36
+ 309 00e4 074B     		ldr	r3, .L46
+ 310 00e6 D3F80090 		ldr	r9, [r3]
+ 311 00ea 99F80730 		ldrb	r3, [r9, #7]	@ zero_extendqisi2
+ 312 00ee 23F08003 		bic	r3, r3, #128
+ 313 00f2 89F80730 		strb	r3, [r9, #7]
+ 314 00f6 A9E7     		b	.L33
+ 315              	.L38:
+ 316 00f8 FEE7     		b	.L38
+ 317              	.L45:
+ 318 00fa 09F11003 		add	r3, r9, #16
+ 319 00fe C9F80830 		str	r3, [r9, #8]
+ 320 0102 C6E7     		b	.L30
+ 321              	.L47:
+ 322              		.align	2
+ 323              	.L46:
+ 324 0104 00000000 		.word	grad_cache_end
+ 325 0108 00000000 		.word	_lv_grad_cache_mem
+ 326 010c 00000000 		.word	grad_cache_size
+ 327 0110 00000000 		.word	find_oldest_item_life
+ 328 0114 00000000 		.word	kill_oldest_item
+ 330              		.section	.text.free_item,"ax",%progbits
+ 331              		.align	1
+ 332              		.syntax unified
+ 333              		.thumb
+ 334              		.thumb_func
+ 336              	free_item:
+ 337              		@ args = 0, pretend = 0, frame = 0
+ 338              		@ frame_needed = 0, uses_anonymous_args = 0
+ 339 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 340 0004 0646     		mov	r6, r0
+ 341 0006 FFF7FEFF 		bl	get_cache_item_size
+ 342 000a 114A     		ldr	r2, .L54
+ 343 000c 1368     		ldr	r3, [r2]
+ 344 000e 9F1B     		subs	r7, r3, r6
+ 345 0010 1B1A     		subs	r3, r3, r0
+ 346 0012 1360     		str	r3, [r2]
+ 347 0014 3F1A     		subs	r7, r7, r0
+ 348 0016 01D1     		bne	.L53
+ 349              	.L48:
+ 350 0018 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 351              	.L53:
+ 352 001c 0546     		mov	r5, r0
+ 353 001e C0F10008 		rsb	r8, r0, #0
+ 354 0022 3A46     		mov	r2, r7
+ 355 0024 3118     		adds	r1, r6, r0
+ 356 0026 3046     		mov	r0, r6
+ 357 0028 FFF7FEFF 		bl	lv_memcpy
+ 358 002c 3446     		mov	r4, r6
+ 359 002e 06E0     		b	.L50
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s 			page 7
+
+
+ 360              	.L51:
+ 361 0030 A368     		ldr	r3, [r4, #8]
+ 362 0032 4344     		add	r3, r3, r8
+ 363 0034 A360     		str	r3, [r4, #8]
+ 364 0036 2046     		mov	r0, r4
+ 365 0038 FFF7FEFF 		bl	get_cache_item_size
+ 366 003c 0444     		add	r4, r4, r0
+ 367              	.L50:
+ 368 003e 044B     		ldr	r3, .L54
+ 369 0040 1B68     		ldr	r3, [r3]
+ 370 0042 A342     		cmp	r3, r4
+ 371 0044 F4D1     		bne	.L51
+ 372 0046 2946     		mov	r1, r5
+ 373 0048 F019     		adds	r0, r6, r7
+ 374 004a FFF7FEFF 		bl	lv_memset_00
+ 375 004e E3E7     		b	.L48
+ 376              	.L55:
+ 377              		.align	2
+ 378              	.L54:
+ 379 0050 00000000 		.word	grad_cache_end
+ 381              		.section	.text.kill_oldest_item,"ax",%progbits
+ 382              		.align	1
+ 383              		.syntax unified
+ 384              		.thumb
+ 385              		.thumb_func
+ 387              	kill_oldest_item:
+ 388              		@ args = 0, pretend = 0, frame = 0
+ 389              		@ frame_needed = 0, uses_anonymous_args = 0
+ 390 0000 08B5     		push	{r3, lr}
+ 391 0002 4368     		ldr	r3, [r0, #4]
+ 392 0004 C3F31D03 		ubfx	r3, r3, #0, #30
+ 393 0008 0A68     		ldr	r2, [r1]
+ 394 000a 9342     		cmp	r3, r2
+ 395 000c 01D0     		beq	.L60
+ 396 000e 0020     		movs	r0, #0
+ 397              	.L57:
+ 398 0010 08BD     		pop	{r3, pc}
+ 399              	.L60:
+ 400 0012 FFF7FEFF 		bl	free_item
+ 401 0016 0120     		movs	r0, #1
+ 402 0018 FAE7     		b	.L57
+ 404              		.section	.text.lv_gradient_free_cache,"ax",%progbits
+ 405              		.align	1
+ 406              		.global	lv_gradient_free_cache
+ 407              		.syntax unified
+ 408              		.thumb
+ 409              		.thumb_func
+ 411              	lv_gradient_free_cache:
+ 412              		@ args = 0, pretend = 0, frame = 0
+ 413              		@ frame_needed = 0, uses_anonymous_args = 0
+ 414 0000 10B5     		push	{r4, lr}
+ 415 0002 054C     		ldr	r4, .L63
+ 416 0004 2068     		ldr	r0, [r4]
+ 417 0006 FFF7FEFF 		bl	lv_mem_free
+ 418 000a 0023     		movs	r3, #0
+ 419 000c 034A     		ldr	r2, .L63+4
+ 420 000e 1360     		str	r3, [r2]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s 			page 8
+
+
+ 421 0010 2360     		str	r3, [r4]
+ 422 0012 034A     		ldr	r2, .L63+8
+ 423 0014 1360     		str	r3, [r2]
+ 424 0016 10BD     		pop	{r4, pc}
+ 425              	.L64:
+ 426              		.align	2
+ 427              	.L63:
+ 428 0018 00000000 		.word	_lv_grad_cache_mem
+ 429 001c 00000000 		.word	grad_cache_end
+ 430 0020 00000000 		.word	grad_cache_size
+ 432              		.section	.text.lv_gradient_set_cache_size,"ax",%progbits
+ 433              		.align	1
+ 434              		.global	lv_gradient_set_cache_size
+ 435              		.syntax unified
+ 436              		.thumb
+ 437              		.thumb_func
+ 439              	lv_gradient_set_cache_size:
+ 440              		@ args = 0, pretend = 0, frame = 0
+ 441              		@ frame_needed = 0, uses_anonymous_args = 0
+ 442 0000 38B5     		push	{r3, r4, r5, lr}
+ 443 0002 0446     		mov	r4, r0
+ 444 0004 084D     		ldr	r5, .L69
+ 445 0006 2868     		ldr	r0, [r5]
+ 446 0008 FFF7FEFF 		bl	lv_mem_free
+ 447 000c 2046     		mov	r0, r4
+ 448 000e FFF7FEFF 		bl	lv_mem_alloc
+ 449 0012 2860     		str	r0, [r5]
+ 450 0014 054B     		ldr	r3, .L69+4
+ 451 0016 1860     		str	r0, [r3]
+ 452 0018 28B1     		cbz	r0, .L67
+ 453 001a 2146     		mov	r1, r4
+ 454 001c FFF7FEFF 		bl	lv_memset_00
+ 455 0020 034B     		ldr	r3, .L69+8
+ 456 0022 1C60     		str	r4, [r3]
+ 457 0024 38BD     		pop	{r3, r4, r5, pc}
+ 458              	.L67:
+ 459 0026 FEE7     		b	.L67
+ 460              	.L70:
+ 461              		.align	2
+ 462              	.L69:
+ 463 0028 00000000 		.word	_lv_grad_cache_mem
+ 464 002c 00000000 		.word	grad_cache_end
+ 465 0030 00000000 		.word	grad_cache_size
+ 467              		.section	.text.lv_gradient_calculate,"ax",%progbits
+ 468              		.align	1
+ 469              		.global	lv_gradient_calculate
+ 470              		.syntax unified
+ 471              		.thumb
+ 472              		.thumb_func
+ 474              	lv_gradient_calculate:
+ 475              		@ args = 0, pretend = 0, frame = 0
+ 476              		@ frame_needed = 0, uses_anonymous_args = 0
+ 477 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 478 0004 0746     		mov	r7, r0
+ 479 0006 8378     		ldrb	r3, [r0, #2]	@ zero_extendqisi2
+ 480 0008 01FB03F3 		mul	r3, r1, r3
+ 481 000c B2EB232F 		cmp	r2, r3, asr #8
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s 			page 9
+
+
+ 482 0010 1CDD     		ble	.L82
+ 483 0012 8846     		mov	r8, r1
+ 484 0014 1546     		mov	r5, r2
+ 485 0016 1912     		asrs	r1, r3, #8
+ 486 0018 027A     		ldrb	r2, [r0, #8]	@ zero_extendqisi2
+ 487 001a 501E     		subs	r0, r2, #1
+ 488 001c 07EB8003 		add	r3, r7, r0, lsl #2
+ 489 0020 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 490 0022 03FB08F3 		mul	r3, r3, r8
+ 491 0026 B5EB232F 		cmp	r5, r3, asr #8
+ 492 002a 12DA     		bge	.L83
+ 493 002c 0124     		movs	r4, #1
+ 494              	.L74:
+ 495 002e A242     		cmp	r2, r4
+ 496 0030 28D9     		bls	.L84
+ 497 0032 07EB8403 		add	r3, r7, r4, lsl #2
+ 498 0036 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 499 0038 03FB08F3 		mul	r3, r3, r8
+ 500 003c 4FEA2329 		asr	r9, r3, #8
+ 501 0040 B5EB232F 		cmp	r5, r3, asr #8
+ 502 0044 08DD     		ble	.L85
+ 503 0046 0134     		adds	r4, r4, #1
+ 504 0048 E4B2     		uxtb	r4, r4
+ 505 004a F0E7     		b	.L74
+ 506              	.L82:
+ 507 004c 0088     		ldrh	r0, [r0]
+ 508              	.L73:
+ 509 004e BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 510              	.L83:
+ 511 0052 37F82000 		ldrh	r0, [r7, r0, lsl #2]
+ 512 0056 FAE7     		b	.L73
+ 513              	.L85:
+ 514 0058 04F1FF3A 		add	r10, r4, #-1
+ 515 005c 37F82A00 		ldrh	r0, [r7, r10, lsl #2]
+ 516 0060 FFF7FEFF 		bl	lv_color_to32
+ 517 0064 0646     		mov	r6, r0
+ 518 0066 37F82400 		ldrh	r0, [r7, r4, lsl #2]
+ 519 006a FFF7FEFF 		bl	lv_color_to32
+ 520 006e 8446     		mov	ip, r0
+ 521 0070 07EB8A0A 		add	r10, r7, r10, lsl #2
+ 522 0074 9AF80230 		ldrb	r3, [r10, #2]	@ zero_extendqisi2
+ 523 0078 03FB08F3 		mul	r3, r3, r8
+ 524 007c 1912     		asrs	r1, r3, #8
+ 525 007e A9EB2322 		sub	r2, r9, r3, asr #8
+ 526 0082 00E0     		b	.L76
+ 527              	.L84:
+ 528 0084 0022     		movs	r2, #0
+ 529              	.L76:
+ 530 0086 02B9     		cbnz	r2, .L78
+ 531              	.L79:
+ 532 0088 FEE7     		b	.L79
+ 533              	.L78:
+ 534 008a 6B1A     		subs	r3, r5, r1
+ 535 008c 1BB2     		sxth	r3, r3
+ 536 008e C3EB0323 		rsb	r3, r3, r3, lsl #8
+ 537 0092 93FBF2F3 		sdiv	r3, r3, r2
+ 538 0096 DBB2     		uxtb	r3, r3
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s 			page 10
+
+
+ 539 0098 DA43     		mvns	r2, r3
+ 540 009a D2B2     		uxtb	r2, r2
+ 541 009c CCF30720 		ubfx	r0, ip, #8, #8
+ 542 00a0 C6F30721 		ubfx	r1, r6, #8, #8
+ 543 00a4 02FB01F1 		mul	r1, r2, r1
+ 544 00a8 03FB0011 		mla	r1, r3, r0, r1
+ 545 00ac 01EB0120 		add	r0, r1, r1, lsl #8
+ 546 00b0 01EBC011 		add	r1, r1, r0, lsl #7
+ 547 00b4 C1F30274 		ubfx	r4, r1, #28, #3
+ 548 00b8 4FF00000 		mov	r0, #0	@ movhi
+ 549 00bc 64F30200 		bfi	r0, r4, #0, #3
+ 550 00c0 CCF30745 		ubfx	r5, ip, #16, #8
+ 551 00c4 C6F30744 		ubfx	r4, r6, #16, #8
+ 552 00c8 02FB04F4 		mul	r4, r2, r4
+ 553 00cc 03FB0544 		mla	r4, r3, r5, r4
+ 554 00d0 04EB0425 		add	r5, r4, r4, lsl #8
+ 555 00d4 04EBC514 		add	r4, r4, r5, lsl #7
+ 556 00d8 C4F38464 		ubfx	r4, r4, #26, #5
+ 557 00dc 64F3C700 		bfi	r0, r4, #3, #5
+ 558 00e0 5FFA8CFC 		uxtb	ip, ip
+ 559 00e4 F6B2     		uxtb	r6, r6
+ 560 00e6 06FB02F2 		mul	r2, r6, r2
+ 561 00ea 03FB0C23 		mla	r3, r3, ip, r2
+ 562 00ee 03EB0322 		add	r2, r3, r3, lsl #8
+ 563 00f2 03EBC213 		add	r3, r3, r2, lsl #7
+ 564 00f6 C3F38463 		ubfx	r3, r3, #26, #5
+ 565 00fa 63F30C20 		bfi	r0, r3, #8, #5
+ 566 00fe C1F34261 		ubfx	r1, r1, #25, #3
+ 567 0102 61F34F30 		bfi	r0, r1, #13, #3
+ 568 0106 A2E7     		b	.L73
+ 570              		.section	.text.lv_gradient_get,"ax",%progbits
+ 571              		.align	1
+ 572              		.global	lv_gradient_get
+ 573              		.syntax unified
+ 574              		.thumb
+ 575              		.thumb_func
+ 577              	lv_gradient_get:
+ 578              		@ args = 0, pretend = 0, frame = 8
+ 579              		@ frame_needed = 0, uses_anonymous_args = 0
+ 580 0000 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 581 0002 13F0070F 		tst	r3, #7
+ 582 0006 46D0     		beq	.L93
+ 583 0008 70B5     		push	{r4, r5, r6, lr}
+ 584 000a 82B0     		sub	sp, sp, #8
+ 585 000c 0546     		mov	r5, r0
+ 586 000e 0C46     		mov	r4, r1
+ 587 0010 1646     		mov	r6, r2
+ 588 0012 224B     		ldr	r3, .L102
+ 589 0014 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 590 0016 E3B1     		cbz	r3, .L99
+ 591              	.L88:
+ 592 0018 6B7A     		ldrb	r3, [r5, #9]	@ zero_extendqisi2
+ 593 001a 03F00703 		and	r3, r3, #7
+ 594 001e 022B     		cmp	r3, #2
+ 595 0020 1ED0     		beq	.L100
+ 596 0022 3146     		mov	r1, r6
+ 597              	.L89:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s 			page 11
+
+
+ 598 0024 2246     		mov	r2, r4
+ 599 0026 2846     		mov	r0, r5
+ 600 0028 FFF7FEFF 		bl	compute_key
+ 601 002c 0190     		str	r0, [sp, #4]
+ 602 002e 0023     		movs	r3, #0
+ 603 0030 0093     		str	r3, [sp]
+ 604 0032 6A46     		mov	r2, sp
+ 605 0034 01A9     		add	r1, sp, #4
+ 606 0036 1A48     		ldr	r0, .L102+4
+ 607 0038 FFF7FEFF 		bl	iterate_cache
+ 608 003c 0128     		cmp	r0, #1
+ 609 003e 11D0     		beq	.L101
+ 610 0040 3246     		mov	r2, r6
+ 611 0042 2146     		mov	r1, r4
+ 612 0044 2846     		mov	r0, r5
+ 613 0046 FFF7FEFF 		bl	allocate_item
+ 614 004a 0090     		str	r0, [sp]
+ 615 004c 08B3     		cbz	r0, .L86
+ 616 004e 0024     		movs	r4, #0
+ 617 0050 1AE0     		b	.L91
+ 618              	.L99:
+ 619 0052 0020     		movs	r0, #0
+ 620 0054 FFF7FEFF 		bl	lv_gradient_set_cache_size
+ 621 0058 104B     		ldr	r3, .L102
+ 622 005a 0122     		movs	r2, #1
+ 623 005c 1A70     		strb	r2, [r3]
+ 624 005e DBE7     		b	.L88
+ 625              	.L100:
+ 626 0060 2146     		mov	r1, r4
+ 627 0062 DFE7     		b	.L89
+ 628              	.L101:
+ 629 0064 0098     		ldr	r0, [sp]
+ 630 0066 4368     		ldr	r3, [r0, #4]
+ 631 0068 C3F31D02 		ubfx	r2, r3, #0, #30
+ 632 006c 0132     		adds	r2, r2, #1
+ 633 006e 62F31D03 		bfi	r3, r2, #0, #30
+ 634 0072 4360     		str	r3, [r0, #4]
+ 635 0074 0DE0     		b	.L86
+ 636              	.L92:
+ 637 0076 8668     		ldr	r6, [r0, #8]
+ 638 0078 2246     		mov	r2, r4
+ 639 007a 2846     		mov	r0, r5
+ 640 007c FFF7FEFF 		bl	lv_gradient_calculate
+ 641 0080 26F81400 		strh	r0, [r6, r4, lsl #1]	@ movhi
+ 642 0084 0134     		adds	r4, r4, #1
+ 643 0086 24B2     		sxth	r4, r4
+ 644              	.L91:
+ 645 0088 0098     		ldr	r0, [sp]
+ 646 008a B0F90E10 		ldrsh	r1, [r0, #14]
+ 647 008e A142     		cmp	r1, r4
+ 648 0090 F1DC     		bgt	.L92
+ 649              	.L86:
+ 650 0092 02B0     		add	sp, sp, #8
+ 651              		@ sp needed
+ 652 0094 70BD     		pop	{r4, r5, r6, pc}
+ 653              	.L93:
+ 654 0096 0020     		movs	r0, #0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s 			page 12
+
+
+ 655 0098 7047     		bx	lr
+ 656              	.L103:
+ 657 009a 00BF     		.align	2
+ 658              	.L102:
+ 659 009c 00000000 		.word	inited.0
+ 660 00a0 00000000 		.word	find_item
+ 662              		.section	.text.lv_gradient_cleanup,"ax",%progbits
+ 663              		.align	1
+ 664              		.global	lv_gradient_cleanup
+ 665              		.syntax unified
+ 666              		.thumb
+ 667              		.thumb_func
+ 669              	lv_gradient_cleanup:
+ 670              		@ args = 0, pretend = 0, frame = 0
+ 671              		@ frame_needed = 0, uses_anonymous_args = 0
+ 672 0000 08B5     		push	{r3, lr}
+ 673 0002 90F90730 		ldrsb	r3, [r0, #7]
+ 674 0006 002B     		cmp	r3, #0
+ 675 0008 00DB     		blt	.L107
+ 676              	.L104:
+ 677 000a 08BD     		pop	{r3, pc}
+ 678              	.L107:
+ 679 000c FFF7FEFF 		bl	lv_mem_free
+ 680 0010 FBE7     		b	.L104
+ 682              		.section	.bss.inited.0,"aw",%nobits
+ 685              	inited.0:
+ 686 0000 00       		.space	1
+ 687              		.section	.bss.grad_cache_end,"aw",%nobits
+ 688              		.align	2
+ 691              	grad_cache_end:
+ 692 0000 00000000 		.space	4
+ 693              		.section	.bss.grad_cache_size,"aw",%nobits
+ 694              		.align	2
+ 697              	grad_cache_size:
+ 698 0000 00000000 		.space	4
+ 699              		.ident	"GCC: (xPack GNU Arm Embedded GCC arm64) 13.3.1 20240614"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s 			page 13
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_draw_sw_gradient.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:18     .text.lv_color_to32:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:23     .text.lv_color_to32:00000000 lv_color_to32
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:52     .text.compute_key:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:57     .text.compute_key:00000000 compute_key
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:66     .text.get_cache_item_size:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:71     .text.get_cache_item_size:00000000 get_cache_item_size
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:83     .text.next_in_cache:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:88     .text.next_in_cache:00000000 next_in_cache
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:118    .text.next_in_cache:0000002c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:697    .bss.grad_cache_size:00000000 grad_cache_size
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:691    .bss.grad_cache_end:00000000 grad_cache_end
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:123    .text.iterate_cache:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:128    .text.iterate_cache:00000000 iterate_cache
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:165    .text.find_oldest_item_life:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:170    .text.find_oldest_item_life:00000000 find_oldest_item_life
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:185    .text.find_item:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:190    .text.find_item:00000000 find_item
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:205    .text.allocate_item:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:210    .text.allocate_item:00000000 allocate_item
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:324    .text.allocate_item:00000104 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:387    .text.kill_oldest_item:00000000 kill_oldest_item
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:331    .text.free_item:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:336    .text.free_item:00000000 free_item
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:379    .text.free_item:00000050 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:382    .text.kill_oldest_item:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:405    .text.lv_gradient_free_cache:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:411    .text.lv_gradient_free_cache:00000000 lv_gradient_free_cache
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:428    .text.lv_gradient_free_cache:00000018 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:433    .text.lv_gradient_set_cache_size:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:439    .text.lv_gradient_set_cache_size:00000000 lv_gradient_set_cache_size
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:463    .text.lv_gradient_set_cache_size:00000028 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:468    .text.lv_gradient_calculate:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:474    .text.lv_gradient_calculate:00000000 lv_gradient_calculate
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:571    .text.lv_gradient_get:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:577    .text.lv_gradient_get:00000000 lv_gradient_get
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:659    .text.lv_gradient_get:0000009c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:685    .bss.inited.0:00000000 inited.0
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:663    .text.lv_gradient_cleanup:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:669    .text.lv_gradient_cleanup:00000000 lv_gradient_cleanup
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:686    .bss.inited.0:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:688    .bss.grad_cache_end:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccboi16g.s:694    .bss.grad_cache_size:00000000 $d
+
+UNDEFINED SYMBOLS
+_lv_grad_cache_mem
+lv_mem_alloc
+lv_memcpy
+lv_memset_00
+lv_mem_free

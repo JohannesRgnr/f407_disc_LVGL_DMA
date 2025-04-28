@@ -1,0 +1,287 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_hal_tick.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Drivers/lvgl/src/hal/lv_hal_tick.c"
+  20              		.section	.text.lv_tick_inc,"ax",%progbits
+  21              		.align	1
+  22              		.global	lv_tick_inc
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	lv_tick_inc:
+  28              	.LVL0:
+  29              	.LFB0:
+   1:Drivers/lvgl/src/hal/lv_hal_tick.c **** /**
+   2:Drivers/lvgl/src/hal/lv_hal_tick.c ****  * @file lv_hal_tick.c
+   3:Drivers/lvgl/src/hal/lv_hal_tick.c ****  * Provide access to the system tick with 1 millisecond resolution
+   4:Drivers/lvgl/src/hal/lv_hal_tick.c ****  */
+   5:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+   6:Drivers/lvgl/src/hal/lv_hal_tick.c **** /*********************
+   7:Drivers/lvgl/src/hal/lv_hal_tick.c ****  *      INCLUDES
+   8:Drivers/lvgl/src/hal/lv_hal_tick.c ****  *********************/
+   9:Drivers/lvgl/src/hal/lv_hal_tick.c **** #include "lv_hal_tick.h"
+  10:Drivers/lvgl/src/hal/lv_hal_tick.c **** #include <stddef.h>
+  11:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+  12:Drivers/lvgl/src/hal/lv_hal_tick.c **** #if LV_TICK_CUSTOM == 1
+  13:Drivers/lvgl/src/hal/lv_hal_tick.c ****     #include LV_TICK_CUSTOM_INCLUDE
+  14:Drivers/lvgl/src/hal/lv_hal_tick.c **** #endif
+  15:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+  16:Drivers/lvgl/src/hal/lv_hal_tick.c **** /*********************
+  17:Drivers/lvgl/src/hal/lv_hal_tick.c ****  *      DEFINES
+  18:Drivers/lvgl/src/hal/lv_hal_tick.c ****  *********************/
+  19:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+  20:Drivers/lvgl/src/hal/lv_hal_tick.c **** /**********************
+  21:Drivers/lvgl/src/hal/lv_hal_tick.c ****  *      TYPEDEFS
+  22:Drivers/lvgl/src/hal/lv_hal_tick.c ****  **********************/
+  23:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+  24:Drivers/lvgl/src/hal/lv_hal_tick.c **** /**********************
+  25:Drivers/lvgl/src/hal/lv_hal_tick.c ****  *  STATIC PROTOTYPES
+  26:Drivers/lvgl/src/hal/lv_hal_tick.c ****  **********************/
+  27:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+  28:Drivers/lvgl/src/hal/lv_hal_tick.c **** /**********************
+  29:Drivers/lvgl/src/hal/lv_hal_tick.c ****  *  STATIC VARIABLES
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s 			page 2
+
+
+  30:Drivers/lvgl/src/hal/lv_hal_tick.c ****  **********************/
+  31:Drivers/lvgl/src/hal/lv_hal_tick.c **** #if !LV_TICK_CUSTOM
+  32:Drivers/lvgl/src/hal/lv_hal_tick.c ****     static uint32_t sys_time = 0;
+  33:Drivers/lvgl/src/hal/lv_hal_tick.c ****     static volatile uint8_t tick_irq_flag;
+  34:Drivers/lvgl/src/hal/lv_hal_tick.c **** #endif
+  35:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+  36:Drivers/lvgl/src/hal/lv_hal_tick.c **** /**********************
+  37:Drivers/lvgl/src/hal/lv_hal_tick.c ****  *      MACROS
+  38:Drivers/lvgl/src/hal/lv_hal_tick.c ****  **********************/
+  39:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+  40:Drivers/lvgl/src/hal/lv_hal_tick.c **** /**********************
+  41:Drivers/lvgl/src/hal/lv_hal_tick.c ****  *   GLOBAL FUNCTIONS
+  42:Drivers/lvgl/src/hal/lv_hal_tick.c ****  **********************/
+  43:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+  44:Drivers/lvgl/src/hal/lv_hal_tick.c **** #if !LV_TICK_CUSTOM
+  45:Drivers/lvgl/src/hal/lv_hal_tick.c **** /**
+  46:Drivers/lvgl/src/hal/lv_hal_tick.c ****  * You have to call this function periodically
+  47:Drivers/lvgl/src/hal/lv_hal_tick.c ****  * @param tick_period the call period of this function in milliseconds
+  48:Drivers/lvgl/src/hal/lv_hal_tick.c ****  */
+  49:Drivers/lvgl/src/hal/lv_hal_tick.c **** void LV_ATTRIBUTE_TICK_INC lv_tick_inc(uint32_t tick_period)
+  50:Drivers/lvgl/src/hal/lv_hal_tick.c **** {
+  30              		.loc 1 50 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+  51:Drivers/lvgl/src/hal/lv_hal_tick.c ****     tick_irq_flag = 0;
+  35              		.loc 1 51 5 view .LVU1
+  36              		.loc 1 51 19 is_stmt 0 view .LVU2
+  37 0000 034B     		ldr	r3, .L2
+  38 0002 0022     		movs	r2, #0
+  39 0004 1A70     		strb	r2, [r3]
+  52:Drivers/lvgl/src/hal/lv_hal_tick.c ****     sys_time += tick_period;
+  40              		.loc 1 52 5 is_stmt 1 view .LVU3
+  41              		.loc 1 52 14 is_stmt 0 view .LVU4
+  42 0006 034A     		ldr	r2, .L2+4
+  43 0008 1368     		ldr	r3, [r2]
+  44 000a 0344     		add	r3, r3, r0
+  45 000c 1360     		str	r3, [r2]
+  53:Drivers/lvgl/src/hal/lv_hal_tick.c **** }
+  46              		.loc 1 53 1 view .LVU5
+  47 000e 7047     		bx	lr
+  48              	.L3:
+  49              		.align	2
+  50              	.L2:
+  51 0010 00000000 		.word	tick_irq_flag
+  52 0014 00000000 		.word	sys_time
+  53              		.cfi_endproc
+  54              	.LFE0:
+  56              		.section	.text.lv_tick_get,"ax",%progbits
+  57              		.align	1
+  58              		.global	lv_tick_get
+  59              		.syntax unified
+  60              		.thumb
+  61              		.thumb_func
+  63              	lv_tick_get:
+  64              	.LFB1:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s 			page 3
+
+
+  54:Drivers/lvgl/src/hal/lv_hal_tick.c **** #endif
+  55:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+  56:Drivers/lvgl/src/hal/lv_hal_tick.c **** /**
+  57:Drivers/lvgl/src/hal/lv_hal_tick.c ****  * Get the elapsed milliseconds since start up
+  58:Drivers/lvgl/src/hal/lv_hal_tick.c ****  * @return the elapsed milliseconds
+  59:Drivers/lvgl/src/hal/lv_hal_tick.c ****  */
+  60:Drivers/lvgl/src/hal/lv_hal_tick.c **** uint32_t lv_tick_get(void)
+  61:Drivers/lvgl/src/hal/lv_hal_tick.c **** {
+  65              		.loc 1 61 1 is_stmt 1 view -0
+  66              		.cfi_startproc
+  67              		@ args = 0, pretend = 0, frame = 0
+  68              		@ frame_needed = 0, uses_anonymous_args = 0
+  69              		@ link register save eliminated.
+  70              	.L5:
+  62:Drivers/lvgl/src/hal/lv_hal_tick.c **** #if LV_TICK_CUSTOM == 0
+  63:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+  64:Drivers/lvgl/src/hal/lv_hal_tick.c ****     /*If `lv_tick_inc` is called from an interrupt while `sys_time` is read
+  65:Drivers/lvgl/src/hal/lv_hal_tick.c ****      *the result might be corrupted.
+  66:Drivers/lvgl/src/hal/lv_hal_tick.c ****      *This loop detects if `lv_tick_inc` was called while reading `sys_time`.
+  67:Drivers/lvgl/src/hal/lv_hal_tick.c ****      *If `tick_irq_flag` was cleared in `lv_tick_inc` try to read again
+  68:Drivers/lvgl/src/hal/lv_hal_tick.c ****      *until `tick_irq_flag` remains `1`.*/
+  69:Drivers/lvgl/src/hal/lv_hal_tick.c ****     uint32_t result;
+  71              		.loc 1 69 5 view .LVU7
+  70:Drivers/lvgl/src/hal/lv_hal_tick.c ****     do {
+  72              		.loc 1 70 5 view .LVU8
+  71:Drivers/lvgl/src/hal/lv_hal_tick.c ****         tick_irq_flag = 1;
+  73              		.loc 1 71 9 view .LVU9
+  74              		.loc 1 71 23 is_stmt 0 view .LVU10
+  75 0000 044B     		ldr	r3, .L6
+  76 0002 0122     		movs	r2, #1
+  77 0004 1A70     		strb	r2, [r3]
+  72:Drivers/lvgl/src/hal/lv_hal_tick.c ****         result        = sys_time;
+  78              		.loc 1 72 9 is_stmt 1 view .LVU11
+  79              		.loc 1 72 23 is_stmt 0 view .LVU12
+  80 0006 044A     		ldr	r2, .L6+4
+  81 0008 1068     		ldr	r0, [r2]
+  82              	.LVL1:
+  73:Drivers/lvgl/src/hal/lv_hal_tick.c ****     } while(!tick_irq_flag); /*Continue until see a non interrupted cycle*/
+  83              		.loc 1 73 13 is_stmt 1 discriminator 1 view .LVU13
+  84 000a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  85 000c 002B     		cmp	r3, #0
+  86 000e F7D0     		beq	.L5
+  74:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+  75:Drivers/lvgl/src/hal/lv_hal_tick.c ****     return result;
+  87              		.loc 1 75 5 view .LVU14
+  76:Drivers/lvgl/src/hal/lv_hal_tick.c **** #else
+  77:Drivers/lvgl/src/hal/lv_hal_tick.c ****     return LV_TICK_CUSTOM_SYS_TIME_EXPR;
+  78:Drivers/lvgl/src/hal/lv_hal_tick.c **** #endif
+  79:Drivers/lvgl/src/hal/lv_hal_tick.c **** }
+  88              		.loc 1 79 1 is_stmt 0 view .LVU15
+  89 0010 7047     		bx	lr
+  90              	.L7:
+  91 0012 00BF     		.align	2
+  92              	.L6:
+  93 0014 00000000 		.word	tick_irq_flag
+  94 0018 00000000 		.word	sys_time
+  95              		.cfi_endproc
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s 			page 4
+
+
+  96              	.LFE1:
+  98              		.section	.text.lv_tick_elaps,"ax",%progbits
+  99              		.align	1
+ 100              		.global	lv_tick_elaps
+ 101              		.syntax unified
+ 102              		.thumb
+ 103              		.thumb_func
+ 105              	lv_tick_elaps:
+ 106              	.LVL2:
+ 107              	.LFB2:
+  80:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+  81:Drivers/lvgl/src/hal/lv_hal_tick.c **** /**
+  82:Drivers/lvgl/src/hal/lv_hal_tick.c ****  * Get the elapsed milliseconds since a previous time stamp
+  83:Drivers/lvgl/src/hal/lv_hal_tick.c ****  * @param prev_tick a previous time stamp (return value of lv_tick_get() )
+  84:Drivers/lvgl/src/hal/lv_hal_tick.c ****  * @return the elapsed milliseconds since 'prev_tick'
+  85:Drivers/lvgl/src/hal/lv_hal_tick.c ****  */
+  86:Drivers/lvgl/src/hal/lv_hal_tick.c **** uint32_t lv_tick_elaps(uint32_t prev_tick)
+  87:Drivers/lvgl/src/hal/lv_hal_tick.c **** {
+ 108              		.loc 1 87 1 is_stmt 1 view -0
+ 109              		.cfi_startproc
+ 110              		@ args = 0, pretend = 0, frame = 0
+ 111              		@ frame_needed = 0, uses_anonymous_args = 0
+ 112              		.loc 1 87 1 is_stmt 0 view .LVU17
+ 113 0000 10B5     		push	{r4, lr}
+ 114              		.cfi_def_cfa_offset 8
+ 115              		.cfi_offset 4, -8
+ 116              		.cfi_offset 14, -4
+ 117 0002 0446     		mov	r4, r0
+  88:Drivers/lvgl/src/hal/lv_hal_tick.c ****     uint32_t act_time = lv_tick_get();
+ 118              		.loc 1 88 5 is_stmt 1 view .LVU18
+ 119              		.loc 1 88 25 is_stmt 0 view .LVU19
+ 120 0004 FFF7FEFF 		bl	lv_tick_get
+ 121              	.LVL3:
+  89:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+  90:Drivers/lvgl/src/hal/lv_hal_tick.c ****     /*If there is no overflow in sys_time simple subtract*/
+  91:Drivers/lvgl/src/hal/lv_hal_tick.c ****     if(act_time >= prev_tick) {
+ 122              		.loc 1 91 5 is_stmt 1 view .LVU20
+ 123              		.loc 1 91 7 is_stmt 0 view .LVU21
+ 124 0008 A042     		cmp	r0, r4
+ 125 000a 01D3     		bcc	.L9
+  92:Drivers/lvgl/src/hal/lv_hal_tick.c ****         prev_tick = act_time - prev_tick;
+ 126              		.loc 1 92 9 is_stmt 1 view .LVU22
+ 127              		.loc 1 92 19 is_stmt 0 view .LVU23
+ 128 000c 001B     		subs	r0, r0, r4
+ 129              	.LVL4:
+ 130              	.L8:
+  93:Drivers/lvgl/src/hal/lv_hal_tick.c ****     }
+  94:Drivers/lvgl/src/hal/lv_hal_tick.c ****     else {
+  95:Drivers/lvgl/src/hal/lv_hal_tick.c ****         prev_tick = UINT32_MAX - prev_tick + 1;
+  96:Drivers/lvgl/src/hal/lv_hal_tick.c ****         prev_tick += act_time;
+  97:Drivers/lvgl/src/hal/lv_hal_tick.c ****     }
+  98:Drivers/lvgl/src/hal/lv_hal_tick.c **** 
+  99:Drivers/lvgl/src/hal/lv_hal_tick.c ****     return prev_tick;
+ 100:Drivers/lvgl/src/hal/lv_hal_tick.c **** }
+ 131              		.loc 1 100 1 view .LVU24
+ 132 000e 10BD     		pop	{r4, pc}
+ 133              	.LVL5:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s 			page 5
+
+
+ 134              	.L9:
+  95:Drivers/lvgl/src/hal/lv_hal_tick.c ****         prev_tick += act_time;
+ 135              		.loc 1 95 9 is_stmt 1 view .LVU25
+  96:Drivers/lvgl/src/hal/lv_hal_tick.c ****     }
+ 136              		.loc 1 96 9 view .LVU26
+ 137 0010 001B     		subs	r0, r0, r4
+ 138              	.LVL6:
+  99:Drivers/lvgl/src/hal/lv_hal_tick.c **** }
+ 139              		.loc 1 99 5 view .LVU27
+  99:Drivers/lvgl/src/hal/lv_hal_tick.c **** }
+ 140              		.loc 1 99 12 is_stmt 0 view .LVU28
+ 141 0012 FCE7     		b	.L8
+ 142              		.cfi_endproc
+ 143              	.LFE2:
+ 145              		.section	.bss.tick_irq_flag,"aw",%nobits
+ 148              	tick_irq_flag:
+ 149 0000 00       		.space	1
+ 150              		.section	.bss.sys_time,"aw",%nobits
+ 151              		.align	2
+ 154              	sys_time:
+ 155 0000 00000000 		.space	4
+ 156              		.text
+ 157              	.Letext0:
+ 158              		.file 2 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 159              		.file 3 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_hal_tick.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s:21     .text.lv_tick_inc:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s:27     .text.lv_tick_inc:00000000 lv_tick_inc
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s:51     .text.lv_tick_inc:00000010 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s:148    .bss.tick_irq_flag:00000000 tick_irq_flag
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s:154    .bss.sys_time:00000000 sys_time
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s:57     .text.lv_tick_get:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s:63     .text.lv_tick_get:00000000 lv_tick_get
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s:93     .text.lv_tick_get:00000014 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s:99     .text.lv_tick_elaps:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s:105    .text.lv_tick_elaps:00000000 lv_tick_elaps
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s:149    .bss.tick_irq_flag:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccp74SEE.s:151    .bss.sys_time:00000000 $d
+
+NO UNDEFINED SYMBOLS

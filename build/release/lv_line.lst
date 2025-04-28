@@ -1,0 +1,352 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_line.c"
+  16              		.text
+  17              		.section	.text.lv_line_event,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	lv_line_event:
+  24              		@ args = 0, pretend = 0, frame = 32
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+  27 0004 89B0     		sub	sp, sp, #36
+  28 0006 0C46     		mov	r4, r1
+  29 0008 5C48     		ldr	r0, .L17
+  30 000a FFF7FEFF 		bl	lv_obj_event_base
+  31 000e 0128     		cmp	r0, #1
+  32 0010 02D0     		beq	.L14
+  33              	.L1:
+  34 0012 09B0     		add	sp, sp, #36
+  35              		@ sp needed
+  36 0014 BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+  37              	.L14:
+  38 0018 2046     		mov	r0, r4
+  39 001a FFF7FEFF 		bl	lv_event_get_code
+  40 001e 0646     		mov	r6, r0
+  41 0020 2046     		mov	r0, r4
+  42 0022 FFF7FEFF 		bl	lv_event_get_target
+  43 0026 0546     		mov	r5, r0
+  44 0028 132E     		cmp	r6, #19
+  45 002a 2FD0     		beq	.L15
+  46 002c 2C2E     		cmp	r6, #44
+  47 002e 3BD0     		beq	.L16
+  48 0030 152E     		cmp	r6, #21
+  49 0032 EED1     		bne	.L1
+  50 0034 2046     		mov	r0, r4
+  51 0036 FFF7FEFF 		bl	lv_event_get_draw_ctx
+  52 003a 8046     		mov	r8, r0
+  53 003c 2B8D     		ldrh	r3, [r5, #40]
+  54 003e 002B     		cmp	r3, #0
+  55 0040 E7D0     		beq	.L1
+  56 0042 6B6A     		ldr	r3, [r5, #36]
+  57 0044 002B     		cmp	r3, #0
+  58 0046 E4D0     		beq	.L1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s 			page 2
+
+
+  59 0048 03A9     		add	r1, sp, #12
+  60 004a 2846     		mov	r0, r5
+  61 004c FFF7FEFF 		bl	lv_obj_get_coords
+  62 0050 BDF80C60 		ldrh	r6, [sp, #12]
+  63 0054 2846     		mov	r0, r5
+  64 0056 FFF7FEFF 		bl	lv_obj_get_scroll_x
+  65 005a 80B2     		uxth	r0, r0
+  66 005c 361A     		subs	r6, r6, r0
+  67 005e B6B2     		uxth	r6, r6
+  68 0060 BDF80E70 		ldrh	r7, [sp, #14]
+  69 0064 2846     		mov	r0, r5
+  70 0066 FFF7FEFF 		bl	lv_obj_get_scroll_y
+  71 006a 80B2     		uxth	r0, r0
+  72 006c 3F1A     		subs	r7, r7, r0
+  73 006e BFB2     		uxth	r7, r7
+  74 0070 2846     		mov	r0, r5
+  75 0072 FFF7FEFF 		bl	lv_obj_get_height
+  76 0076 8146     		mov	r9, r0
+  77 0078 05A8     		add	r0, sp, #20
+  78 007a FFF7FEFF 		bl	lv_draw_line_dsc_init
+  79 007e 05AA     		add	r2, sp, #20
+  80 0080 0021     		movs	r1, #0
+  81 0082 2846     		mov	r0, r5
+  82 0084 FFF7FEFF 		bl	lv_obj_init_draw_line_dsc
+  83 0088 0024     		movs	r4, #0
+  84 008a 54E0     		b	.L9
+  85              	.L15:
+  86 008c 4922     		movs	r2, #73
+  87 008e 0021     		movs	r1, #0
+  88 0090 FFF7FEFF 		bl	lv_obj_get_style_prop
+  89 0094 05B2     		sxth	r5, r0
+  90 0096 2046     		mov	r0, r4
+  91 0098 FFF7FEFF 		bl	lv_event_get_param
+  92 009c B0F90030 		ldrsh	r3, [r0]
+  93 00a0 AB42     		cmp	r3, r5
+  94 00a2 B6DA     		bge	.L1
+  95 00a4 0580     		strh	r5, [r0]	@ movhi
+  96 00a6 B4E7     		b	.L1
+  97              	.L16:
+  98 00a8 038D     		ldrh	r3, [r0, #40]
+  99 00aa 002B     		cmp	r3, #0
+ 100 00ac B1D0     		beq	.L1
+ 101 00ae 436A     		ldr	r3, [r0, #36]
+ 102 00b0 002B     		cmp	r3, #0
+ 103 00b2 AED0     		beq	.L1
+ 104 00b4 2046     		mov	r0, r4
+ 105 00b6 FFF7FEFF 		bl	lv_event_get_param
+ 106 00ba 0746     		mov	r7, r0
+ 107 00bc 0023     		movs	r3, #0
+ 108 00be 1E46     		mov	r6, r3
+ 109 00c0 1C46     		mov	r4, r3
+ 110 00c2 0EE0     		b	.L5
+ 111              	.L6:
+ 112 00c4 6A6A     		ldr	r2, [r5, #36]
+ 113 00c6 02EB8301 		add	r1, r2, r3, lsl #2
+ 114 00ca 32F92320 		ldrsh	r2, [r2, r3, lsl #2]
+ 115 00ce 9442     		cmp	r4, r2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s 			page 3
+
+
+ 116 00d0 B8BF     		it	lt
+ 117 00d2 1446     		movlt	r4, r2
+ 118 00d4 B1F90220 		ldrsh	r2, [r1, #2]
+ 119 00d8 9642     		cmp	r6, r2
+ 120 00da B8BF     		it	lt
+ 121 00dc 1646     		movlt	r6, r2
+ 122 00de 0133     		adds	r3, r3, #1
+ 123 00e0 9BB2     		uxth	r3, r3
+ 124              	.L5:
+ 125 00e2 2A8D     		ldrh	r2, [r5, #40]
+ 126 00e4 9A42     		cmp	r2, r3
+ 127 00e6 EDD8     		bhi	.L6
+ 128 00e8 4922     		movs	r2, #73
+ 129 00ea 0021     		movs	r1, #0
+ 130 00ec 2846     		mov	r0, r5
+ 131 00ee FFF7FEFF 		bl	lv_obj_get_style_prop
+ 132 00f2 80B2     		uxth	r0, r0
+ 133 00f4 0444     		add	r4, r4, r0
+ 134 00f6 3044     		add	r0, r0, r6
+ 135 00f8 3C80     		strh	r4, [r7]	@ movhi
+ 136 00fa 7880     		strh	r0, [r7, #2]	@ movhi
+ 137 00fc 89E7     		b	.L1
+ 138              	.L10:
+ 139 00fe 1FFA89F3 		uxth	r3, r9
+ 140 0102 4A88     		ldrh	r2, [r1, #2]
+ 141 0104 9A1A     		subs	r2, r3, r2
+ 142 0106 17FA82F2 		uxtah	r2, r7, r2
+ 143 010a ADF80620 		strh	r2, [sp, #6]	@ movhi
+ 144 010e 4288     		ldrh	r2, [r0, #2]
+ 145 0110 9B1A     		subs	r3, r3, r2
+ 146 0112 17FA83F3 		uxtah	r3, r7, r3
+ 147 0116 ADF80A30 		strh	r3, [sp, #10]	@ movhi
+ 148              	.L11:
+ 149 011a 02AB     		add	r3, sp, #8
+ 150 011c 01AA     		add	r2, sp, #4
+ 151 011e 05A9     		add	r1, sp, #20
+ 152 0120 4046     		mov	r0, r8
+ 153 0122 FFF7FEFF 		bl	lv_draw_line
+ 154 0126 9DF81D30 		ldrb	r3, [sp, #29]	@ zero_extendqisi2
+ 155 012a 23F00403 		bic	r3, r3, #4
+ 156 012e 8DF81D30 		strb	r3, [sp, #29]
+ 157 0132 0134     		adds	r4, r4, #1
+ 158 0134 A4B2     		uxth	r4, r4
+ 159              	.L9:
+ 160 0136 2B8D     		ldrh	r3, [r5, #40]
+ 161 0138 013B     		subs	r3, r3, #1
+ 162 013a 9C42     		cmp	r4, r3
+ 163 013c BFF669AF 		bge	.L1
+ 164 0140 6B6A     		ldr	r3, [r5, #36]
+ 165 0142 03EB8401 		add	r1, r3, r4, lsl #2
+ 166 0146 33F82420 		ldrh	r2, [r3, r4, lsl #2]
+ 167 014a 3244     		add	r2, r2, r6
+ 168 014c ADF80420 		strh	r2, [sp, #4]	@ movhi
+ 169 0150 621C     		adds	r2, r4, #1
+ 170 0152 03EB8200 		add	r0, r3, r2, lsl #2
+ 171 0156 33F82230 		ldrh	r3, [r3, r2, lsl #2]
+ 172 015a 3344     		add	r3, r3, r6
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s 			page 4
+
+
+ 173 015c ADF80830 		strh	r3, [sp, #8]	@ movhi
+ 174 0160 95F82A30 		ldrb	r3, [r5, #42]	@ zero_extendqisi2
+ 175 0164 13F0010F 		tst	r3, #1
+ 176 0168 C9D1     		bne	.L10
+ 177 016a 4B88     		ldrh	r3, [r1, #2]
+ 178 016c 3B44     		add	r3, r3, r7
+ 179 016e ADF80630 		strh	r3, [sp, #6]	@ movhi
+ 180 0172 4388     		ldrh	r3, [r0, #2]
+ 181 0174 3B44     		add	r3, r3, r7
+ 182 0176 ADF80A30 		strh	r3, [sp, #10]	@ movhi
+ 183 017a CEE7     		b	.L11
+ 184              	.L18:
+ 185              		.align	2
+ 186              	.L17:
+ 187 017c 00000000 		.word	lv_line_class
+ 189              		.section	.text.lv_line_constructor,"ax",%progbits
+ 190              		.align	1
+ 191              		.syntax unified
+ 192              		.thumb
+ 193              		.thumb_func
+ 195              	lv_line_constructor:
+ 196              		@ args = 0, pretend = 0, frame = 0
+ 197              		@ frame_needed = 0, uses_anonymous_args = 0
+ 198 0000 08B5     		push	{r3, lr}
+ 199 0002 0846     		mov	r0, r1
+ 200 0004 0023     		movs	r3, #0
+ 201 0006 0B85     		strh	r3, [r1, #40]	@ movhi
+ 202 0008 4B62     		str	r3, [r1, #36]
+ 203 000a 91F82A20 		ldrb	r2, [r1, #42]	@ zero_extendqisi2
+ 204 000e 63F30002 		bfi	r2, r3, #0, #1
+ 205 0012 81F82A20 		strb	r2, [r1, #42]
+ 206 0016 0221     		movs	r1, #2
+ 207 0018 FFF7FEFF 		bl	lv_obj_clear_flag
+ 208 001c 08BD     		pop	{r3, pc}
+ 210              		.section	.text.lv_line_create,"ax",%progbits
+ 211              		.align	1
+ 212              		.global	lv_line_create
+ 213              		.syntax unified
+ 214              		.thumb
+ 215              		.thumb_func
+ 217              	lv_line_create:
+ 218              		@ args = 0, pretend = 0, frame = 0
+ 219              		@ frame_needed = 0, uses_anonymous_args = 0
+ 220 0000 10B5     		push	{r4, lr}
+ 221 0002 0146     		mov	r1, r0
+ 222 0004 0348     		ldr	r0, .L23
+ 223 0006 FFF7FEFF 		bl	lv_obj_class_create_obj
+ 224 000a 0446     		mov	r4, r0
+ 225 000c FFF7FEFF 		bl	lv_obj_class_init_obj
+ 226 0010 2046     		mov	r0, r4
+ 227 0012 10BD     		pop	{r4, pc}
+ 228              	.L24:
+ 229              		.align	2
+ 230              	.L23:
+ 231 0014 00000000 		.word	lv_line_class
+ 233              		.section	.text.lv_line_set_points,"ax",%progbits
+ 234              		.align	1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s 			page 5
+
+
+ 235              		.global	lv_line_set_points
+ 236              		.syntax unified
+ 237              		.thumb
+ 238              		.thumb_func
+ 240              	lv_line_set_points:
+ 241              		@ args = 0, pretend = 0, frame = 0
+ 242              		@ frame_needed = 0, uses_anonymous_args = 0
+ 243 0000 10B5     		push	{r4, lr}
+ 244 0002 0446     		mov	r4, r0
+ 245 0004 4162     		str	r1, [r0, #36]
+ 246 0006 0285     		strh	r2, [r0, #40]	@ movhi
+ 247 0008 FFF7FEFF 		bl	lv_obj_refresh_self_size
+ 248 000c 2046     		mov	r0, r4
+ 249 000e FFF7FEFF 		bl	lv_obj_invalidate
+ 250 0012 10BD     		pop	{r4, pc}
+ 252              		.section	.text.lv_line_set_y_invert,"ax",%progbits
+ 253              		.align	1
+ 254              		.global	lv_line_set_y_invert
+ 255              		.syntax unified
+ 256              		.thumb
+ 257              		.thumb_func
+ 259              	lv_line_set_y_invert:
+ 260              		@ args = 0, pretend = 0, frame = 0
+ 261              		@ frame_needed = 0, uses_anonymous_args = 0
+ 262 0000 08B5     		push	{r3, lr}
+ 263 0002 90F82A30 		ldrb	r3, [r0, #42]	@ zero_extendqisi2
+ 264 0006 03F00103 		and	r3, r3, #1
+ 265 000a 8B42     		cmp	r3, r1
+ 266 000c 07D0     		beq	.L27
+ 267 000e 90F82A30 		ldrb	r3, [r0, #42]	@ zero_extendqisi2
+ 268 0012 61F30003 		bfi	r3, r1, #0, #1
+ 269 0016 80F82A30 		strb	r3, [r0, #42]
+ 270 001a FFF7FEFF 		bl	lv_obj_invalidate
+ 271              	.L27:
+ 272 001e 08BD     		pop	{r3, pc}
+ 274              		.section	.text.lv_line_get_y_invert,"ax",%progbits
+ 275              		.align	1
+ 276              		.global	lv_line_get_y_invert
+ 277              		.syntax unified
+ 278              		.thumb
+ 279              		.thumb_func
+ 281              	lv_line_get_y_invert:
+ 282              		@ args = 0, pretend = 0, frame = 0
+ 283              		@ frame_needed = 0, uses_anonymous_args = 0
+ 284              		@ link register save eliminated.
+ 285 0000 90F82A00 		ldrb	r0, [r0, #42]	@ zero_extendqisi2
+ 286 0004 00F00100 		and	r0, r0, #1
+ 287 0008 7047     		bx	lr
+ 289              		.global	lv_line_class
+ 290              		.section	.rodata.lv_line_class,"a"
+ 291              		.align	2
+ 294              	lv_line_class:
+ 295 0000 00000000 		.word	lv_obj_class
+ 296 0004 00000000 		.word	lv_line_constructor
+ 297 0008 00000000 		.space	8
+ 297      00000000 
+ 298 0010 00000000 		.word	lv_line_event
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s 			page 6
+
+
+ 299 0014 D127     		.short	10193
+ 300 0016 D127     		.short	10193
+ 301 0018 C0       		.byte	192
+ 302 0019 02       		.byte	2
+ 303 001a 00       		.byte	0
+ 304 001b 00       		.space	1
+ 305              		.ident	"GCC: (xPack GNU Arm Embedded GCC arm64) 13.3.1 20240614"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_line.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:18     .text.lv_line_event:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:23     .text.lv_line_event:00000000 lv_line_event
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:187    .text.lv_line_event:0000017c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:294    .rodata.lv_line_class:00000000 lv_line_class
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:190    .text.lv_line_constructor:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:195    .text.lv_line_constructor:00000000 lv_line_constructor
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:211    .text.lv_line_create:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:217    .text.lv_line_create:00000000 lv_line_create
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:231    .text.lv_line_create:00000014 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:234    .text.lv_line_set_points:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:240    .text.lv_line_set_points:00000000 lv_line_set_points
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:253    .text.lv_line_set_y_invert:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:259    .text.lv_line_set_y_invert:00000000 lv_line_set_y_invert
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:275    .text.lv_line_get_y_invert:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:281    .text.lv_line_get_y_invert:00000000 lv_line_get_y_invert
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cc0Uk9G8.s:291    .rodata.lv_line_class:00000000 $d
+
+UNDEFINED SYMBOLS
+lv_obj_event_base
+lv_event_get_code
+lv_event_get_target
+lv_event_get_draw_ctx
+lv_obj_get_coords
+lv_obj_get_scroll_x
+lv_obj_get_scroll_y
+lv_obj_get_height
+lv_draw_line_dsc_init
+lv_obj_init_draw_line_dsc
+lv_obj_get_style_prop
+lv_event_get_param
+lv_draw_line
+lv_obj_clear_flag
+lv_obj_class_create_obj
+lv_obj_class_init_obj
+lv_obj_refresh_self_size
+lv_obj_invalidate
+lv_obj_class

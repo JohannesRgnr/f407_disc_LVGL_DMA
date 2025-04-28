@@ -1,0 +1,294 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_hal_indev.c"
+  16              		.text
+  17              		.section	.text.lv_indev_drv_init,"ax",%progbits
+  18              		.align	1
+  19              		.global	lv_indev_drv_init
+  20              		.syntax unified
+  21              		.thumb
+  22              		.thumb_func
+  24              	lv_indev_drv_init:
+  25              		@ args = 0, pretend = 0, frame = 0
+  26              		@ frame_needed = 0, uses_anonymous_args = 0
+  27 0000 10B5     		push	{r4, lr}
+  28 0002 0446     		mov	r4, r0
+  29 0004 2021     		movs	r1, #32
+  30 0006 FFF7FEFF 		bl	lv_memset_00
+  31 000a 0023     		movs	r3, #0
+  32 000c 2370     		strb	r3, [r4]
+  33 000e 0A23     		movs	r3, #10
+  34 0010 2376     		strb	r3, [r4, #24]
+  35 0012 6376     		strb	r3, [r4, #25]
+  36 0014 4FF4C873 		mov	r3, #400
+  37 0018 A383     		strh	r3, [r4, #28]	@ movhi
+  38 001a 6423     		movs	r3, #100
+  39 001c E383     		strh	r3, [r4, #30]	@ movhi
+  40 001e 3223     		movs	r3, #50
+  41 0020 E376     		strb	r3, [r4, #27]
+  42 0022 0323     		movs	r3, #3
+  43 0024 A376     		strb	r3, [r4, #26]
+  44 0026 10BD     		pop	{r4, pc}
+  46              		.section	.text.lv_indev_drv_register,"ax",%progbits
+  47              		.align	1
+  48              		.global	lv_indev_drv_register
+  49              		.syntax unified
+  50              		.thumb
+  51              		.thumb_func
+  53              	lv_indev_drv_register:
+  54              		@ args = 0, pretend = 0, frame = 0
+  55              		@ frame_needed = 0, uses_anonymous_args = 0
+  56 0000 38B5     		push	{r3, r4, r5, lr}
+  57 0002 0446     		mov	r4, r0
+  58 0004 0369     		ldr	r3, [r0, #16]
+  59 0006 B3B1     		cbz	r3, .L9
+  60              	.L4:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s 			page 2
+
+
+  61 0008 2569     		ldr	r5, [r4, #16]
+  62 000a 95B1     		cbz	r5, .L3
+  63 000c 0C48     		ldr	r0, .L10
+  64 000e FFF7FEFF 		bl	_lv_ll_ins_head
+  65 0012 0546     		mov	r5, r0
+  66 0014 98B1     		cbz	r0, .L7
+  67 0016 5C21     		movs	r1, #92
+  68 0018 FFF7FEFF 		bl	lv_memset_00
+  69 001c 2C60     		str	r4, [r5]
+  70 001e 6B79     		ldrb	r3, [r5, #5]	@ zero_extendqisi2
+  71 0020 43F00203 		orr	r3, r3, #2
+  72 0024 6B71     		strb	r3, [r5, #5]
+  73 0026 2A46     		mov	r2, r5
+  74 0028 1E21     		movs	r1, #30
+  75 002a 0648     		ldr	r0, .L10+4
+  76 002c FFF7FEFF 		bl	lv_timer_create
+  77 0030 6061     		str	r0, [r4, #20]
+  78              	.L3:
+  79 0032 2846     		mov	r0, r5
+  80 0034 38BD     		pop	{r3, r4, r5, pc}
+  81              	.L9:
+  82 0036 FFF7FEFF 		bl	lv_disp_get_default
+  83 003a 2061     		str	r0, [r4, #16]
+  84 003c E4E7     		b	.L4
+  85              	.L7:
+  86 003e FEE7     		b	.L7
+  87              	.L11:
+  88              		.align	2
+  89              	.L10:
+  90 0040 00000000 		.word	_lv_indev_ll
+  91 0044 00000000 		.word	lv_indev_read_timer_cb
+  93              		.section	.text.lv_indev_drv_update,"ax",%progbits
+  94              		.align	1
+  95              		.global	lv_indev_drv_update
+  96              		.syntax unified
+  97              		.thumb
+  98              		.thumb_func
+ 100              	lv_indev_drv_update:
+ 101              		@ args = 0, pretend = 0, frame = 0
+ 102              		@ frame_needed = 0, uses_anonymous_args = 0
+ 103 0000 C8B1     		cbz	r0, .L14
+ 104 0002 38B5     		push	{r3, r4, r5, lr}
+ 105 0004 0C46     		mov	r4, r1
+ 106 0006 0546     		mov	r5, r0
+ 107 0008 0368     		ldr	r3, [r0]
+ 108 000a ABB1     		cbz	r3, .L16
+ 109 000c 5869     		ldr	r0, [r3, #20]
+ 110 000e A0B1     		cbz	r0, .L18
+ 111 0010 FFF7FEFF 		bl	lv_timer_del
+ 112 0014 94B1     		cbz	r4, .L20
+ 113 0016 2369     		ldr	r3, [r4, #16]
+ 114 0018 8BB1     		cbz	r3, .L26
+ 115              	.L21:
+ 116 001a 2369     		ldr	r3, [r4, #16]
+ 117 001c 9BB1     		cbz	r3, .L27
+ 118 001e 2C60     		str	r4, [r5]
+ 119 0020 2A46     		mov	r2, r5
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s 			page 3
+
+
+ 120 0022 1E21     		movs	r1, #30
+ 121 0024 0A48     		ldr	r0, .L28
+ 122 0026 FFF7FEFF 		bl	lv_timer_create
+ 123 002a 6061     		str	r0, [r4, #20]
+ 124 002c 6B79     		ldrb	r3, [r5, #5]	@ zero_extendqisi2
+ 125 002e 43F00203 		orr	r3, r3, #2
+ 126 0032 6B71     		strb	r3, [r5, #5]
+ 127              	.L12:
+ 128 0034 38BD     		pop	{r3, r4, r5, pc}
+ 129              	.L14:
+ 130 0036 FEE7     		b	.L14
+ 131              	.L16:
+ 132 0038 FEE7     		b	.L16
+ 133              	.L18:
+ 134 003a FEE7     		b	.L18
+ 135              	.L20:
+ 136 003c FEE7     		b	.L20
+ 137              	.L26:
+ 138 003e FFF7FEFF 		bl	lv_disp_get_default
+ 139 0042 2061     		str	r0, [r4, #16]
+ 140 0044 E9E7     		b	.L21
+ 141              	.L27:
+ 142 0046 6B79     		ldrb	r3, [r5, #5]	@ zero_extendqisi2
+ 143 0048 43F00403 		orr	r3, r3, #4
+ 144 004c 6B71     		strb	r3, [r5, #5]
+ 145 004e F1E7     		b	.L12
+ 146              	.L29:
+ 147              		.align	2
+ 148              	.L28:
+ 149 0050 00000000 		.word	lv_indev_read_timer_cb
+ 151              		.section	.text.lv_indev_delete,"ax",%progbits
+ 152              		.align	1
+ 153              		.global	lv_indev_delete
+ 154              		.syntax unified
+ 155              		.thumb
+ 156              		.thumb_func
+ 158              	lv_indev_delete:
+ 159              		@ args = 0, pretend = 0, frame = 0
+ 160              		@ frame_needed = 0, uses_anonymous_args = 0
+ 161 0000 78B1     		cbz	r0, .L32
+ 162 0002 10B5     		push	{r4, lr}
+ 163 0004 0446     		mov	r4, r0
+ 164 0006 0368     		ldr	r3, [r0]
+ 165 0008 63B1     		cbz	r3, .L34
+ 166 000a 5869     		ldr	r0, [r3, #20]
+ 167 000c 58B1     		cbz	r0, .L36
+ 168 000e FFF7FEFF 		bl	lv_timer_del
+ 169 0012 2146     		mov	r1, r4
+ 170 0014 0448     		ldr	r0, .L39
+ 171 0016 FFF7FEFF 		bl	_lv_ll_remove
+ 172 001a 2046     		mov	r0, r4
+ 173 001c FFF7FEFF 		bl	lv_mem_free
+ 174 0020 10BD     		pop	{r4, pc}
+ 175              	.L32:
+ 176 0022 FEE7     		b	.L32
+ 177              	.L34:
+ 178 0024 FEE7     		b	.L34
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s 			page 4
+
+
+ 179              	.L36:
+ 180 0026 FEE7     		b	.L36
+ 181              	.L40:
+ 182              		.align	2
+ 183              	.L39:
+ 184 0028 00000000 		.word	_lv_indev_ll
+ 186              		.section	.text.lv_indev_get_next,"ax",%progbits
+ 187              		.align	1
+ 188              		.global	lv_indev_get_next
+ 189              		.syntax unified
+ 190              		.thumb
+ 191              		.thumb_func
+ 193              	lv_indev_get_next:
+ 194              		@ args = 0, pretend = 0, frame = 0
+ 195              		@ frame_needed = 0, uses_anonymous_args = 0
+ 196 0000 08B5     		push	{r3, lr}
+ 197 0002 20B1     		cbz	r0, .L45
+ 198 0004 0146     		mov	r1, r0
+ 199 0006 0448     		ldr	r0, .L46
+ 200 0008 FFF7FEFF 		bl	_lv_ll_get_next
+ 201              	.L41:
+ 202 000c 08BD     		pop	{r3, pc}
+ 203              	.L45:
+ 204 000e 0248     		ldr	r0, .L46
+ 205 0010 FFF7FEFF 		bl	_lv_ll_get_head
+ 206 0014 FAE7     		b	.L41
+ 207              	.L47:
+ 208 0016 00BF     		.align	2
+ 209              	.L46:
+ 210 0018 00000000 		.word	_lv_indev_ll
+ 212              		.section	.text._lv_indev_read,"ax",%progbits
+ 213              		.align	1
+ 214              		.global	_lv_indev_read
+ 215              		.syntax unified
+ 216              		.thumb
+ 217              		.thumb_func
+ 219              	_lv_indev_read:
+ 220              		@ args = 0, pretend = 0, frame = 0
+ 221              		@ frame_needed = 0, uses_anonymous_args = 0
+ 222 0000 38B5     		push	{r3, r4, r5, lr}
+ 223 0002 0446     		mov	r4, r0
+ 224 0004 0D46     		mov	r5, r1
+ 225 0006 1021     		movs	r1, #16
+ 226 0008 2846     		mov	r0, r5
+ 227 000a FFF7FEFF 		bl	lv_memset_00
+ 228 000e 2368     		ldr	r3, [r4]
+ 229 0010 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 230 0012 012B     		cmp	r3, #1
+ 231 0014 06D0     		beq	.L54
+ 232 0016 022B     		cmp	r3, #2
+ 233 0018 10D0     		beq	.L55
+ 234 001a 042B     		cmp	r3, #4
+ 235 001c 08D1     		bne	.L50
+ 236 001e 0A23     		movs	r3, #10
+ 237 0020 6B60     		str	r3, [r5, #4]
+ 238 0022 05E0     		b	.L50
+ 239              	.L54:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s 			page 5
+
+
+ 240 0024 B4F91430 		ldrsh	r3, [r4, #20]
+ 241 0028 2B80     		strh	r3, [r5]	@ movhi
+ 242 002a B4F91630 		ldrsh	r3, [r4, #22]
+ 243 002e 6B80     		strh	r3, [r5, #2]	@ movhi
+ 244              	.L50:
+ 245 0030 2068     		ldr	r0, [r4]
+ 246 0032 4368     		ldr	r3, [r0, #4]
+ 247 0034 0BB1     		cbz	r3, .L48
+ 248 0036 2946     		mov	r1, r5
+ 249 0038 9847     		blx	r3
+ 250              	.L48:
+ 251 003a 38BD     		pop	{r3, r4, r5, pc}
+ 252              	.L55:
+ 253 003c E368     		ldr	r3, [r4, #12]
+ 254 003e 6B60     		str	r3, [r5, #4]
+ 255 0040 F6E7     		b	.L50
+ 257              		.ident	"GCC: (xPack GNU Arm Embedded GCC arm64) 13.3.1 20240614"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_hal_indev.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:18     .text.lv_indev_drv_init:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:24     .text.lv_indev_drv_init:00000000 lv_indev_drv_init
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:47     .text.lv_indev_drv_register:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:53     .text.lv_indev_drv_register:00000000 lv_indev_drv_register
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:90     .text.lv_indev_drv_register:00000040 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:94     .text.lv_indev_drv_update:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:100    .text.lv_indev_drv_update:00000000 lv_indev_drv_update
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:149    .text.lv_indev_drv_update:00000050 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:152    .text.lv_indev_delete:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:158    .text.lv_indev_delete:00000000 lv_indev_delete
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:184    .text.lv_indev_delete:00000028 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:187    .text.lv_indev_get_next:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:193    .text.lv_indev_get_next:00000000 lv_indev_get_next
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:210    .text.lv_indev_get_next:00000018 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:213    .text._lv_indev_read:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccrBxrcL.s:219    .text._lv_indev_read:00000000 _lv_indev_read
+
+UNDEFINED SYMBOLS
+lv_memset_00
+_lv_ll_ins_head
+lv_timer_create
+lv_disp_get_default
+_lv_indev_ll
+lv_indev_read_timer_cb
+lv_timer_del
+_lv_ll_remove
+lv_mem_free
+_lv_ll_get_next
+_lv_ll_get_head

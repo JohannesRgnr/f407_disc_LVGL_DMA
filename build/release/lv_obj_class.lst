@@ -1,0 +1,377 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_obj_class.c"
+  16              		.text
+  17              		.section	.text.lv_obj_construct,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	lv_obj_construct:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26 0000 38B5     		push	{r3, r4, r5, lr}
+  27 0002 0446     		mov	r4, r0
+  28 0004 0568     		ldr	r5, [r0]
+  29 0006 2B68     		ldr	r3, [r5]
+  30 0008 13B1     		cbz	r3, .L2
+  31 000a 0360     		str	r3, [r0]
+  32 000c FFF7F8FF 		bl	lv_obj_construct
+  33              	.L2:
+  34 0010 2560     		str	r5, [r4]
+  35 0012 6B68     		ldr	r3, [r5, #4]
+  36 0014 13B1     		cbz	r3, .L1
+  37 0016 2146     		mov	r1, r4
+  38 0018 2846     		mov	r0, r5
+  39 001a 9847     		blx	r3
+  40              	.L1:
+  41 001c 38BD     		pop	{r3, r4, r5, pc}
+  43              		.section	.text.get_instance_size,"ax",%progbits
+  44              		.align	1
+  45              		.syntax unified
+  46              		.thumb
+  47              		.thumb_func
+  49              	get_instance_size:
+  50              		@ args = 0, pretend = 0, frame = 0
+  51              		@ frame_needed = 0, uses_anonymous_args = 0
+  52              		@ link register save eliminated.
+  53 0000 00E0     		b	.L6
+  54              	.L8:
+  55 0002 0068     		ldr	r0, [r0]
+  56              	.L6:
+  57 0004 20B1     		cbz	r0, .L7
+  58 0006 8269     		ldr	r2, [r0, #24]
+  59 0008 054B     		ldr	r3, .L11
+  60 000a 1340     		ands	r3, r3, r2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s 			page 2
+
+
+  61 000c 002B     		cmp	r3, #0
+  62 000e F8D0     		beq	.L8
+  63              	.L7:
+  64 0010 18B1     		cbz	r0, .L10
+  65 0012 8069     		ldr	r0, [r0, #24]
+  66 0014 C0F30F10 		ubfx	r0, r0, #4, #16
+  67 0018 7047     		bx	lr
+  68              	.L10:
+  69 001a 0020     		movs	r0, #0
+  70 001c 7047     		bx	lr
+  71              	.L12:
+  72 001e 00BF     		.align	2
+  73              	.L11:
+  74 0020 F0FF0F00 		.word	1048560
+  76              		.section	.text.lv_obj_class_create_obj,"ax",%progbits
+  77              		.align	1
+  78              		.global	lv_obj_class_create_obj
+  79              		.syntax unified
+  80              		.thumb
+  81              		.thumb_func
+  83              	lv_obj_class_create_obj:
+  84              		@ args = 0, pretend = 0, frame = 0
+  85              		@ frame_needed = 0, uses_anonymous_args = 0
+  86 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+  87 0002 0546     		mov	r5, r0
+  88 0004 0C46     		mov	r4, r1
+  89 0006 FFF7FEFF 		bl	get_instance_size
+  90 000a 0646     		mov	r6, r0
+  91 000c FFF7FEFF 		bl	lv_mem_alloc
+  92 0010 0746     		mov	r7, r0
+  93 0012 F0B1     		cbz	r0, .L13
+  94 0014 3146     		mov	r1, r6
+  95 0016 FFF7FEFF 		bl	lv_memset_00
+  96 001a 3D60     		str	r5, [r7]
+  97 001c 7C60     		str	r4, [r7, #4]
+  98 001e D4B1     		cbz	r4, .L22
+  99 0020 A368     		ldr	r3, [r4, #8]
+ 100 0022 002B     		cmp	r3, #0
+ 101 0024 47D0     		beq	.L23
+ 102              	.L19:
+ 103 0026 A568     		ldr	r5, [r4, #8]
+ 104 0028 2B68     		ldr	r3, [r5]
+ 105 002a 002B     		cmp	r3, #0
+ 106 002c 47D0     		beq	.L24
+ 107 002e 6B68     		ldr	r3, [r5, #4]
+ 108 0030 0133     		adds	r3, r3, #1
+ 109 0032 6B60     		str	r3, [r5, #4]
+ 110 0034 A568     		ldr	r5, [r4, #8]
+ 111 0036 6968     		ldr	r1, [r5, #4]
+ 112 0038 8900     		lsls	r1, r1, #2
+ 113 003a 2868     		ldr	r0, [r5]
+ 114 003c FFF7FEFF 		bl	lv_mem_realloc
+ 115 0040 2860     		str	r0, [r5]
+ 116 0042 A368     		ldr	r3, [r4, #8]
+ 117 0044 1A68     		ldr	r2, [r3]
+ 118 0046 5B68     		ldr	r3, [r3, #4]
+ 119 0048 03F18043 		add	r3, r3, #1073741824
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s 			page 3
+
+
+ 120 004c 013B     		subs	r3, r3, #1
+ 121 004e 42F82370 		str	r7, [r2, r3, lsl #2]
+ 122              	.L13:
+ 123 0052 3846     		mov	r0, r7
+ 124 0054 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 125              	.L22:
+ 126 0056 FFF7FEFF 		bl	lv_disp_get_default
+ 127 005a 0446     		mov	r4, r0
+ 128 005c F0B1     		cbz	r0, .L25
+ 129 005e C068     		ldr	r0, [r0, #12]
+ 130 0060 08B3     		cbz	r0, .L26
+ 131 0062 616A     		ldr	r1, [r4, #36]
+ 132 0064 0131     		adds	r1, r1, #1
+ 133 0066 6162     		str	r1, [r4, #36]
+ 134 0068 8900     		lsls	r1, r1, #2
+ 135 006a FFF7FEFF 		bl	lv_mem_realloc
+ 136 006e E060     		str	r0, [r4, #12]
+ 137 0070 636A     		ldr	r3, [r4, #36]
+ 138 0072 03F18043 		add	r3, r3, #1073741824
+ 139 0076 013B     		subs	r3, r3, #1
+ 140 0078 40F82370 		str	r7, [r0, r3, lsl #2]
+ 141              	.L18:
+ 142 007c 0024     		movs	r4, #0
+ 143 007e BC82     		strh	r4, [r7, #20]	@ movhi
+ 144 0080 FC82     		strh	r4, [r7, #22]	@ movhi
+ 145 0082 2046     		mov	r0, r4
+ 146 0084 FFF7FEFF 		bl	lv_disp_get_hor_res
+ 147 0088 80B2     		uxth	r0, r0
+ 148 008a 0138     		subs	r0, r0, #1
+ 149 008c 3883     		strh	r0, [r7, #24]	@ movhi
+ 150 008e 2046     		mov	r0, r4
+ 151 0090 FFF7FEFF 		bl	lv_disp_get_ver_res
+ 152 0094 80B2     		uxth	r0, r0
+ 153 0096 0138     		subs	r0, r0, #1
+ 154 0098 7883     		strh	r0, [r7, #26]	@ movhi
+ 155 009a DAE7     		b	.L13
+ 156              	.L25:
+ 157 009c 3846     		mov	r0, r7
+ 158 009e FFF7FEFF 		bl	lv_mem_free
+ 159 00a2 2746     		mov	r7, r4
+ 160 00a4 D5E7     		b	.L13
+ 161              	.L26:
+ 162 00a6 0420     		movs	r0, #4
+ 163 00a8 FFF7FEFF 		bl	lv_mem_alloc
+ 164 00ac E060     		str	r0, [r4, #12]
+ 165 00ae 0760     		str	r7, [r0]
+ 166 00b0 0123     		movs	r3, #1
+ 167 00b2 6362     		str	r3, [r4, #36]
+ 168 00b4 E2E7     		b	.L18
+ 169              	.L23:
+ 170 00b6 2046     		mov	r0, r4
+ 171 00b8 FFF7FEFF 		bl	lv_obj_allocate_spec_attr
+ 172 00bc B3E7     		b	.L19
+ 173              	.L24:
+ 174 00be 0420     		movs	r0, #4
+ 175 00c0 FFF7FEFF 		bl	lv_mem_alloc
+ 176 00c4 2860     		str	r0, [r5]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s 			page 4
+
+
+ 177 00c6 A368     		ldr	r3, [r4, #8]
+ 178 00c8 1B68     		ldr	r3, [r3]
+ 179 00ca 1F60     		str	r7, [r3]
+ 180 00cc A368     		ldr	r3, [r4, #8]
+ 181 00ce 0122     		movs	r2, #1
+ 182 00d0 5A60     		str	r2, [r3, #4]
+ 183 00d2 BEE7     		b	.L13
+ 185              		.section	.text._lv_obj_destruct,"ax",%progbits
+ 186              		.align	1
+ 187              		.global	_lv_obj_destruct
+ 188              		.syntax unified
+ 189              		.thumb
+ 190              		.thumb_func
+ 192              	_lv_obj_destruct:
+ 193              		@ args = 0, pretend = 0, frame = 0
+ 194              		@ frame_needed = 0, uses_anonymous_args = 0
+ 195 0000 10B5     		push	{r4, lr}
+ 196 0002 0446     		mov	r4, r0
+ 197 0004 0068     		ldr	r0, [r0]
+ 198 0006 8368     		ldr	r3, [r0, #8]
+ 199 0008 0BB1     		cbz	r3, .L28
+ 200 000a 2146     		mov	r1, r4
+ 201 000c 9847     		blx	r3
+ 202              	.L28:
+ 203 000e 2368     		ldr	r3, [r4]
+ 204 0010 1B68     		ldr	r3, [r3]
+ 205 0012 1BB1     		cbz	r3, .L27
+ 206 0014 2360     		str	r3, [r4]
+ 207 0016 2046     		mov	r0, r4
+ 208 0018 FFF7FEFF 		bl	_lv_obj_destruct
+ 209              	.L27:
+ 210 001c 10BD     		pop	{r4, pc}
+ 212              		.section	.text.lv_obj_is_editable,"ax",%progbits
+ 213              		.align	1
+ 214              		.global	lv_obj_is_editable
+ 215              		.syntax unified
+ 216              		.thumb
+ 217              		.thumb_func
+ 219              	lv_obj_is_editable:
+ 220              		@ args = 0, pretend = 0, frame = 0
+ 221              		@ frame_needed = 0, uses_anonymous_args = 0
+ 222              		@ link register save eliminated.
+ 223 0000 0368     		ldr	r3, [r0]
+ 224 0002 00E0     		b	.L32
+ 225              	.L34:
+ 226 0004 1B68     		ldr	r3, [r3]
+ 227              	.L32:
+ 228 0006 1BB1     		cbz	r3, .L33
+ 229 0008 1A7E     		ldrb	r2, [r3, #24]	@ zero_extendqisi2
+ 230 000a 12F0030F 		tst	r2, #3
+ 231 000e F9D0     		beq	.L34
+ 232              	.L33:
+ 233 0010 3BB1     		cbz	r3, .L36
+ 234 0012 187E     		ldrb	r0, [r3, #24]	@ zero_extendqisi2
+ 235 0014 00F00300 		and	r0, r0, #3
+ 236 0018 0128     		cmp	r0, #1
+ 237 001a 14BF     		ite	ne
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s 			page 5
+
+
+ 238 001c 0020     		movne	r0, #0
+ 239 001e 0120     		moveq	r0, #1
+ 240 0020 7047     		bx	lr
+ 241              	.L36:
+ 242 0022 0020     		movs	r0, #0
+ 243 0024 7047     		bx	lr
+ 245              		.section	.text.lv_obj_is_group_def,"ax",%progbits
+ 246              		.align	1
+ 247              		.global	lv_obj_is_group_def
+ 248              		.syntax unified
+ 249              		.thumb
+ 250              		.thumb_func
+ 252              	lv_obj_is_group_def:
+ 253              		@ args = 0, pretend = 0, frame = 0
+ 254              		@ frame_needed = 0, uses_anonymous_args = 0
+ 255              		@ link register save eliminated.
+ 256 0000 0368     		ldr	r3, [r0]
+ 257 0002 00E0     		b	.L38
+ 258              	.L40:
+ 259 0004 1B68     		ldr	r3, [r3]
+ 260              	.L38:
+ 261 0006 1BB1     		cbz	r3, .L39
+ 262 0008 1A7E     		ldrb	r2, [r3, #24]	@ zero_extendqisi2
+ 263 000a 12F00C0F 		tst	r2, #12
+ 264 000e F9D0     		beq	.L40
+ 265              	.L39:
+ 266 0010 3BB1     		cbz	r3, .L42
+ 267 0012 187E     		ldrb	r0, [r3, #24]	@ zero_extendqisi2
+ 268 0014 00F00C00 		and	r0, r0, #12
+ 269 0018 0428     		cmp	r0, #4
+ 270 001a 14BF     		ite	ne
+ 271 001c 0020     		movne	r0, #0
+ 272 001e 0120     		moveq	r0, #1
+ 273 0020 7047     		bx	lr
+ 274              	.L42:
+ 275 0022 0020     		movs	r0, #0
+ 276 0024 7047     		bx	lr
+ 278              		.section	.text.lv_obj_class_init_obj,"ax",%progbits
+ 279              		.align	1
+ 280              		.global	lv_obj_class_init_obj
+ 281              		.syntax unified
+ 282              		.thumb
+ 283              		.thumb_func
+ 285              	lv_obj_class_init_obj:
+ 286              		@ args = 0, pretend = 0, frame = 0
+ 287              		@ frame_needed = 0, uses_anonymous_args = 0
+ 288 0000 38B5     		push	{r3, r4, r5, lr}
+ 289 0002 0446     		mov	r4, r0
+ 290 0004 FFF7FEFF 		bl	lv_obj_mark_layout_as_dirty
+ 291 0008 0020     		movs	r0, #0
+ 292 000a FFF7FEFF 		bl	lv_obj_enable_style_refresh
+ 293 000e 2046     		mov	r0, r4
+ 294 0010 FFF7FEFF 		bl	lv_theme_apply
+ 295 0014 2046     		mov	r0, r4
+ 296 0016 FFF7FEFF 		bl	lv_obj_construct
+ 297 001a 0120     		movs	r0, #1
+ 298 001c FFF7FEFF 		bl	lv_obj_enable_style_refresh
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s 			page 6
+
+
+ 299 0020 4FF6FF72 		movw	r2, #65535
+ 300 0024 4FF47021 		mov	r1, #983040
+ 301 0028 2046     		mov	r0, r4
+ 302 002a FFF7FEFF 		bl	lv_obj_refresh_style
+ 303 002e 2046     		mov	r0, r4
+ 304 0030 FFF7FEFF 		bl	lv_obj_refresh_self_size
+ 305 0034 FFF7FEFF 		bl	lv_group_get_default
+ 306 0038 20B1     		cbz	r0, .L44
+ 307 003a 0546     		mov	r5, r0
+ 308 003c 2046     		mov	r0, r4
+ 309 003e FFF7FEFF 		bl	lv_obj_is_group_def
+ 310 0042 88B9     		cbnz	r0, .L47
+ 311              	.L44:
+ 312 0044 2046     		mov	r0, r4
+ 313 0046 FFF7FEFF 		bl	lv_obj_get_parent
+ 314 004a 0546     		mov	r5, r0
+ 315 004c 58B1     		cbz	r0, .L43
+ 316 004e 2246     		mov	r2, r4
+ 317 0050 2221     		movs	r1, #34
+ 318 0052 FFF7FEFF 		bl	lv_event_send
+ 319 0056 2246     		mov	r2, r4
+ 320 0058 2321     		movs	r1, #35
+ 321 005a 2846     		mov	r0, r5
+ 322 005c FFF7FEFF 		bl	lv_event_send
+ 323 0060 2046     		mov	r0, r4
+ 324 0062 FFF7FEFF 		bl	lv_obj_invalidate
+ 325              	.L43:
+ 326 0066 38BD     		pop	{r3, r4, r5, pc}
+ 327              	.L47:
+ 328 0068 2146     		mov	r1, r4
+ 329 006a 2846     		mov	r0, r5
+ 330 006c FFF7FEFF 		bl	lv_group_add_obj
+ 331 0070 E8E7     		b	.L44
+ 333              		.ident	"GCC: (xPack GNU Arm Embedded GCC arm64) 13.3.1 20240614"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_obj_class.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:18     .text.lv_obj_construct:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:23     .text.lv_obj_construct:00000000 lv_obj_construct
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:44     .text.get_instance_size:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:49     .text.get_instance_size:00000000 get_instance_size
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:74     .text.get_instance_size:00000020 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:77     .text.lv_obj_class_create_obj:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:83     .text.lv_obj_class_create_obj:00000000 lv_obj_class_create_obj
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:186    .text._lv_obj_destruct:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:192    .text._lv_obj_destruct:00000000 _lv_obj_destruct
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:213    .text.lv_obj_is_editable:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:219    .text.lv_obj_is_editable:00000000 lv_obj_is_editable
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:246    .text.lv_obj_is_group_def:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:252    .text.lv_obj_is_group_def:00000000 lv_obj_is_group_def
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:279    .text.lv_obj_class_init_obj:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//cck29yFA.s:285    .text.lv_obj_class_init_obj:00000000 lv_obj_class_init_obj
+
+UNDEFINED SYMBOLS
+lv_mem_alloc
+lv_memset_00
+lv_mem_realloc
+lv_disp_get_default
+lv_disp_get_hor_res
+lv_disp_get_ver_res
+lv_mem_free
+lv_obj_allocate_spec_attr
+lv_obj_mark_layout_as_dirty
+lv_obj_enable_style_refresh
+lv_theme_apply
+lv_obj_refresh_style
+lv_obj_refresh_self_size
+lv_group_get_default
+lv_obj_get_parent
+lv_event_send
+lv_obj_invalidate
+lv_group_add_obj

@@ -1,0 +1,3114 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_anim.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Drivers/lvgl/src/misc/lv_anim.c"
+  20              		.section	.text.anim_mark_list_change,"ax",%progbits
+  21              		.align	1
+  22              		.syntax unified
+  23              		.thumb
+  24              		.thumb_func
+  26              	anim_mark_list_change:
+  27              	.LFB65:
+   1:Drivers/lvgl/src/misc/lv_anim.c **** /**
+   2:Drivers/lvgl/src/misc/lv_anim.c ****  * @file lv_anim.c
+   3:Drivers/lvgl/src/misc/lv_anim.c ****  *
+   4:Drivers/lvgl/src/misc/lv_anim.c ****  */
+   5:Drivers/lvgl/src/misc/lv_anim.c **** 
+   6:Drivers/lvgl/src/misc/lv_anim.c **** /*********************
+   7:Drivers/lvgl/src/misc/lv_anim.c ****  *      INCLUDES
+   8:Drivers/lvgl/src/misc/lv_anim.c ****  *********************/
+   9:Drivers/lvgl/src/misc/lv_anim.c **** #include "lv_anim.h"
+  10:Drivers/lvgl/src/misc/lv_anim.c **** 
+  11:Drivers/lvgl/src/misc/lv_anim.c **** #include "../hal/lv_hal_tick.h"
+  12:Drivers/lvgl/src/misc/lv_anim.c **** #include "lv_assert.h"
+  13:Drivers/lvgl/src/misc/lv_anim.c **** #include "lv_timer.h"
+  14:Drivers/lvgl/src/misc/lv_anim.c **** #include "lv_math.h"
+  15:Drivers/lvgl/src/misc/lv_anim.c **** #include "lv_mem.h"
+  16:Drivers/lvgl/src/misc/lv_anim.c **** #include "lv_gc.h"
+  17:Drivers/lvgl/src/misc/lv_anim.c **** 
+  18:Drivers/lvgl/src/misc/lv_anim.c **** /*********************
+  19:Drivers/lvgl/src/misc/lv_anim.c ****  *      DEFINES
+  20:Drivers/lvgl/src/misc/lv_anim.c ****  *********************/
+  21:Drivers/lvgl/src/misc/lv_anim.c **** #define LV_ANIM_RESOLUTION 1024
+  22:Drivers/lvgl/src/misc/lv_anim.c **** #define LV_ANIM_RES_SHIFT 10
+  23:Drivers/lvgl/src/misc/lv_anim.c **** 
+  24:Drivers/lvgl/src/misc/lv_anim.c **** /**********************
+  25:Drivers/lvgl/src/misc/lv_anim.c ****  *      TYPEDEFS
+  26:Drivers/lvgl/src/misc/lv_anim.c ****  **********************/
+  27:Drivers/lvgl/src/misc/lv_anim.c **** 
+  28:Drivers/lvgl/src/misc/lv_anim.c **** /**********************
+  29:Drivers/lvgl/src/misc/lv_anim.c ****  *  STATIC PROTOTYPES
+  30:Drivers/lvgl/src/misc/lv_anim.c ****  **********************/
+  31:Drivers/lvgl/src/misc/lv_anim.c **** static void anim_timer(lv_timer_t * param);
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 2
+
+
+  32:Drivers/lvgl/src/misc/lv_anim.c **** static void anim_mark_list_change(void);
+  33:Drivers/lvgl/src/misc/lv_anim.c **** static void anim_ready_handler(lv_anim_t * a);
+  34:Drivers/lvgl/src/misc/lv_anim.c **** 
+  35:Drivers/lvgl/src/misc/lv_anim.c **** /**********************
+  36:Drivers/lvgl/src/misc/lv_anim.c ****  *  STATIC VARIABLES
+  37:Drivers/lvgl/src/misc/lv_anim.c ****  **********************/
+  38:Drivers/lvgl/src/misc/lv_anim.c **** static uint32_t last_timer_run;
+  39:Drivers/lvgl/src/misc/lv_anim.c **** static bool anim_list_changed;
+  40:Drivers/lvgl/src/misc/lv_anim.c **** static bool anim_run_round;
+  41:Drivers/lvgl/src/misc/lv_anim.c **** static lv_timer_t * _lv_anim_tmr;
+  42:Drivers/lvgl/src/misc/lv_anim.c **** 
+  43:Drivers/lvgl/src/misc/lv_anim.c **** /**********************
+  44:Drivers/lvgl/src/misc/lv_anim.c ****  *      MACROS
+  45:Drivers/lvgl/src/misc/lv_anim.c ****  **********************/
+  46:Drivers/lvgl/src/misc/lv_anim.c **** #if LV_LOG_TRACE_ANIM
+  47:Drivers/lvgl/src/misc/lv_anim.c ****     #define TRACE_ANIM(...) LV_LOG_TRACE(__VA_ARGS__)
+  48:Drivers/lvgl/src/misc/lv_anim.c **** #else
+  49:Drivers/lvgl/src/misc/lv_anim.c ****     #define TRACE_ANIM(...)
+  50:Drivers/lvgl/src/misc/lv_anim.c **** #endif
+  51:Drivers/lvgl/src/misc/lv_anim.c **** 
+  52:Drivers/lvgl/src/misc/lv_anim.c **** 
+  53:Drivers/lvgl/src/misc/lv_anim.c **** /**********************
+  54:Drivers/lvgl/src/misc/lv_anim.c ****  *   GLOBAL FUNCTIONS
+  55:Drivers/lvgl/src/misc/lv_anim.c ****  **********************/
+  56:Drivers/lvgl/src/misc/lv_anim.c **** 
+  57:Drivers/lvgl/src/misc/lv_anim.c **** void _lv_anim_core_init(void)
+  58:Drivers/lvgl/src/misc/lv_anim.c **** {
+  59:Drivers/lvgl/src/misc/lv_anim.c ****     _lv_ll_init(&LV_GC_ROOT(_lv_anim_ll), sizeof(lv_anim_t));
+  60:Drivers/lvgl/src/misc/lv_anim.c ****     _lv_anim_tmr = lv_timer_create(anim_timer, LV_DISP_DEF_REFR_PERIOD, NULL);
+  61:Drivers/lvgl/src/misc/lv_anim.c ****     anim_mark_list_change(); /*Turn off the animation timer*/
+  62:Drivers/lvgl/src/misc/lv_anim.c ****     anim_list_changed = false;
+  63:Drivers/lvgl/src/misc/lv_anim.c **** }
+  64:Drivers/lvgl/src/misc/lv_anim.c **** 
+  65:Drivers/lvgl/src/misc/lv_anim.c **** void lv_anim_init(lv_anim_t * a)
+  66:Drivers/lvgl/src/misc/lv_anim.c **** {
+  67:Drivers/lvgl/src/misc/lv_anim.c ****     lv_memset_00(a, sizeof(lv_anim_t));
+  68:Drivers/lvgl/src/misc/lv_anim.c ****     a->time = 500;
+  69:Drivers/lvgl/src/misc/lv_anim.c ****     a->start_value = 0;
+  70:Drivers/lvgl/src/misc/lv_anim.c ****     a->end_value = 100;
+  71:Drivers/lvgl/src/misc/lv_anim.c ****     a->repeat_cnt = 1;
+  72:Drivers/lvgl/src/misc/lv_anim.c ****     a->path_cb = lv_anim_path_linear;
+  73:Drivers/lvgl/src/misc/lv_anim.c ****     a->early_apply = 1;
+  74:Drivers/lvgl/src/misc/lv_anim.c **** }
+  75:Drivers/lvgl/src/misc/lv_anim.c **** 
+  76:Drivers/lvgl/src/misc/lv_anim.c **** lv_anim_t * lv_anim_start(const lv_anim_t * a)
+  77:Drivers/lvgl/src/misc/lv_anim.c **** {
+  78:Drivers/lvgl/src/misc/lv_anim.c ****     TRACE_ANIM("begin");
+  79:Drivers/lvgl/src/misc/lv_anim.c **** 
+  80:Drivers/lvgl/src/misc/lv_anim.c ****     /*Do not let two animations for the same 'var' with the same 'exec_cb'*/
+  81:Drivers/lvgl/src/misc/lv_anim.c ****     if(a->exec_cb != NULL) lv_anim_del(a->var, a->exec_cb); /*exec_cb == NULL would delete all anim
+  82:Drivers/lvgl/src/misc/lv_anim.c **** 
+  83:Drivers/lvgl/src/misc/lv_anim.c ****     /*If the list is empty the anim timer was suspended and it's last run measure is invalid*/
+  84:Drivers/lvgl/src/misc/lv_anim.c ****     if(_lv_ll_is_empty(&LV_GC_ROOT(_lv_anim_ll))) {
+  85:Drivers/lvgl/src/misc/lv_anim.c ****         last_timer_run = lv_tick_get();
+  86:Drivers/lvgl/src/misc/lv_anim.c ****     }
+  87:Drivers/lvgl/src/misc/lv_anim.c **** 
+  88:Drivers/lvgl/src/misc/lv_anim.c ****     /*Add the new animation to the animation linked list*/
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 3
+
+
+  89:Drivers/lvgl/src/misc/lv_anim.c ****     lv_anim_t * new_anim = _lv_ll_ins_head(&LV_GC_ROOT(_lv_anim_ll));
+  90:Drivers/lvgl/src/misc/lv_anim.c ****     LV_ASSERT_MALLOC(new_anim);
+  91:Drivers/lvgl/src/misc/lv_anim.c ****     if(new_anim == NULL) return NULL;
+  92:Drivers/lvgl/src/misc/lv_anim.c **** 
+  93:Drivers/lvgl/src/misc/lv_anim.c ****     /*Initialize the animation descriptor*/
+  94:Drivers/lvgl/src/misc/lv_anim.c ****     lv_memcpy(new_anim, a, sizeof(lv_anim_t));
+  95:Drivers/lvgl/src/misc/lv_anim.c ****     if(a->var == a) new_anim->var = new_anim;
+  96:Drivers/lvgl/src/misc/lv_anim.c ****     new_anim->run_round = anim_run_round;
+  97:Drivers/lvgl/src/misc/lv_anim.c **** 
+  98:Drivers/lvgl/src/misc/lv_anim.c ****     /*Set the start value*/
+  99:Drivers/lvgl/src/misc/lv_anim.c ****     if(new_anim->early_apply) {
+ 100:Drivers/lvgl/src/misc/lv_anim.c ****         if(new_anim->get_value_cb) {
+ 101:Drivers/lvgl/src/misc/lv_anim.c ****             int32_t v_ofs = new_anim->get_value_cb(new_anim);
+ 102:Drivers/lvgl/src/misc/lv_anim.c ****             new_anim->start_value += v_ofs;
+ 103:Drivers/lvgl/src/misc/lv_anim.c ****             new_anim->end_value += v_ofs;
+ 104:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 105:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 106:Drivers/lvgl/src/misc/lv_anim.c ****         if(new_anim->exec_cb && new_anim->var) new_anim->exec_cb(new_anim->var, new_anim->start_val
+ 107:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 108:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 109:Drivers/lvgl/src/misc/lv_anim.c ****     /*Creating an animation changed the linked list.
+ 110:Drivers/lvgl/src/misc/lv_anim.c ****      *It's important if it happens in a ready callback. (see `anim_timer`)*/
+ 111:Drivers/lvgl/src/misc/lv_anim.c ****     anim_mark_list_change();
+ 112:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 113:Drivers/lvgl/src/misc/lv_anim.c ****     TRACE_ANIM("finished");
+ 114:Drivers/lvgl/src/misc/lv_anim.c ****     return new_anim;
+ 115:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 116:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 117:Drivers/lvgl/src/misc/lv_anim.c **** uint32_t lv_anim_get_playtime(lv_anim_t * a)
+ 118:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 119:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t playtime = LV_ANIM_PLAYTIME_INFINITE;
+ 120:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 121:Drivers/lvgl/src/misc/lv_anim.c ****     if(a->repeat_cnt == LV_ANIM_REPEAT_INFINITE)
+ 122:Drivers/lvgl/src/misc/lv_anim.c ****         return playtime;
+ 123:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 124:Drivers/lvgl/src/misc/lv_anim.c ****     playtime = a->time - a->act_time;
+ 125:Drivers/lvgl/src/misc/lv_anim.c ****     if(a->playback_now == 0)
+ 126:Drivers/lvgl/src/misc/lv_anim.c ****         playtime += a->playback_delay + a->playback_time;
+ 127:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 128:Drivers/lvgl/src/misc/lv_anim.c ****     if(a->repeat_cnt <= 1)
+ 129:Drivers/lvgl/src/misc/lv_anim.c ****         return playtime;
+ 130:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 131:Drivers/lvgl/src/misc/lv_anim.c ****     playtime += (a->repeat_delay + a->time +
+ 132:Drivers/lvgl/src/misc/lv_anim.c ****                  a->playback_delay + a->playback_time) *
+ 133:Drivers/lvgl/src/misc/lv_anim.c ****                 (a->repeat_cnt - 1);
+ 134:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 135:Drivers/lvgl/src/misc/lv_anim.c ****     return playtime;
+ 136:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 137:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 138:Drivers/lvgl/src/misc/lv_anim.c **** bool lv_anim_del(void * var, lv_anim_exec_xcb_t exec_cb)
+ 139:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 140:Drivers/lvgl/src/misc/lv_anim.c ****     lv_anim_t * a;
+ 141:Drivers/lvgl/src/misc/lv_anim.c ****     lv_anim_t * a_next;
+ 142:Drivers/lvgl/src/misc/lv_anim.c ****     bool del = false;
+ 143:Drivers/lvgl/src/misc/lv_anim.c ****     a        = _lv_ll_get_head(&LV_GC_ROOT(_lv_anim_ll));
+ 144:Drivers/lvgl/src/misc/lv_anim.c ****     while(a != NULL) {
+ 145:Drivers/lvgl/src/misc/lv_anim.c ****         /*'a' might be deleted, so get the next object while 'a' is valid*/
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 4
+
+
+ 146:Drivers/lvgl/src/misc/lv_anim.c ****         a_next = _lv_ll_get_next(&LV_GC_ROOT(_lv_anim_ll), a);
+ 147:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 148:Drivers/lvgl/src/misc/lv_anim.c ****         if((a->var == var || var == NULL) && (a->exec_cb == exec_cb || exec_cb == NULL)) {
+ 149:Drivers/lvgl/src/misc/lv_anim.c ****             _lv_ll_remove(&LV_GC_ROOT(_lv_anim_ll), a);
+ 150:Drivers/lvgl/src/misc/lv_anim.c ****             if(a->deleted_cb != NULL) a->deleted_cb(a);
+ 151:Drivers/lvgl/src/misc/lv_anim.c ****             lv_mem_free(a);
+ 152:Drivers/lvgl/src/misc/lv_anim.c ****             anim_mark_list_change(); /*Read by `anim_timer`. It need to know if a delete occurred i
+ 153:Drivers/lvgl/src/misc/lv_anim.c ****                                        the linked list*/
+ 154:Drivers/lvgl/src/misc/lv_anim.c ****             del = true;
+ 155:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 156:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 157:Drivers/lvgl/src/misc/lv_anim.c ****         a = a_next;
+ 158:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 159:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 160:Drivers/lvgl/src/misc/lv_anim.c ****     return del;
+ 161:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 162:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 163:Drivers/lvgl/src/misc/lv_anim.c **** void lv_anim_del_all(void)
+ 164:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 165:Drivers/lvgl/src/misc/lv_anim.c ****     _lv_ll_clear(&LV_GC_ROOT(_lv_anim_ll));
+ 166:Drivers/lvgl/src/misc/lv_anim.c ****     anim_mark_list_change();
+ 167:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 168:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 169:Drivers/lvgl/src/misc/lv_anim.c **** lv_anim_t * lv_anim_get(void * var, lv_anim_exec_xcb_t exec_cb)
+ 170:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 171:Drivers/lvgl/src/misc/lv_anim.c ****     lv_anim_t * a;
+ 172:Drivers/lvgl/src/misc/lv_anim.c ****     _LV_LL_READ(&LV_GC_ROOT(_lv_anim_ll), a) {
+ 173:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->var == var && (a->exec_cb == exec_cb || exec_cb == NULL)) {
+ 174:Drivers/lvgl/src/misc/lv_anim.c ****             return a;
+ 175:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 176:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 177:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 178:Drivers/lvgl/src/misc/lv_anim.c ****     return NULL;
+ 179:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 180:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 181:Drivers/lvgl/src/misc/lv_anim.c **** struct _lv_timer_t * lv_anim_get_timer(void)
+ 182:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 183:Drivers/lvgl/src/misc/lv_anim.c ****     return _lv_anim_tmr;
+ 184:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 185:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 186:Drivers/lvgl/src/misc/lv_anim.c **** uint16_t lv_anim_count_running(void)
+ 187:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 188:Drivers/lvgl/src/misc/lv_anim.c ****     uint16_t cnt = 0;
+ 189:Drivers/lvgl/src/misc/lv_anim.c ****     lv_anim_t * a;
+ 190:Drivers/lvgl/src/misc/lv_anim.c ****     _LV_LL_READ(&LV_GC_ROOT(_lv_anim_ll), a) cnt++;
+ 191:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 192:Drivers/lvgl/src/misc/lv_anim.c ****     return cnt;
+ 193:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 194:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 195:Drivers/lvgl/src/misc/lv_anim.c **** uint32_t lv_anim_speed_to_time(uint32_t speed, int32_t start, int32_t end)
+ 196:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 197:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t d    = LV_ABS(start - end);
+ 198:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t time = (d * 1000) / speed;
+ 199:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 200:Drivers/lvgl/src/misc/lv_anim.c ****     if(time == 0) {
+ 201:Drivers/lvgl/src/misc/lv_anim.c ****         time++;
+ 202:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 5
+
+
+ 203:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 204:Drivers/lvgl/src/misc/lv_anim.c ****     return time;
+ 205:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 206:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 207:Drivers/lvgl/src/misc/lv_anim.c **** void lv_anim_refr_now(void)
+ 208:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 209:Drivers/lvgl/src/misc/lv_anim.c ****     anim_timer(NULL);
+ 210:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 211:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 212:Drivers/lvgl/src/misc/lv_anim.c **** int32_t lv_anim_path_linear(const lv_anim_t * a)
+ 213:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 214:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 215:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_map(a->act_time, 0, a->time, 0, LV_ANIM_RESOLUTION);
+ 216:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 217:Drivers/lvgl/src/misc/lv_anim.c ****     /*Get the new value which will be proportional to `step`
+ 218:Drivers/lvgl/src/misc/lv_anim.c ****      *and the `start` and `end` values*/
+ 219:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t new_value;
+ 220:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = step * (a->end_value - a->start_value);
+ 221:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_ANIM_RES_SHIFT;
+ 222:Drivers/lvgl/src/misc/lv_anim.c ****     new_value += a->start_value;
+ 223:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 224:Drivers/lvgl/src/misc/lv_anim.c ****     return new_value;
+ 225:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 226:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 227:Drivers/lvgl/src/misc/lv_anim.c **** int32_t lv_anim_path_ease_in(const lv_anim_t * a)
+ 228:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 229:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 230:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t t = lv_map(a->act_time, 0, a->time, 0, LV_BEZIER_VAL_MAX);
+ 231:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 50, 100, LV_BEZIER_VAL_MAX);
+ 232:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 233:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t new_value;
+ 234:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = step * (a->end_value - a->start_value);
+ 235:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 236:Drivers/lvgl/src/misc/lv_anim.c ****     new_value += a->start_value;
+ 237:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 238:Drivers/lvgl/src/misc/lv_anim.c ****     return new_value;
+ 239:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 240:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 241:Drivers/lvgl/src/misc/lv_anim.c **** int32_t lv_anim_path_ease_out(const lv_anim_t * a)
+ 242:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 243:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 244:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t t = lv_map(a->act_time, 0, a->time, 0, LV_BEZIER_VAL_MAX);
+ 245:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 900, 950, LV_BEZIER_VAL_MAX);
+ 246:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 247:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t new_value;
+ 248:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = step * (a->end_value - a->start_value);
+ 249:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 250:Drivers/lvgl/src/misc/lv_anim.c ****     new_value += a->start_value;
+ 251:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 252:Drivers/lvgl/src/misc/lv_anim.c ****     return new_value;
+ 253:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 254:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 255:Drivers/lvgl/src/misc/lv_anim.c **** int32_t lv_anim_path_ease_in_out(const lv_anim_t * a)
+ 256:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 257:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 258:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t t = lv_map(a->act_time, 0, a->time, 0, LV_BEZIER_VAL_MAX);
+ 259:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 50, 952, LV_BEZIER_VAL_MAX);
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 6
+
+
+ 260:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 261:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t new_value;
+ 262:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = step * (a->end_value - a->start_value);
+ 263:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 264:Drivers/lvgl/src/misc/lv_anim.c ****     new_value += a->start_value;
+ 265:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 266:Drivers/lvgl/src/misc/lv_anim.c ****     return new_value;
+ 267:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 268:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 269:Drivers/lvgl/src/misc/lv_anim.c **** int32_t lv_anim_path_overshoot(const lv_anim_t * a)
+ 270:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 271:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 272:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t t = lv_map(a->act_time, 0, a->time, 0, LV_BEZIER_VAL_MAX);
+ 273:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 1000, 1300, LV_BEZIER_VAL_MAX);
+ 274:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 275:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t new_value;
+ 276:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = step * (a->end_value - a->start_value);
+ 277:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 278:Drivers/lvgl/src/misc/lv_anim.c ****     new_value += a->start_value;
+ 279:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 280:Drivers/lvgl/src/misc/lv_anim.c ****     return new_value;
+ 281:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 282:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 283:Drivers/lvgl/src/misc/lv_anim.c **** int32_t lv_anim_path_bounce(const lv_anim_t * a)
+ 284:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 285:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 286:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t t = lv_map(a->act_time, 0, a->time, 0, LV_BEZIER_VAL_MAX);
+ 287:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t diff = (a->end_value - a->start_value);
+ 288:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 289:Drivers/lvgl/src/misc/lv_anim.c ****     /*3 bounces has 5 parts: 3 down and 2 up. One part is t / 5 long*/
+ 290:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 291:Drivers/lvgl/src/misc/lv_anim.c ****     if(t < 408) {
+ 292:Drivers/lvgl/src/misc/lv_anim.c ****         /*Go down*/
+ 293:Drivers/lvgl/src/misc/lv_anim.c ****         t = (t * 2500) >> LV_BEZIER_VAL_SHIFT; /*[0..1024] range*/
+ 294:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 295:Drivers/lvgl/src/misc/lv_anim.c ****     else if(t >= 408 && t < 614) {
+ 296:Drivers/lvgl/src/misc/lv_anim.c ****         /*First bounce back*/
+ 297:Drivers/lvgl/src/misc/lv_anim.c ****         t -= 408;
+ 298:Drivers/lvgl/src/misc/lv_anim.c ****         t    = t * 5; /*to [0..1024] range*/
+ 299:Drivers/lvgl/src/misc/lv_anim.c ****         t    = LV_BEZIER_VAL_MAX - t;
+ 300:Drivers/lvgl/src/misc/lv_anim.c ****         diff = diff / 20;
+ 301:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 302:Drivers/lvgl/src/misc/lv_anim.c ****     else if(t >= 614 && t < 819) {
+ 303:Drivers/lvgl/src/misc/lv_anim.c ****         /*Fall back*/
+ 304:Drivers/lvgl/src/misc/lv_anim.c ****         t -= 614;
+ 305:Drivers/lvgl/src/misc/lv_anim.c ****         t    = t * 5; /*to [0..1024] range*/
+ 306:Drivers/lvgl/src/misc/lv_anim.c ****         diff = diff / 20;
+ 307:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 308:Drivers/lvgl/src/misc/lv_anim.c ****     else if(t >= 819 && t < 921) {
+ 309:Drivers/lvgl/src/misc/lv_anim.c ****         /*Second bounce back*/
+ 310:Drivers/lvgl/src/misc/lv_anim.c ****         t -= 819;
+ 311:Drivers/lvgl/src/misc/lv_anim.c ****         t    = t * 10; /*to [0..1024] range*/
+ 312:Drivers/lvgl/src/misc/lv_anim.c ****         t    = LV_BEZIER_VAL_MAX - t;
+ 313:Drivers/lvgl/src/misc/lv_anim.c ****         diff = diff / 40;
+ 314:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 315:Drivers/lvgl/src/misc/lv_anim.c ****     else if(t >= 921 && t <= LV_BEZIER_VAL_MAX) {
+ 316:Drivers/lvgl/src/misc/lv_anim.c ****         /*Fall back*/
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 7
+
+
+ 317:Drivers/lvgl/src/misc/lv_anim.c ****         t -= 921;
+ 318:Drivers/lvgl/src/misc/lv_anim.c ****         t    = t * 10; /*to [0..1024] range*/
+ 319:Drivers/lvgl/src/misc/lv_anim.c ****         diff = diff / 40;
+ 320:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 321:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 322:Drivers/lvgl/src/misc/lv_anim.c ****     if(t > LV_BEZIER_VAL_MAX) t = LV_BEZIER_VAL_MAX;
+ 323:Drivers/lvgl/src/misc/lv_anim.c ****     if(t < 0) t = 0;
+ 324:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, LV_BEZIER_VAL_MAX, 800, 500, 0);
+ 325:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 326:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t new_value;
+ 327:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = step * diff;
+ 328:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 329:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = a->end_value - new_value;
+ 330:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 331:Drivers/lvgl/src/misc/lv_anim.c ****     return new_value;
+ 332:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 333:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 334:Drivers/lvgl/src/misc/lv_anim.c **** int32_t lv_anim_path_step(const lv_anim_t * a)
+ 335:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 336:Drivers/lvgl/src/misc/lv_anim.c ****     if(a->act_time >= a->time)
+ 337:Drivers/lvgl/src/misc/lv_anim.c ****         return a->end_value;
+ 338:Drivers/lvgl/src/misc/lv_anim.c ****     else
+ 339:Drivers/lvgl/src/misc/lv_anim.c ****         return a->start_value;
+ 340:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 341:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 342:Drivers/lvgl/src/misc/lv_anim.c **** /**********************
+ 343:Drivers/lvgl/src/misc/lv_anim.c ****  *   STATIC FUNCTIONS
+ 344:Drivers/lvgl/src/misc/lv_anim.c ****  **********************/
+ 345:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 346:Drivers/lvgl/src/misc/lv_anim.c **** /**
+ 347:Drivers/lvgl/src/misc/lv_anim.c ****  * Periodically handle the animations.
+ 348:Drivers/lvgl/src/misc/lv_anim.c ****  * @param param unused
+ 349:Drivers/lvgl/src/misc/lv_anim.c ****  */
+ 350:Drivers/lvgl/src/misc/lv_anim.c **** static void anim_timer(lv_timer_t * param)
+ 351:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 352:Drivers/lvgl/src/misc/lv_anim.c ****     LV_UNUSED(param);
+ 353:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 354:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t elaps = lv_tick_elaps(last_timer_run);
+ 355:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 356:Drivers/lvgl/src/misc/lv_anim.c ****     /*Flip the run round*/
+ 357:Drivers/lvgl/src/misc/lv_anim.c ****     anim_run_round = anim_run_round ? false : true;
+ 358:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 359:Drivers/lvgl/src/misc/lv_anim.c ****     lv_anim_t * a = _lv_ll_get_head(&LV_GC_ROOT(_lv_anim_ll));
+ 360:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 361:Drivers/lvgl/src/misc/lv_anim.c ****     while(a != NULL) {
+ 362:Drivers/lvgl/src/misc/lv_anim.c ****         /*It can be set by `lv_anim_del()` typically in `end_cb`. If set then an animation delete
+ 363:Drivers/lvgl/src/misc/lv_anim.c ****          * happened in `anim_ready_handler` which could make this linked list reading corrupt
+ 364:Drivers/lvgl/src/misc/lv_anim.c ****          * because the list is changed meanwhile
+ 365:Drivers/lvgl/src/misc/lv_anim.c ****          */
+ 366:Drivers/lvgl/src/misc/lv_anim.c ****         anim_list_changed = false;
+ 367:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 368:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->run_round != anim_run_round) {
+ 369:Drivers/lvgl/src/misc/lv_anim.c ****             a->run_round = anim_run_round; /*The list readying might be reset so need to know which
+ 370:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 371:Drivers/lvgl/src/misc/lv_anim.c ****             /*The animation will run now for the first time. Call `start_cb`*/
+ 372:Drivers/lvgl/src/misc/lv_anim.c ****             int32_t new_act_time = a->act_time + elaps;
+ 373:Drivers/lvgl/src/misc/lv_anim.c ****             if(!a->start_cb_called && a->act_time <= 0 && new_act_time >= 0) {
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 8
+
+
+ 374:Drivers/lvgl/src/misc/lv_anim.c ****                 if(a->early_apply == 0 && a->get_value_cb) {
+ 375:Drivers/lvgl/src/misc/lv_anim.c ****                     int32_t v_ofs = a->get_value_cb(a);
+ 376:Drivers/lvgl/src/misc/lv_anim.c ****                     a->start_value += v_ofs;
+ 377:Drivers/lvgl/src/misc/lv_anim.c ****                     a->end_value += v_ofs;
+ 378:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 379:Drivers/lvgl/src/misc/lv_anim.c ****                 if(a->start_cb) a->start_cb(a);
+ 380:Drivers/lvgl/src/misc/lv_anim.c ****                 a->start_cb_called = 1;
+ 381:Drivers/lvgl/src/misc/lv_anim.c ****             }
+ 382:Drivers/lvgl/src/misc/lv_anim.c ****             a->act_time += elaps;
+ 383:Drivers/lvgl/src/misc/lv_anim.c ****             if(a->act_time >= 0) {
+ 384:Drivers/lvgl/src/misc/lv_anim.c ****                 if(a->act_time > a->time) a->act_time = a->time;
+ 385:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 386:Drivers/lvgl/src/misc/lv_anim.c ****                 int32_t new_value;
+ 387:Drivers/lvgl/src/misc/lv_anim.c ****                 new_value = a->path_cb(a);
+ 388:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 389:Drivers/lvgl/src/misc/lv_anim.c ****                 if(new_value != a->current_value) {
+ 390:Drivers/lvgl/src/misc/lv_anim.c ****                     a->current_value = new_value;
+ 391:Drivers/lvgl/src/misc/lv_anim.c ****                     /*Apply the calculated value*/
+ 392:Drivers/lvgl/src/misc/lv_anim.c ****                     if(a->exec_cb) a->exec_cb(a->var, new_value);
+ 393:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 394:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 395:Drivers/lvgl/src/misc/lv_anim.c ****                 /*If the time is elapsed the animation is ready*/
+ 396:Drivers/lvgl/src/misc/lv_anim.c ****                 if(a->act_time >= a->time) {
+ 397:Drivers/lvgl/src/misc/lv_anim.c ****                     anim_ready_handler(a);
+ 398:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 399:Drivers/lvgl/src/misc/lv_anim.c ****             }
+ 400:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 401:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 402:Drivers/lvgl/src/misc/lv_anim.c ****         /*If the linked list changed due to anim. delete then it's not safe to continue
+ 403:Drivers/lvgl/src/misc/lv_anim.c ****          *the reading of the list from here -> start from the head*/
+ 404:Drivers/lvgl/src/misc/lv_anim.c ****         if(anim_list_changed)
+ 405:Drivers/lvgl/src/misc/lv_anim.c ****             a = _lv_ll_get_head(&LV_GC_ROOT(_lv_anim_ll));
+ 406:Drivers/lvgl/src/misc/lv_anim.c ****         else
+ 407:Drivers/lvgl/src/misc/lv_anim.c ****             a = _lv_ll_get_next(&LV_GC_ROOT(_lv_anim_ll), a);
+ 408:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 409:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 410:Drivers/lvgl/src/misc/lv_anim.c ****     last_timer_run = lv_tick_get();
+ 411:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 412:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 413:Drivers/lvgl/src/misc/lv_anim.c **** /**
+ 414:Drivers/lvgl/src/misc/lv_anim.c ****  * Called when an animation is ready to do the necessary thinks
+ 415:Drivers/lvgl/src/misc/lv_anim.c ****  * e.g. repeat, play back, delete etc.
+ 416:Drivers/lvgl/src/misc/lv_anim.c ****  * @param a pointer to an animation descriptor
+ 417:Drivers/lvgl/src/misc/lv_anim.c ****  */
+ 418:Drivers/lvgl/src/misc/lv_anim.c **** static void anim_ready_handler(lv_anim_t * a)
+ 419:Drivers/lvgl/src/misc/lv_anim.c **** {
+ 420:Drivers/lvgl/src/misc/lv_anim.c ****     /*In the end of a forward anim decrement repeat cnt.*/
+ 421:Drivers/lvgl/src/misc/lv_anim.c ****     if(a->playback_now == 0 && a->repeat_cnt > 0 && a->repeat_cnt != LV_ANIM_REPEAT_INFINITE) {
+ 422:Drivers/lvgl/src/misc/lv_anim.c ****         a->repeat_cnt--;
+ 423:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 424:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 425:Drivers/lvgl/src/misc/lv_anim.c ****     /*Delete the animation if
+ 426:Drivers/lvgl/src/misc/lv_anim.c ****      * - no repeat left and no play back (simple one shot animation)
+ 427:Drivers/lvgl/src/misc/lv_anim.c ****      * - no repeat, play back is enabled and play back is ready*/
+ 428:Drivers/lvgl/src/misc/lv_anim.c ****     if(a->repeat_cnt == 0 && (a->playback_time == 0 || a->playback_now == 1)) {
+ 429:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 430:Drivers/lvgl/src/misc/lv_anim.c ****         /*Delete the animation from the list.
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 9
+
+
+ 431:Drivers/lvgl/src/misc/lv_anim.c ****          * This way the `ready_cb` will see the animations like it's animation is ready deleted*/
+ 432:Drivers/lvgl/src/misc/lv_anim.c ****         _lv_ll_remove(&LV_GC_ROOT(_lv_anim_ll), a);
+ 433:Drivers/lvgl/src/misc/lv_anim.c ****         /*Flag that the list has changed*/
+ 434:Drivers/lvgl/src/misc/lv_anim.c ****         anim_mark_list_change();
+ 435:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 436:Drivers/lvgl/src/misc/lv_anim.c ****         /*Call the callback function at the end*/
+ 437:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->ready_cb != NULL) a->ready_cb(a);
+ 438:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->deleted_cb != NULL) a->deleted_cb(a);
+ 439:Drivers/lvgl/src/misc/lv_anim.c ****         lv_mem_free(a);
+ 440:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 441:Drivers/lvgl/src/misc/lv_anim.c ****     /*If the animation is not deleted then restart it*/
+ 442:Drivers/lvgl/src/misc/lv_anim.c ****     else {
+ 443:Drivers/lvgl/src/misc/lv_anim.c ****         a->act_time = -(int32_t)(a->repeat_delay); /*Restart the animation*/
+ 444:Drivers/lvgl/src/misc/lv_anim.c ****         /*Swap the start and end values in play back mode*/
+ 445:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->playback_time != 0) {
+ 446:Drivers/lvgl/src/misc/lv_anim.c ****             /*If now turning back use the 'playback_pause*/
+ 447:Drivers/lvgl/src/misc/lv_anim.c ****             if(a->playback_now == 0) a->act_time = -(int32_t)(a->playback_delay);
+ 448:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 449:Drivers/lvgl/src/misc/lv_anim.c ****             /*Toggle the play back state*/
+ 450:Drivers/lvgl/src/misc/lv_anim.c ****             a->playback_now = a->playback_now == 0 ? 1 : 0;
+ 451:Drivers/lvgl/src/misc/lv_anim.c ****             /*Swap the start and end values*/
+ 452:Drivers/lvgl/src/misc/lv_anim.c ****             int32_t tmp    = a->start_value;
+ 453:Drivers/lvgl/src/misc/lv_anim.c ****             a->start_value = a->end_value;
+ 454:Drivers/lvgl/src/misc/lv_anim.c ****             a->end_value   = tmp;
+ 455:Drivers/lvgl/src/misc/lv_anim.c ****             /*Swap the time and playback_time*/
+ 456:Drivers/lvgl/src/misc/lv_anim.c ****             tmp = a->time;
+ 457:Drivers/lvgl/src/misc/lv_anim.c ****             a->time = a->playback_time;
+ 458:Drivers/lvgl/src/misc/lv_anim.c ****             a->playback_time = tmp;
+ 459:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 460:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 461:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 462:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 463:Drivers/lvgl/src/misc/lv_anim.c **** static void anim_mark_list_change(void)
+ 464:Drivers/lvgl/src/misc/lv_anim.c **** {
+  28              		.loc 1 464 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32 0000 08B5     		push	{r3, lr}
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 3, -8
+  35              		.cfi_offset 14, -4
+ 465:Drivers/lvgl/src/misc/lv_anim.c ****     anim_list_changed = true;
+  36              		.loc 1 465 5 view .LVU1
+  37              		.loc 1 465 23 is_stmt 0 view .LVU2
+  38 0002 084B     		ldr	r3, .L6
+  39 0004 0122     		movs	r2, #1
+  40 0006 1A70     		strb	r2, [r3]
+ 466:Drivers/lvgl/src/misc/lv_anim.c ****     if(_lv_ll_get_head(&LV_GC_ROOT(_lv_anim_ll)) == NULL)
+  41              		.loc 1 466 5 is_stmt 1 view .LVU3
+  42              		.loc 1 466 8 is_stmt 0 view .LVU4
+  43 0008 0748     		ldr	r0, .L6+4
+  44 000a FFF7FEFF 		bl	_lv_ll_get_head
+  45              	.LVL0:
+  46              		.loc 1 466 7 discriminator 1 view .LVU5
+  47 000e 20B1     		cbz	r0, .L5
+ 467:Drivers/lvgl/src/misc/lv_anim.c ****         lv_timer_pause(_lv_anim_tmr);
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 10
+
+
+ 468:Drivers/lvgl/src/misc/lv_anim.c ****     else
+ 469:Drivers/lvgl/src/misc/lv_anim.c ****         lv_timer_resume(_lv_anim_tmr);
+  48              		.loc 1 469 9 is_stmt 1 view .LVU6
+  49 0010 064B     		ldr	r3, .L6+8
+  50 0012 1868     		ldr	r0, [r3]
+  51 0014 FFF7FEFF 		bl	lv_timer_resume
+  52              	.LVL1:
+  53              	.L1:
+ 470:Drivers/lvgl/src/misc/lv_anim.c **** }
+  54              		.loc 1 470 1 is_stmt 0 view .LVU7
+  55 0018 08BD     		pop	{r3, pc}
+  56              	.L5:
+ 467:Drivers/lvgl/src/misc/lv_anim.c ****         lv_timer_pause(_lv_anim_tmr);
+  57              		.loc 1 467 9 is_stmt 1 view .LVU8
+  58 001a 044B     		ldr	r3, .L6+8
+  59 001c 1868     		ldr	r0, [r3]
+  60 001e FFF7FEFF 		bl	lv_timer_pause
+  61              	.LVL2:
+  62 0022 F9E7     		b	.L1
+  63              	.L7:
+  64              		.align	2
+  65              	.L6:
+  66 0024 00000000 		.word	anim_list_changed
+  67 0028 00000000 		.word	_lv_anim_ll
+  68 002c 00000000 		.word	_lv_anim_tmr
+  69              		.cfi_endproc
+  70              	.LFE65:
+  72              		.section	.text.anim_ready_handler,"ax",%progbits
+  73              		.align	1
+  74              		.syntax unified
+  75              		.thumb
+  76              		.thumb_func
+  78              	anim_ready_handler:
+  79              	.LVL3:
+  80              	.LFB64:
+ 419:Drivers/lvgl/src/misc/lv_anim.c ****     /*In the end of a forward anim decrement repeat cnt.*/
+  81              		.loc 1 419 1 view -0
+  82              		.cfi_startproc
+  83              		@ args = 0, pretend = 0, frame = 0
+  84              		@ frame_needed = 0, uses_anonymous_args = 0
+ 419:Drivers/lvgl/src/misc/lv_anim.c ****     /*In the end of a forward anim decrement repeat cnt.*/
+  85              		.loc 1 419 1 is_stmt 0 view .LVU10
+  86 0000 10B5     		push	{r4, lr}
+  87              		.cfi_def_cfa_offset 8
+  88              		.cfi_offset 4, -8
+  89              		.cfi_offset 14, -4
+  90 0002 0446     		mov	r4, r0
+ 421:Drivers/lvgl/src/misc/lv_anim.c ****         a->repeat_cnt--;
+  91              		.loc 1 421 5 is_stmt 1 view .LVU11
+ 421:Drivers/lvgl/src/misc/lv_anim.c ****         a->repeat_cnt--;
+  92              		.loc 1 421 24 is_stmt 0 view .LVU12
+  93 0004 90F84230 		ldrb	r3, [r0, #66]	@ zero_extendqisi2
+ 421:Drivers/lvgl/src/misc/lv_anim.c ****         a->repeat_cnt--;
+  94              		.loc 1 421 7 view .LVU13
+  95 0008 13F00203 		ands	r3, r3, #2
+  96 000c 09D1     		bne	.L9
+ 421:Drivers/lvgl/src/misc/lv_anim.c ****         a->repeat_cnt--;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 11
+
+
+  97              		.loc 1 421 33 discriminator 1 view .LVU14
+  98 000e B0F84020 		ldrh	r2, [r0, #64]
+ 421:Drivers/lvgl/src/misc/lv_anim.c ****         a->repeat_cnt--;
+  99              		.loc 1 421 29 discriminator 1 view .LVU15
+ 100 0012 32B1     		cbz	r2, .L9
+ 421:Drivers/lvgl/src/misc/lv_anim.c ****         a->repeat_cnt--;
+ 101              		.loc 1 421 50 discriminator 2 view .LVU16
+ 102 0014 4FF6FF71 		movw	r1, #65535
+ 103 0018 8A42     		cmp	r2, r1
+ 104 001a 02D0     		beq	.L9
+ 422:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 105              		.loc 1 422 9 is_stmt 1 view .LVU17
+ 422:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 106              		.loc 1 422 22 is_stmt 0 view .LVU18
+ 107 001c 013A     		subs	r2, r2, #1
+ 108 001e A0F84020 		strh	r2, [r0, #64]	@ movhi
+ 109              	.L9:
+ 428:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 110              		.loc 1 428 5 is_stmt 1 view .LVU19
+ 428:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 111              		.loc 1 428 9 is_stmt 0 view .LVU20
+ 112 0022 B4F84020 		ldrh	r2, [r4, #64]
+ 428:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 113              		.loc 1 428 7 view .LVU21
+ 114 0026 A2B9     		cbnz	r2, .L10
+ 428:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 115              		.loc 1 428 32 discriminator 1 view .LVU22
+ 116 0028 A26B     		ldr	r2, [r4, #56]
+ 428:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 117              		.loc 1 428 27 discriminator 1 view .LVU23
+ 118 002a 02B1     		cbz	r2, .L11
+ 428:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 119              		.loc 1 428 53 discriminator 2 view .LVU24
+ 120 002c 8BB1     		cbz	r3, .L10
+ 121              	.L11:
+ 432:Drivers/lvgl/src/misc/lv_anim.c ****         /*Flag that the list has changed*/
+ 122              		.loc 1 432 9 is_stmt 1 view .LVU25
+ 123 002e 2146     		mov	r1, r4
+ 124 0030 1548     		ldr	r0, .L17
+ 125              	.LVL4:
+ 432:Drivers/lvgl/src/misc/lv_anim.c ****         /*Flag that the list has changed*/
+ 126              		.loc 1 432 9 is_stmt 0 view .LVU26
+ 127 0032 FFF7FEFF 		bl	_lv_ll_remove
+ 128              	.LVL5:
+ 434:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 129              		.loc 1 434 9 is_stmt 1 view .LVU27
+ 130 0036 FFF7FEFF 		bl	anim_mark_list_change
+ 131              	.LVL6:
+ 437:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->deleted_cb != NULL) a->deleted_cb(a);
+ 132              		.loc 1 437 9 view .LVU28
+ 437:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->deleted_cb != NULL) a->deleted_cb(a);
+ 133              		.loc 1 437 13 is_stmt 0 view .LVU29
+ 134 003a E368     		ldr	r3, [r4, #12]
+ 437:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->deleted_cb != NULL) a->deleted_cb(a);
+ 135              		.loc 1 437 11 view .LVU30
+ 136 003c 0BB1     		cbz	r3, .L12
+ 437:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->deleted_cb != NULL) a->deleted_cb(a);
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 12
+
+
+ 137              		.loc 1 437 33 is_stmt 1 discriminator 1 view .LVU31
+ 138 003e 2046     		mov	r0, r4
+ 139 0040 9847     		blx	r3
+ 140              	.LVL7:
+ 141              	.L12:
+ 438:Drivers/lvgl/src/misc/lv_anim.c ****         lv_mem_free(a);
+ 142              		.loc 1 438 9 view .LVU32
+ 438:Drivers/lvgl/src/misc/lv_anim.c ****         lv_mem_free(a);
+ 143              		.loc 1 438 13 is_stmt 0 view .LVU33
+ 144 0042 2369     		ldr	r3, [r4, #16]
+ 438:Drivers/lvgl/src/misc/lv_anim.c ****         lv_mem_free(a);
+ 145              		.loc 1 438 11 view .LVU34
+ 146 0044 0BB1     		cbz	r3, .L13
+ 438:Drivers/lvgl/src/misc/lv_anim.c ****         lv_mem_free(a);
+ 147              		.loc 1 438 35 is_stmt 1 discriminator 1 view .LVU35
+ 148 0046 2046     		mov	r0, r4
+ 149 0048 9847     		blx	r3
+ 150              	.LVL8:
+ 151              	.L13:
+ 439:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 152              		.loc 1 439 9 view .LVU36
+ 153 004a 2046     		mov	r0, r4
+ 154 004c FFF7FEFF 		bl	lv_mem_free
+ 155              	.LVL9:
+ 156 0050 18E0     		b	.L8
+ 157              	.LVL10:
+ 158              	.L10:
+ 443:Drivers/lvgl/src/misc/lv_anim.c ****         /*Swap the start and end values in play back mode*/
+ 159              		.loc 1 443 9 view .LVU37
+ 443:Drivers/lvgl/src/misc/lv_anim.c ****         /*Swap the start and end values in play back mode*/
+ 160              		.loc 1 443 35 is_stmt 0 view .LVU38
+ 161 0052 E26B     		ldr	r2, [r4, #60]
+ 443:Drivers/lvgl/src/misc/lv_anim.c ****         /*Swap the start and end values in play back mode*/
+ 162              		.loc 1 443 23 view .LVU39
+ 163 0054 5242     		rsbs	r2, r2, #0
+ 443:Drivers/lvgl/src/misc/lv_anim.c ****         /*Swap the start and end values in play back mode*/
+ 164              		.loc 1 443 21 view .LVU40
+ 165 0056 2263     		str	r2, [r4, #48]
+ 445:Drivers/lvgl/src/misc/lv_anim.c ****             /*If now turning back use the 'playback_pause*/
+ 166              		.loc 1 445 9 is_stmt 1 view .LVU41
+ 445:Drivers/lvgl/src/misc/lv_anim.c ****             /*If now turning back use the 'playback_pause*/
+ 167              		.loc 1 445 13 is_stmt 0 view .LVU42
+ 168 0058 A26B     		ldr	r2, [r4, #56]
+ 445:Drivers/lvgl/src/misc/lv_anim.c ****             /*If now turning back use the 'playback_pause*/
+ 169              		.loc 1 445 11 view .LVU43
+ 170 005a 9AB1     		cbz	r2, .L8
+ 171              	.LBB2:
+ 447:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 172              		.loc 1 447 13 is_stmt 1 view .LVU44
+ 447:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 173              		.loc 1 447 15 is_stmt 0 view .LVU45
+ 174 005c 13B9     		cbnz	r3, .L15
+ 447:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 175              		.loc 1 447 38 is_stmt 1 discriminator 1 view .LVU46
+ 447:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 176              		.loc 1 447 64 is_stmt 0 discriminator 1 view .LVU47
+ 177 005e 616B     		ldr	r1, [r4, #52]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 13
+
+
+ 447:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 178              		.loc 1 447 52 discriminator 1 view .LVU48
+ 179 0060 4942     		rsbs	r1, r1, #0
+ 447:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 180              		.loc 1 447 50 discriminator 1 view .LVU49
+ 181 0062 2163     		str	r1, [r4, #48]
+ 182              	.L15:
+ 450:Drivers/lvgl/src/misc/lv_anim.c ****             /*Swap the start and end values*/
+ 183              		.loc 1 450 13 is_stmt 1 view .LVU50
+ 450:Drivers/lvgl/src/misc/lv_anim.c ****             /*Swap the start and end values*/
+ 184              		.loc 1 450 56 is_stmt 0 view .LVU51
+ 185 0064 B3FA83F3 		clz	r3, r3
+ 186 0068 5B09     		lsrs	r3, r3, #5
+ 450:Drivers/lvgl/src/misc/lv_anim.c ****             /*Swap the start and end values*/
+ 187              		.loc 1 450 29 view .LVU52
+ 188 006a 94F84210 		ldrb	r1, [r4, #66]	@ zero_extendqisi2
+ 189 006e 63F34101 		bfi	r1, r3, #1, #1
+ 190 0072 84F84210 		strb	r1, [r4, #66]
+ 452:Drivers/lvgl/src/misc/lv_anim.c ****             a->start_value = a->end_value;
+ 191              		.loc 1 452 13 is_stmt 1 view .LVU53
+ 452:Drivers/lvgl/src/misc/lv_anim.c ****             a->start_value = a->end_value;
+ 192              		.loc 1 452 21 is_stmt 0 view .LVU54
+ 193 0076 236A     		ldr	r3, [r4, #32]
+ 194              	.LVL11:
+ 453:Drivers/lvgl/src/misc/lv_anim.c ****             a->end_value   = tmp;
+ 195              		.loc 1 453 13 is_stmt 1 view .LVU55
+ 453:Drivers/lvgl/src/misc/lv_anim.c ****             a->end_value   = tmp;
+ 196              		.loc 1 453 31 is_stmt 0 view .LVU56
+ 197 0078 A16A     		ldr	r1, [r4, #40]
+ 453:Drivers/lvgl/src/misc/lv_anim.c ****             a->end_value   = tmp;
+ 198              		.loc 1 453 28 view .LVU57
+ 199 007a 2162     		str	r1, [r4, #32]
+ 454:Drivers/lvgl/src/misc/lv_anim.c ****             /*Swap the time and playback_time*/
+ 200              		.loc 1 454 13 is_stmt 1 view .LVU58
+ 454:Drivers/lvgl/src/misc/lv_anim.c ****             /*Swap the time and playback_time*/
+ 201              		.loc 1 454 28 is_stmt 0 view .LVU59
+ 202 007c A362     		str	r3, [r4, #40]
+ 456:Drivers/lvgl/src/misc/lv_anim.c ****             a->time = a->playback_time;
+ 203              		.loc 1 456 13 is_stmt 1 view .LVU60
+ 456:Drivers/lvgl/src/misc/lv_anim.c ****             a->time = a->playback_time;
+ 204              		.loc 1 456 17 is_stmt 0 view .LVU61
+ 205 007e E36A     		ldr	r3, [r4, #44]
+ 206              	.LVL12:
+ 457:Drivers/lvgl/src/misc/lv_anim.c ****             a->playback_time = tmp;
+ 207              		.loc 1 457 13 is_stmt 1 view .LVU62
+ 457:Drivers/lvgl/src/misc/lv_anim.c ****             a->playback_time = tmp;
+ 208              		.loc 1 457 21 is_stmt 0 view .LVU63
+ 209 0080 E262     		str	r2, [r4, #44]
+ 458:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 210              		.loc 1 458 13 is_stmt 1 view .LVU64
+ 458:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 211              		.loc 1 458 30 is_stmt 0 view .LVU65
+ 212 0082 A363     		str	r3, [r4, #56]
+ 213              	.LVL13:
+ 214              	.L8:
+ 458:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 215              		.loc 1 458 30 view .LVU66
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 14
+
+
+ 216              	.LBE2:
+ 461:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 217              		.loc 1 461 1 view .LVU67
+ 218 0084 10BD     		pop	{r4, pc}
+ 219              	.LVL14:
+ 220              	.L18:
+ 461:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 221              		.loc 1 461 1 view .LVU68
+ 222 0086 00BF     		.align	2
+ 223              	.L17:
+ 224 0088 00000000 		.word	_lv_anim_ll
+ 225              		.cfi_endproc
+ 226              	.LFE64:
+ 228              		.section	.text.anim_timer,"ax",%progbits
+ 229              		.align	1
+ 230              		.syntax unified
+ 231              		.thumb
+ 232              		.thumb_func
+ 234              	anim_timer:
+ 235              	.LVL15:
+ 236              	.LFB63:
+ 351:Drivers/lvgl/src/misc/lv_anim.c ****     LV_UNUSED(param);
+ 237              		.loc 1 351 1 is_stmt 1 view -0
+ 238              		.cfi_startproc
+ 239              		@ args = 0, pretend = 0, frame = 0
+ 240              		@ frame_needed = 0, uses_anonymous_args = 0
+ 351:Drivers/lvgl/src/misc/lv_anim.c ****     LV_UNUSED(param);
+ 241              		.loc 1 351 1 is_stmt 0 view .LVU70
+ 242 0000 38B5     		push	{r3, r4, r5, lr}
+ 243              		.cfi_def_cfa_offset 16
+ 244              		.cfi_offset 3, -16
+ 245              		.cfi_offset 4, -12
+ 246              		.cfi_offset 5, -8
+ 247              		.cfi_offset 14, -4
+ 352:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 248              		.loc 1 352 5 is_stmt 1 view .LVU71
+ 354:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 249              		.loc 1 354 5 view .LVU72
+ 354:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 250              		.loc 1 354 22 is_stmt 0 view .LVU73
+ 251 0002 3B4B     		ldr	r3, .L34
+ 252 0004 1868     		ldr	r0, [r3]
+ 253              	.LVL16:
+ 354:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 254              		.loc 1 354 22 view .LVU74
+ 255 0006 FFF7FEFF 		bl	lv_tick_elaps
+ 256              	.LVL17:
+ 257 000a 0546     		mov	r5, r0
+ 258              	.LVL18:
+ 357:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 259              		.loc 1 357 5 is_stmt 1 view .LVU75
+ 357:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 260              		.loc 1 357 45 is_stmt 0 view .LVU76
+ 261 000c 394A     		ldr	r2, .L34+4
+ 262 000e 1378     		ldrb	r3, [r2]	@ zero_extendqisi2
+ 263 0010 83F00103 		eor	r3, r3, #1
+ 357:Drivers/lvgl/src/misc/lv_anim.c **** 
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 15
+
+
+ 264              		.loc 1 357 20 view .LVU77
+ 265 0014 1370     		strb	r3, [r2]
+ 359:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 266              		.loc 1 359 5 is_stmt 1 view .LVU78
+ 359:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 267              		.loc 1 359 21 is_stmt 0 view .LVU79
+ 268 0016 3848     		ldr	r0, .L34+8
+ 269              	.LVL19:
+ 359:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 270              		.loc 1 359 21 view .LVU80
+ 271 0018 FFF7FEFF 		bl	_lv_ll_get_head
+ 272              	.LVL20:
+ 273 001c 0446     		mov	r4, r0
+ 274              	.LVL21:
+ 361:Drivers/lvgl/src/misc/lv_anim.c ****         /*It can be set by `lv_anim_del()` typically in `end_cb`. If set then an animation delete
+ 275              		.loc 1 361 5 is_stmt 1 view .LVU81
+ 361:Drivers/lvgl/src/misc/lv_anim.c ****         /*It can be set by `lv_anim_del()` typically in `end_cb`. If set then an animation delete
+ 276              		.loc 1 361 10 is_stmt 0 view .LVU82
+ 277 001e 25E0     		b	.L20
+ 278              	.LVL22:
+ 279              	.L33:
+ 280              	.LBB3:
+ 373:Drivers/lvgl/src/misc/lv_anim.c ****                 if(a->early_apply == 0 && a->get_value_cb) {
+ 281              		.loc 1 373 56 discriminator 2 view .LVU83
+ 282 0020 0029     		cmp	r1, #0
+ 283 0022 3FDB     		blt	.L22
+ 374:Drivers/lvgl/src/misc/lv_anim.c ****                     int32_t v_ofs = a->get_value_cb(a);
+ 284              		.loc 1 374 17 is_stmt 1 view .LVU84
+ 374:Drivers/lvgl/src/misc/lv_anim.c ****                     int32_t v_ofs = a->get_value_cb(a);
+ 285              		.loc 1 374 19 is_stmt 0 view .LVU85
+ 286 0024 12F0010F 		tst	r2, #1
+ 287 0028 09D1     		bne	.L23
+ 374:Drivers/lvgl/src/misc/lv_anim.c ****                     int32_t v_ofs = a->get_value_cb(a);
+ 288              		.loc 1 374 44 discriminator 1 view .LVU86
+ 289 002a 6369     		ldr	r3, [r4, #20]
+ 374:Drivers/lvgl/src/misc/lv_anim.c ****                     int32_t v_ofs = a->get_value_cb(a);
+ 290              		.loc 1 374 40 discriminator 1 view .LVU87
+ 291 002c 3BB1     		cbz	r3, .L23
+ 292              	.LBB4:
+ 375:Drivers/lvgl/src/misc/lv_anim.c ****                     a->start_value += v_ofs;
+ 293              		.loc 1 375 21 is_stmt 1 view .LVU88
+ 375:Drivers/lvgl/src/misc/lv_anim.c ****                     a->start_value += v_ofs;
+ 294              		.loc 1 375 37 is_stmt 0 view .LVU89
+ 295 002e 2046     		mov	r0, r4
+ 375:Drivers/lvgl/src/misc/lv_anim.c ****                     a->start_value += v_ofs;
+ 296              		.loc 1 375 37 view .LVU90
+ 297 0030 9847     		blx	r3
+ 298              	.LVL23:
+ 376:Drivers/lvgl/src/misc/lv_anim.c ****                     a->end_value += v_ofs;
+ 299              		.loc 1 376 21 is_stmt 1 view .LVU91
+ 376:Drivers/lvgl/src/misc/lv_anim.c ****                     a->end_value += v_ofs;
+ 300              		.loc 1 376 22 is_stmt 0 view .LVU92
+ 301 0032 236A     		ldr	r3, [r4, #32]
+ 376:Drivers/lvgl/src/misc/lv_anim.c ****                     a->end_value += v_ofs;
+ 302              		.loc 1 376 36 view .LVU93
+ 303 0034 0344     		add	r3, r3, r0
+ 304 0036 2362     		str	r3, [r4, #32]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 16
+
+
+ 377:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 305              		.loc 1 377 21 is_stmt 1 view .LVU94
+ 377:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 306              		.loc 1 377 22 is_stmt 0 view .LVU95
+ 307 0038 A36A     		ldr	r3, [r4, #40]
+ 377:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 308              		.loc 1 377 34 view .LVU96
+ 309 003a 0344     		add	r3, r3, r0
+ 310 003c A362     		str	r3, [r4, #40]
+ 311              	.LVL24:
+ 312              	.L23:
+ 377:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 313              		.loc 1 377 34 view .LVU97
+ 314              	.LBE4:
+ 379:Drivers/lvgl/src/misc/lv_anim.c ****                 a->start_cb_called = 1;
+ 315              		.loc 1 379 17 is_stmt 1 view .LVU98
+ 379:Drivers/lvgl/src/misc/lv_anim.c ****                 a->start_cb_called = 1;
+ 316              		.loc 1 379 21 is_stmt 0 view .LVU99
+ 317 003e A368     		ldr	r3, [r4, #8]
+ 379:Drivers/lvgl/src/misc/lv_anim.c ****                 a->start_cb_called = 1;
+ 318              		.loc 1 379 19 view .LVU100
+ 319 0040 0BB1     		cbz	r3, .L24
+ 379:Drivers/lvgl/src/misc/lv_anim.c ****                 a->start_cb_called = 1;
+ 320              		.loc 1 379 33 is_stmt 1 discriminator 1 view .LVU101
+ 321 0042 2046     		mov	r0, r4
+ 322 0044 9847     		blx	r3
+ 323              	.LVL25:
+ 324              	.L24:
+ 380:Drivers/lvgl/src/misc/lv_anim.c ****             }
+ 325              		.loc 1 380 17 view .LVU102
+ 380:Drivers/lvgl/src/misc/lv_anim.c ****             }
+ 326              		.loc 1 380 36 is_stmt 0 view .LVU103
+ 327 0046 94F84230 		ldrb	r3, [r4, #66]	@ zero_extendqisi2
+ 328 004a 43F00803 		orr	r3, r3, #8
+ 329 004e 84F84230 		strb	r3, [r4, #66]
+ 330 0052 27E0     		b	.L22
+ 331              	.LVL26:
+ 332              	.L26:
+ 333              	.LBB5:
+ 396:Drivers/lvgl/src/misc/lv_anim.c ****                     anim_ready_handler(a);
+ 334              		.loc 1 396 17 is_stmt 1 view .LVU104
+ 396:Drivers/lvgl/src/misc/lv_anim.c ****                     anim_ready_handler(a);
+ 335              		.loc 1 396 21 is_stmt 0 view .LVU105
+ 336 0054 226B     		ldr	r2, [r4, #48]
+ 396:Drivers/lvgl/src/misc/lv_anim.c ****                     anim_ready_handler(a);
+ 337              		.loc 1 396 36 view .LVU106
+ 338 0056 E36A     		ldr	r3, [r4, #44]
+ 396:Drivers/lvgl/src/misc/lv_anim.c ****                     anim_ready_handler(a);
+ 339              		.loc 1 396 19 view .LVU107
+ 340 0058 9A42     		cmp	r2, r3
+ 341 005a 3ADA     		bge	.L31
+ 342              	.LVL27:
+ 343              	.L21:
+ 396:Drivers/lvgl/src/misc/lv_anim.c ****                     anim_ready_handler(a);
+ 344              		.loc 1 396 19 view .LVU108
+ 345              	.LBE5:
+ 346              	.LBE3:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 17
+
+
+ 404:Drivers/lvgl/src/misc/lv_anim.c ****             a = _lv_ll_get_head(&LV_GC_ROOT(_lv_anim_ll));
+ 347              		.loc 1 404 9 is_stmt 1 view .LVU109
+ 404:Drivers/lvgl/src/misc/lv_anim.c ****             a = _lv_ll_get_head(&LV_GC_ROOT(_lv_anim_ll));
+ 348              		.loc 1 404 12 is_stmt 0 view .LVU110
+ 349 005c 274B     		ldr	r3, .L34+12
+ 350 005e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 404:Drivers/lvgl/src/misc/lv_anim.c ****             a = _lv_ll_get_head(&LV_GC_ROOT(_lv_anim_ll));
+ 351              		.loc 1 404 11 view .LVU111
+ 352 0060 002B     		cmp	r3, #0
+ 353 0062 3AD0     		beq	.L27
+ 405:Drivers/lvgl/src/misc/lv_anim.c ****         else
+ 354              		.loc 1 405 13 is_stmt 1 view .LVU112
+ 405:Drivers/lvgl/src/misc/lv_anim.c ****         else
+ 355              		.loc 1 405 17 is_stmt 0 view .LVU113
+ 356 0064 2448     		ldr	r0, .L34+8
+ 357 0066 FFF7FEFF 		bl	_lv_ll_get_head
+ 358              	.LVL28:
+ 359 006a 0446     		mov	r4, r0
+ 360              	.LVL29:
+ 361              	.L20:
+ 361:Drivers/lvgl/src/misc/lv_anim.c ****         /*It can be set by `lv_anim_del()` typically in `end_cb`. If set then an animation delete
+ 362              		.loc 1 361 13 is_stmt 1 view .LVU114
+ 363 006c 002C     		cmp	r4, #0
+ 364 006e 3AD0     		beq	.L32
+ 366:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 365              		.loc 1 366 9 view .LVU115
+ 366:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 366              		.loc 1 366 27 is_stmt 0 view .LVU116
+ 367 0070 224B     		ldr	r3, .L34+12
+ 368 0072 0022     		movs	r2, #0
+ 369 0074 1A70     		strb	r2, [r3]
+ 368:Drivers/lvgl/src/misc/lv_anim.c ****             a->run_round = anim_run_round; /*The list readying might be reset so need to know which
+ 370              		.loc 1 368 9 is_stmt 1 view .LVU117
+ 368:Drivers/lvgl/src/misc/lv_anim.c ****             a->run_round = anim_run_round; /*The list readying might be reset so need to know which
+ 371              		.loc 1 368 13 is_stmt 0 view .LVU118
+ 372 0076 94F84230 		ldrb	r3, [r4, #66]	@ zero_extendqisi2
+ 373 007a C3F38003 		ubfx	r3, r3, #2, #1
+ 368:Drivers/lvgl/src/misc/lv_anim.c ****             a->run_round = anim_run_round; /*The list readying might be reset so need to know which
+ 374              		.loc 1 368 25 view .LVU119
+ 375 007e 1D4A     		ldr	r2, .L34+4
+ 376 0080 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 368:Drivers/lvgl/src/misc/lv_anim.c ****             a->run_round = anim_run_round; /*The list readying might be reset so need to know which
+ 377              		.loc 1 368 11 view .LVU120
+ 378 0082 9342     		cmp	r3, r2
+ 379 0084 EAD0     		beq	.L21
+ 380              	.LBB7:
+ 369:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 381              		.loc 1 369 13 is_stmt 1 view .LVU121
+ 369:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 382              		.loc 1 369 26 is_stmt 0 view .LVU122
+ 383 0086 94F84230 		ldrb	r3, [r4, #66]	@ zero_extendqisi2
+ 384 008a 62F38203 		bfi	r3, r2, #2, #1
+ 385 008e 84F84230 		strb	r3, [r4, #66]
+ 372:Drivers/lvgl/src/misc/lv_anim.c ****             if(!a->start_cb_called && a->act_time <= 0 && new_act_time >= 0) {
+ 386              		.loc 1 372 13 is_stmt 1 view .LVU123
+ 372:Drivers/lvgl/src/misc/lv_anim.c ****             if(!a->start_cb_called && a->act_time <= 0 && new_act_time >= 0) {
+ 387              		.loc 1 372 37 is_stmt 0 view .LVU124
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 18
+
+
+ 388 0092 236B     		ldr	r3, [r4, #48]
+ 372:Drivers/lvgl/src/misc/lv_anim.c ****             if(!a->start_cb_called && a->act_time <= 0 && new_act_time >= 0) {
+ 389              		.loc 1 372 48 view .LVU125
+ 390 0094 5919     		adds	r1, r3, r5
+ 391              	.LVL30:
+ 373:Drivers/lvgl/src/misc/lv_anim.c ****                 if(a->early_apply == 0 && a->get_value_cb) {
+ 392              		.loc 1 373 13 is_stmt 1 view .LVU126
+ 373:Drivers/lvgl/src/misc/lv_anim.c ****                 if(a->early_apply == 0 && a->get_value_cb) {
+ 393              		.loc 1 373 16 is_stmt 0 view .LVU127
+ 394 0096 94F84220 		ldrb	r2, [r4, #66]	@ zero_extendqisi2
+ 373:Drivers/lvgl/src/misc/lv_anim.c ****                 if(a->early_apply == 0 && a->get_value_cb) {
+ 395              		.loc 1 373 15 view .LVU128
+ 396 009a 12F0080F 		tst	r2, #8
+ 397 009e 01D1     		bne	.L22
+ 373:Drivers/lvgl/src/misc/lv_anim.c ****                 if(a->early_apply == 0 && a->get_value_cb) {
+ 398              		.loc 1 373 36 discriminator 1 view .LVU129
+ 399 00a0 002B     		cmp	r3, #0
+ 400 00a2 BDDD     		ble	.L33
+ 401              	.LVL31:
+ 402              	.L22:
+ 382:Drivers/lvgl/src/misc/lv_anim.c ****             if(a->act_time >= 0) {
+ 403              		.loc 1 382 13 is_stmt 1 view .LVU130
+ 382:Drivers/lvgl/src/misc/lv_anim.c ****             if(a->act_time >= 0) {
+ 404              		.loc 1 382 14 is_stmt 0 view .LVU131
+ 405 00a4 236B     		ldr	r3, [r4, #48]
+ 382:Drivers/lvgl/src/misc/lv_anim.c ****             if(a->act_time >= 0) {
+ 406              		.loc 1 382 25 view .LVU132
+ 407 00a6 2B44     		add	r3, r3, r5
+ 408 00a8 2363     		str	r3, [r4, #48]
+ 383:Drivers/lvgl/src/misc/lv_anim.c ****                 if(a->act_time > a->time) a->act_time = a->time;
+ 409              		.loc 1 383 13 is_stmt 1 view .LVU133
+ 383:Drivers/lvgl/src/misc/lv_anim.c ****                 if(a->act_time > a->time) a->act_time = a->time;
+ 410              		.loc 1 383 15 is_stmt 0 view .LVU134
+ 411 00aa 002B     		cmp	r3, #0
+ 412 00ac D6DB     		blt	.L21
+ 413              	.LBB6:
+ 384:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 414              		.loc 1 384 17 is_stmt 1 view .LVU135
+ 384:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 415              		.loc 1 384 35 is_stmt 0 view .LVU136
+ 416 00ae E26A     		ldr	r2, [r4, #44]
+ 384:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 417              		.loc 1 384 19 view .LVU137
+ 418 00b0 9342     		cmp	r3, r2
+ 419 00b2 00DD     		ble	.L25
+ 384:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 420              		.loc 1 384 43 is_stmt 1 discriminator 1 view .LVU138
+ 384:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 421              		.loc 1 384 55 is_stmt 0 discriminator 1 view .LVU139
+ 422 00b4 2263     		str	r2, [r4, #48]
+ 423              	.L25:
+ 386:Drivers/lvgl/src/misc/lv_anim.c ****                 new_value = a->path_cb(a);
+ 424              		.loc 1 386 17 is_stmt 1 view .LVU140
+ 387:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 425              		.loc 1 387 17 view .LVU141
+ 387:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 426              		.loc 1 387 30 is_stmt 0 view .LVU142
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 19
+
+
+ 427 00b6 E369     		ldr	r3, [r4, #28]
+ 387:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 428              		.loc 1 387 29 view .LVU143
+ 429 00b8 2046     		mov	r0, r4
+ 430 00ba 9847     		blx	r3
+ 431              	.LVL32:
+ 389:Drivers/lvgl/src/misc/lv_anim.c ****                     a->current_value = new_value;
+ 432              		.loc 1 389 17 is_stmt 1 view .LVU144
+ 389:Drivers/lvgl/src/misc/lv_anim.c ****                     a->current_value = new_value;
+ 433              		.loc 1 389 34 is_stmt 0 view .LVU145
+ 434 00bc 636A     		ldr	r3, [r4, #36]
+ 389:Drivers/lvgl/src/misc/lv_anim.c ****                     a->current_value = new_value;
+ 435              		.loc 1 389 19 view .LVU146
+ 436 00be 8342     		cmp	r3, r0
+ 437 00c0 C8D0     		beq	.L26
+ 390:Drivers/lvgl/src/misc/lv_anim.c ****                     /*Apply the calculated value*/
+ 438              		.loc 1 390 21 is_stmt 1 view .LVU147
+ 390:Drivers/lvgl/src/misc/lv_anim.c ****                     /*Apply the calculated value*/
+ 439              		.loc 1 390 38 is_stmt 0 view .LVU148
+ 440 00c2 6062     		str	r0, [r4, #36]
+ 392:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 441              		.loc 1 392 21 is_stmt 1 view .LVU149
+ 392:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 442              		.loc 1 392 25 is_stmt 0 view .LVU150
+ 443 00c4 6368     		ldr	r3, [r4, #4]
+ 392:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 444              		.loc 1 392 23 view .LVU151
+ 445 00c6 002B     		cmp	r3, #0
+ 446 00c8 C4D0     		beq	.L26
+ 392:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 447              		.loc 1 392 36 is_stmt 1 discriminator 1 view .LVU152
+ 448 00ca 0146     		mov	r1, r0
+ 449 00cc 2068     		ldr	r0, [r4]
+ 450              	.LVL33:
+ 392:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 451              		.loc 1 392 36 is_stmt 0 discriminator 1 view .LVU153
+ 452 00ce 9847     		blx	r3
+ 453              	.LVL34:
+ 392:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 454              		.loc 1 392 36 discriminator 1 view .LVU154
+ 455 00d0 C0E7     		b	.L26
+ 456              	.L31:
+ 397:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 457              		.loc 1 397 21 is_stmt 1 view .LVU155
+ 458 00d2 2046     		mov	r0, r4
+ 459 00d4 FFF7FEFF 		bl	anim_ready_handler
+ 460              	.LVL35:
+ 461 00d8 C0E7     		b	.L21
+ 462              	.LVL36:
+ 463              	.L27:
+ 397:Drivers/lvgl/src/misc/lv_anim.c ****                 }
+ 464              		.loc 1 397 21 is_stmt 0 view .LVU156
+ 465              	.LBE6:
+ 466              	.LBE7:
+ 407:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 467              		.loc 1 407 13 is_stmt 1 view .LVU157
+ 407:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 20
+
+
+ 468              		.loc 1 407 17 is_stmt 0 view .LVU158
+ 469 00da 2146     		mov	r1, r4
+ 470 00dc 0648     		ldr	r0, .L34+8
+ 471 00de FFF7FEFF 		bl	_lv_ll_get_next
+ 472              	.LVL37:
+ 473 00e2 0446     		mov	r4, r0
+ 474              	.LVL38:
+ 407:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 475              		.loc 1 407 17 view .LVU159
+ 476 00e4 C2E7     		b	.L20
+ 477              	.L32:
+ 410:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 478              		.loc 1 410 5 is_stmt 1 view .LVU160
+ 410:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 479              		.loc 1 410 22 is_stmt 0 view .LVU161
+ 480 00e6 FFF7FEFF 		bl	lv_tick_get
+ 481              	.LVL39:
+ 410:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 482              		.loc 1 410 20 discriminator 1 view .LVU162
+ 483 00ea 014B     		ldr	r3, .L34
+ 484 00ec 1860     		str	r0, [r3]
+ 411:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 485              		.loc 1 411 1 view .LVU163
+ 486 00ee 38BD     		pop	{r3, r4, r5, pc}
+ 487              	.LVL40:
+ 488              	.L35:
+ 411:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 489              		.loc 1 411 1 view .LVU164
+ 490              		.align	2
+ 491              	.L34:
+ 492 00f0 00000000 		.word	last_timer_run
+ 493 00f4 00000000 		.word	anim_run_round
+ 494 00f8 00000000 		.word	_lv_anim_ll
+ 495 00fc 00000000 		.word	anim_list_changed
+ 496              		.cfi_endproc
+ 497              	.LFE63:
+ 499              		.section	.text.lv_anim_path_linear,"ax",%progbits
+ 500              		.align	1
+ 501              		.global	lv_anim_path_linear
+ 502              		.syntax unified
+ 503              		.thumb
+ 504              		.thumb_func
+ 506              	lv_anim_path_linear:
+ 507              	.LVL41:
+ 508              	.LFB56:
+ 213:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 509              		.loc 1 213 1 is_stmt 1 view -0
+ 510              		.cfi_startproc
+ 511              		@ args = 0, pretend = 0, frame = 0
+ 512              		@ frame_needed = 0, uses_anonymous_args = 0
+ 213:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 513              		.loc 1 213 1 is_stmt 0 view .LVU166
+ 514 0000 10B5     		push	{r4, lr}
+ 515              		.cfi_def_cfa_offset 8
+ 516              		.cfi_offset 4, -8
+ 517              		.cfi_offset 14, -4
+ 518 0002 82B0     		sub	sp, sp, #8
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 21
+
+
+ 519              		.cfi_def_cfa_offset 16
+ 520 0004 0446     		mov	r4, r0
+ 215:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 521              		.loc 1 215 5 is_stmt 1 view .LVU167
+ 215:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 522              		.loc 1 215 20 is_stmt 0 view .LVU168
+ 523 0006 4FF48063 		mov	r3, #1024
+ 524 000a 0093     		str	r3, [sp]
+ 525 000c 0023     		movs	r3, #0
+ 526 000e C26A     		ldr	r2, [r0, #44]
+ 527 0010 1946     		mov	r1, r3
+ 528 0012 006B     		ldr	r0, [r0, #48]
+ 529              	.LVL42:
+ 215:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 530              		.loc 1 215 20 view .LVU169
+ 531 0014 FFF7FEFF 		bl	lv_map
+ 532              	.LVL43:
+ 219:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = step * (a->end_value - a->start_value);
+ 533              		.loc 1 219 5 is_stmt 1 view .LVU170
+ 220:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_ANIM_RES_SHIFT;
+ 534              		.loc 1 220 5 view .LVU171
+ 220:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_ANIM_RES_SHIFT;
+ 535              		.loc 1 220 26 is_stmt 0 view .LVU172
+ 536 0018 A36A     		ldr	r3, [r4, #40]
+ 220:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_ANIM_RES_SHIFT;
+ 537              		.loc 1 220 41 view .LVU173
+ 538 001a 226A     		ldr	r2, [r4, #32]
+ 220:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_ANIM_RES_SHIFT;
+ 539              		.loc 1 220 38 view .LVU174
+ 540 001c 9B1A     		subs	r3, r3, r2
+ 220:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_ANIM_RES_SHIFT;
+ 541              		.loc 1 220 15 view .LVU175
+ 542 001e 03FB00F0 		mul	r0, r3, r0
+ 543              	.LVL44:
+ 221:Drivers/lvgl/src/misc/lv_anim.c ****     new_value += a->start_value;
+ 544              		.loc 1 221 5 is_stmt 1 view .LVU176
+ 222:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 545              		.loc 1 222 5 view .LVU177
+ 224:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 546              		.loc 1 224 5 view .LVU178
+ 225:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 547              		.loc 1 225 1 is_stmt 0 view .LVU179
+ 548 0022 02EBA020 		add	r0, r2, r0, asr #10
+ 549              	.LVL45:
+ 225:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 550              		.loc 1 225 1 view .LVU180
+ 551 0026 02B0     		add	sp, sp, #8
+ 552              		.cfi_def_cfa_offset 8
+ 553              		@ sp needed
+ 554 0028 10BD     		pop	{r4, pc}
+ 225:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 555              		.loc 1 225 1 view .LVU181
+ 556              		.cfi_endproc
+ 557              	.LFE56:
+ 559              		.section	.text._lv_anim_core_init,"ax",%progbits
+ 560              		.align	1
+ 561              		.global	_lv_anim_core_init
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 22
+
+
+ 562              		.syntax unified
+ 563              		.thumb
+ 564              		.thumb_func
+ 566              	_lv_anim_core_init:
+ 567              	.LFB45:
+  58:Drivers/lvgl/src/misc/lv_anim.c ****     _lv_ll_init(&LV_GC_ROOT(_lv_anim_ll), sizeof(lv_anim_t));
+ 568              		.loc 1 58 1 is_stmt 1 view -0
+ 569              		.cfi_startproc
+ 570              		@ args = 0, pretend = 0, frame = 0
+ 571              		@ frame_needed = 0, uses_anonymous_args = 0
+ 572 0000 08B5     		push	{r3, lr}
+ 573              		.cfi_def_cfa_offset 8
+ 574              		.cfi_offset 3, -8
+ 575              		.cfi_offset 14, -4
+  59:Drivers/lvgl/src/misc/lv_anim.c ****     _lv_anim_tmr = lv_timer_create(anim_timer, LV_DISP_DEF_REFR_PERIOD, NULL);
+ 576              		.loc 1 59 5 view .LVU183
+ 577 0002 4421     		movs	r1, #68
+ 578 0004 0748     		ldr	r0, .L40
+ 579 0006 FFF7FEFF 		bl	_lv_ll_init
+ 580              	.LVL46:
+  60:Drivers/lvgl/src/misc/lv_anim.c ****     anim_mark_list_change(); /*Turn off the animation timer*/
+ 581              		.loc 1 60 5 view .LVU184
+  60:Drivers/lvgl/src/misc/lv_anim.c ****     anim_mark_list_change(); /*Turn off the animation timer*/
+ 582              		.loc 1 60 20 is_stmt 0 view .LVU185
+ 583 000a 0022     		movs	r2, #0
+ 584 000c 1E21     		movs	r1, #30
+ 585 000e 0648     		ldr	r0, .L40+4
+ 586 0010 FFF7FEFF 		bl	lv_timer_create
+ 587              	.LVL47:
+  60:Drivers/lvgl/src/misc/lv_anim.c ****     anim_mark_list_change(); /*Turn off the animation timer*/
+ 588              		.loc 1 60 18 discriminator 1 view .LVU186
+ 589 0014 054B     		ldr	r3, .L40+8
+ 590 0016 1860     		str	r0, [r3]
+  61:Drivers/lvgl/src/misc/lv_anim.c ****     anim_list_changed = false;
+ 591              		.loc 1 61 5 is_stmt 1 view .LVU187
+ 592 0018 FFF7FEFF 		bl	anim_mark_list_change
+ 593              	.LVL48:
+  62:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 594              		.loc 1 62 5 view .LVU188
+  62:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 595              		.loc 1 62 23 is_stmt 0 view .LVU189
+ 596 001c 044B     		ldr	r3, .L40+12
+ 597 001e 0022     		movs	r2, #0
+ 598 0020 1A70     		strb	r2, [r3]
+  63:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 599              		.loc 1 63 1 view .LVU190
+ 600 0022 08BD     		pop	{r3, pc}
+ 601              	.L41:
+ 602              		.align	2
+ 603              	.L40:
+ 604 0024 00000000 		.word	_lv_anim_ll
+ 605 0028 00000000 		.word	anim_timer
+ 606 002c 00000000 		.word	_lv_anim_tmr
+ 607 0030 00000000 		.word	anim_list_changed
+ 608              		.cfi_endproc
+ 609              	.LFE45:
+ 611              		.section	.text.lv_anim_init,"ax",%progbits
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 23
+
+
+ 612              		.align	1
+ 613              		.global	lv_anim_init
+ 614              		.syntax unified
+ 615              		.thumb
+ 616              		.thumb_func
+ 618              	lv_anim_init:
+ 619              	.LVL49:
+ 620              	.LFB46:
+  66:Drivers/lvgl/src/misc/lv_anim.c ****     lv_memset_00(a, sizeof(lv_anim_t));
+ 621              		.loc 1 66 1 is_stmt 1 view -0
+ 622              		.cfi_startproc
+ 623              		@ args = 0, pretend = 0, frame = 0
+ 624              		@ frame_needed = 0, uses_anonymous_args = 0
+  66:Drivers/lvgl/src/misc/lv_anim.c ****     lv_memset_00(a, sizeof(lv_anim_t));
+ 625              		.loc 1 66 1 is_stmt 0 view .LVU192
+ 626 0000 10B5     		push	{r4, lr}
+ 627              		.cfi_def_cfa_offset 8
+ 628              		.cfi_offset 4, -8
+ 629              		.cfi_offset 14, -4
+ 630 0002 0446     		mov	r4, r0
+  67:Drivers/lvgl/src/misc/lv_anim.c ****     a->time = 500;
+ 631              		.loc 1 67 5 is_stmt 1 view .LVU193
+ 632 0004 4421     		movs	r1, #68
+ 633 0006 FFF7FEFF 		bl	lv_memset_00
+ 634              	.LVL50:
+  68:Drivers/lvgl/src/misc/lv_anim.c ****     a->start_value = 0;
+ 635              		.loc 1 68 5 view .LVU194
+  68:Drivers/lvgl/src/misc/lv_anim.c ****     a->start_value = 0;
+ 636              		.loc 1 68 13 is_stmt 0 view .LVU195
+ 637 000a 4FF4FA73 		mov	r3, #500
+ 638 000e E362     		str	r3, [r4, #44]
+  69:Drivers/lvgl/src/misc/lv_anim.c ****     a->end_value = 100;
+ 639              		.loc 1 69 5 is_stmt 1 view .LVU196
+  69:Drivers/lvgl/src/misc/lv_anim.c ****     a->end_value = 100;
+ 640              		.loc 1 69 20 is_stmt 0 view .LVU197
+ 641 0010 0023     		movs	r3, #0
+ 642 0012 2362     		str	r3, [r4, #32]
+  70:Drivers/lvgl/src/misc/lv_anim.c ****     a->repeat_cnt = 1;
+ 643              		.loc 1 70 5 is_stmt 1 view .LVU198
+  70:Drivers/lvgl/src/misc/lv_anim.c ****     a->repeat_cnt = 1;
+ 644              		.loc 1 70 18 is_stmt 0 view .LVU199
+ 645 0014 6423     		movs	r3, #100
+ 646 0016 A362     		str	r3, [r4, #40]
+  71:Drivers/lvgl/src/misc/lv_anim.c ****     a->path_cb = lv_anim_path_linear;
+ 647              		.loc 1 71 5 is_stmt 1 view .LVU200
+  71:Drivers/lvgl/src/misc/lv_anim.c ****     a->path_cb = lv_anim_path_linear;
+ 648              		.loc 1 71 19 is_stmt 0 view .LVU201
+ 649 0018 0123     		movs	r3, #1
+ 650 001a A4F84030 		strh	r3, [r4, #64]	@ movhi
+  72:Drivers/lvgl/src/misc/lv_anim.c ****     a->early_apply = 1;
+ 651              		.loc 1 72 5 is_stmt 1 view .LVU202
+  72:Drivers/lvgl/src/misc/lv_anim.c ****     a->early_apply = 1;
+ 652              		.loc 1 72 16 is_stmt 0 view .LVU203
+ 653 001e 044B     		ldr	r3, .L44
+ 654 0020 E361     		str	r3, [r4, #28]
+  73:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 655              		.loc 1 73 5 is_stmt 1 view .LVU204
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 24
+
+
+  73:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 656              		.loc 1 73 20 is_stmt 0 view .LVU205
+ 657 0022 94F84230 		ldrb	r3, [r4, #66]	@ zero_extendqisi2
+ 658 0026 43F00103 		orr	r3, r3, #1
+ 659 002a 84F84230 		strb	r3, [r4, #66]
+  74:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 660              		.loc 1 74 1 view .LVU206
+ 661 002e 10BD     		pop	{r4, pc}
+ 662              	.LVL51:
+ 663              	.L45:
+  74:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 664              		.loc 1 74 1 view .LVU207
+ 665              		.align	2
+ 666              	.L44:
+ 667 0030 00000000 		.word	lv_anim_path_linear
+ 668              		.cfi_endproc
+ 669              	.LFE46:
+ 671              		.section	.text.lv_anim_get_playtime,"ax",%progbits
+ 672              		.align	1
+ 673              		.global	lv_anim_get_playtime
+ 674              		.syntax unified
+ 675              		.thumb
+ 676              		.thumb_func
+ 678              	lv_anim_get_playtime:
+ 679              	.LVL52:
+ 680              	.LFB48:
+ 118:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t playtime = LV_ANIM_PLAYTIME_INFINITE;
+ 681              		.loc 1 118 1 is_stmt 1 view -0
+ 682              		.cfi_startproc
+ 683              		@ args = 0, pretend = 0, frame = 0
+ 684              		@ frame_needed = 0, uses_anonymous_args = 0
+ 685              		@ link register save eliminated.
+ 119:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 686              		.loc 1 119 5 view .LVU209
+ 121:Drivers/lvgl/src/misc/lv_anim.c ****         return playtime;
+ 687              		.loc 1 121 5 view .LVU210
+ 121:Drivers/lvgl/src/misc/lv_anim.c ****         return playtime;
+ 688              		.loc 1 121 9 is_stmt 0 view .LVU211
+ 689 0000 B0F840C0 		ldrh	ip, [r0, #64]
+ 121:Drivers/lvgl/src/misc/lv_anim.c ****         return playtime;
+ 690              		.loc 1 121 7 view .LVU212
+ 691 0004 4FF6FF72 		movw	r2, #65535
+ 692 0008 9445     		cmp	ip, r2
+ 693 000a 1DD0     		beq	.L49
+ 118:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t playtime = LV_ANIM_PLAYTIME_INFINITE;
+ 694              		.loc 1 118 1 view .LVU213
+ 695 000c 10B4     		push	{r4}
+ 696              		.cfi_def_cfa_offset 4
+ 697              		.cfi_offset 4, -4
+ 698 000e 0346     		mov	r3, r0
+ 124:Drivers/lvgl/src/misc/lv_anim.c ****     if(a->playback_now == 0)
+ 699              		.loc 1 124 5 is_stmt 1 view .LVU214
+ 124:Drivers/lvgl/src/misc/lv_anim.c ****     if(a->playback_now == 0)
+ 700              		.loc 1 124 17 is_stmt 0 view .LVU215
+ 701 0010 C16A     		ldr	r1, [r0, #44]
+ 124:Drivers/lvgl/src/misc/lv_anim.c ****     if(a->playback_now == 0)
+ 702              		.loc 1 124 27 view .LVU216
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 25
+
+
+ 703 0012 006B     		ldr	r0, [r0, #48]
+ 704              	.LVL53:
+ 124:Drivers/lvgl/src/misc/lv_anim.c ****     if(a->playback_now == 0)
+ 705              		.loc 1 124 24 view .LVU217
+ 706 0014 081A     		subs	r0, r1, r0
+ 707              	.LVL54:
+ 125:Drivers/lvgl/src/misc/lv_anim.c ****         playtime += a->playback_delay + a->playback_time;
+ 708              		.loc 1 125 5 is_stmt 1 view .LVU218
+ 125:Drivers/lvgl/src/misc/lv_anim.c ****         playtime += a->playback_delay + a->playback_time;
+ 709              		.loc 1 125 24 is_stmt 0 view .LVU219
+ 710 0016 93F84220 		ldrb	r2, [r3, #66]	@ zero_extendqisi2
+ 125:Drivers/lvgl/src/misc/lv_anim.c ****         playtime += a->playback_delay + a->playback_time;
+ 711              		.loc 1 125 7 view .LVU220
+ 712 001a 12F0020F 		tst	r2, #2
+ 713 001e 03D1     		bne	.L48
+ 126:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 714              		.loc 1 126 9 is_stmt 1 view .LVU221
+ 126:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 715              		.loc 1 126 22 is_stmt 0 view .LVU222
+ 716 0020 5A6B     		ldr	r2, [r3, #52]
+ 126:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 717              		.loc 1 126 39 view .LVU223
+ 718 0022 9C6B     		ldr	r4, [r3, #56]
+ 719 0024 2244     		add	r2, r2, r4
+ 126:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 720              		.loc 1 126 18 view .LVU224
+ 721 0026 1044     		add	r0, r0, r2
+ 722              	.LVL55:
+ 723              	.L48:
+ 128:Drivers/lvgl/src/misc/lv_anim.c ****         return playtime;
+ 724              		.loc 1 128 5 is_stmt 1 view .LVU225
+ 128:Drivers/lvgl/src/misc/lv_anim.c ****         return playtime;
+ 725              		.loc 1 128 7 is_stmt 0 view .LVU226
+ 726 0028 BCF1010F 		cmp	ip, #1
+ 727 002c 09D9     		bls	.L46
+ 131:Drivers/lvgl/src/misc/lv_anim.c ****                  a->playback_delay + a->playback_time) *
+ 728              		.loc 1 131 5 is_stmt 1 view .LVU227
+ 131:Drivers/lvgl/src/misc/lv_anim.c ****                  a->playback_delay + a->playback_time) *
+ 729              		.loc 1 131 19 is_stmt 0 view .LVU228
+ 730 002e DA6B     		ldr	r2, [r3, #60]
+ 131:Drivers/lvgl/src/misc/lv_anim.c ****                  a->playback_delay + a->playback_time) *
+ 731              		.loc 1 131 34 view .LVU229
+ 732 0030 0A44     		add	r2, r2, r1
+ 132:Drivers/lvgl/src/misc/lv_anim.c ****                 (a->repeat_cnt - 1);
+ 733              		.loc 1 132 19 view .LVU230
+ 734 0032 596B     		ldr	r1, [r3, #52]
+ 131:Drivers/lvgl/src/misc/lv_anim.c ****                  a->playback_delay + a->playback_time) *
+ 735              		.loc 1 131 44 view .LVU231
+ 736 0034 0A44     		add	r2, r2, r1
+ 132:Drivers/lvgl/src/misc/lv_anim.c ****                 (a->repeat_cnt - 1);
+ 737              		.loc 1 132 39 view .LVU232
+ 738 0036 9B6B     		ldr	r3, [r3, #56]
+ 739              	.LVL56:
+ 132:Drivers/lvgl/src/misc/lv_anim.c ****                 (a->repeat_cnt - 1);
+ 740              		.loc 1 132 36 view .LVU233
+ 741 0038 1A44     		add	r2, r2, r3
+ 133:Drivers/lvgl/src/misc/lv_anim.c **** 
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 26
+
+
+ 742              		.loc 1 133 32 view .LVU234
+ 743 003a 0CF1FF33 		add	r3, ip, #-1
+ 131:Drivers/lvgl/src/misc/lv_anim.c ****                  a->playback_delay + a->playback_time) *
+ 744              		.loc 1 131 14 view .LVU235
+ 745 003e 03FB0200 		mla	r0, r3, r2, r0
+ 746              	.LVL57:
+ 135:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 747              		.loc 1 135 5 is_stmt 1 view .LVU236
+ 748              	.L46:
+ 136:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 749              		.loc 1 136 1 is_stmt 0 view .LVU237
+ 750 0042 5DF8044B 		ldr	r4, [sp], #4
+ 751              		.cfi_restore 4
+ 752              		.cfi_def_cfa_offset 0
+ 753 0046 7047     		bx	lr
+ 754              	.LVL58:
+ 755              	.L49:
+ 122:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 756              		.loc 1 122 16 view .LVU238
+ 757 0048 4FF0FF30 		mov	r0, #-1
+ 758              	.LVL59:
+ 136:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 759              		.loc 1 136 1 view .LVU239
+ 760 004c 7047     		bx	lr
+ 761              		.cfi_endproc
+ 762              	.LFE48:
+ 764              		.section	.text.lv_anim_del,"ax",%progbits
+ 765              		.align	1
+ 766              		.global	lv_anim_del
+ 767              		.syntax unified
+ 768              		.thumb
+ 769              		.thumb_func
+ 771              	lv_anim_del:
+ 772              	.LVL60:
+ 773              	.LFB49:
+ 139:Drivers/lvgl/src/misc/lv_anim.c ****     lv_anim_t * a;
+ 774              		.loc 1 139 1 is_stmt 1 view -0
+ 775              		.cfi_startproc
+ 776              		@ args = 0, pretend = 0, frame = 0
+ 777              		@ frame_needed = 0, uses_anonymous_args = 0
+ 139:Drivers/lvgl/src/misc/lv_anim.c ****     lv_anim_t * a;
+ 778              		.loc 1 139 1 is_stmt 0 view .LVU241
+ 779 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 780              		.cfi_def_cfa_offset 24
+ 781              		.cfi_offset 4, -24
+ 782              		.cfi_offset 5, -20
+ 783              		.cfi_offset 6, -16
+ 784              		.cfi_offset 7, -12
+ 785              		.cfi_offset 8, -8
+ 786              		.cfi_offset 14, -4
+ 787 0004 0646     		mov	r6, r0
+ 788 0006 0F46     		mov	r7, r1
+ 140:Drivers/lvgl/src/misc/lv_anim.c ****     lv_anim_t * a_next;
+ 789              		.loc 1 140 5 is_stmt 1 view .LVU242
+ 141:Drivers/lvgl/src/misc/lv_anim.c ****     bool del = false;
+ 790              		.loc 1 141 5 view .LVU243
+ 142:Drivers/lvgl/src/misc/lv_anim.c ****     a        = _lv_ll_get_head(&LV_GC_ROOT(_lv_anim_ll));
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 27
+
+
+ 791              		.loc 1 142 5 view .LVU244
+ 792              	.LVL61:
+ 143:Drivers/lvgl/src/misc/lv_anim.c ****     while(a != NULL) {
+ 793              		.loc 1 143 5 view .LVU245
+ 143:Drivers/lvgl/src/misc/lv_anim.c ****     while(a != NULL) {
+ 794              		.loc 1 143 16 is_stmt 0 view .LVU246
+ 795 0008 1548     		ldr	r0, .L63
+ 796              	.LVL62:
+ 143:Drivers/lvgl/src/misc/lv_anim.c ****     while(a != NULL) {
+ 797              		.loc 1 143 16 view .LVU247
+ 798 000a FFF7FEFF 		bl	_lv_ll_get_head
+ 799              	.LVL63:
+ 143:Drivers/lvgl/src/misc/lv_anim.c ****     while(a != NULL) {
+ 800              		.loc 1 143 16 view .LVU248
+ 801 000e 0446     		mov	r4, r0
+ 802              	.LVL64:
+ 144:Drivers/lvgl/src/misc/lv_anim.c ****         /*'a' might be deleted, so get the next object while 'a' is valid*/
+ 803              		.loc 1 144 5 is_stmt 1 view .LVU249
+ 142:Drivers/lvgl/src/misc/lv_anim.c ****     a        = _lv_ll_get_head(&LV_GC_ROOT(_lv_anim_ll));
+ 804              		.loc 1 142 10 is_stmt 0 view .LVU250
+ 805 0010 4FF00008 		mov	r8, #0
+ 144:Drivers/lvgl/src/misc/lv_anim.c ****         /*'a' might be deleted, so get the next object while 'a' is valid*/
+ 806              		.loc 1 144 10 view .LVU251
+ 807 0014 04E0     		b	.L55
+ 808              	.LVL65:
+ 809              	.L56:
+ 148:Drivers/lvgl/src/misc/lv_anim.c ****             _lv_ll_remove(&LV_GC_ROOT(_lv_anim_ll), a);
+ 810              		.loc 1 148 48 discriminator 3 view .LVU252
+ 811 0016 6368     		ldr	r3, [r4, #4]
+ 148:Drivers/lvgl/src/misc/lv_anim.c ****             _lv_ll_remove(&LV_GC_ROOT(_lv_anim_ll), a);
+ 812              		.loc 1 148 43 discriminator 3 view .LVU253
+ 813 0018 BB42     		cmp	r3, r7
+ 814 001a 0DD0     		beq	.L58
+ 148:Drivers/lvgl/src/misc/lv_anim.c ****             _lv_ll_remove(&LV_GC_ROOT(_lv_anim_ll), a);
+ 815              		.loc 1 148 69 discriminator 4 view .LVU254
+ 816 001c 67B1     		cbz	r7, .L58
+ 817              	.LVL66:
+ 818              	.L57:
+ 154:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 819              		.loc 1 154 17 view .LVU255
+ 820 001e 2C46     		mov	r4, r5
+ 821              	.LVL67:
+ 822              	.L55:
+ 144:Drivers/lvgl/src/misc/lv_anim.c ****         /*'a' might be deleted, so get the next object while 'a' is valid*/
+ 823              		.loc 1 144 13 is_stmt 1 view .LVU256
+ 824 0020 D4B1     		cbz	r4, .L62
+ 146:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 825              		.loc 1 146 9 view .LVU257
+ 146:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 826              		.loc 1 146 18 is_stmt 0 view .LVU258
+ 827 0022 2146     		mov	r1, r4
+ 828 0024 0E48     		ldr	r0, .L63
+ 829 0026 FFF7FEFF 		bl	_lv_ll_get_next
+ 830              	.LVL68:
+ 831 002a 0546     		mov	r5, r0
+ 832              	.LVL69:
+ 148:Drivers/lvgl/src/misc/lv_anim.c ****             _lv_ll_remove(&LV_GC_ROOT(_lv_anim_ll), a);
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 28
+
+
+ 833              		.loc 1 148 9 is_stmt 1 view .LVU259
+ 148:Drivers/lvgl/src/misc/lv_anim.c ****             _lv_ll_remove(&LV_GC_ROOT(_lv_anim_ll), a);
+ 834              		.loc 1 148 14 is_stmt 0 view .LVU260
+ 835 002c 2368     		ldr	r3, [r4]
+ 148:Drivers/lvgl/src/misc/lv_anim.c ****             _lv_ll_remove(&LV_GC_ROOT(_lv_anim_ll), a);
+ 836              		.loc 1 148 11 view .LVU261
+ 837 002e B342     		cmp	r3, r6
+ 838 0030 F1D0     		beq	.L56
+ 148:Drivers/lvgl/src/misc/lv_anim.c ****             _lv_ll_remove(&LV_GC_ROOT(_lv_anim_ll), a);
+ 839              		.loc 1 148 27 discriminator 2 view .LVU262
+ 840 0032 002E     		cmp	r6, #0
+ 841 0034 F3D1     		bne	.L57
+ 842 0036 EEE7     		b	.L56
+ 843              	.L58:
+ 149:Drivers/lvgl/src/misc/lv_anim.c ****             if(a->deleted_cb != NULL) a->deleted_cb(a);
+ 844              		.loc 1 149 13 is_stmt 1 view .LVU263
+ 845 0038 2146     		mov	r1, r4
+ 846 003a 0948     		ldr	r0, .L63
+ 847              	.LVL70:
+ 149:Drivers/lvgl/src/misc/lv_anim.c ****             if(a->deleted_cb != NULL) a->deleted_cb(a);
+ 848              		.loc 1 149 13 is_stmt 0 view .LVU264
+ 849 003c FFF7FEFF 		bl	_lv_ll_remove
+ 850              	.LVL71:
+ 150:Drivers/lvgl/src/misc/lv_anim.c ****             lv_mem_free(a);
+ 851              		.loc 1 150 13 is_stmt 1 view .LVU265
+ 150:Drivers/lvgl/src/misc/lv_anim.c ****             lv_mem_free(a);
+ 852              		.loc 1 150 17 is_stmt 0 view .LVU266
+ 853 0040 2369     		ldr	r3, [r4, #16]
+ 150:Drivers/lvgl/src/misc/lv_anim.c ****             lv_mem_free(a);
+ 854              		.loc 1 150 15 view .LVU267
+ 855 0042 0BB1     		cbz	r3, .L59
+ 150:Drivers/lvgl/src/misc/lv_anim.c ****             lv_mem_free(a);
+ 856              		.loc 1 150 39 is_stmt 1 discriminator 1 view .LVU268
+ 857 0044 2046     		mov	r0, r4
+ 858 0046 9847     		blx	r3
+ 859              	.LVL72:
+ 860              	.L59:
+ 151:Drivers/lvgl/src/misc/lv_anim.c ****             anim_mark_list_change(); /*Read by `anim_timer`. It need to know if a delete occurred i
+ 861              		.loc 1 151 13 view .LVU269
+ 862 0048 2046     		mov	r0, r4
+ 863 004a FFF7FEFF 		bl	lv_mem_free
+ 864              	.LVL73:
+ 152:Drivers/lvgl/src/misc/lv_anim.c ****                                        the linked list*/
+ 865              		.loc 1 152 13 view .LVU270
+ 866 004e FFF7FEFF 		bl	anim_mark_list_change
+ 867              	.LVL74:
+ 154:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 868              		.loc 1 154 13 view .LVU271
+ 154:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 869              		.loc 1 154 17 is_stmt 0 view .LVU272
+ 870 0052 4FF00108 		mov	r8, #1
+ 871 0056 E2E7     		b	.L57
+ 872              	.LVL75:
+ 873              	.L62:
+ 160:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 874              		.loc 1 160 5 is_stmt 1 view .LVU273
+ 161:Drivers/lvgl/src/misc/lv_anim.c **** 
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 29
+
+
+ 875              		.loc 1 161 1 is_stmt 0 view .LVU274
+ 876 0058 4046     		mov	r0, r8
+ 877 005a BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 878              	.LVL76:
+ 879              	.L64:
+ 161:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 880              		.loc 1 161 1 view .LVU275
+ 881 005e 00BF     		.align	2
+ 882              	.L63:
+ 883 0060 00000000 		.word	_lv_anim_ll
+ 884              		.cfi_endproc
+ 885              	.LFE49:
+ 887              		.section	.text.lv_anim_start,"ax",%progbits
+ 888              		.align	1
+ 889              		.global	lv_anim_start
+ 890              		.syntax unified
+ 891              		.thumb
+ 892              		.thumb_func
+ 894              	lv_anim_start:
+ 895              	.LVL77:
+ 896              	.LFB47:
+  77:Drivers/lvgl/src/misc/lv_anim.c ****     TRACE_ANIM("begin");
+ 897              		.loc 1 77 1 is_stmt 1 view -0
+ 898              		.cfi_startproc
+ 899              		@ args = 0, pretend = 0, frame = 0
+ 900              		@ frame_needed = 0, uses_anonymous_args = 0
+  77:Drivers/lvgl/src/misc/lv_anim.c ****     TRACE_ANIM("begin");
+ 901              		.loc 1 77 1 is_stmt 0 view .LVU277
+ 902 0000 38B5     		push	{r3, r4, r5, lr}
+ 903              		.cfi_def_cfa_offset 16
+ 904              		.cfi_offset 3, -16
+ 905              		.cfi_offset 4, -12
+ 906              		.cfi_offset 5, -8
+ 907              		.cfi_offset 14, -4
+ 908 0002 0446     		mov	r4, r0
+  78:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 909              		.loc 1 78 24 is_stmt 1 view .LVU278
+  81:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 910              		.loc 1 81 5 view .LVU279
+  81:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 911              		.loc 1 81 9 is_stmt 0 view .LVU280
+ 912 0004 4168     		ldr	r1, [r0, #4]
+  81:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 913              		.loc 1 81 7 view .LVU281
+ 914 0006 11B1     		cbz	r1, .L66
+  81:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 915              		.loc 1 81 28 is_stmt 1 discriminator 1 view .LVU282
+ 916 0008 0068     		ldr	r0, [r0]
+ 917              	.LVL78:
+  81:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 918              		.loc 1 81 28 is_stmt 0 discriminator 1 view .LVU283
+ 919 000a FFF7FEFF 		bl	lv_anim_del
+ 920              	.LVL79:
+ 921              	.L66:
+  84:Drivers/lvgl/src/misc/lv_anim.c ****         last_timer_run = lv_tick_get();
+ 922              		.loc 1 84 5 is_stmt 1 view .LVU284
+  84:Drivers/lvgl/src/misc/lv_anim.c ****         last_timer_run = lv_tick_get();
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 30
+
+
+ 923              		.loc 1 84 8 is_stmt 0 view .LVU285
+ 924 000e 1C48     		ldr	r0, .L76
+ 925 0010 FFF7FEFF 		bl	_lv_ll_is_empty
+ 926              	.LVL80:
+  84:Drivers/lvgl/src/misc/lv_anim.c ****         last_timer_run = lv_tick_get();
+ 927              		.loc 1 84 7 discriminator 1 view .LVU286
+ 928 0014 58BB     		cbnz	r0, .L74
+ 929              	.L67:
+  89:Drivers/lvgl/src/misc/lv_anim.c ****     LV_ASSERT_MALLOC(new_anim);
+ 930              		.loc 1 89 5 is_stmt 1 view .LVU287
+  89:Drivers/lvgl/src/misc/lv_anim.c ****     LV_ASSERT_MALLOC(new_anim);
+ 931              		.loc 1 89 28 is_stmt 0 view .LVU288
+ 932 0016 1A48     		ldr	r0, .L76
+ 933 0018 FFF7FEFF 		bl	_lv_ll_ins_head
+ 934              	.LVL81:
+  90:Drivers/lvgl/src/misc/lv_anim.c ****     if(new_anim == NULL) return NULL;
+ 935              		.loc 1 90 5 is_stmt 1 view .LVU289
+  90:Drivers/lvgl/src/misc/lv_anim.c ****     if(new_anim == NULL) return NULL;
+ 936              		.loc 1 90 5 view .LVU290
+ 937 001c 0546     		mov	r5, r0
+ 938 001e 58B3     		cbz	r0, .L69
+  90:Drivers/lvgl/src/misc/lv_anim.c ****     if(new_anim == NULL) return NULL;
+ 939              		.loc 1 90 5 discriminator 2 view .LVU291
+  90:Drivers/lvgl/src/misc/lv_anim.c ****     if(new_anim == NULL) return NULL;
+ 940              		.loc 1 90 31 discriminator 2 view .LVU292
+  91:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 941              		.loc 1 91 5 view .LVU293
+  94:Drivers/lvgl/src/misc/lv_anim.c ****     if(a->var == a) new_anim->var = new_anim;
+ 942              		.loc 1 94 5 view .LVU294
+ 943 0020 4422     		movs	r2, #68
+ 944 0022 2146     		mov	r1, r4
+ 945 0024 FFF7FEFF 		bl	lv_memcpy
+ 946              	.LVL82:
+  95:Drivers/lvgl/src/misc/lv_anim.c ****     new_anim->run_round = anim_run_round;
+ 947              		.loc 1 95 5 view .LVU295
+  95:Drivers/lvgl/src/misc/lv_anim.c ****     new_anim->run_round = anim_run_round;
+ 948              		.loc 1 95 9 is_stmt 0 view .LVU296
+ 949 0028 2368     		ldr	r3, [r4]
+  95:Drivers/lvgl/src/misc/lv_anim.c ****     new_anim->run_round = anim_run_round;
+ 950              		.loc 1 95 7 view .LVU297
+ 951 002a A342     		cmp	r3, r4
+ 952 002c 25D0     		beq	.L75
+ 953              	.L70:
+  96:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 954              		.loc 1 96 5 is_stmt 1 view .LVU298
+  96:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 955              		.loc 1 96 25 is_stmt 0 view .LVU299
+ 956 002e 95F84230 		ldrb	r3, [r5, #66]	@ zero_extendqisi2
+ 957 0032 144A     		ldr	r2, .L76+4
+ 958 0034 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 959 0036 62F38203 		bfi	r3, r2, #2, #1
+ 960 003a 85F84230 		strb	r3, [r5, #66]
+  99:Drivers/lvgl/src/misc/lv_anim.c ****         if(new_anim->get_value_cb) {
+ 961              		.loc 1 99 5 is_stmt 1 view .LVU300
+  99:Drivers/lvgl/src/misc/lv_anim.c ****         if(new_anim->get_value_cb) {
+ 962              		.loc 1 99 8 is_stmt 0 view .LVU301
+ 963 003e DBB2     		uxtb	r3, r3
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 31
+
+
+  99:Drivers/lvgl/src/misc/lv_anim.c ****         if(new_anim->get_value_cb) {
+ 964              		.loc 1 99 7 view .LVU302
+ 965 0040 13F0010F 		tst	r3, #1
+ 966 0044 0FD0     		beq	.L71
+ 100:Drivers/lvgl/src/misc/lv_anim.c ****             int32_t v_ofs = new_anim->get_value_cb(new_anim);
+ 967              		.loc 1 100 9 is_stmt 1 view .LVU303
+ 100:Drivers/lvgl/src/misc/lv_anim.c ****             int32_t v_ofs = new_anim->get_value_cb(new_anim);
+ 968              		.loc 1 100 20 is_stmt 0 view .LVU304
+ 969 0046 6B69     		ldr	r3, [r5, #20]
+ 100:Drivers/lvgl/src/misc/lv_anim.c ****             int32_t v_ofs = new_anim->get_value_cb(new_anim);
+ 970              		.loc 1 100 11 view .LVU305
+ 971 0048 3BB1     		cbz	r3, .L72
+ 972              	.LBB8:
+ 101:Drivers/lvgl/src/misc/lv_anim.c ****             new_anim->start_value += v_ofs;
+ 973              		.loc 1 101 13 is_stmt 1 view .LVU306
+ 101:Drivers/lvgl/src/misc/lv_anim.c ****             new_anim->start_value += v_ofs;
+ 974              		.loc 1 101 29 is_stmt 0 view .LVU307
+ 975 004a 2846     		mov	r0, r5
+ 976 004c 9847     		blx	r3
+ 977              	.LVL83:
+ 102:Drivers/lvgl/src/misc/lv_anim.c ****             new_anim->end_value += v_ofs;
+ 978              		.loc 1 102 13 is_stmt 1 view .LVU308
+ 102:Drivers/lvgl/src/misc/lv_anim.c ****             new_anim->end_value += v_ofs;
+ 979              		.loc 1 102 21 is_stmt 0 view .LVU309
+ 980 004e 2B6A     		ldr	r3, [r5, #32]
+ 102:Drivers/lvgl/src/misc/lv_anim.c ****             new_anim->end_value += v_ofs;
+ 981              		.loc 1 102 35 view .LVU310
+ 982 0050 0344     		add	r3, r3, r0
+ 983 0052 2B62     		str	r3, [r5, #32]
+ 103:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 984              		.loc 1 103 13 is_stmt 1 view .LVU311
+ 103:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 985              		.loc 1 103 21 is_stmt 0 view .LVU312
+ 986 0054 AB6A     		ldr	r3, [r5, #40]
+ 103:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 987              		.loc 1 103 33 view .LVU313
+ 988 0056 0344     		add	r3, r3, r0
+ 989 0058 AB62     		str	r3, [r5, #40]
+ 990              	.LVL84:
+ 991              	.L72:
+ 103:Drivers/lvgl/src/misc/lv_anim.c ****         }
+ 992              		.loc 1 103 33 view .LVU314
+ 993              	.LBE8:
+ 106:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 994              		.loc 1 106 9 is_stmt 1 view .LVU315
+ 106:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 995              		.loc 1 106 20 is_stmt 0 view .LVU316
+ 996 005a 6B68     		ldr	r3, [r5, #4]
+ 106:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 997              		.loc 1 106 11 view .LVU317
+ 998 005c 1BB1     		cbz	r3, .L71
+ 106:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 999              		.loc 1 106 41 discriminator 1 view .LVU318
+ 1000 005e 2868     		ldr	r0, [r5]
+ 106:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1001              		.loc 1 106 30 discriminator 1 view .LVU319
+ 1002 0060 08B1     		cbz	r0, .L71
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 32
+
+
+ 106:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1003              		.loc 1 106 48 is_stmt 1 discriminator 2 view .LVU320
+ 1004 0062 296A     		ldr	r1, [r5, #32]
+ 1005 0064 9847     		blx	r3
+ 1006              	.LVL85:
+ 1007              	.L71:
+ 111:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1008              		.loc 1 111 5 view .LVU321
+ 1009 0066 FFF7FEFF 		bl	anim_mark_list_change
+ 1010              	.LVL86:
+ 113:Drivers/lvgl/src/misc/lv_anim.c ****     return new_anim;
+ 1011              		.loc 1 113 27 view .LVU322
+ 114:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 1012              		.loc 1 114 5 view .LVU323
+ 115:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1013              		.loc 1 115 1 is_stmt 0 view .LVU324
+ 1014 006a 2846     		mov	r0, r5
+ 1015 006c 38BD     		pop	{r3, r4, r5, pc}
+ 1016              	.LVL87:
+ 1017              	.L74:
+  85:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1018              		.loc 1 85 9 is_stmt 1 view .LVU325
+  85:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1019              		.loc 1 85 26 is_stmt 0 view .LVU326
+ 1020 006e FFF7FEFF 		bl	lv_tick_get
+ 1021              	.LVL88:
+  85:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1022              		.loc 1 85 24 discriminator 1 view .LVU327
+ 1023 0072 054B     		ldr	r3, .L76+8
+ 1024 0074 1860     		str	r0, [r3]
+ 1025 0076 CEE7     		b	.L67
+ 1026              	.LVL89:
+ 1027              	.L69:
+  90:Drivers/lvgl/src/misc/lv_anim.c ****     if(new_anim == NULL) return NULL;
+ 1028              		.loc 1 90 5 is_stmt 1 discriminator 1 view .LVU328
+  90:Drivers/lvgl/src/misc/lv_anim.c ****     if(new_anim == NULL) return NULL;
+ 1029              		.loc 1 90 5 discriminator 1 view .LVU329
+  90:Drivers/lvgl/src/misc/lv_anim.c ****     if(new_anim == NULL) return NULL;
+ 1030              		.loc 1 90 5 discriminator 1 view .LVU330
+  90:Drivers/lvgl/src/misc/lv_anim.c ****     if(new_anim == NULL) return NULL;
+ 1031              		.loc 1 90 5 discriminator 1 view .LVU331
+  90:Drivers/lvgl/src/misc/lv_anim.c ****     if(new_anim == NULL) return NULL;
+ 1032              		.loc 1 90 5 discriminator 1 view .LVU332
+ 1033 0078 FEE7     		b	.L69
+ 1034              	.LVL90:
+ 1035              	.L75:
+  95:Drivers/lvgl/src/misc/lv_anim.c ****     new_anim->run_round = anim_run_round;
+ 1036              		.loc 1 95 21 discriminator 1 view .LVU333
+  95:Drivers/lvgl/src/misc/lv_anim.c ****     new_anim->run_round = anim_run_round;
+ 1037              		.loc 1 95 35 is_stmt 0 discriminator 1 view .LVU334
+ 1038 007a 2D60     		str	r5, [r5]
+ 1039 007c D7E7     		b	.L70
+ 1040              	.L77:
+ 1041 007e 00BF     		.align	2
+ 1042              	.L76:
+ 1043 0080 00000000 		.word	_lv_anim_ll
+ 1044 0084 00000000 		.word	anim_run_round
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 33
+
+
+ 1045 0088 00000000 		.word	last_timer_run
+ 1046              		.cfi_endproc
+ 1047              	.LFE47:
+ 1049              		.section	.text.lv_anim_del_all,"ax",%progbits
+ 1050              		.align	1
+ 1051              		.global	lv_anim_del_all
+ 1052              		.syntax unified
+ 1053              		.thumb
+ 1054              		.thumb_func
+ 1056              	lv_anim_del_all:
+ 1057              	.LFB50:
+ 164:Drivers/lvgl/src/misc/lv_anim.c ****     _lv_ll_clear(&LV_GC_ROOT(_lv_anim_ll));
+ 1058              		.loc 1 164 1 is_stmt 1 view -0
+ 1059              		.cfi_startproc
+ 1060              		@ args = 0, pretend = 0, frame = 0
+ 1061              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1062 0000 08B5     		push	{r3, lr}
+ 1063              		.cfi_def_cfa_offset 8
+ 1064              		.cfi_offset 3, -8
+ 1065              		.cfi_offset 14, -4
+ 165:Drivers/lvgl/src/misc/lv_anim.c ****     anim_mark_list_change();
+ 1066              		.loc 1 165 5 view .LVU336
+ 1067 0002 0348     		ldr	r0, .L80
+ 1068 0004 FFF7FEFF 		bl	_lv_ll_clear
+ 1069              	.LVL91:
+ 166:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 1070              		.loc 1 166 5 view .LVU337
+ 1071 0008 FFF7FEFF 		bl	anim_mark_list_change
+ 1072              	.LVL92:
+ 167:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1073              		.loc 1 167 1 is_stmt 0 view .LVU338
+ 1074 000c 08BD     		pop	{r3, pc}
+ 1075              	.L81:
+ 1076 000e 00BF     		.align	2
+ 1077              	.L80:
+ 1078 0010 00000000 		.word	_lv_anim_ll
+ 1079              		.cfi_endproc
+ 1080              	.LFE50:
+ 1082              		.section	.text.lv_anim_get,"ax",%progbits
+ 1083              		.align	1
+ 1084              		.global	lv_anim_get
+ 1085              		.syntax unified
+ 1086              		.thumb
+ 1087              		.thumb_func
+ 1089              	lv_anim_get:
+ 1090              	.LVL93:
+ 1091              	.LFB51:
+ 170:Drivers/lvgl/src/misc/lv_anim.c ****     lv_anim_t * a;
+ 1092              		.loc 1 170 1 is_stmt 1 view -0
+ 1093              		.cfi_startproc
+ 1094              		@ args = 0, pretend = 0, frame = 0
+ 1095              		@ frame_needed = 0, uses_anonymous_args = 0
+ 170:Drivers/lvgl/src/misc/lv_anim.c ****     lv_anim_t * a;
+ 1096              		.loc 1 170 1 is_stmt 0 view .LVU340
+ 1097 0000 38B5     		push	{r3, r4, r5, lr}
+ 1098              		.cfi_def_cfa_offset 16
+ 1099              		.cfi_offset 3, -16
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 34
+
+
+ 1100              		.cfi_offset 4, -12
+ 1101              		.cfi_offset 5, -8
+ 1102              		.cfi_offset 14, -4
+ 1103 0002 0446     		mov	r4, r0
+ 1104 0004 0D46     		mov	r5, r1
+ 171:Drivers/lvgl/src/misc/lv_anim.c ****     _LV_LL_READ(&LV_GC_ROOT(_lv_anim_ll), a) {
+ 1105              		.loc 1 171 5 is_stmt 1 view .LVU341
+ 172:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->var == var && (a->exec_cb == exec_cb || exec_cb == NULL)) {
+ 1106              		.loc 1 172 5 view .LVU342
+ 1107 0006 0A48     		ldr	r0, .L88
+ 1108              	.LVL94:
+ 172:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->var == var && (a->exec_cb == exec_cb || exec_cb == NULL)) {
+ 1109              		.loc 1 172 5 is_stmt 0 view .LVU343
+ 1110 0008 FFF7FEFF 		bl	_lv_ll_get_head
+ 1111              	.LVL95:
+ 172:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->var == var && (a->exec_cb == exec_cb || exec_cb == NULL)) {
+ 1112              		.loc 1 172 5 view .LVU344
+ 1113 000c 0146     		mov	r1, r0
+ 1114              	.LVL96:
+ 172:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->var == var && (a->exec_cb == exec_cb || exec_cb == NULL)) {
+ 1115              		.loc 1 172 5 view .LVU345
+ 1116 000e 03E0     		b	.L83
+ 1117              	.L84:
+ 172:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->var == var && (a->exec_cb == exec_cb || exec_cb == NULL)) {
+ 1118              		.loc 1 172 5 is_stmt 1 discriminator 2 view .LVU346
+ 1119 0010 0748     		ldr	r0, .L88
+ 1120              	.LVL97:
+ 172:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->var == var && (a->exec_cb == exec_cb || exec_cb == NULL)) {
+ 1121              		.loc 1 172 5 is_stmt 0 discriminator 2 view .LVU347
+ 1122 0012 FFF7FEFF 		bl	_lv_ll_get_next
+ 1123              	.LVL98:
+ 172:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->var == var && (a->exec_cb == exec_cb || exec_cb == NULL)) {
+ 1124              		.loc 1 172 5 discriminator 2 view .LVU348
+ 1125 0016 0146     		mov	r1, r0
+ 1126              	.LVL99:
+ 1127              	.L83:
+ 172:Drivers/lvgl/src/misc/lv_anim.c ****         if(a->var == var && (a->exec_cb == exec_cb || exec_cb == NULL)) {
+ 1128              		.loc 1 172 5 is_stmt 1 discriminator 1 view .LVU349
+ 1129 0018 39B1     		cbz	r1, .L82
+ 173:Drivers/lvgl/src/misc/lv_anim.c ****             return a;
+ 1130              		.loc 1 173 9 view .LVU350
+ 173:Drivers/lvgl/src/misc/lv_anim.c ****             return a;
+ 1131              		.loc 1 173 13 is_stmt 0 view .LVU351
+ 1132 001a 0B68     		ldr	r3, [r1]
+ 173:Drivers/lvgl/src/misc/lv_anim.c ****             return a;
+ 1133              		.loc 1 173 11 view .LVU352
+ 1134 001c A342     		cmp	r3, r4
+ 1135 001e F7D1     		bne	.L84
+ 173:Drivers/lvgl/src/misc/lv_anim.c ****             return a;
+ 1136              		.loc 1 173 31 discriminator 1 view .LVU353
+ 1137 0020 4B68     		ldr	r3, [r1, #4]
+ 173:Drivers/lvgl/src/misc/lv_anim.c ****             return a;
+ 1138              		.loc 1 173 26 discriminator 1 view .LVU354
+ 1139 0022 AB42     		cmp	r3, r5
+ 1140 0024 01D0     		beq	.L82
+ 173:Drivers/lvgl/src/misc/lv_anim.c ****             return a;
+ 1141              		.loc 1 173 52 discriminator 2 view .LVU355
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 35
+
+
+ 1142 0026 002D     		cmp	r5, #0
+ 1143 0028 F2D1     		bne	.L84
+ 1144              	.L82:
+ 179:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1145              		.loc 1 179 1 view .LVU356
+ 1146 002a 0846     		mov	r0, r1
+ 1147              	.LVL100:
+ 179:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1148              		.loc 1 179 1 view .LVU357
+ 1149 002c 38BD     		pop	{r3, r4, r5, pc}
+ 1150              	.LVL101:
+ 1151              	.L89:
+ 179:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1152              		.loc 1 179 1 view .LVU358
+ 1153 002e 00BF     		.align	2
+ 1154              	.L88:
+ 1155 0030 00000000 		.word	_lv_anim_ll
+ 1156              		.cfi_endproc
+ 1157              	.LFE51:
+ 1159              		.section	.text.lv_anim_get_timer,"ax",%progbits
+ 1160              		.align	1
+ 1161              		.global	lv_anim_get_timer
+ 1162              		.syntax unified
+ 1163              		.thumb
+ 1164              		.thumb_func
+ 1166              	lv_anim_get_timer:
+ 1167              	.LFB52:
+ 182:Drivers/lvgl/src/misc/lv_anim.c ****     return _lv_anim_tmr;
+ 1168              		.loc 1 182 1 is_stmt 1 view -0
+ 1169              		.cfi_startproc
+ 1170              		@ args = 0, pretend = 0, frame = 0
+ 1171              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1172              		@ link register save eliminated.
+ 183:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 1173              		.loc 1 183 5 view .LVU360
+ 184:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1174              		.loc 1 184 1 is_stmt 0 view .LVU361
+ 1175 0000 014B     		ldr	r3, .L91
+ 1176 0002 1868     		ldr	r0, [r3]
+ 1177 0004 7047     		bx	lr
+ 1178              	.L92:
+ 1179 0006 00BF     		.align	2
+ 1180              	.L91:
+ 1181 0008 00000000 		.word	_lv_anim_tmr
+ 1182              		.cfi_endproc
+ 1183              	.LFE52:
+ 1185              		.section	.text.lv_anim_count_running,"ax",%progbits
+ 1186              		.align	1
+ 1187              		.global	lv_anim_count_running
+ 1188              		.syntax unified
+ 1189              		.thumb
+ 1190              		.thumb_func
+ 1192              	lv_anim_count_running:
+ 1193              	.LFB53:
+ 187:Drivers/lvgl/src/misc/lv_anim.c ****     uint16_t cnt = 0;
+ 1194              		.loc 1 187 1 is_stmt 1 view -0
+ 1195              		.cfi_startproc
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 36
+
+
+ 1196              		@ args = 0, pretend = 0, frame = 0
+ 1197              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1198 0000 10B5     		push	{r4, lr}
+ 1199              		.cfi_def_cfa_offset 8
+ 1200              		.cfi_offset 4, -8
+ 1201              		.cfi_offset 14, -4
+ 188:Drivers/lvgl/src/misc/lv_anim.c ****     lv_anim_t * a;
+ 1202              		.loc 1 188 5 view .LVU363
+ 1203              	.LVL102:
+ 189:Drivers/lvgl/src/misc/lv_anim.c ****     _LV_LL_READ(&LV_GC_ROOT(_lv_anim_ll), a) cnt++;
+ 1204              		.loc 1 189 5 view .LVU364
+ 190:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1205              		.loc 1 190 5 view .LVU365
+ 1206 0002 0848     		ldr	r0, .L97
+ 1207 0004 FFF7FEFF 		bl	_lv_ll_get_head
+ 1208              	.LVL103:
+ 1209 0008 0146     		mov	r1, r0
+ 1210              	.LVL104:
+ 188:Drivers/lvgl/src/misc/lv_anim.c ****     lv_anim_t * a;
+ 1211              		.loc 1 188 14 is_stmt 0 view .LVU366
+ 1212 000a 0024     		movs	r4, #0
+ 190:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1213              		.loc 1 190 5 view .LVU367
+ 1214 000c 05E0     		b	.L94
+ 1215              	.LVL105:
+ 1216              	.L95:
+ 190:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1217              		.loc 1 190 46 is_stmt 1 discriminator 3 view .LVU368
+ 190:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1218              		.loc 1 190 49 is_stmt 0 discriminator 3 view .LVU369
+ 1219 000e 0134     		adds	r4, r4, #1
+ 1220              	.LVL106:
+ 190:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1221              		.loc 1 190 49 discriminator 3 view .LVU370
+ 1222 0010 A4B2     		uxth	r4, r4
+ 1223              	.LVL107:
+ 190:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1224              		.loc 1 190 5 is_stmt 1 discriminator 3 view .LVU371
+ 1225 0012 0448     		ldr	r0, .L97
+ 1226              	.LVL108:
+ 190:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1227              		.loc 1 190 5 is_stmt 0 discriminator 3 view .LVU372
+ 1228 0014 FFF7FEFF 		bl	_lv_ll_get_next
+ 1229              	.LVL109:
+ 190:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1230              		.loc 1 190 5 discriminator 3 view .LVU373
+ 1231 0018 0146     		mov	r1, r0
+ 1232              	.LVL110:
+ 1233              	.L94:
+ 190:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1234              		.loc 1 190 5 is_stmt 1 discriminator 1 view .LVU374
+ 1235 001a 0029     		cmp	r1, #0
+ 1236 001c F7D1     		bne	.L95
+ 192:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 1237              		.loc 1 192 5 view .LVU375
+ 193:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1238              		.loc 1 193 1 is_stmt 0 view .LVU376
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 37
+
+
+ 1239 001e 2046     		mov	r0, r4
+ 1240              	.LVL111:
+ 193:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1241              		.loc 1 193 1 view .LVU377
+ 1242 0020 10BD     		pop	{r4, pc}
+ 1243              	.LVL112:
+ 1244              	.L98:
+ 193:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1245              		.loc 1 193 1 view .LVU378
+ 1246 0022 00BF     		.align	2
+ 1247              	.L97:
+ 1248 0024 00000000 		.word	_lv_anim_ll
+ 1249              		.cfi_endproc
+ 1250              	.LFE53:
+ 1252              		.section	.text.lv_anim_speed_to_time,"ax",%progbits
+ 1253              		.align	1
+ 1254              		.global	lv_anim_speed_to_time
+ 1255              		.syntax unified
+ 1256              		.thumb
+ 1257              		.thumb_func
+ 1259              	lv_anim_speed_to_time:
+ 1260              	.LVL113:
+ 1261              	.LFB54:
+ 196:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t d    = LV_ABS(start - end);
+ 1262              		.loc 1 196 1 is_stmt 1 view -0
+ 1263              		.cfi_startproc
+ 1264              		@ args = 0, pretend = 0, frame = 0
+ 1265              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1266              		@ link register save eliminated.
+ 196:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t d    = LV_ABS(start - end);
+ 1267              		.loc 1 196 1 is_stmt 0 view .LVU380
+ 1268 0000 0346     		mov	r3, r0
+ 197:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t time = (d * 1000) / speed;
+ 1269              		.loc 1 197 5 is_stmt 1 view .LVU381
+ 197:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t time = (d * 1000) / speed;
+ 1270              		.loc 1 197 21 is_stmt 0 view .LVU382
+ 1271 0002 891A     		subs	r1, r1, r2
+ 1272              	.LVL114:
+ 197:Drivers/lvgl/src/misc/lv_anim.c ****     uint32_t time = (d * 1000) / speed;
+ 1273              		.loc 1 197 21 view .LVU383
+ 1274 0004 0029     		cmp	r1, #0
+ 1275 0006 B8BF     		it	lt
+ 1276 0008 4942     		rsblt	r1, r1, #0
+ 1277              	.LVL115:
+ 198:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1278              		.loc 1 198 5 is_stmt 1 view .LVU384
+ 198:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1279              		.loc 1 198 24 is_stmt 0 view .LVU385
+ 1280 000a 4FF47A72 		mov	r2, #1000
+ 1281              	.LVL116:
+ 198:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1282              		.loc 1 198 24 view .LVU386
+ 1283 000e 02FB01F1 		mul	r1, r2, r1
+ 1284              	.LVL117:
+ 198:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1285              		.loc 1 198 14 view .LVU387
+ 1286 0012 B1FBF0F0 		udiv	r0, r1, r0
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 38
+
+
+ 1287              	.LVL118:
+ 200:Drivers/lvgl/src/misc/lv_anim.c ****         time++;
+ 1288              		.loc 1 200 5 is_stmt 1 view .LVU388
+ 200:Drivers/lvgl/src/misc/lv_anim.c ****         time++;
+ 1289              		.loc 1 200 7 is_stmt 0 view .LVU389
+ 1290 0016 9942     		cmp	r1, r3
+ 1291              	.LVL119:
+ 200:Drivers/lvgl/src/misc/lv_anim.c ****         time++;
+ 1292              		.loc 1 200 7 view .LVU390
+ 1293 0018 00D2     		bcs	.L99
+ 201:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1294              		.loc 1 201 9 is_stmt 1 view .LVU391
+ 201:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1295              		.loc 1 201 13 is_stmt 0 view .LVU392
+ 1296 001a 0130     		adds	r0, r0, #1
+ 1297              	.LVL120:
+ 204:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 1298              		.loc 1 204 5 is_stmt 1 view .LVU393
+ 1299              	.L99:
+ 205:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1300              		.loc 1 205 1 is_stmt 0 view .LVU394
+ 1301 001c 7047     		bx	lr
+ 1302              		.cfi_endproc
+ 1303              	.LFE54:
+ 1305              		.section	.text.lv_anim_refr_now,"ax",%progbits
+ 1306              		.align	1
+ 1307              		.global	lv_anim_refr_now
+ 1308              		.syntax unified
+ 1309              		.thumb
+ 1310              		.thumb_func
+ 1312              	lv_anim_refr_now:
+ 1313              	.LFB55:
+ 208:Drivers/lvgl/src/misc/lv_anim.c ****     anim_timer(NULL);
+ 1314              		.loc 1 208 1 is_stmt 1 view -0
+ 1315              		.cfi_startproc
+ 1316              		@ args = 0, pretend = 0, frame = 0
+ 1317              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1318 0000 08B5     		push	{r3, lr}
+ 1319              		.cfi_def_cfa_offset 8
+ 1320              		.cfi_offset 3, -8
+ 1321              		.cfi_offset 14, -4
+ 209:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 1322              		.loc 1 209 5 view .LVU396
+ 1323 0002 0020     		movs	r0, #0
+ 1324 0004 FFF7FEFF 		bl	anim_timer
+ 1325              	.LVL121:
+ 210:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1326              		.loc 1 210 1 is_stmt 0 view .LVU397
+ 1327 0008 08BD     		pop	{r3, pc}
+ 1328              		.cfi_endproc
+ 1329              	.LFE55:
+ 1331              		.section	.text.lv_anim_path_ease_in,"ax",%progbits
+ 1332              		.align	1
+ 1333              		.global	lv_anim_path_ease_in
+ 1334              		.syntax unified
+ 1335              		.thumb
+ 1336              		.thumb_func
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 39
+
+
+ 1338              	lv_anim_path_ease_in:
+ 1339              	.LVL122:
+ 1340              	.LFB57:
+ 228:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 1341              		.loc 1 228 1 is_stmt 1 view -0
+ 1342              		.cfi_startproc
+ 1343              		@ args = 0, pretend = 0, frame = 0
+ 1344              		@ frame_needed = 0, uses_anonymous_args = 0
+ 228:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 1345              		.loc 1 228 1 is_stmt 0 view .LVU399
+ 1346 0000 30B5     		push	{r4, r5, lr}
+ 1347              		.cfi_def_cfa_offset 12
+ 1348              		.cfi_offset 4, -12
+ 1349              		.cfi_offset 5, -8
+ 1350              		.cfi_offset 14, -4
+ 1351 0002 83B0     		sub	sp, sp, #12
+ 1352              		.cfi_def_cfa_offset 24
+ 1353 0004 0446     		mov	r4, r0
+ 230:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 50, 100, LV_BEZIER_VAL_MAX);
+ 1354              		.loc 1 230 5 is_stmt 1 view .LVU400
+ 230:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 50, 100, LV_BEZIER_VAL_MAX);
+ 1355              		.loc 1 230 18 is_stmt 0 view .LVU401
+ 1356 0006 4FF48065 		mov	r5, #1024
+ 1357 000a 0095     		str	r5, [sp]
+ 1358 000c 0023     		movs	r3, #0
+ 1359 000e C26A     		ldr	r2, [r0, #44]
+ 1360 0010 1946     		mov	r1, r3
+ 1361 0012 006B     		ldr	r0, [r0, #48]
+ 1362              	.LVL123:
+ 230:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 50, 100, LV_BEZIER_VAL_MAX);
+ 1363              		.loc 1 230 18 view .LVU402
+ 1364 0014 FFF7FEFF 		bl	lv_map
+ 1365              	.LVL124:
+ 231:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1366              		.loc 1 231 5 is_stmt 1 view .LVU403
+ 231:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1367              		.loc 1 231 20 is_stmt 0 view .LVU404
+ 1368 0018 0095     		str	r5, [sp]
+ 1369 001a 6423     		movs	r3, #100
+ 1370 001c 3222     		movs	r2, #50
+ 1371 001e 0021     		movs	r1, #0
+ 1372 0020 FFF7FEFF 		bl	lv_bezier3
+ 1373              	.LVL125:
+ 233:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = step * (a->end_value - a->start_value);
+ 1374              		.loc 1 233 5 is_stmt 1 view .LVU405
+ 234:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1375              		.loc 1 234 5 view .LVU406
+ 234:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1376              		.loc 1 234 26 is_stmt 0 view .LVU407
+ 1377 0024 A36A     		ldr	r3, [r4, #40]
+ 234:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1378              		.loc 1 234 41 view .LVU408
+ 1379 0026 226A     		ldr	r2, [r4, #32]
+ 234:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1380              		.loc 1 234 38 view .LVU409
+ 1381 0028 9B1A     		subs	r3, r3, r2
+ 234:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 40
+
+
+ 1382              		.loc 1 234 15 view .LVU410
+ 1383 002a 03FB00F0 		mul	r0, r3, r0
+ 1384              	.LVL126:
+ 235:Drivers/lvgl/src/misc/lv_anim.c ****     new_value += a->start_value;
+ 1385              		.loc 1 235 5 is_stmt 1 view .LVU411
+ 236:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1386              		.loc 1 236 5 view .LVU412
+ 238:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 1387              		.loc 1 238 5 view .LVU413
+ 239:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1388              		.loc 1 239 1 is_stmt 0 view .LVU414
+ 1389 002e 02EBA020 		add	r0, r2, r0, asr #10
+ 1390              	.LVL127:
+ 239:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1391              		.loc 1 239 1 view .LVU415
+ 1392 0032 03B0     		add	sp, sp, #12
+ 1393              		.cfi_def_cfa_offset 12
+ 1394              		@ sp needed
+ 1395 0034 30BD     		pop	{r4, r5, pc}
+ 239:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1396              		.loc 1 239 1 view .LVU416
+ 1397              		.cfi_endproc
+ 1398              	.LFE57:
+ 1400              		.section	.text.lv_anim_path_ease_out,"ax",%progbits
+ 1401              		.align	1
+ 1402              		.global	lv_anim_path_ease_out
+ 1403              		.syntax unified
+ 1404              		.thumb
+ 1405              		.thumb_func
+ 1407              	lv_anim_path_ease_out:
+ 1408              	.LVL128:
+ 1409              	.LFB58:
+ 242:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 1410              		.loc 1 242 1 is_stmt 1 view -0
+ 1411              		.cfi_startproc
+ 1412              		@ args = 0, pretend = 0, frame = 0
+ 1413              		@ frame_needed = 0, uses_anonymous_args = 0
+ 242:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 1414              		.loc 1 242 1 is_stmt 0 view .LVU418
+ 1415 0000 30B5     		push	{r4, r5, lr}
+ 1416              		.cfi_def_cfa_offset 12
+ 1417              		.cfi_offset 4, -12
+ 1418              		.cfi_offset 5, -8
+ 1419              		.cfi_offset 14, -4
+ 1420 0002 83B0     		sub	sp, sp, #12
+ 1421              		.cfi_def_cfa_offset 24
+ 1422 0004 0446     		mov	r4, r0
+ 244:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 900, 950, LV_BEZIER_VAL_MAX);
+ 1423              		.loc 1 244 5 is_stmt 1 view .LVU419
+ 244:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 900, 950, LV_BEZIER_VAL_MAX);
+ 1424              		.loc 1 244 18 is_stmt 0 view .LVU420
+ 1425 0006 4FF48065 		mov	r5, #1024
+ 1426 000a 0095     		str	r5, [sp]
+ 1427 000c 0023     		movs	r3, #0
+ 1428 000e C26A     		ldr	r2, [r0, #44]
+ 1429 0010 1946     		mov	r1, r3
+ 1430 0012 006B     		ldr	r0, [r0, #48]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 41
+
+
+ 1431              	.LVL129:
+ 244:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 900, 950, LV_BEZIER_VAL_MAX);
+ 1432              		.loc 1 244 18 view .LVU421
+ 1433 0014 FFF7FEFF 		bl	lv_map
+ 1434              	.LVL130:
+ 245:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1435              		.loc 1 245 5 is_stmt 1 view .LVU422
+ 245:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1436              		.loc 1 245 20 is_stmt 0 view .LVU423
+ 1437 0018 0095     		str	r5, [sp]
+ 1438 001a 40F2B633 		movw	r3, #950
+ 1439 001e 4FF46172 		mov	r2, #900
+ 1440 0022 0021     		movs	r1, #0
+ 1441 0024 FFF7FEFF 		bl	lv_bezier3
+ 1442              	.LVL131:
+ 247:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = step * (a->end_value - a->start_value);
+ 1443              		.loc 1 247 5 is_stmt 1 view .LVU424
+ 248:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1444              		.loc 1 248 5 view .LVU425
+ 248:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1445              		.loc 1 248 26 is_stmt 0 view .LVU426
+ 1446 0028 A36A     		ldr	r3, [r4, #40]
+ 248:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1447              		.loc 1 248 41 view .LVU427
+ 1448 002a 226A     		ldr	r2, [r4, #32]
+ 248:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1449              		.loc 1 248 38 view .LVU428
+ 1450 002c 9B1A     		subs	r3, r3, r2
+ 248:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1451              		.loc 1 248 15 view .LVU429
+ 1452 002e 03FB00F0 		mul	r0, r3, r0
+ 1453              	.LVL132:
+ 249:Drivers/lvgl/src/misc/lv_anim.c ****     new_value += a->start_value;
+ 1454              		.loc 1 249 5 is_stmt 1 view .LVU430
+ 250:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1455              		.loc 1 250 5 view .LVU431
+ 252:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 1456              		.loc 1 252 5 view .LVU432
+ 253:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1457              		.loc 1 253 1 is_stmt 0 view .LVU433
+ 1458 0032 02EBA020 		add	r0, r2, r0, asr #10
+ 1459              	.LVL133:
+ 253:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1460              		.loc 1 253 1 view .LVU434
+ 1461 0036 03B0     		add	sp, sp, #12
+ 1462              		.cfi_def_cfa_offset 12
+ 1463              		@ sp needed
+ 1464 0038 30BD     		pop	{r4, r5, pc}
+ 253:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1465              		.loc 1 253 1 view .LVU435
+ 1466              		.cfi_endproc
+ 1467              	.LFE58:
+ 1469              		.section	.text.lv_anim_path_ease_in_out,"ax",%progbits
+ 1470              		.align	1
+ 1471              		.global	lv_anim_path_ease_in_out
+ 1472              		.syntax unified
+ 1473              		.thumb
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 42
+
+
+ 1474              		.thumb_func
+ 1476              	lv_anim_path_ease_in_out:
+ 1477              	.LVL134:
+ 1478              	.LFB59:
+ 256:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 1479              		.loc 1 256 1 is_stmt 1 view -0
+ 1480              		.cfi_startproc
+ 1481              		@ args = 0, pretend = 0, frame = 0
+ 1482              		@ frame_needed = 0, uses_anonymous_args = 0
+ 256:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 1483              		.loc 1 256 1 is_stmt 0 view .LVU437
+ 1484 0000 30B5     		push	{r4, r5, lr}
+ 1485              		.cfi_def_cfa_offset 12
+ 1486              		.cfi_offset 4, -12
+ 1487              		.cfi_offset 5, -8
+ 1488              		.cfi_offset 14, -4
+ 1489 0002 83B0     		sub	sp, sp, #12
+ 1490              		.cfi_def_cfa_offset 24
+ 1491 0004 0446     		mov	r4, r0
+ 258:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 50, 952, LV_BEZIER_VAL_MAX);
+ 1492              		.loc 1 258 5 is_stmt 1 view .LVU438
+ 258:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 50, 952, LV_BEZIER_VAL_MAX);
+ 1493              		.loc 1 258 18 is_stmt 0 view .LVU439
+ 1494 0006 4FF48065 		mov	r5, #1024
+ 1495 000a 0095     		str	r5, [sp]
+ 1496 000c 0023     		movs	r3, #0
+ 1497 000e C26A     		ldr	r2, [r0, #44]
+ 1498 0010 1946     		mov	r1, r3
+ 1499 0012 006B     		ldr	r0, [r0, #48]
+ 1500              	.LVL135:
+ 258:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 50, 952, LV_BEZIER_VAL_MAX);
+ 1501              		.loc 1 258 18 view .LVU440
+ 1502 0014 FFF7FEFF 		bl	lv_map
+ 1503              	.LVL136:
+ 259:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1504              		.loc 1 259 5 is_stmt 1 view .LVU441
+ 259:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1505              		.loc 1 259 20 is_stmt 0 view .LVU442
+ 1506 0018 0095     		str	r5, [sp]
+ 1507 001a 4FF46E73 		mov	r3, #952
+ 1508 001e 3222     		movs	r2, #50
+ 1509 0020 0021     		movs	r1, #0
+ 1510 0022 FFF7FEFF 		bl	lv_bezier3
+ 1511              	.LVL137:
+ 261:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = step * (a->end_value - a->start_value);
+ 1512              		.loc 1 261 5 is_stmt 1 view .LVU443
+ 262:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1513              		.loc 1 262 5 view .LVU444
+ 262:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1514              		.loc 1 262 26 is_stmt 0 view .LVU445
+ 1515 0026 A36A     		ldr	r3, [r4, #40]
+ 262:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1516              		.loc 1 262 41 view .LVU446
+ 1517 0028 226A     		ldr	r2, [r4, #32]
+ 262:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1518              		.loc 1 262 38 view .LVU447
+ 1519 002a 9B1A     		subs	r3, r3, r2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 43
+
+
+ 262:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1520              		.loc 1 262 15 view .LVU448
+ 1521 002c 03FB00F0 		mul	r0, r3, r0
+ 1522              	.LVL138:
+ 263:Drivers/lvgl/src/misc/lv_anim.c ****     new_value += a->start_value;
+ 1523              		.loc 1 263 5 is_stmt 1 view .LVU449
+ 264:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1524              		.loc 1 264 5 view .LVU450
+ 266:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 1525              		.loc 1 266 5 view .LVU451
+ 267:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1526              		.loc 1 267 1 is_stmt 0 view .LVU452
+ 1527 0030 02EBA020 		add	r0, r2, r0, asr #10
+ 1528              	.LVL139:
+ 267:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1529              		.loc 1 267 1 view .LVU453
+ 1530 0034 03B0     		add	sp, sp, #12
+ 1531              		.cfi_def_cfa_offset 12
+ 1532              		@ sp needed
+ 1533 0036 30BD     		pop	{r4, r5, pc}
+ 267:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1534              		.loc 1 267 1 view .LVU454
+ 1535              		.cfi_endproc
+ 1536              	.LFE59:
+ 1538              		.section	.text.lv_anim_path_overshoot,"ax",%progbits
+ 1539              		.align	1
+ 1540              		.global	lv_anim_path_overshoot
+ 1541              		.syntax unified
+ 1542              		.thumb
+ 1543              		.thumb_func
+ 1545              	lv_anim_path_overshoot:
+ 1546              	.LVL140:
+ 1547              	.LFB60:
+ 270:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 1548              		.loc 1 270 1 is_stmt 1 view -0
+ 1549              		.cfi_startproc
+ 1550              		@ args = 0, pretend = 0, frame = 0
+ 1551              		@ frame_needed = 0, uses_anonymous_args = 0
+ 270:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 1552              		.loc 1 270 1 is_stmt 0 view .LVU456
+ 1553 0000 30B5     		push	{r4, r5, lr}
+ 1554              		.cfi_def_cfa_offset 12
+ 1555              		.cfi_offset 4, -12
+ 1556              		.cfi_offset 5, -8
+ 1557              		.cfi_offset 14, -4
+ 1558 0002 83B0     		sub	sp, sp, #12
+ 1559              		.cfi_def_cfa_offset 24
+ 1560 0004 0446     		mov	r4, r0
+ 272:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 1000, 1300, LV_BEZIER_VAL_MAX);
+ 1561              		.loc 1 272 5 is_stmt 1 view .LVU457
+ 272:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 1000, 1300, LV_BEZIER_VAL_MAX);
+ 1562              		.loc 1 272 18 is_stmt 0 view .LVU458
+ 1563 0006 4FF48065 		mov	r5, #1024
+ 1564 000a 0095     		str	r5, [sp]
+ 1565 000c 0023     		movs	r3, #0
+ 1566 000e C26A     		ldr	r2, [r0, #44]
+ 1567 0010 1946     		mov	r1, r3
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 44
+
+
+ 1568 0012 006B     		ldr	r0, [r0, #48]
+ 1569              	.LVL141:
+ 272:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, 0, 1000, 1300, LV_BEZIER_VAL_MAX);
+ 1570              		.loc 1 272 18 view .LVU459
+ 1571 0014 FFF7FEFF 		bl	lv_map
+ 1572              	.LVL142:
+ 273:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1573              		.loc 1 273 5 is_stmt 1 view .LVU460
+ 273:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1574              		.loc 1 273 20 is_stmt 0 view .LVU461
+ 1575 0018 0095     		str	r5, [sp]
+ 1576 001a 40F21453 		movw	r3, #1300
+ 1577 001e 4FF47A72 		mov	r2, #1000
+ 1578 0022 0021     		movs	r1, #0
+ 1579 0024 FFF7FEFF 		bl	lv_bezier3
+ 1580              	.LVL143:
+ 275:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = step * (a->end_value - a->start_value);
+ 1581              		.loc 1 275 5 is_stmt 1 view .LVU462
+ 276:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1582              		.loc 1 276 5 view .LVU463
+ 276:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1583              		.loc 1 276 26 is_stmt 0 view .LVU464
+ 1584 0028 A36A     		ldr	r3, [r4, #40]
+ 276:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1585              		.loc 1 276 41 view .LVU465
+ 1586 002a 226A     		ldr	r2, [r4, #32]
+ 276:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1587              		.loc 1 276 38 view .LVU466
+ 1588 002c 9B1A     		subs	r3, r3, r2
+ 276:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1589              		.loc 1 276 15 view .LVU467
+ 1590 002e 03FB00F0 		mul	r0, r3, r0
+ 1591              	.LVL144:
+ 277:Drivers/lvgl/src/misc/lv_anim.c ****     new_value += a->start_value;
+ 1592              		.loc 1 277 5 is_stmt 1 view .LVU468
+ 278:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1593              		.loc 1 278 5 view .LVU469
+ 280:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 1594              		.loc 1 280 5 view .LVU470
+ 281:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1595              		.loc 1 281 1 is_stmt 0 view .LVU471
+ 1596 0032 02EBA020 		add	r0, r2, r0, asr #10
+ 1597              	.LVL145:
+ 281:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1598              		.loc 1 281 1 view .LVU472
+ 1599 0036 03B0     		add	sp, sp, #12
+ 1600              		.cfi_def_cfa_offset 12
+ 1601              		@ sp needed
+ 1602 0038 30BD     		pop	{r4, r5, pc}
+ 281:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1603              		.loc 1 281 1 view .LVU473
+ 1604              		.cfi_endproc
+ 1605              	.LFE60:
+ 1607              		.section	.text.lv_anim_path_bounce,"ax",%progbits
+ 1608              		.align	1
+ 1609              		.global	lv_anim_path_bounce
+ 1610              		.syntax unified
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 45
+
+
+ 1611              		.thumb
+ 1612              		.thumb_func
+ 1614              	lv_anim_path_bounce:
+ 1615              	.LVL146:
+ 1616              	.LFB61:
+ 284:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 1617              		.loc 1 284 1 is_stmt 1 view -0
+ 1618              		.cfi_startproc
+ 1619              		@ args = 0, pretend = 0, frame = 0
+ 1620              		@ frame_needed = 0, uses_anonymous_args = 0
+ 284:Drivers/lvgl/src/misc/lv_anim.c ****     /*Calculate the current step*/
+ 1621              		.loc 1 284 1 is_stmt 0 view .LVU475
+ 1622 0000 30B5     		push	{r4, r5, lr}
+ 1623              		.cfi_def_cfa_offset 12
+ 1624              		.cfi_offset 4, -12
+ 1625              		.cfi_offset 5, -8
+ 1626              		.cfi_offset 14, -4
+ 1627 0002 83B0     		sub	sp, sp, #12
+ 1628              		.cfi_def_cfa_offset 24
+ 1629 0004 0446     		mov	r4, r0
+ 286:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t diff = (a->end_value - a->start_value);
+ 1630              		.loc 1 286 5 is_stmt 1 view .LVU476
+ 286:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t diff = (a->end_value - a->start_value);
+ 1631              		.loc 1 286 17 is_stmt 0 view .LVU477
+ 1632 0006 4FF48063 		mov	r3, #1024
+ 1633 000a 0093     		str	r3, [sp]
+ 1634 000c 0023     		movs	r3, #0
+ 1635 000e C26A     		ldr	r2, [r0, #44]
+ 1636 0010 1946     		mov	r1, r3
+ 1637 0012 006B     		ldr	r0, [r0, #48]
+ 1638              	.LVL147:
+ 286:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t diff = (a->end_value - a->start_value);
+ 1639              		.loc 1 286 17 view .LVU478
+ 1640 0014 FFF7FEFF 		bl	lv_map
+ 1641              	.LVL148:
+ 287:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1642              		.loc 1 287 5 is_stmt 1 view .LVU479
+ 287:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1643              		.loc 1 287 22 is_stmt 0 view .LVU480
+ 1644 0018 A36A     		ldr	r3, [r4, #40]
+ 287:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1645              		.loc 1 287 37 view .LVU481
+ 1646 001a 226A     		ldr	r2, [r4, #32]
+ 287:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1647              		.loc 1 287 13 view .LVU482
+ 1648 001c 9D1A     		subs	r5, r3, r2
+ 1649              	.LVL149:
+ 291:Drivers/lvgl/src/misc/lv_anim.c ****         /*Go down*/
+ 1650              		.loc 1 291 5 is_stmt 1 view .LVU483
+ 291:Drivers/lvgl/src/misc/lv_anim.c ****         /*Go down*/
+ 1651              		.loc 1 291 7 is_stmt 0 view .LVU484
+ 1652 001e B0F5CC7F 		cmp	r0, #408
+ 1653 0022 0BDA     		bge	.L112
+ 293:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1654              		.loc 1 293 9 is_stmt 1 view .LVU485
+ 293:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1655              		.loc 1 293 16 is_stmt 0 view .LVU486
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 46
+
+
+ 1656 0024 40F6C413 		movw	r3, #2500
+ 1657 0028 00FB03F3 		mul	r3, r0, r3
+ 293:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1658              		.loc 1 293 11 view .LVU487
+ 1659 002c 9812     		asrs	r0, r3, #10
+ 1660              	.LVL150:
+ 1661              	.L113:
+ 322:Drivers/lvgl/src/misc/lv_anim.c ****     if(t < 0) t = 0;
+ 1662              		.loc 1 322 5 is_stmt 1 view .LVU488
+ 322:Drivers/lvgl/src/misc/lv_anim.c ****     if(t < 0) t = 0;
+ 1663              		.loc 1 322 7 is_stmt 0 view .LVU489
+ 1664 002e B0F5806F 		cmp	r0, #1024
+ 1665 0032 41DC     		bgt	.L118
+ 323:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, LV_BEZIER_VAL_MAX, 800, 500, 0);
+ 1666              		.loc 1 323 5 is_stmt 1 view .LVU490
+ 323:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, LV_BEZIER_VAL_MAX, 800, 500, 0);
+ 1667              		.loc 1 323 7 is_stmt 0 view .LVU491
+ 1668 0034 0028     		cmp	r0, #0
+ 1669 0036 41DA     		bge	.L117
+ 323:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, LV_BEZIER_VAL_MAX, 800, 500, 0);
+ 1670              		.loc 1 323 17 discriminator 1 view .LVU492
+ 1671 0038 0020     		movs	r0, #0
+ 1672              	.LVL151:
+ 323:Drivers/lvgl/src/misc/lv_anim.c ****     int32_t step = lv_bezier3(t, LV_BEZIER_VAL_MAX, 800, 500, 0);
+ 1673              		.loc 1 323 17 discriminator 1 view .LVU493
+ 1674 003a 3FE0     		b	.L117
+ 1675              	.LVL152:
+ 1676              	.L112:
+ 295:Drivers/lvgl/src/misc/lv_anim.c ****         /*First bounce back*/
+ 1677              		.loc 1 295 10 is_stmt 1 view .LVU494
+ 295:Drivers/lvgl/src/misc/lv_anim.c ****         /*First bounce back*/
+ 1678              		.loc 1 295 22 is_stmt 0 view .LVU495
+ 1679 003c A0F5CC73 		sub	r3, r0, #408
+ 295:Drivers/lvgl/src/misc/lv_anim.c ****         /*First bounce back*/
+ 1680              		.loc 1 295 12 view .LVU496
+ 1681 0040 CD2B     		cmp	r3, #205
+ 1682 0042 0AD8     		bhi	.L114
+ 297:Drivers/lvgl/src/misc/lv_anim.c ****         t    = t * 5; /*to [0..1024] range*/
+ 1683              		.loc 1 297 9 is_stmt 1 view .LVU497
+ 1684              	.LVL153:
+ 298:Drivers/lvgl/src/misc/lv_anim.c ****         t    = LV_BEZIER_VAL_MAX - t;
+ 1685              		.loc 1 298 9 view .LVU498
+ 298:Drivers/lvgl/src/misc/lv_anim.c ****         t    = LV_BEZIER_VAL_MAX - t;
+ 1686              		.loc 1 298 14 is_stmt 0 view .LVU499
+ 1687 0044 03EB8300 		add	r0, r3, r3, lsl #2
+ 1688              	.LVL154:
+ 299:Drivers/lvgl/src/misc/lv_anim.c ****         diff = diff / 20;
+ 1689              		.loc 1 299 9 is_stmt 1 view .LVU500
+ 299:Drivers/lvgl/src/misc/lv_anim.c ****         diff = diff / 20;
+ 1690              		.loc 1 299 14 is_stmt 0 view .LVU501
+ 1691 0048 C0F58060 		rsb	r0, r0, #1024
+ 1692              	.LVL155:
+ 300:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1693              		.loc 1 300 9 is_stmt 1 view .LVU502
+ 300:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1694              		.loc 1 300 14 is_stmt 0 view .LVU503
+ 1695 004c 244A     		ldr	r2, .L121
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 47
+
+
+ 1696 004e 82FB0532 		smull	r3, r2, r2, r5
+ 1697 0052 EB17     		asrs	r3, r5, #31
+ 1698 0054 C3EBE205 		rsb	r5, r3, r2, asr #3
+ 1699              	.LVL156:
+ 300:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1700              		.loc 1 300 14 view .LVU504
+ 1701 0058 E9E7     		b	.L113
+ 1702              	.L114:
+ 302:Drivers/lvgl/src/misc/lv_anim.c ****         /*Fall back*/
+ 1703              		.loc 1 302 10 is_stmt 1 view .LVU505
+ 302:Drivers/lvgl/src/misc/lv_anim.c ****         /*Fall back*/
+ 1704              		.loc 1 302 22 is_stmt 0 view .LVU506
+ 1705 005a A0F26623 		subw	r3, r0, #614
+ 302:Drivers/lvgl/src/misc/lv_anim.c ****         /*Fall back*/
+ 1706              		.loc 1 302 12 view .LVU507
+ 1707 005e CC2B     		cmp	r3, #204
+ 1708 0060 08D8     		bhi	.L115
+ 304:Drivers/lvgl/src/misc/lv_anim.c ****         t    = t * 5; /*to [0..1024] range*/
+ 1709              		.loc 1 304 9 is_stmt 1 view .LVU508
+ 1710              	.LVL157:
+ 305:Drivers/lvgl/src/misc/lv_anim.c ****         diff = diff / 20;
+ 1711              		.loc 1 305 9 view .LVU509
+ 305:Drivers/lvgl/src/misc/lv_anim.c ****         diff = diff / 20;
+ 1712              		.loc 1 305 14 is_stmt 0 view .LVU510
+ 1713 0062 03EB8300 		add	r0, r3, r3, lsl #2
+ 1714              	.LVL158:
+ 306:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1715              		.loc 1 306 9 is_stmt 1 view .LVU511
+ 306:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1716              		.loc 1 306 14 is_stmt 0 view .LVU512
+ 1717 0066 1E4A     		ldr	r2, .L121
+ 1718 0068 82FB0532 		smull	r3, r2, r2, r5
+ 1719 006c EB17     		asrs	r3, r5, #31
+ 1720 006e C3EBE205 		rsb	r5, r3, r2, asr #3
+ 1721              	.LVL159:
+ 306:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1722              		.loc 1 306 14 view .LVU513
+ 1723 0072 DCE7     		b	.L113
+ 1724              	.L115:
+ 308:Drivers/lvgl/src/misc/lv_anim.c ****         /*Second bounce back*/
+ 1725              		.loc 1 308 10 is_stmt 1 view .LVU514
+ 308:Drivers/lvgl/src/misc/lv_anim.c ****         /*Second bounce back*/
+ 1726              		.loc 1 308 22 is_stmt 0 view .LVU515
+ 1727 0074 A0F23333 		subw	r3, r0, #819
+ 308:Drivers/lvgl/src/misc/lv_anim.c ****         /*Second bounce back*/
+ 1728              		.loc 1 308 12 view .LVU516
+ 1729 0078 652B     		cmp	r3, #101
+ 1730 007a 0DD8     		bhi	.L116
+ 310:Drivers/lvgl/src/misc/lv_anim.c ****         t    = t * 10; /*to [0..1024] range*/
+ 1731              		.loc 1 310 9 is_stmt 1 view .LVU517
+ 310:Drivers/lvgl/src/misc/lv_anim.c ****         t    = t * 10; /*to [0..1024] range*/
+ 1732              		.loc 1 310 11 is_stmt 0 view .LVU518
+ 1733 007c A0F23330 		subw	r0, r0, #819
+ 1734              	.LVL160:
+ 311:Drivers/lvgl/src/misc/lv_anim.c ****         t    = LV_BEZIER_VAL_MAX - t;
+ 1735              		.loc 1 311 9 is_stmt 1 view .LVU519
+ 311:Drivers/lvgl/src/misc/lv_anim.c ****         t    = LV_BEZIER_VAL_MAX - t;
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 48
+
+
+ 1736              		.loc 1 311 14 is_stmt 0 view .LVU520
+ 1737 0080 00EB8000 		add	r0, r0, r0, lsl #2
+ 1738              	.LVL161:
+ 311:Drivers/lvgl/src/misc/lv_anim.c ****         t    = LV_BEZIER_VAL_MAX - t;
+ 1739              		.loc 1 311 14 view .LVU521
+ 1740 0084 4000     		lsls	r0, r0, #1
+ 1741              	.LVL162:
+ 312:Drivers/lvgl/src/misc/lv_anim.c ****         diff = diff / 40;
+ 1742              		.loc 1 312 9 is_stmt 1 view .LVU522
+ 312:Drivers/lvgl/src/misc/lv_anim.c ****         diff = diff / 40;
+ 1743              		.loc 1 312 14 is_stmt 0 view .LVU523
+ 1744 0086 C0F58060 		rsb	r0, r0, #1024
+ 1745              	.LVL163:
+ 313:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1746              		.loc 1 313 9 is_stmt 1 view .LVU524
+ 313:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1747              		.loc 1 313 14 is_stmt 0 view .LVU525
+ 1748 008a 154A     		ldr	r2, .L121
+ 1749 008c 82FB0532 		smull	r3, r2, r2, r5
+ 1750 0090 EB17     		asrs	r3, r5, #31
+ 1751 0092 C3EB2215 		rsb	r5, r3, r2, asr #4
+ 1752              	.LVL164:
+ 313:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1753              		.loc 1 313 14 view .LVU526
+ 1754 0096 CAE7     		b	.L113
+ 1755              	.L116:
+ 315:Drivers/lvgl/src/misc/lv_anim.c ****         /*Fall back*/
+ 1756              		.loc 1 315 10 is_stmt 1 view .LVU527
+ 315:Drivers/lvgl/src/misc/lv_anim.c ****         /*Fall back*/
+ 1757              		.loc 1 315 22 is_stmt 0 view .LVU528
+ 1758 0098 A0F29932 		subw	r2, r0, #921
+ 315:Drivers/lvgl/src/misc/lv_anim.c ****         /*Fall back*/
+ 1759              		.loc 1 315 12 view .LVU529
+ 1760 009c 672A     		cmp	r2, #103
+ 1761 009e C6D8     		bhi	.L113
+ 317:Drivers/lvgl/src/misc/lv_anim.c ****         t    = t * 10; /*to [0..1024] range*/
+ 1762              		.loc 1 317 9 is_stmt 1 view .LVU530
+ 317:Drivers/lvgl/src/misc/lv_anim.c ****         t    = t * 10; /*to [0..1024] range*/
+ 1763              		.loc 1 317 11 is_stmt 0 view .LVU531
+ 1764 00a0 A0F29930 		subw	r0, r0, #921
+ 1765              	.LVL165:
+ 318:Drivers/lvgl/src/misc/lv_anim.c ****         diff = diff / 40;
+ 1766              		.loc 1 318 9 is_stmt 1 view .LVU532
+ 318:Drivers/lvgl/src/misc/lv_anim.c ****         diff = diff / 40;
+ 1767              		.loc 1 318 14 is_stmt 0 view .LVU533
+ 1768 00a4 00EB8000 		add	r0, r0, r0, lsl #2
+ 1769              	.LVL166:
+ 318:Drivers/lvgl/src/misc/lv_anim.c ****         diff = diff / 40;
+ 1770              		.loc 1 318 14 view .LVU534
+ 1771 00a8 4000     		lsls	r0, r0, #1
+ 1772              	.LVL167:
+ 319:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1773              		.loc 1 319 9 is_stmt 1 view .LVU535
+ 319:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1774              		.loc 1 319 14 is_stmt 0 view .LVU536
+ 1775 00aa 0D4A     		ldr	r2, .L121
+ 1776 00ac 82FB0532 		smull	r3, r2, r2, r5
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 49
+
+
+ 1777 00b0 EB17     		asrs	r3, r5, #31
+ 1778 00b2 C3EB2215 		rsb	r5, r3, r2, asr #4
+ 1779              	.LVL168:
+ 319:Drivers/lvgl/src/misc/lv_anim.c ****     }
+ 1780              		.loc 1 319 14 view .LVU537
+ 1781 00b6 BAE7     		b	.L113
+ 1782              	.L118:
+ 322:Drivers/lvgl/src/misc/lv_anim.c ****     if(t < 0) t = 0;
+ 1783              		.loc 1 322 33 discriminator 1 view .LVU538
+ 1784 00b8 4FF48060 		mov	r0, #1024
+ 1785              	.LVL169:
+ 1786              	.L117:
+ 324:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1787              		.loc 1 324 5 is_stmt 1 view .LVU539
+ 324:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1788              		.loc 1 324 20 is_stmt 0 view .LVU540
+ 1789 00bc 0023     		movs	r3, #0
+ 1790 00be 0093     		str	r3, [sp]
+ 1791 00c0 4FF4FA73 		mov	r3, #500
+ 1792 00c4 4FF44872 		mov	r2, #800
+ 1793 00c8 4FF48061 		mov	r1, #1024
+ 1794 00cc FFF7FEFF 		bl	lv_bezier3
+ 1795              	.LVL170:
+ 326:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = step * diff;
+ 1796              		.loc 1 326 5 is_stmt 1 view .LVU541
+ 327:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1797              		.loc 1 327 5 view .LVU542
+ 327:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = new_value >> LV_BEZIER_VAL_SHIFT;
+ 1798              		.loc 1 327 15 is_stmt 0 view .LVU543
+ 1799 00d0 00FB05F5 		mul	r5, r0, r5
+ 1800              	.LVL171:
+ 328:Drivers/lvgl/src/misc/lv_anim.c ****     new_value = a->end_value - new_value;
+ 1801              		.loc 1 328 5 is_stmt 1 view .LVU544
+ 329:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1802              		.loc 1 329 5 view .LVU545
+ 329:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1803              		.loc 1 329 18 is_stmt 0 view .LVU546
+ 1804 00d4 A06A     		ldr	r0, [r4, #40]
+ 1805              	.LVL172:
+ 331:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 1806              		.loc 1 331 5 is_stmt 1 view .LVU547
+ 332:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1807              		.loc 1 332 1 is_stmt 0 view .LVU548
+ 1808 00d6 A0EBA520 		sub	r0, r0, r5, asr #10
+ 1809              	.LVL173:
+ 332:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1810              		.loc 1 332 1 view .LVU549
+ 1811 00da 03B0     		add	sp, sp, #12
+ 1812              		.cfi_def_cfa_offset 12
+ 1813              		@ sp needed
+ 1814 00dc 30BD     		pop	{r4, r5, pc}
+ 1815              	.LVL174:
+ 1816              	.L122:
+ 332:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1817              		.loc 1 332 1 view .LVU550
+ 1818 00de 00BF     		.align	2
+ 1819              	.L121:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 50
+
+
+ 1820 00e0 67666666 		.word	1717986919
+ 1821              		.cfi_endproc
+ 1822              	.LFE61:
+ 1824              		.section	.text.lv_anim_path_step,"ax",%progbits
+ 1825              		.align	1
+ 1826              		.global	lv_anim_path_step
+ 1827              		.syntax unified
+ 1828              		.thumb
+ 1829              		.thumb_func
+ 1831              	lv_anim_path_step:
+ 1832              	.LVL175:
+ 1833              	.LFB62:
+ 335:Drivers/lvgl/src/misc/lv_anim.c ****     if(a->act_time >= a->time)
+ 1834              		.loc 1 335 1 is_stmt 1 view -0
+ 1835              		.cfi_startproc
+ 1836              		@ args = 0, pretend = 0, frame = 0
+ 1837              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1838              		@ link register save eliminated.
+ 336:Drivers/lvgl/src/misc/lv_anim.c ****         return a->end_value;
+ 1839              		.loc 1 336 5 view .LVU552
+ 336:Drivers/lvgl/src/misc/lv_anim.c ****         return a->end_value;
+ 1840              		.loc 1 336 9 is_stmt 0 view .LVU553
+ 1841 0000 026B     		ldr	r2, [r0, #48]
+ 336:Drivers/lvgl/src/misc/lv_anim.c ****         return a->end_value;
+ 1842              		.loc 1 336 24 view .LVU554
+ 1843 0002 C36A     		ldr	r3, [r0, #44]
+ 336:Drivers/lvgl/src/misc/lv_anim.c ****         return a->end_value;
+ 1844              		.loc 1 336 7 view .LVU555
+ 1845 0004 9A42     		cmp	r2, r3
+ 1846 0006 01DB     		blt	.L124
+ 337:Drivers/lvgl/src/misc/lv_anim.c ****     else
+ 1847              		.loc 1 337 9 is_stmt 1 view .LVU556
+ 337:Drivers/lvgl/src/misc/lv_anim.c ****     else
+ 1848              		.loc 1 337 17 is_stmt 0 view .LVU557
+ 1849 0008 806A     		ldr	r0, [r0, #40]
+ 1850              	.LVL176:
+ 337:Drivers/lvgl/src/misc/lv_anim.c ****     else
+ 1851              		.loc 1 337 17 view .LVU558
+ 1852 000a 7047     		bx	lr
+ 1853              	.LVL177:
+ 1854              	.L124:
+ 339:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 1855              		.loc 1 339 9 is_stmt 1 view .LVU559
+ 339:Drivers/lvgl/src/misc/lv_anim.c **** }
+ 1856              		.loc 1 339 17 is_stmt 0 view .LVU560
+ 1857 000c 006A     		ldr	r0, [r0, #32]
+ 1858              	.LVL178:
+ 340:Drivers/lvgl/src/misc/lv_anim.c **** 
+ 1859              		.loc 1 340 1 view .LVU561
+ 1860 000e 7047     		bx	lr
+ 1861              		.cfi_endproc
+ 1862              	.LFE62:
+ 1864              		.section	.bss._lv_anim_tmr,"aw",%nobits
+ 1865              		.align	2
+ 1868              	_lv_anim_tmr:
+ 1869 0000 00000000 		.space	4
+ 1870              		.section	.bss.anim_run_round,"aw",%nobits
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 51
+
+
+ 1873              	anim_run_round:
+ 1874 0000 00       		.space	1
+ 1875              		.section	.bss.anim_list_changed,"aw",%nobits
+ 1878              	anim_list_changed:
+ 1879 0000 00       		.space	1
+ 1880              		.section	.bss.last_timer_run,"aw",%nobits
+ 1881              		.align	2
+ 1884              	last_timer_run:
+ 1885 0000 00000000 		.space	4
+ 1886              		.text
+ 1887              	.Letext0:
+ 1888              		.file 2 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 1889              		.file 3 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 1890              		.file 4 "/Users/jr/Library/Application Support/Code/User/globalStorage/bmd.stm32-for-vscode/@xpack
+ 1891              		.file 5 "Drivers/lvgl/src/misc/lv_anim.h"
+ 1892              		.file 6 "Drivers/lvgl/src/misc/lv_timer.h"
+ 1893              		.file 7 "Drivers/lvgl/src/misc/lv_ll.h"
+ 1894              		.file 8 "Drivers/lvgl/src/misc/lv_math.h"
+ 1895              		.file 9 "Drivers/lvgl/src/misc/lv_mem.h"
+ 1896              		.file 10 "Drivers/lvgl/src/misc/../hal/lv_hal_tick.h"
+ 1897              		.file 11 "Drivers/lvgl/src/misc/lv_gc.h"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 52
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_anim.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:21     .text.anim_mark_list_change:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:26     .text.anim_mark_list_change:00000000 anim_mark_list_change
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:66     .text.anim_mark_list_change:00000024 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1878   .bss.anim_list_changed:00000000 anim_list_changed
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1868   .bss._lv_anim_tmr:00000000 _lv_anim_tmr
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:73     .text.anim_ready_handler:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:78     .text.anim_ready_handler:00000000 anim_ready_handler
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:224    .text.anim_ready_handler:00000088 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:229    .text.anim_timer:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:234    .text.anim_timer:00000000 anim_timer
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:492    .text.anim_timer:000000f0 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1884   .bss.last_timer_run:00000000 last_timer_run
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1873   .bss.anim_run_round:00000000 anim_run_round
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:500    .text.lv_anim_path_linear:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:506    .text.lv_anim_path_linear:00000000 lv_anim_path_linear
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:560    .text._lv_anim_core_init:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:566    .text._lv_anim_core_init:00000000 _lv_anim_core_init
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:604    .text._lv_anim_core_init:00000024 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:612    .text.lv_anim_init:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:618    .text.lv_anim_init:00000000 lv_anim_init
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:667    .text.lv_anim_init:00000030 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:672    .text.lv_anim_get_playtime:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:678    .text.lv_anim_get_playtime:00000000 lv_anim_get_playtime
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:765    .text.lv_anim_del:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:771    .text.lv_anim_del:00000000 lv_anim_del
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:883    .text.lv_anim_del:00000060 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:888    .text.lv_anim_start:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:894    .text.lv_anim_start:00000000 lv_anim_start
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1043   .text.lv_anim_start:00000080 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1050   .text.lv_anim_del_all:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1056   .text.lv_anim_del_all:00000000 lv_anim_del_all
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1078   .text.lv_anim_del_all:00000010 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1083   .text.lv_anim_get:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1089   .text.lv_anim_get:00000000 lv_anim_get
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1155   .text.lv_anim_get:00000030 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1160   .text.lv_anim_get_timer:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1166   .text.lv_anim_get_timer:00000000 lv_anim_get_timer
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1181   .text.lv_anim_get_timer:00000008 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1186   .text.lv_anim_count_running:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1192   .text.lv_anim_count_running:00000000 lv_anim_count_running
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1248   .text.lv_anim_count_running:00000024 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1253   .text.lv_anim_speed_to_time:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1259   .text.lv_anim_speed_to_time:00000000 lv_anim_speed_to_time
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1306   .text.lv_anim_refr_now:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1312   .text.lv_anim_refr_now:00000000 lv_anim_refr_now
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1332   .text.lv_anim_path_ease_in:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1338   .text.lv_anim_path_ease_in:00000000 lv_anim_path_ease_in
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1401   .text.lv_anim_path_ease_out:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1407   .text.lv_anim_path_ease_out:00000000 lv_anim_path_ease_out
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1470   .text.lv_anim_path_ease_in_out:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1476   .text.lv_anim_path_ease_in_out:00000000 lv_anim_path_ease_in_out
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1539   .text.lv_anim_path_overshoot:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1545   .text.lv_anim_path_overshoot:00000000 lv_anim_path_overshoot
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1608   .text.lv_anim_path_bounce:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1614   .text.lv_anim_path_bounce:00000000 lv_anim_path_bounce
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s 			page 53
+
+
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1820   .text.lv_anim_path_bounce:000000e0 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1825   .text.lv_anim_path_step:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1831   .text.lv_anim_path_step:00000000 lv_anim_path_step
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1865   .bss._lv_anim_tmr:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1874   .bss.anim_run_round:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1879   .bss.anim_list_changed:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccoq6l7d.s:1881   .bss.last_timer_run:00000000 $d
+
+UNDEFINED SYMBOLS
+_lv_ll_get_head
+lv_timer_resume
+lv_timer_pause
+_lv_anim_ll
+_lv_ll_remove
+lv_mem_free
+lv_tick_elaps
+_lv_ll_get_next
+lv_tick_get
+lv_map
+_lv_ll_init
+lv_timer_create
+lv_memset_00
+_lv_ll_is_empty
+_lv_ll_ins_head
+lv_memcpy
+_lv_ll_clear
+lv_bezier3

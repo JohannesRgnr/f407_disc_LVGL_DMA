@@ -1,0 +1,1271 @@
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"lv_font_loader.c"
+  16              		.text
+  17              		.section	.text.init_bit_iterator,"ax",%progbits
+  18              		.align	1
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  23              	init_bit_iterator:
+  24              		@ args = 0, pretend = 0, frame = 0
+  25              		@ frame_needed = 0, uses_anonymous_args = 0
+  26              		@ link register save eliminated.
+  27 0000 0160     		str	r1, [r0]
+  28 0002 FF22     		movs	r2, #255
+  29 0004 0271     		strb	r2, [r0, #4]
+  30 0006 0022     		movs	r2, #0
+  31 0008 4271     		strb	r2, [r0, #5]
+  32 000a 7047     		bx	lr
+  34              		.section	.text.read_bits,"ax",%progbits
+  35              		.align	1
+  36              		.syntax unified
+  37              		.thumb
+  38              		.thumb_func
+  40              	read_bits:
+  41              		@ args = 0, pretend = 0, frame = 0
+  42              		@ frame_needed = 0, uses_anonymous_args = 0
+  43 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+  44 0002 0446     		mov	r4, r0
+  45 0004 1746     		mov	r7, r2
+  46 0006 0026     		movs	r6, #0
+  47 0008 04E0     		b	.L3
+  48              	.L4:
+  49 000a 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+  50 000c DB09     		lsrs	r3, r3, #7
+  51 000e AB40     		lsls	r3, r3, r5
+  52 0010 1E43     		orrs	r6, r6, r3
+  53 0012 2946     		mov	r1, r5
+  54              	.L3:
+  55 0014 4D1E     		subs	r5, r1, #1
+  56 0016 B9B1     		cbz	r1, .L9
+  57 0018 6379     		ldrb	r3, [r4, #5]	@ zero_extendqisi2
+  58 001a 5B00     		lsls	r3, r3, #1
+  59 001c 6371     		strb	r3, [r4, #5]
+  60 001e 94F90430 		ldrsb	r3, [r4, #4]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 2
+
+
+  61 0022 013B     		subs	r3, r3, #1
+  62 0024 5BB2     		sxtb	r3, r3
+  63 0026 2371     		strb	r3, [r4, #4]
+  64 0028 002B     		cmp	r3, #0
+  65 002a EEDA     		bge	.L4
+  66 002c 0723     		movs	r3, #7
+  67 002e 2371     		strb	r3, [r4, #4]
+  68 0030 2146     		mov	r1, r4
+  69 0032 51F8050B 		ldr	r0, [r1], #5
+  70 0036 0023     		movs	r3, #0
+  71 0038 0122     		movs	r2, #1
+  72 003a FFF7FEFF 		bl	lv_fs_read
+  73 003e 3870     		strb	r0, [r7]
+  74 0040 0028     		cmp	r0, #0
+  75 0042 E2D0     		beq	.L4
+  76 0044 0026     		movs	r6, #0
+  77 0046 01E0     		b	.L2
+  78              	.L9:
+  79 0048 0023     		movs	r3, #0
+  80 004a 3B70     		strb	r3, [r7]
+  81              	.L2:
+  82 004c 3046     		mov	r0, r6
+  83 004e F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+  85              		.section	.text.read_bits_signed,"ax",%progbits
+  86              		.align	1
+  87              		.syntax unified
+  88              		.thumb
+  89              		.thumb_func
+  91              	read_bits_signed:
+  92              		@ args = 0, pretend = 0, frame = 0
+  93              		@ frame_needed = 0, uses_anonymous_args = 0
+  94 0000 10B5     		push	{r4, lr}
+  95 0002 0C46     		mov	r4, r1
+  96 0004 FFF7FEFF 		bl	read_bits
+  97 0008 621E     		subs	r2, r4, #1
+  98 000a 0123     		movs	r3, #1
+  99 000c 9340     		lsls	r3, r3, r2
+ 100 000e 0342     		tst	r3, r0
+ 101 0010 03D0     		beq	.L11
+ 102 0012 4FF0FF33 		mov	r3, #-1
+ 103 0016 A340     		lsls	r3, r3, r4
+ 104 0018 1843     		orrs	r0, r0, r3
+ 105              	.L11:
+ 106 001a 10BD     		pop	{r4, pc}
+ 108              		.section	.text.load_cmaps_tables,"ax",%progbits
+ 109              		.align	1
+ 110              		.syntax unified
+ 111              		.thumb
+ 112              		.thumb_func
+ 114              	load_cmaps_tables:
+ 115              		@ args = 0, pretend = 0, frame = 0
+ 116              		@ frame_needed = 0, uses_anonymous_args = 0
+ 117 0000 2DE9F84F 		push	{r3, r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 118 0004 8146     		mov	r9, r0
+ 119 0006 0F46     		mov	r7, r1
+ 120 0008 9246     		mov	r10, r2
+ 121 000a 9846     		mov	r8, r3
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 3
+
+
+ 122 000c 4A8A     		ldrh	r2, [r1, #18]
+ 123 000e C2F30802 		ubfx	r2, r2, #0, #9
+ 124 0012 0023     		movs	r3, #0
+ 125 0014 1201     		lsls	r2, r2, #4
+ 126 0016 4146     		mov	r1, r8
+ 127 0018 FFF7FEFF 		bl	lv_fs_read
+ 128 001c 0028     		cmp	r0, #0
+ 129 001e 63D1     		bne	.L21
+ 130 0020 0024     		movs	r4, #0
+ 131 0022 0FE0     		b	.L15
+ 132              	.L19:
+ 133 0024 2D7B     		ldrb	r5, [r5, #12]	@ zero_extendqisi2
+ 134 0026 2846     		mov	r0, r5
+ 135 0028 FFF7FEFF 		bl	lv_mem_alloc
+ 136 002c 0146     		mov	r1, r0
+ 137 002e F060     		str	r0, [r6, #12]
+ 138 0030 0023     		movs	r3, #0
+ 139 0032 2A46     		mov	r2, r5
+ 140 0034 4846     		mov	r0, r9
+ 141 0036 FFF7FEFF 		bl	lv_fs_read
+ 142 003a 0028     		cmp	r0, #0
+ 143 003c 5BD1     		bne	.L24
+ 144 003e B388     		ldrh	r3, [r6, #4]
+ 145 0040 3382     		strh	r3, [r6, #16]	@ movhi
+ 146              	.L18:
+ 147 0042 0134     		adds	r4, r4, #1
+ 148              	.L15:
+ 149 0044 7D8A     		ldrh	r5, [r7, #18]
+ 150 0046 C5F30805 		ubfx	r5, r5, #0, #9
+ 151 004a A542     		cmp	r5, r4
+ 152 004c 4AD9     		bls	.L29
+ 153 004e 2301     		lsls	r3, r4, #4
+ 154 0050 08EB0415 		add	r5, r8, r4, lsl #4
+ 155 0054 58F80310 		ldr	r1, [r8, r3]
+ 156 0058 0022     		movs	r2, #0
+ 157 005a 5144     		add	r1, r1, r10
+ 158 005c 4846     		mov	r0, r9
+ 159 005e FFF7FEFF 		bl	lv_fs_seek
+ 160 0062 0028     		cmp	r0, #0
+ 161 0064 43D1     		bne	.L22
+ 162 0066 BB68     		ldr	r3, [r7, #8]
+ 163 0068 04EB8402 		add	r2, r4, r4, lsl #2
+ 164 006c 03EB8206 		add	r6, r3, r2, lsl #2
+ 165 0070 6968     		ldr	r1, [r5, #4]
+ 166 0072 43F82210 		str	r1, [r3, r2, lsl #2]
+ 167 0076 2B89     		ldrh	r3, [r5, #8]
+ 168 0078 B380     		strh	r3, [r6, #4]	@ movhi
+ 169 007a 6B89     		ldrh	r3, [r5, #10]
+ 170 007c F380     		strh	r3, [r6, #6]	@ movhi
+ 171 007e AB7B     		ldrb	r3, [r5, #14]	@ zero_extendqisi2
+ 172 0080 B374     		strb	r3, [r6, #18]
+ 173 0082 032B     		cmp	r3, #3
+ 174 0084 35D8     		bhi	.L23
+ 175 0086 01A2     		adr	r2, .L17
+ 176 0088 52F823F0 		ldr	pc, [r2, r3, lsl #2]
+ 177              		.p2align 2
+ 178              	.L17:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 4
+
+
+ 179 008c 25000000 		.word	.L19+1
+ 180 0090 9D000000 		.word	.L16+1
+ 181 0094 43000000 		.word	.L18+1
+ 182 0098 9D000000 		.word	.L16+1
+ 183              		.p2align 1
+ 184              	.L16:
+ 185 009c B5F80CB0 		ldrh	fp, [r5, #12]
+ 186 00a0 4FEA4B0B 		lsl	fp, fp, #1
+ 187 00a4 5846     		mov	r0, fp
+ 188 00a6 FFF7FEFF 		bl	lv_mem_alloc
+ 189 00aa 0146     		mov	r1, r0
+ 190 00ac B060     		str	r0, [r6, #8]
+ 191 00ae AB89     		ldrh	r3, [r5, #12]
+ 192 00b0 3382     		strh	r3, [r6, #16]	@ movhi
+ 193 00b2 0023     		movs	r3, #0
+ 194 00b4 5A46     		mov	r2, fp
+ 195 00b6 4846     		mov	r0, r9
+ 196 00b8 FFF7FEFF 		bl	lv_fs_read
+ 197 00bc E8B9     		cbnz	r0, .L25
+ 198 00be AB7B     		ldrb	r3, [r5, #14]	@ zero_extendqisi2
+ 199 00c0 012B     		cmp	r3, #1
+ 200 00c2 BED1     		bne	.L18
+ 201 00c4 308A     		ldrh	r0, [r6, #16]
+ 202 00c6 4000     		lsls	r0, r0, #1
+ 203 00c8 FFF7FEFF 		bl	lv_mem_alloc
+ 204 00cc 0146     		mov	r1, r0
+ 205 00ce F060     		str	r0, [r6, #12]
+ 206 00d0 328A     		ldrh	r2, [r6, #16]
+ 207 00d2 0023     		movs	r3, #0
+ 208 00d4 5200     		lsls	r2, r2, #1
+ 209 00d6 4846     		mov	r0, r9
+ 210 00d8 FFF7FEFF 		bl	lv_fs_read
+ 211 00dc 0028     		cmp	r0, #0
+ 212 00de B0D0     		beq	.L18
+ 213 00e0 0020     		movs	r0, #0
+ 214 00e2 02E0     		b	.L14
+ 215              	.L29:
+ 216 00e4 0120     		movs	r0, #1
+ 217 00e6 00E0     		b	.L14
+ 218              	.L21:
+ 219 00e8 0020     		movs	r0, #0
+ 220              	.L14:
+ 221 00ea BDE8F88F 		pop	{r3, r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 222              	.L22:
+ 223 00ee 0020     		movs	r0, #0
+ 224 00f0 FBE7     		b	.L14
+ 225              	.L23:
+ 226 00f2 0020     		movs	r0, #0
+ 227 00f4 F9E7     		b	.L14
+ 228              	.L24:
+ 229 00f6 0020     		movs	r0, #0
+ 230 00f8 F7E7     		b	.L14
+ 231              	.L25:
+ 232 00fa 0020     		movs	r0, #0
+ 233 00fc F5E7     		b	.L14
+ 235 00fe 00BF     		.section	.text.read_label,"ax",%progbits
+ 236              		.align	1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 5
+
+
+ 237              		.syntax unified
+ 238              		.thumb
+ 239              		.thumb_func
+ 241              	read_label:
+ 242              		@ args = 0, pretend = 0, frame = 8
+ 243              		@ frame_needed = 0, uses_anonymous_args = 0
+ 244 0000 30B5     		push	{r4, r5, lr}
+ 245 0002 83B0     		sub	sp, sp, #12
+ 246 0004 0446     		mov	r4, r0
+ 247 0006 1546     		mov	r5, r2
+ 248 0008 0022     		movs	r2, #0
+ 249 000a FFF7FEFF 		bl	lv_fs_seek
+ 250 000e 0023     		movs	r3, #0
+ 251 0010 0422     		movs	r2, #4
+ 252 0012 0DEB0201 		add	r1, sp, r2
+ 253 0016 2046     		mov	r0, r4
+ 254 0018 FFF7FEFF 		bl	lv_fs_read
+ 255 001c 78B9     		cbnz	r0, .L31
+ 256 001e 0023     		movs	r3, #0
+ 257 0020 0422     		movs	r2, #4
+ 258 0022 6946     		mov	r1, sp
+ 259 0024 2046     		mov	r0, r4
+ 260 0026 FFF7FEFF 		bl	lv_fs_read
+ 261 002a 40B9     		cbnz	r0, .L31
+ 262 002c 0422     		movs	r2, #4
+ 263 002e 6946     		mov	r1, sp
+ 264 0030 2846     		mov	r0, r5
+ 265 0032 FFF7FEFF 		bl	memcmp
+ 266 0036 10B9     		cbnz	r0, .L31
+ 267 0038 0198     		ldr	r0, [sp, #4]
+ 268              	.L30:
+ 269 003a 03B0     		add	sp, sp, #12
+ 270              		@ sp needed
+ 271 003c 30BD     		pop	{r4, r5, pc}
+ 272              	.L31:
+ 273 003e 4FF0FF30 		mov	r0, #-1
+ 274 0042 FAE7     		b	.L30
+ 276              		.section	.rodata.load_cmaps.str1.4,"aMS",%progbits,1
+ 277              		.align	2
+ 278              	.LC0:
+ 279 0000 636D6170 		.ascii	"cmap\000"
+ 279      00
+ 280              		.section	.text.load_cmaps,"ax",%progbits
+ 281              		.align	1
+ 282              		.syntax unified
+ 283              		.thumb
+ 284              		.thumb_func
+ 286              	load_cmaps:
+ 287              		@ args = 0, pretend = 0, frame = 8
+ 288              		@ frame_needed = 0, uses_anonymous_args = 0
+ 289 0000 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 290 0004 82B0     		sub	sp, sp, #8
+ 291 0006 0746     		mov	r7, r0
+ 292 0008 0C46     		mov	r4, r1
+ 293 000a 1646     		mov	r6, r2
+ 294 000c 204A     		ldr	r2, .L42
+ 295 000e 3146     		mov	r1, r6
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 6
+
+
+ 296 0010 FFF7FEFF 		bl	read_label
+ 297 0014 051E     		subs	r5, r0, #0
+ 298 0016 31DB     		blt	.L37
+ 299 0018 0023     		movs	r3, #0
+ 300 001a 0422     		movs	r2, #4
+ 301 001c 0DEB0201 		add	r1, sp, r2
+ 302 0020 3846     		mov	r0, r7
+ 303 0022 FFF7FEFF 		bl	lv_fs_read
+ 304 0026 60BB     		cbnz	r0, .L38
+ 305 0028 0198     		ldr	r0, [sp, #4]
+ 306 002a 00EB8000 		add	r0, r0, r0, lsl #2
+ 307 002e 8000     		lsls	r0, r0, #2
+ 308 0030 FFF7FEFF 		bl	lv_mem_alloc
+ 309 0034 8046     		mov	r8, r0
+ 310 0036 019A     		ldr	r2, [sp, #4]
+ 311 0038 02EB8202 		add	r2, r2, r2, lsl #2
+ 312 003c 9200     		lsls	r2, r2, #2
+ 313 003e 0021     		movs	r1, #0
+ 314 0040 FFF7FEFF 		bl	memset
+ 315 0044 C4F80880 		str	r8, [r4, #8]
+ 316 0048 0198     		ldr	r0, [sp, #4]
+ 317 004a 638A     		ldrh	r3, [r4, #18]
+ 318 004c 60F30803 		bfi	r3, r0, #0, #9
+ 319 0050 6382     		strh	r3, [r4, #18]	@ movhi
+ 320 0052 C0F30800 		ubfx	r0, r0, #0, #9
+ 321 0056 0001     		lsls	r0, r0, #4
+ 322 0058 FFF7FEFF 		bl	lv_mem_alloc
+ 323 005c 8046     		mov	r8, r0
+ 324 005e 0346     		mov	r3, r0
+ 325 0060 3246     		mov	r2, r6
+ 326 0062 2146     		mov	r1, r4
+ 327 0064 3846     		mov	r0, r7
+ 328 0066 FFF7FEFF 		bl	load_cmaps_tables
+ 329 006a 0446     		mov	r4, r0
+ 330 006c 4046     		mov	r0, r8
+ 331 006e FFF7FEFF 		bl	lv_mem_free
+ 332 0072 4CB1     		cbz	r4, .L41
+ 333              	.L35:
+ 334 0074 2846     		mov	r0, r5
+ 335 0076 02B0     		add	sp, sp, #8
+ 336              		@ sp needed
+ 337 0078 BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 338              	.L37:
+ 339 007c 4FF0FF35 		mov	r5, #-1
+ 340 0080 F8E7     		b	.L35
+ 341              	.L38:
+ 342 0082 4FF0FF35 		mov	r5, #-1
+ 343 0086 F5E7     		b	.L35
+ 344              	.L41:
+ 345 0088 4FF0FF35 		mov	r5, #-1
+ 346 008c F2E7     		b	.L35
+ 347              	.L43:
+ 348 008e 00BF     		.align	2
+ 349              	.L42:
+ 350 0090 00000000 		.word	.LC0
+ 352              		.section	.rodata.load_glyph.str1.4,"aMS",%progbits,1
+ 353              		.align	2
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 7
+
+
+ 354              	.LC1:
+ 355 0000 676C7966 		.ascii	"glyf\000"
+ 355      00
+ 356              		.section	.text.load_glyph,"ax",%progbits
+ 357              		.align	1
+ 358              		.syntax unified
+ 359              		.thumb
+ 360              		.thumb_func
+ 362              	load_glyph:
+ 363              		@ args = 8, pretend = 0, frame = 40
+ 364              		@ frame_needed = 0, uses_anonymous_args = 0
+ 365 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 366 0004 8BB0     		sub	sp, sp, #44
+ 367 0006 0190     		str	r0, [sp, #4]
+ 368 0008 8946     		mov	r9, r1
+ 369 000a 1146     		mov	r1, r2
+ 370 000c 0292     		str	r2, [sp, #8]
+ 371 000e 9846     		mov	r8, r3
+ 372 0010 159D     		ldr	r5, [sp, #84]
+ 373 0012 A64A     		ldr	r2, .L74
+ 374 0014 FFF7FEFF 		bl	read_label
+ 375 0018 031E     		subs	r3, r0, #0
+ 376 001a 0393     		str	r3, [sp, #12]
+ 377 001c C0F24181 		blt	.L66
+ 378 0020 149B     		ldr	r3, [sp, #80]
+ 379 0022 DC00     		lsls	r4, r3, #3
+ 380 0024 2046     		mov	r0, r4
+ 381 0026 FFF7FEFF 		bl	lv_mem_alloc
+ 382 002a 0746     		mov	r7, r0
+ 383 002c 2246     		mov	r2, r4
+ 384 002e 0021     		movs	r1, #0
+ 385 0030 FFF7FEFF 		bl	memset
+ 386 0034 C9F80470 		str	r7, [r9, #4]
+ 387 0038 0026     		movs	r6, #0
+ 388 003a B246     		mov	r10, r6
+ 389 003c CDF81090 		str	r9, [sp, #16]
+ 390 0040 20E0     		b	.L46
+ 391              	.L48:
+ 392 0042 0DF11F02 		add	r2, sp, #31
+ 393 0046 08A8     		add	r0, sp, #32
+ 394 0048 FFF7FEFF 		bl	read_bits
+ 395 004c 6388     		ldrh	r3, [r4, #2]
+ 396 004e 60F30F13 		bfi	r3, r0, #4, #12
+ 397 0052 6380     		strh	r3, [r4, #2]	@ movhi
+ 398 0054 9DF81F30 		ldrb	r3, [sp, #31]	@ zero_extendqisi2
+ 399 0058 002B     		cmp	r3, #0
+ 400 005a 35D0     		beq	.L49
+ 401              	.L47:
+ 402 005c 4FF0FF33 		mov	r3, #-1
+ 403 0060 0393     		str	r3, [sp, #12]
+ 404              	.L44:
+ 405 0062 0398     		ldr	r0, [sp, #12]
+ 406 0064 0BB0     		add	sp, sp, #44
+ 407              		@ sp needed
+ 408 0066 BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 409              	.L67:
+ 410 006a 039A     		ldr	r2, [sp, #12]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 8
+
+
+ 411 006c 72E0     		b	.L51
+ 412              	.L72:
+ 413 006e 6388     		ldrh	r3, [r4, #2]
+ 414 0070 6FF30F13 		bfc	r3, #4, #12
+ 415 0074 6380     		strh	r3, [r4, #2]	@ movhi
+ 416 0076 0023     		movs	r3, #0
+ 417 0078 2371     		strb	r3, [r4, #4]
+ 418 007a 6371     		strb	r3, [r4, #5]
+ 419 007c A371     		strb	r3, [r4, #6]
+ 420 007e E371     		strb	r3, [r4, #7]
+ 421 0080 6FE0     		b	.L53
+ 422              	.L54:
+ 423 0082 0136     		adds	r6, r6, #1
+ 424              	.L46:
+ 425 0084 149B     		ldr	r3, [sp, #80]
+ 426 0086 9E42     		cmp	r6, r3
+ 427 0088 79D2     		bcs	.L71
+ 428 008a 4FEAC609 		lsl	r9, r6, #3
+ 429 008e 07EBC604 		add	r4, r7, r6, lsl #3
+ 430 0092 4FEA860B 		lsl	fp, r6, #2
+ 431 0096 58F82610 		ldr	r1, [r8, r6, lsl #2]
+ 432 009a 0022     		movs	r2, #0
+ 433 009c 029B     		ldr	r3, [sp, #8]
+ 434 009e 1944     		add	r1, r1, r3
+ 435 00a0 0198     		ldr	r0, [sp, #4]
+ 436 00a2 FFF7FEFF 		bl	lv_fs_seek
+ 437 00a6 8DF81F00 		strb	r0, [sp, #31]
+ 438 00aa 0028     		cmp	r0, #0
+ 439 00ac D6D1     		bne	.L47
+ 440 00ae 0199     		ldr	r1, [sp, #4]
+ 441 00b0 08A8     		add	r0, sp, #32
+ 442 00b2 FFF7FEFF 		bl	init_bit_iterator
+ 443 00b6 95F82010 		ldrb	r1, [r5, #32]	@ zero_extendqisi2
+ 444 00ba 0029     		cmp	r1, #0
+ 445 00bc C1D1     		bne	.L48
+ 446 00be EA8A     		ldrh	r2, [r5, #22]
+ 447 00c0 6388     		ldrh	r3, [r4, #2]
+ 448 00c2 62F30F13 		bfi	r3, r2, #4, #12
+ 449 00c6 6380     		strh	r3, [r4, #2]	@ movhi
+ 450              	.L49:
+ 451 00c8 2B7F     		ldrb	r3, [r5, #28]	@ zero_extendqisi2
+ 452 00ca 43B9     		cbnz	r3, .L50
+ 453 00cc 6388     		ldrh	r3, [r4, #2]
+ 454 00ce C3F30B12 		ubfx	r2, r3, #4, #12
+ 455 00d2 1201     		lsls	r2, r2, #4
+ 456 00d4 C2F30B02 		ubfx	r2, r2, #0, #12
+ 457 00d8 62F30F13 		bfi	r3, r2, #4, #12
+ 458 00dc 6380     		strh	r3, [r4, #2]	@ movhi
+ 459              	.L50:
+ 460 00de 0DF11F02 		add	r2, sp, #31
+ 461 00e2 A97F     		ldrb	r1, [r5, #30]	@ zero_extendqisi2
+ 462 00e4 08A8     		add	r0, sp, #32
+ 463 00e6 FFF7FEFF 		bl	read_bits_signed
+ 464 00ea A071     		strb	r0, [r4, #6]
+ 465 00ec 9DF81F30 		ldrb	r3, [sp, #31]	@ zero_extendqisi2
+ 466 00f0 002B     		cmp	r3, #0
+ 467 00f2 B3D1     		bne	.L47
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 9
+
+
+ 468 00f4 0DF11F02 		add	r2, sp, #31
+ 469 00f8 A97F     		ldrb	r1, [r5, #30]	@ zero_extendqisi2
+ 470 00fa 08A8     		add	r0, sp, #32
+ 471 00fc FFF7FEFF 		bl	read_bits_signed
+ 472 0100 E071     		strb	r0, [r4, #7]
+ 473 0102 9DF81F30 		ldrb	r3, [sp, #31]	@ zero_extendqisi2
+ 474 0106 002B     		cmp	r3, #0
+ 475 0108 A8D1     		bne	.L47
+ 476 010a 0DF11F02 		add	r2, sp, #31
+ 477 010e E97F     		ldrb	r1, [r5, #31]	@ zero_extendqisi2
+ 478 0110 08A8     		add	r0, sp, #32
+ 479 0112 FFF7FEFF 		bl	read_bits
+ 480 0116 2071     		strb	r0, [r4, #4]
+ 481 0118 9DF81F30 		ldrb	r3, [sp, #31]	@ zero_extendqisi2
+ 482 011c 002B     		cmp	r3, #0
+ 483 011e 9DD1     		bne	.L47
+ 484 0120 0DF11F02 		add	r2, sp, #31
+ 485 0124 E97F     		ldrb	r1, [r5, #31]	@ zero_extendqisi2
+ 486 0126 08A8     		add	r0, sp, #32
+ 487 0128 FFF7FEFF 		bl	read_bits
+ 488 012c 6071     		strb	r0, [r4, #5]
+ 489 012e 9DF81F30 		ldrb	r3, [sp, #31]	@ zero_extendqisi2
+ 490 0132 002B     		cmp	r3, #0
+ 491 0134 92D1     		bne	.L47
+ 492 0136 95F82030 		ldrb	r3, [r5, #32]	@ zero_extendqisi2
+ 493 013a AA7F     		ldrb	r2, [r5, #30]	@ zero_extendqisi2
+ 494 013c 03EB4203 		add	r3, r3, r2, lsl #1
+ 495 0140 EA7F     		ldrb	r2, [r5, #31]	@ zero_extendqisi2
+ 496 0142 03EB4203 		add	r3, r3, r2, lsl #1
+ 497 0146 149A     		ldr	r2, [sp, #80]
+ 498 0148 013A     		subs	r2, r2, #1
+ 499 014a B242     		cmp	r2, r6
+ 500 014c 8DD9     		bls	.L67
+ 501 014e 721C     		adds	r2, r6, #1
+ 502 0150 58F82220 		ldr	r2, [r8, r2, lsl #2]
+ 503              	.L51:
+ 504 0154 58F80B10 		ldr	r1, [r8, fp]
+ 505 0158 521A     		subs	r2, r2, r1
+ 506 015a A2EBE302 		sub	r2, r2, r3, asr #3
+ 507 015e 002E     		cmp	r6, #0
+ 508 0160 85D0     		beq	.L72
+ 509              	.L53:
+ 510 0162 57F80930 		ldr	r3, [r7, r9]
+ 511 0166 6AF31303 		bfi	r3, r10, #0, #20
+ 512 016a 47F80930 		str	r3, [r7, r9]
+ 513 016e 2379     		ldrb	r3, [r4, #4]	@ zero_extendqisi2
+ 514 0170 6179     		ldrb	r1, [r4, #5]	@ zero_extendqisi2
+ 515 0172 01FB03F3 		mul	r3, r1, r3
+ 516 0176 002B     		cmp	r3, #0
+ 517 0178 83D0     		beq	.L54
+ 518 017a 9244     		add	r10, r10, r2
+ 519 017c 81E7     		b	.L54
+ 520              	.L71:
+ 521 017e DDF81090 		ldr	r9, [sp, #16]
+ 522 0182 5046     		mov	r0, r10
+ 523 0184 FFF7FEFF 		bl	lv_mem_alloc
+ 524 0188 C9F80000 		str	r0, [r9]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 10
+
+
+ 525 018c 4FF0010A 		mov	r10, #1
+ 526 0190 4FF0000B 		mov	fp, #0
+ 527 0194 0497     		str	r7, [sp, #16]
+ 528 0196 8146     		mov	r9, r0
+ 529 0198 15E0     		b	.L56
+ 530              	.L68:
+ 531 019a 039F     		ldr	r7, [sp, #12]
+ 532              	.L60:
+ 533 019c 58F80430 		ldr	r3, [r8, r4]
+ 534 01a0 FF1A     		subs	r7, r7, r3
+ 535 01a2 A7EBE607 		sub	r7, r7, r6, asr #3
+ 536 01a6 16F00703 		ands	r3, r6, #7
+ 537 01aa 0593     		str	r3, [sp, #20]
+ 538 01ac 46D1     		bne	.L69
+ 539 01ae 0023     		movs	r3, #0
+ 540 01b0 3A46     		mov	r2, r7
+ 541 01b2 09EB0B01 		add	r1, r9, fp
+ 542 01b6 0198     		ldr	r0, [sp, #4]
+ 543 01b8 FFF7FEFF 		bl	lv_fs_read
+ 544 01bc 0028     		cmp	r0, #0
+ 545 01be 6CD1     		bne	.L57
+ 546              	.L63:
+ 547 01c0 BB44     		add	fp, fp, r7
+ 548              	.L59:
+ 549 01c2 0AF1010A 		add	r10, r10, #1
+ 550              	.L56:
+ 551 01c6 149B     		ldr	r3, [sp, #80]
+ 552 01c8 9A45     		cmp	r10, r3
+ 553 01ca BFF44AAF 		bcs	.L44
+ 554 01ce 4FEA8A04 		lsl	r4, r10, #2
+ 555 01d2 58F82A10 		ldr	r1, [r8, r10, lsl #2]
+ 556 01d6 0022     		movs	r2, #0
+ 557 01d8 029B     		ldr	r3, [sp, #8]
+ 558 01da 1944     		add	r1, r1, r3
+ 559 01dc 019E     		ldr	r6, [sp, #4]
+ 560 01de 3046     		mov	r0, r6
+ 561 01e0 FFF7FEFF 		bl	lv_fs_seek
+ 562 01e4 8DF81F00 		strb	r0, [sp, #31]
+ 563 01e8 0028     		cmp	r0, #0
+ 564 01ea 56D1     		bne	.L57
+ 565 01ec 3146     		mov	r1, r6
+ 566 01ee 08A8     		add	r0, sp, #32
+ 567 01f0 FFF7FEFF 		bl	init_bit_iterator
+ 568 01f4 95F82060 		ldrb	r6, [r5, #32]	@ zero_extendqisi2
+ 569 01f8 AB7F     		ldrb	r3, [r5, #30]	@ zero_extendqisi2
+ 570 01fa 06EB4306 		add	r6, r6, r3, lsl #1
+ 571 01fe EB7F     		ldrb	r3, [r5, #31]	@ zero_extendqisi2
+ 572 0200 06EB4306 		add	r6, r6, r3, lsl #1
+ 573 0204 0DF11F02 		add	r2, sp, #31
+ 574 0208 3146     		mov	r1, r6
+ 575 020a 08A8     		add	r0, sp, #32
+ 576 020c FFF7FEFF 		bl	read_bits
+ 577 0210 9DF81F30 		ldrb	r3, [sp, #31]	@ zero_extendqisi2
+ 578 0214 002B     		cmp	r3, #0
+ 579 0216 40D1     		bne	.L57
+ 580 0218 049B     		ldr	r3, [sp, #16]
+ 581 021a 03EBCA02 		add	r2, r3, r10, lsl #3
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 11
+
+
+ 582 021e 1379     		ldrb	r3, [r2, #4]	@ zero_extendqisi2
+ 583 0220 5279     		ldrb	r2, [r2, #5]	@ zero_extendqisi2
+ 584 0222 02FB03F3 		mul	r3, r2, r3
+ 585 0226 002B     		cmp	r3, #0
+ 586 0228 CBD0     		beq	.L59
+ 587 022a 149B     		ldr	r3, [sp, #80]
+ 588 022c 013B     		subs	r3, r3, #1
+ 589 022e 5345     		cmp	r3, r10
+ 590 0230 B3D9     		bls	.L68
+ 591 0232 0AF10103 		add	r3, r10, #1
+ 592 0236 58F82370 		ldr	r7, [r8, r3, lsl #2]
+ 593 023a AFE7     		b	.L60
+ 594              	.L69:
+ 595 023c 0024     		movs	r4, #0
+ 596              	.L62:
+ 597 023e 7B1E     		subs	r3, r7, #1
+ 598 0240 A342     		cmp	r3, r4
+ 599 0242 0EDD     		ble	.L73
+ 600 0244 0DF11F02 		add	r2, sp, #31
+ 601 0248 0821     		movs	r1, #8
+ 602 024a 08A8     		add	r0, sp, #32
+ 603 024c FFF7FEFF 		bl	read_bits
+ 604 0250 0BEB0403 		add	r3, fp, r4
+ 605 0254 09F80300 		strb	r0, [r9, r3]
+ 606 0258 9DF81F30 		ldrb	r3, [sp, #31]	@ zero_extendqisi2
+ 607 025c EBB9     		cbnz	r3, .L57
+ 608 025e 0134     		adds	r4, r4, #1
+ 609 0260 EDE7     		b	.L62
+ 610              	.L73:
+ 611 0262 7342     		rsbs	r3, r6, #0
+ 612 0264 06F00701 		and	r1, r6, #7
+ 613 0268 03F00703 		and	r3, r3, #7
+ 614 026c 58BF     		it	pl
+ 615 026e 5942     		rsbpl	r1, r3, #0
+ 616 0270 0DF11F02 		add	r2, sp, #31
+ 617 0274 C1F10801 		rsb	r1, r1, #8
+ 618 0278 08A8     		add	r0, sp, #32
+ 619 027a FFF7FEFF 		bl	read_bits
+ 620 027e 0BEB0702 		add	r2, fp, r7
+ 621 0282 013A     		subs	r2, r2, #1
+ 622 0284 09F80200 		strb	r0, [r9, r2]
+ 623 0288 9DF81F30 		ldrb	r3, [sp, #31]	@ zero_extendqisi2
+ 624 028c 2BB9     		cbnz	r3, .L57
+ 625 028e C3B2     		uxtb	r3, r0
+ 626 0290 0599     		ldr	r1, [sp, #20]
+ 627 0292 8B40     		lsls	r3, r3, r1
+ 628 0294 09F80230 		strb	r3, [r9, r2]
+ 629 0298 92E7     		b	.L63
+ 630              	.L57:
+ 631 029a 4FF0FF33 		mov	r3, #-1
+ 632 029e 0393     		str	r3, [sp, #12]
+ 633 02a0 DFE6     		b	.L44
+ 634              	.L66:
+ 635 02a2 4FF0FF33 		mov	r3, #-1
+ 636 02a6 0393     		str	r3, [sp, #12]
+ 637 02a8 DBE6     		b	.L44
+ 638              	.L75:
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 12
+
+
+ 639 02aa 00BF     		.align	2
+ 640              	.L74:
+ 641 02ac 00000000 		.word	.LC1
+ 643              		.section	.text.lv_font_free,"ax",%progbits
+ 644              		.align	1
+ 645              		.global	lv_font_free
+ 646              		.syntax unified
+ 647              		.thumb
+ 648              		.thumb_func
+ 650              	lv_font_free:
+ 651              		@ args = 0, pretend = 0, frame = 0
+ 652              		@ frame_needed = 0, uses_anonymous_args = 0
+ 653 0000 0028     		cmp	r0, #0
+ 654 0002 54D0     		beq	.L95
+ 655 0004 2DE9F041 		push	{r4, r5, r6, r7, r8, lr}
+ 656 0008 8046     		mov	r8, r0
+ 657 000a 0669     		ldr	r6, [r0, #16]
+ 658 000c 002E     		cmp	r6, #0
+ 659 000e 49D0     		beq	.L78
+ 660 0010 F37C     		ldrb	r3, [r6, #19]	@ zero_extendqisi2
+ 661 0012 13F0200F 		tst	r3, #32
+ 662 0016 10D1     		bne	.L79
+ 663 0018 F468     		ldr	r4, [r6, #12]
+ 664 001a 54B1     		cbz	r4, .L80
+ 665 001c 2068     		ldr	r0, [r4]
+ 666 001e 08B1     		cbz	r0, .L81
+ 667 0020 FFF7FEFF 		bl	lv_mem_free
+ 668              	.L81:
+ 669 0024 6068     		ldr	r0, [r4, #4]
+ 670 0026 08B1     		cbz	r0, .L82
+ 671 0028 FFF7FEFF 		bl	lv_mem_free
+ 672              	.L82:
+ 673 002c 2046     		mov	r0, r4
+ 674 002e FFF7FEFF 		bl	lv_mem_free
+ 675              	.L80:
+ 676 0032 B768     		ldr	r7, [r6, #8]
+ 677 0034 5FB3     		cbz	r7, .L87
+ 678 0036 0024     		movs	r4, #0
+ 679 0038 13E0     		b	.L86
+ 680              	.L79:
+ 681 003a F468     		ldr	r4, [r6, #12]
+ 682 003c 002C     		cmp	r4, #0
+ 683 003e F8D0     		beq	.L80
+ 684 0040 2068     		ldr	r0, [r4]
+ 685 0042 08B1     		cbz	r0, .L83
+ 686 0044 FFF7FEFF 		bl	lv_mem_free
+ 687              	.L83:
+ 688 0048 6068     		ldr	r0, [r4, #4]
+ 689 004a 08B1     		cbz	r0, .L84
+ 690 004c FFF7FEFF 		bl	lv_mem_free
+ 691              	.L84:
+ 692 0050 A068     		ldr	r0, [r4, #8]
+ 693 0052 08B1     		cbz	r0, .L85
+ 694 0054 FFF7FEFF 		bl	lv_mem_free
+ 695              	.L85:
+ 696 0058 2046     		mov	r0, r4
+ 697 005a FFF7FEFF 		bl	lv_mem_free
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 13
+
+
+ 698 005e E8E7     		b	.L80
+ 699              	.L89:
+ 700 0060 0134     		adds	r4, r4, #1
+ 701              	.L86:
+ 702 0062 738A     		ldrh	r3, [r6, #18]
+ 703 0064 C3F30803 		ubfx	r3, r3, #0, #9
+ 704 0068 A342     		cmp	r3, r4
+ 705 006a 0DDD     		ble	.L98
+ 706 006c 04EB8405 		add	r5, r4, r4, lsl #2
+ 707 0070 07EB8505 		add	r5, r7, r5, lsl #2
+ 708 0074 E868     		ldr	r0, [r5, #12]
+ 709 0076 08B1     		cbz	r0, .L88
+ 710 0078 FFF7FEFF 		bl	lv_mem_free
+ 711              	.L88:
+ 712 007c A868     		ldr	r0, [r5, #8]
+ 713 007e 0028     		cmp	r0, #0
+ 714 0080 EED0     		beq	.L89
+ 715 0082 FFF7FEFF 		bl	lv_mem_free
+ 716 0086 EBE7     		b	.L89
+ 717              	.L98:
+ 718 0088 3846     		mov	r0, r7
+ 719 008a FFF7FEFF 		bl	lv_mem_free
+ 720              	.L87:
+ 721 008e 3068     		ldr	r0, [r6]
+ 722 0090 08B1     		cbz	r0, .L91
+ 723 0092 FFF7FEFF 		bl	lv_mem_free
+ 724              	.L91:
+ 725 0096 7068     		ldr	r0, [r6, #4]
+ 726 0098 08B1     		cbz	r0, .L92
+ 727 009a FFF7FEFF 		bl	lv_mem_free
+ 728              	.L92:
+ 729 009e 3046     		mov	r0, r6
+ 730 00a0 FFF7FEFF 		bl	lv_mem_free
+ 731              	.L78:
+ 732 00a4 4046     		mov	r0, r8
+ 733 00a6 FFF7FEFF 		bl	lv_mem_free
+ 734 00aa BDE8F081 		pop	{r4, r5, r6, r7, r8, pc}
+ 735              	.L95:
+ 736 00ae 7047     		bx	lr
+ 738              		.section	.rodata.load_kern.str1.4,"aMS",%progbits,1
+ 739              		.align	2
+ 740              	.LC2:
+ 741 0000 6B65726E 		.ascii	"kern\000"
+ 741      00
+ 742              		.section	.text.load_kern,"ax",%progbits
+ 743              		.align	1
+ 744              		.global	load_kern
+ 745              		.syntax unified
+ 746              		.thumb
+ 747              		.thumb_func
+ 749              	load_kern:
+ 750              		@ args = 0, pretend = 0, frame = 16
+ 751              		@ frame_needed = 0, uses_anonymous_args = 0
+ 752 0000 2DE9F047 		push	{r4, r5, r6, r7, r8, r9, r10, lr}
+ 753 0004 84B0     		sub	sp, sp, #16
+ 754 0006 0446     		mov	r4, r0
+ 755 0008 0E46     		mov	r6, r1
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 14
+
+
+ 756 000a 9046     		mov	r8, r2
+ 757 000c 694A     		ldr	r2, .L116
+ 758 000e 1946     		mov	r1, r3
+ 759 0010 FFF7FEFF 		bl	read_label
+ 760 0014 071E     		subs	r7, r0, #0
+ 761 0016 C0F2C780 		blt	.L112
+ 762 001a 0023     		movs	r3, #0
+ 763 001c 0122     		movs	r2, #1
+ 764 001e 0DF10F01 		add	r1, sp, #15
+ 765 0022 2046     		mov	r0, r4
+ 766 0024 FFF7FEFF 		bl	lv_fs_read
+ 767 0028 0028     		cmp	r0, #0
+ 768 002a 74D1     		bne	.L101
+ 769 002c 0023     		movs	r3, #0
+ 770 002e 0322     		movs	r2, #3
+ 771 0030 02A9     		add	r1, sp, #8
+ 772 0032 2046     		mov	r0, r4
+ 773 0034 FFF7FEFF 		bl	lv_fs_read
+ 774 0038 0028     		cmp	r0, #0
+ 775 003a 6CD1     		bne	.L101
+ 776 003c 9DF80F30 		ldrb	r3, [sp, #15]	@ zero_extendqisi2
+ 777 0040 002B     		cmp	r3, #0
+ 778 0042 6BD0     		beq	.L115
+ 779 0044 032B     		cmp	r3, #3
+ 780 0046 40F0B280 		bne	.L113
+ 781 004a 1020     		movs	r0, #16
+ 782 004c FFF7FEFF 		bl	lv_mem_alloc
+ 783 0050 0546     		mov	r5, r0
+ 784 0052 0023     		movs	r3, #0
+ 785 0054 0360     		str	r3, [r0]	@ unaligned
+ 786 0056 4360     		str	r3, [r0, #4]	@ unaligned
+ 787 0058 8360     		str	r3, [r0, #8]	@ unaligned
+ 788 005a C360     		str	r3, [r0, #12]	@ unaligned
+ 789 005c F060     		str	r0, [r6, #12]
+ 790 005e F27C     		ldrb	r2, [r6, #19]	@ zero_extendqisi2
+ 791 0060 42F02002 		orr	r2, r2, #32
+ 792 0064 F274     		strb	r2, [r6, #19]
+ 793 0066 0222     		movs	r2, #2
+ 794 0068 01A9     		add	r1, sp, #4
+ 795 006a 2046     		mov	r0, r4
+ 796 006c FFF7FEFF 		bl	lv_fs_read
+ 797 0070 0028     		cmp	r0, #0
+ 798 0072 40F09680 		bne	.L109
+ 799 0076 0023     		movs	r3, #0
+ 800 0078 0122     		movs	r2, #1
+ 801 007a 0DF10201 		add	r1, sp, #2
+ 802 007e 2046     		mov	r0, r4
+ 803 0080 FFF7FEFF 		bl	lv_fs_read
+ 804 0084 0028     		cmp	r0, #0
+ 805 0086 40F08C80 		bne	.L109
+ 806 008a 0023     		movs	r3, #0
+ 807 008c 0122     		movs	r2, #1
+ 808 008e 0DF10301 		add	r1, sp, #3
+ 809 0092 2046     		mov	r0, r4
+ 810 0094 FFF7FEFF 		bl	lv_fs_read
+ 811 0098 0028     		cmp	r0, #0
+ 812 009a 40F08280 		bne	.L109
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 15
+
+
+ 813 009e 9DF80230 		ldrb	r3, [sp, #2]	@ zero_extendqisi2
+ 814 00a2 9DF803A0 		ldrb	r10, [sp, #3]	@ zero_extendqisi2
+ 815 00a6 03FB0AFA 		mul	r10, r3, r10
+ 816 00aa BDF80400 		ldrh	r0, [sp, #4]
+ 817 00ae FFF7FEFF 		bl	lv_mem_alloc
+ 818 00b2 0646     		mov	r6, r0
+ 819 00b4 BDF80400 		ldrh	r0, [sp, #4]
+ 820 00b8 FFF7FEFF 		bl	lv_mem_alloc
+ 821 00bc 8046     		mov	r8, r0
+ 822 00be 5046     		mov	r0, r10
+ 823 00c0 FFF7FEFF 		bl	lv_mem_alloc
+ 824 00c4 8146     		mov	r9, r0
+ 825 00c6 6E60     		str	r6, [r5, #4]
+ 826 00c8 C5F80880 		str	r8, [r5, #8]
+ 827 00cc 9DF80230 		ldrb	r3, [sp, #2]	@ zero_extendqisi2
+ 828 00d0 2B73     		strb	r3, [r5, #12]
+ 829 00d2 9DF80330 		ldrb	r3, [sp, #3]	@ zero_extendqisi2
+ 830 00d6 6B73     		strb	r3, [r5, #13]
+ 831 00d8 2860     		str	r0, [r5]
+ 832 00da 0023     		movs	r3, #0
+ 833 00dc BDF80420 		ldrh	r2, [sp, #4]
+ 834 00e0 3146     		mov	r1, r6
+ 835 00e2 2046     		mov	r0, r4
+ 836 00e4 FFF7FEFF 		bl	lv_fs_read
+ 837 00e8 0028     		cmp	r0, #0
+ 838 00ea 5AD1     		bne	.L109
+ 839 00ec 0023     		movs	r3, #0
+ 840 00ee BDF80420 		ldrh	r2, [sp, #4]
+ 841 00f2 4146     		mov	r1, r8
+ 842 00f4 2046     		mov	r0, r4
+ 843 00f6 FFF7FEFF 		bl	lv_fs_read
+ 844 00fa 0028     		cmp	r0, #0
+ 845 00fc 51D1     		bne	.L109
+ 846 00fe 0023     		movs	r3, #0
+ 847 0100 5246     		mov	r2, r10
+ 848 0102 4946     		mov	r1, r9
+ 849 0104 2046     		mov	r0, r4
+ 850 0106 FFF7FEFF 		bl	lv_fs_read
+ 851 010a 0028     		cmp	r0, #0
+ 852 010c 49D1     		bne	.L109
+ 853              	.L99:
+ 854 010e 3846     		mov	r0, r7
+ 855 0110 04B0     		add	sp, sp, #16
+ 856              		@ sp needed
+ 857 0112 BDE8F087 		pop	{r4, r5, r6, r7, r8, r9, r10, pc}
+ 858              	.L101:
+ 859 0116 4FF0FF37 		mov	r7, #-1
+ 860 011a F8E7     		b	.L99
+ 861              	.L115:
+ 862 011c 0C20     		movs	r0, #12
+ 863 011e FFF7FEFF 		bl	lv_mem_alloc
+ 864 0122 0546     		mov	r5, r0
+ 865 0124 0023     		movs	r3, #0
+ 866 0126 0360     		str	r3, [r0]	@ unaligned
+ 867 0128 4360     		str	r3, [r0, #4]	@ unaligned
+ 868 012a 8360     		str	r3, [r0, #8]	@ unaligned
+ 869 012c F060     		str	r0, [r6, #12]
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 16
+
+
+ 870 012e F27C     		ldrb	r2, [r6, #19]	@ zero_extendqisi2
+ 871 0130 63F34512 		bfi	r2, r3, #5, #1
+ 872 0134 F274     		strb	r2, [r6, #19]
+ 873 0136 0422     		movs	r2, #4
+ 874 0138 0DEB0201 		add	r1, sp, r2
+ 875 013c 2046     		mov	r0, r4
+ 876 013e FFF7FEFF 		bl	lv_fs_read
+ 877 0142 38BB     		cbnz	r0, .L104
+ 878 0144 B8F1000F 		cmp	r8, #0
+ 879 0148 27D1     		bne	.L105
+ 880 014a 019B     		ldr	r3, [sp, #4]
+ 881 014c 4FEA4309 		lsl	r9, r3, #1
+ 882              	.L106:
+ 883 0150 4846     		mov	r0, r9
+ 884 0152 FFF7FEFF 		bl	lv_mem_alloc
+ 885 0156 0646     		mov	r6, r0
+ 886 0158 0198     		ldr	r0, [sp, #4]
+ 887 015a FFF7FEFF 		bl	lv_mem_alloc
+ 888 015e 8246     		mov	r10, r0
+ 889 0160 EB7A     		ldrb	r3, [r5, #11]	@ zero_extendqisi2
+ 890 0162 68F38713 		bfi	r3, r8, #6, #2
+ 891 0166 EB72     		strb	r3, [r5, #11]
+ 892 0168 AB68     		ldr	r3, [r5, #8]
+ 893 016a 019A     		ldr	r2, [sp, #4]
+ 894 016c 62F31D03 		bfi	r3, r2, #0, #30
+ 895 0170 AB60     		str	r3, [r5, #8]
+ 896 0172 2E60     		str	r6, [r5]
+ 897 0174 6860     		str	r0, [r5, #4]
+ 898 0176 0023     		movs	r3, #0
+ 899 0178 4A46     		mov	r2, r9
+ 900 017a 3146     		mov	r1, r6
+ 901 017c 2046     		mov	r0, r4
+ 902 017e FFF7FEFF 		bl	lv_fs_read
+ 903 0182 38B9     		cbnz	r0, .L104
+ 904 0184 0023     		movs	r3, #0
+ 905 0186 019A     		ldr	r2, [sp, #4]
+ 906 0188 5146     		mov	r1, r10
+ 907 018a 2046     		mov	r0, r4
+ 908 018c FFF7FEFF 		bl	lv_fs_read
+ 909 0190 0028     		cmp	r0, #0
+ 910 0192 BCD0     		beq	.L99
+ 911              	.L104:
+ 912 0194 4FF0FF37 		mov	r7, #-1
+ 913 0198 B9E7     		b	.L99
+ 914              	.L105:
+ 915 019a 019B     		ldr	r3, [sp, #4]
+ 916 019c 4FEA8309 		lsl	r9, r3, #2
+ 917 01a0 D6E7     		b	.L106
+ 918              	.L109:
+ 919 01a2 4FF0FF37 		mov	r7, #-1
+ 920 01a6 B2E7     		b	.L99
+ 921              	.L112:
+ 922 01a8 4FF0FF37 		mov	r7, #-1
+ 923 01ac AFE7     		b	.L99
+ 924              	.L113:
+ 925 01ae 4FF0FF37 		mov	r7, #-1
+ 926 01b2 ACE7     		b	.L99
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 17
+
+
+ 927              	.L117:
+ 928              		.align	2
+ 929              	.L116:
+ 930 01b4 00000000 		.word	.LC2
+ 932              		.section	.rodata.lvgl_load_font.str1.4,"aMS",%progbits,1
+ 933              		.align	2
+ 934              	.LC3:
+ 935 0000 68656164 		.ascii	"head\000"
+ 935      00
+ 936 0005 000000   		.align	2
+ 937              	.LC4:
+ 938 0008 6C6F6361 		.ascii	"loca\000"
+ 938      00
+ 939              		.section	.text.lvgl_load_font,"ax",%progbits
+ 940              		.align	1
+ 941              		.syntax unified
+ 942              		.thumb
+ 943              		.thumb_func
+ 945              	lvgl_load_font:
+ 946              		@ args = 0, pretend = 0, frame = 48
+ 947              		@ frame_needed = 0, uses_anonymous_args = 0
+ 948 0000 2DE9F043 		push	{r4, r5, r6, r7, r8, r9, lr}
+ 949 0004 8FB0     		sub	sp, sp, #60
+ 950 0006 0746     		mov	r7, r0
+ 951 0008 0D46     		mov	r5, r1
+ 952 000a 1820     		movs	r0, #24
+ 953 000c FFF7FEFF 		bl	lv_mem_alloc
+ 954 0010 0446     		mov	r4, r0
+ 955 0012 0021     		movs	r1, #0
+ 956 0014 0160     		str	r1, [r0]	@ unaligned
+ 957 0016 4160     		str	r1, [r0, #4]	@ unaligned
+ 958 0018 8160     		str	r1, [r0, #8]	@ unaligned
+ 959 001a C160     		str	r1, [r0, #12]	@ unaligned
+ 960 001c 0161     		str	r1, [r0, #16]	@ unaligned
+ 961 001e 4161     		str	r1, [r0, #20]	@ unaligned
+ 962 0020 2861     		str	r0, [r5, #16]
+ 963 0022 574A     		ldr	r2, .L139
+ 964 0024 3846     		mov	r0, r7
+ 965 0026 FFF7FEFF 		bl	read_label
+ 966 002a 061E     		subs	r6, r0, #0
+ 967 002c C0F29E80 		blt	.L127
+ 968 0030 0023     		movs	r3, #0
+ 969 0032 2822     		movs	r2, #40
+ 970 0034 04A9     		add	r1, sp, #16
+ 971 0036 3846     		mov	r0, r7
+ 972 0038 FFF7FEFF 		bl	lv_fs_read
+ 973 003c 08B1     		cbz	r0, .L136
+ 974 003e 0020     		movs	r0, #0
+ 975 0040 95E0     		b	.L119
+ 976              	.L136:
+ 977 0042 BDF81A20 		ldrh	r2, [sp, #26]
+ 978 0046 5342     		rsbs	r3, r2, #0
+ 979 0048 6B81     		strh	r3, [r5, #10]	@ movhi
+ 980 004a BDF81830 		ldrh	r3, [sp, #24]
+ 981 004e 9B1A     		subs	r3, r3, r2
+ 982 0050 2B81     		strh	r3, [r5, #8]	@ movhi
+ 983 0052 4C4B     		ldr	r3, .L139+4
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 18
+
+
+ 984 0054 2B60     		str	r3, [r5]
+ 985 0056 4C4B     		ldr	r3, .L139+8
+ 986 0058 6B60     		str	r3, [r5, #4]
+ 987 005a 9DF83220 		ldrb	r2, [sp, #50]	@ zero_extendqisi2
+ 988 005e 2B7B     		ldrb	r3, [r5, #12]	@ zero_extendqisi2
+ 989 0060 62F30103 		bfi	r3, r2, #0, #2
+ 990 0064 2B73     		strb	r3, [r5, #12]
+ 991 0066 BDF93430 		ldrsh	r3, [sp, #52]
+ 992 006a 6B73     		strb	r3, [r5, #13]
+ 993 006c BDF83630 		ldrh	r3, [sp, #54]
+ 994 0070 AB73     		strb	r3, [r5, #14]
+ 995 0072 9DF82D20 		ldrb	r2, [sp, #45]	@ zero_extendqisi2
+ 996 0076 E37C     		ldrb	r3, [r4, #19]	@ zero_extendqisi2
+ 997 0078 62F34403 		bfi	r3, r2, #1, #4
+ 998 007c E374     		strb	r3, [r4, #19]
+ 999 007e BDF82830 		ldrh	r3, [sp, #40]
+ 1000 0082 2382     		strh	r3, [r4, #16]	@ movhi
+ 1001 0084 9DF83120 		ldrb	r2, [sp, #49]	@ zero_extendqisi2
+ 1002 0088 E37C     		ldrb	r3, [r4, #19]	@ zero_extendqisi2
+ 1003 008a 62F38713 		bfi	r3, r2, #6, #2
+ 1004 008e E374     		strb	r3, [r4, #19]
+ 1005 0090 3246     		mov	r2, r6
+ 1006 0092 2146     		mov	r1, r4
+ 1007 0094 3846     		mov	r0, r7
+ 1008 0096 FFF7FEFF 		bl	load_cmaps
+ 1009 009a 0028     		cmp	r0, #0
+ 1010 009c 6ADB     		blt	.L129
+ 1011 009e 8519     		adds	r5, r0, r6
+ 1012 00a0 3A4A     		ldr	r2, .L139+12
+ 1013 00a2 2946     		mov	r1, r5
+ 1014 00a4 3846     		mov	r0, r7
+ 1015 00a6 FFF7FEFF 		bl	read_label
+ 1016 00aa B0F10008 		subs	r8, r0, #0
+ 1017 00ae 63DB     		blt	.L130
+ 1018 00b0 0023     		movs	r3, #0
+ 1019 00b2 0422     		movs	r2, #4
+ 1020 00b4 03A9     		add	r1, sp, #12
+ 1021 00b6 3846     		mov	r0, r7
+ 1022 00b8 FFF7FEFF 		bl	lv_fs_read
+ 1023 00bc 08B1     		cbz	r0, .L137
+ 1024 00be 0020     		movs	r0, #0
+ 1025 00c0 55E0     		b	.L119
+ 1026              	.L137:
+ 1027 00c2 0398     		ldr	r0, [sp, #12]
+ 1028 00c4 0130     		adds	r0, r0, #1
+ 1029 00c6 8000     		lsls	r0, r0, #2
+ 1030 00c8 FFF7FEFF 		bl	lv_mem_alloc
+ 1031 00cc 8146     		mov	r9, r0
+ 1032 00ce 9DF82A30 		ldrb	r3, [sp, #42]	@ zero_extendqisi2
+ 1033 00d2 33B1     		cbz	r3, .L132
+ 1034 00d4 012B     		cmp	r3, #1
+ 1035 00d6 17D0     		beq	.L138
+ 1036              	.L123:
+ 1037 00d8 4846     		mov	r0, r9
+ 1038 00da FFF7FEFF 		bl	lv_mem_free
+ 1039 00de 0020     		movs	r0, #0
+ 1040 00e0 45E0     		b	.L119
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 19
+
+
+ 1041              	.L132:
+ 1042 00e2 0026     		movs	r6, #0
+ 1043              	.L120:
+ 1044 00e4 039B     		ldr	r3, [sp, #12]
+ 1045 00e6 B342     		cmp	r3, r6
+ 1046 00e8 17D9     		bls	.L125
+ 1047 00ea 0023     		movs	r3, #0
+ 1048 00ec 0222     		movs	r2, #2
+ 1049 00ee 0DF10A01 		add	r1, sp, #10
+ 1050 00f2 3846     		mov	r0, r7
+ 1051 00f4 FFF7FEFF 		bl	lv_fs_read
+ 1052 00f8 0028     		cmp	r0, #0
+ 1053 00fa EDD1     		bne	.L123
+ 1054 00fc BDF80A30 		ldrh	r3, [sp, #10]
+ 1055 0100 49F82630 		str	r3, [r9, r6, lsl #2]
+ 1056 0104 0136     		adds	r6, r6, #1
+ 1057 0106 EDE7     		b	.L120
+ 1058              	.L138:
+ 1059 0108 0023     		movs	r3, #0
+ 1060 010a 039A     		ldr	r2, [sp, #12]
+ 1061 010c 9200     		lsls	r2, r2, #2
+ 1062 010e 0146     		mov	r1, r0
+ 1063 0110 3846     		mov	r0, r7
+ 1064 0112 FFF7FEFF 		bl	lv_fs_read
+ 1065 0116 0028     		cmp	r0, #0
+ 1066 0118 DED1     		bne	.L123
+ 1067              	.L125:
+ 1068 011a A844     		add	r8, r8, r5
+ 1069 011c 04AB     		add	r3, sp, #16
+ 1070 011e 0193     		str	r3, [sp, #4]
+ 1071 0120 039B     		ldr	r3, [sp, #12]
+ 1072 0122 0093     		str	r3, [sp]
+ 1073 0124 4B46     		mov	r3, r9
+ 1074 0126 4246     		mov	r2, r8
+ 1075 0128 2146     		mov	r1, r4
+ 1076 012a 3846     		mov	r0, r7
+ 1077 012c FFF7FEFF 		bl	load_glyph
+ 1078 0130 0546     		mov	r5, r0
+ 1079 0132 4846     		mov	r0, r9
+ 1080 0134 FFF7FEFF 		bl	lv_mem_free
+ 1081 0138 002D     		cmp	r5, #0
+ 1082 013a 1FDB     		blt	.L133
+ 1083 013c BDF81430 		ldrh	r3, [sp, #20]
+ 1084 0140 032B     		cmp	r3, #3
+ 1085 0142 08D8     		bhi	.L126
+ 1086 0144 0023     		movs	r3, #0
+ 1087 0146 E360     		str	r3, [r4, #12]
+ 1088 0148 E27C     		ldrb	r2, [r4, #19]	@ zero_extendqisi2
+ 1089 014a 63F34512 		bfi	r2, r3, #5, #1
+ 1090 014e E274     		strb	r2, [r4, #19]
+ 1091 0150 2382     		strh	r3, [r4, #16]	@ movhi
+ 1092 0152 0120     		movs	r0, #1
+ 1093 0154 0BE0     		b	.L119
+ 1094              	.L126:
+ 1095 0156 05EB0803 		add	r3, r5, r8
+ 1096 015a 9DF82B20 		ldrb	r2, [sp, #43]	@ zero_extendqisi2
+ 1097 015e 2146     		mov	r1, r4
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 20
+
+
+ 1098 0160 3846     		mov	r0, r7
+ 1099 0162 FFF7FEFF 		bl	load_kern
+ 1100 0166 C043     		mvns	r0, r0
+ 1101 0168 C00F     		lsrs	r0, r0, #31
+ 1102 016a 00E0     		b	.L119
+ 1103              	.L127:
+ 1104 016c 0020     		movs	r0, #0
+ 1105              	.L119:
+ 1106 016e 0FB0     		add	sp, sp, #60
+ 1107              		@ sp needed
+ 1108 0170 BDE8F083 		pop	{r4, r5, r6, r7, r8, r9, pc}
+ 1109              	.L129:
+ 1110 0174 0020     		movs	r0, #0
+ 1111 0176 FAE7     		b	.L119
+ 1112              	.L130:
+ 1113 0178 0020     		movs	r0, #0
+ 1114 017a F8E7     		b	.L119
+ 1115              	.L133:
+ 1116 017c 0020     		movs	r0, #0
+ 1117 017e F6E7     		b	.L119
+ 1118              	.L140:
+ 1119              		.align	2
+ 1120              	.L139:
+ 1121 0180 00000000 		.word	.LC3
+ 1122 0184 00000000 		.word	lv_font_get_glyph_dsc_fmt_txt
+ 1123 0188 00000000 		.word	lv_font_get_bitmap_fmt_txt
+ 1124 018c 08000000 		.word	.LC4
+ 1126              		.section	.text.lv_font_load,"ax",%progbits
+ 1127              		.align	1
+ 1128              		.global	lv_font_load
+ 1129              		.syntax unified
+ 1130              		.thumb
+ 1131              		.thumb_func
+ 1133              	lv_font_load:
+ 1134              		@ args = 0, pretend = 0, frame = 16
+ 1135              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1136 0000 10B5     		push	{r4, lr}
+ 1137 0002 84B0     		sub	sp, sp, #16
+ 1138 0004 0146     		mov	r1, r0
+ 1139 0006 0222     		movs	r2, #2
+ 1140 0008 01A8     		add	r0, sp, #4
+ 1141 000a FFF7FEFF 		bl	lv_fs_open
+ 1142 000e E0B9     		cbnz	r0, .L144
+ 1143 0010 1C20     		movs	r0, #28
+ 1144 0012 FFF7FEFF 		bl	lv_mem_alloc
+ 1145 0016 0446     		mov	r4, r0
+ 1146 0018 60B1     		cbz	r0, .L143
+ 1147 001a 0023     		movs	r3, #0
+ 1148 001c 0360     		str	r3, [r0]	@ unaligned
+ 1149 001e 4360     		str	r3, [r0, #4]	@ unaligned
+ 1150 0020 8360     		str	r3, [r0, #8]	@ unaligned
+ 1151 0022 C360     		str	r3, [r0, #12]	@ unaligned
+ 1152 0024 0361     		str	r3, [r0, #16]	@ unaligned
+ 1153 0026 4361     		str	r3, [r0, #20]	@ unaligned
+ 1154 0028 8361     		str	r3, [r0, #24]	@ unaligned
+ 1155 002a 0146     		mov	r1, r0
+ 1156 002c 01A8     		add	r0, sp, #4
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 21
+
+
+ 1157 002e FFF7FEFF 		bl	lvgl_load_font
+ 1158 0032 28B1     		cbz	r0, .L146
+ 1159              	.L143:
+ 1160 0034 01A8     		add	r0, sp, #4
+ 1161 0036 FFF7FEFF 		bl	lv_fs_close
+ 1162              	.L141:
+ 1163 003a 2046     		mov	r0, r4
+ 1164 003c 04B0     		add	sp, sp, #16
+ 1165              		@ sp needed
+ 1166 003e 10BD     		pop	{r4, pc}
+ 1167              	.L146:
+ 1168 0040 2046     		mov	r0, r4
+ 1169 0042 FFF7FEFF 		bl	lv_font_free
+ 1170 0046 0024     		movs	r4, #0
+ 1171 0048 F4E7     		b	.L143
+ 1172              	.L144:
+ 1173 004a 0024     		movs	r4, #0
+ 1174 004c F5E7     		b	.L141
+ 1176              		.ident	"GCC: (xPack GNU Arm Embedded GCC arm64) 13.3.1 20240614"
+ARM GAS  /var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s 			page 22
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 lv_font_loader.c
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:18     .text.init_bit_iterator:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:23     .text.init_bit_iterator:00000000 init_bit_iterator
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:35     .text.read_bits:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:40     .text.read_bits:00000000 read_bits
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:86     .text.read_bits_signed:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:91     .text.read_bits_signed:00000000 read_bits_signed
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:109    .text.load_cmaps_tables:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:114    .text.load_cmaps_tables:00000000 load_cmaps_tables
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:179    .text.load_cmaps_tables:0000008c $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:183    .text.load_cmaps_tables:0000009c $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:236    .text.read_label:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:241    .text.read_label:00000000 read_label
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:277    .rodata.load_cmaps.str1.4:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:281    .text.load_cmaps:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:286    .text.load_cmaps:00000000 load_cmaps
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:350    .text.load_cmaps:00000090 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:353    .rodata.load_glyph.str1.4:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:357    .text.load_glyph:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:362    .text.load_glyph:00000000 load_glyph
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:641    .text.load_glyph:000002ac $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:644    .text.lv_font_free:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:650    .text.lv_font_free:00000000 lv_font_free
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:739    .rodata.load_kern.str1.4:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:743    .text.load_kern:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:749    .text.load_kern:00000000 load_kern
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:930    .text.load_kern:000001b4 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:933    .rodata.lvgl_load_font.str1.4:00000000 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:940    .text.lvgl_load_font:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:945    .text.lvgl_load_font:00000000 lvgl_load_font
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:1121   .text.lvgl_load_font:00000180 $d
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:1127   .text.lv_font_load:00000000 $t
+/var/folders/lp/x54gwt890xv47sdkqj1k04q40000gn/T//ccM84Ini.s:1133   .text.lv_font_load:00000000 lv_font_load
+
+UNDEFINED SYMBOLS
+lv_fs_read
+lv_mem_alloc
+lv_fs_seek
+memcmp
+memset
+lv_mem_free
+lv_font_get_glyph_dsc_fmt_txt
+lv_font_get_bitmap_fmt_txt
+lv_fs_open
+lv_fs_close
